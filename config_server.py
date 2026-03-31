@@ -156,6 +156,8 @@ class FunASRNanoGGUFArgs:
     tokens_path = ModelPaths.fun_asr_nano_gguf_token.as_posix()
     hotwords_path = ModelPaths.fun_asr_nano_gguf_hotwords.as_posix()
 
+    use_cuda = _env_bool("CAPSWRITER_FUNASR_USE_CUDA", False)
+
     # 显卡加速
     dml_enable = _env_bool(
         "CAPSWRITER_FUNASR_DML_ENABLE", False
@@ -187,6 +189,8 @@ class Qwen3ASRGGUFArgs:
     encoder_frontend_fn = ModelPaths.qwen3_asr_gguf_encoder_frontend.name
     encoder_backend_fn = ModelPaths.qwen3_asr_gguf_encoder_backend.name
     llm_fn = ModelPaths.qwen3_asr_gguf_llm_decode.name
+
+    use_cuda = _env_bool("CAPSWRITER_QWEN_USE_CUDA", False)
 
     # 显卡加速
     use_dml = _env_bool(
