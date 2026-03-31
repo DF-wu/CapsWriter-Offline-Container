@@ -5,12 +5,17 @@ ASR 推理引擎入口点 (Facade)
 保持了与旧版 API 的完全兼容。
 """
 
-import os
 from typing import Optional
 
-from .schema import ASREngineConfig, TranscriptionResult, RecognitionStream, DecodeResult
+from .schema import (
+    ASREngineConfig,
+    TranscriptionResult,
+    RecognitionStream,
+    DecodeResult,
+)
 from .core.model_manager import ModelManager
 from .core.orchestrator import TranscriptionOrchestrator
+
 
 class FunASREngine:
     """FunASR 推理引擎 (Facade 模式)"""
@@ -41,7 +46,7 @@ class FunASREngine:
         srt: bool = False,
         temperature: float = 0.4,
         top_p: float = 1.0,
-        top_k: int = 50
+        top_k: int = 50,
     ) -> TranscriptionResult:
         """转录音频文件 (委托给 Orchestrator)"""
         return self.orchestrator.transcribe(
@@ -56,7 +61,7 @@ class FunASREngine:
             srt=srt,
             temperature=temperature,
             top_p=top_p,
-            top_k=top_k
+            top_k=top_k,
         )
 
     def create_stream(self, hotwords: Optional[str] = None) -> RecognitionStream:
@@ -70,15 +75,21 @@ class FunASREngine:
         language: Optional[str] = None,
         context: Optional[str] = None,
         verbose: bool = True,
-        reporter = None,
+        reporter=None,
         temperature: float = 0.3,
         top_p: float = 1.0,
-        top_k: int = 50
+        top_k: int = 50,
     ) -> DecodeResult:
         """解码识别流 (委托给 Orchestrator 内置的 Decoder)"""
         return self.orchestrator.decoder.decode_stream(
-            stream, language, context, verbose, reporter,
-            temperature=temperature, top_p=top_p, top_k=top_k
+            stream,
+            language,
+            context,
+            verbose,
+            reporter,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
         )
 
     def cleanup(self):
@@ -91,14 +102,15 @@ def create_asr_engine(
     ctc_onnx_path: str,
     decoder_gguf_path: str,
     tokens_path: str,
-    hotwords_path: str = None,
+    hotwords_path: Optional[str] = None,
     enable_ctc: bool = True,
     n_predict: int = 512,
-    n_threads: int = None,
+    n_threads: Optional[int] = None,
     similar_threshold: float = 0.6,
     max_hotwords: int = 10,
+    use_cuda: bool = False,
     dml_enable: bool = True,
-    pad_to: int = 30, 
+    pad_to: int = 30,
     vulkan_enable: bool = True,
     vulkan_force_fp32: bool = False,
     verbose: bool = True,
@@ -115,15 +127,15 @@ def create_asr_engine(
         n_threads=n_threads,
         similar_threshold=similar_threshold,
         max_hotwords=max_hotwords,
+        use_cuda=use_cuda,
         dml_enable=dml_enable,
         pad_to=pad_to,
         vulkan_enable=vulkan_enable,
         vulkan_force_fp32=vulkan_force_fp32,
     )
-    
+
     engine = FunASREngine(config)
-    
+
     if not engine.initialize(verbose=verbose):
         raise RuntimeError("Failed to initialize ASR engine")
     return engine
-
