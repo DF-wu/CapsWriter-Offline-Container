@@ -35,19 +35,23 @@ cp docker/server/.env.example .env
 
 根目錄 `.env` 只作為本機啟動設定使用，已被 Docker build context 排除，不會被打進 image。
 
-## 1. 建置映像
+## 1. 準備公開 image
 
-```bash
-docker compose -f docker-compose.server.yml build
+預設情況下，這份 compose 會直接使用公開 image：
+
+```text
+ghcr.io/df-wu/capswriter-offline-server:latest
 ```
 
-## 2. 啟動 Server
+你可以在 `.env` 裡覆蓋成別的 tag 或私有 image，但大多數情況不需要。
 
-預設會在容器啟動時自動下載 `qwen_asr` 所需模型，並以 `CAPSWRITER_INFERENCE_HARDWARE=auto` 進行 GPU 優先啟動。
+## 2. 啟動 Server
 
 ```bash
 docker compose -f docker-compose.server.yml up -d capswriter-server
 ```
+
+預設會在容器啟動時自動下載 `qwen_asr` 所需模型，並以 `CAPSWRITER_INFERENCE_HARDWARE=auto` 進行 GPU 優先啟動。
 
 如果你要切到 `fun_asr_nano`，先在 `.env` 裡設定：
 
@@ -85,12 +89,19 @@ Compose 層額外提供 `CAPSWRITER_GPU_DEVICE_COUNT`：
 docker compose -f docker-compose.server.yml run --rm capswriter-server-models
 ```
 
-## 3. 直接使用 image
+## 3. 預抓模型 / backend
+
+如果你想先把模型與 backend 下載好，再啟動主服務：
+
+```bash
+docker compose -f docker-compose.server.yml run --rm capswriter-server-models
+```
+
+## 4. 直接使用 image
 
 如果你要直接使用 image，也可以：
 
 ```bash
-docker build -f docker/server/Dockerfile -t capswriter-server:latest .
 docker run -d --name capswriter-server \
   --gpus all \
   -e NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics \
@@ -98,7 +109,7 @@ docker run -d --name capswriter-server \
   -p 6016:6016 \
   -v "$(pwd)/models:/app/models" \
   -v "$(pwd)/hot-server.txt:/app/hot-server.txt" \
-  capswriter-server:latest
+  ghcr.io/df-wu/capswriter-offline-server:latest
 ```
 
 改成 `fun_asr_nano`：
@@ -112,10 +123,10 @@ docker run -d --name capswriter-server \
   -p 6016:6016 \
   -v "$(pwd)/models:/app/models" \
   -v "$(pwd)/hot-server.txt:/app/hot-server.txt" \
-  capswriter-server:latest
+  ghcr.io/df-wu/capswriter-offline-server:latest
 ```
 
-## 4. 查看狀態
+## 5. 查看狀態
 
 ```bash
 docker compose -f docker-compose.server.yml ps
@@ -134,7 +145,7 @@ ws://127.0.0.1:${CAPSWRITER_SERVER_PORT}
 ws://127.0.0.1:6016
 ```
 
-## 5. 停止
+## 6. 停止
 
 ```bash
 docker compose -f docker-compose.server.yml down
@@ -168,6 +179,7 @@ docker compose -f docker-compose.server.yml down
 
 可透過 `.env` 或 compose environment 覆寫：
 
+- `CAPSWRITER_SERVER_IMAGE`
 - `CAPSWRITER_MODEL_TYPE`
 - `CAPSWRITER_INFERENCE_HARDWARE`
 - `CAPSWRITER_SERVER_PORT`

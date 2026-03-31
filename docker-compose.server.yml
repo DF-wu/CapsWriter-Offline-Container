@@ -1,9 +1,6 @@
 services:
   capswriter-server-models:
-    image: capswriter-server:latest
-    build:
-      context: .
-      dockerfile: docker/server/Dockerfile
+    image: ${CAPSWRITER_SERVER_IMAGE:-ghcr.io/df-wu/capswriter-offline-server:latest}
     deploy:
       resources:
         reservations:
@@ -20,10 +17,7 @@ services:
     command: ["python", "docker/server/download_models.py"]
 
   capswriter-server:
-    image: capswriter-server:latest
-    build:
-      context: .
-      dockerfile: docker/server/Dockerfile
+    image: ${CAPSWRITER_SERVER_IMAGE:-ghcr.io/df-wu/capswriter-offline-server:latest}
     restart: unless-stopped
     deploy:
       resources:
