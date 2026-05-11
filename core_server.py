@@ -112,6 +112,12 @@ def init():
     logger.info(f"版本: {__version__}")
     logger.info(f"日志级别: {Config.log_level}")
 
+    if Config.model_type.lower() == "qwen_asr":
+        from config_server import Qwen3ASRGGUFArgs
+
+        for line in Qwen3ASRGGUFArgs.summary_lines():
+            logger.info(line)
+
     setup_tray()
     print_banner()
 

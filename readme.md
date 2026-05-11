@@ -18,7 +18,7 @@ This fork exists for that deployment target. The goal is straightforward: make t
 
 - A Linux-oriented Docker image and Compose entry point
 - Automatic model bootstrap at container startup
-- GPU-first runtime selection with CPU fallback
+- Predictable Qwen preset selection with CPU fallback
 - Headless-safe server defaults for container deployment
 - Root-level example files for faster onboarding
 
@@ -82,7 +82,7 @@ These are the environment variables most users need first:
 | --- | --- | --- |
 | `CAPSWRITER_SERVER_IMAGE` | `ghcr.io/df-wu/capswriter-offline-server:latest` | Docker image to run |
 | `CAPSWRITER_MODEL_TYPE` | `qwen_asr` | Selects the server model |
-| `CAPSWRITER_QWEN_PRESET` | `default` | Qwen runtime preset |
+| `CAPSWRITER_QWEN_PRESET` | `default` | Qwen runtime profile (`default` = ONNX GPU + llama CPU, `cpu_only` = pure CPU) |
 | `CAPSWRITER_INFERENCE_HARDWARE` | `auto` | `auto`, `gpu`, or `cpu` |
 | `CAPSWRITER_GPU_DEVICE_COUNT` | `all` | GPU request at the Compose layer |
 | `CAPSWRITER_SERVER_PORT` | `6016` | WebSocket port |
@@ -102,7 +102,7 @@ At startup, the container follows a fixed boot path:
 5. [`start_server.py`](start_server.py) and [`core_server.py`](core_server.py) bring up the WebSocket service.
 6. [`util/server/service.py`](util/server/service.py) runs recognition in a separate subprocess so model inference does not block the main server loop.
 
-The practical outcome is simple: prefer GPU when available, fall back to CPU when necessary, and keep the service start path predictable.
+The practical outcome is simple: use the Qwen preset to resolve a predictable runtime profile, constrain it with the hardware policy, fall back safely when required, and keep the service start path predictable.
 
 ## Example files
 

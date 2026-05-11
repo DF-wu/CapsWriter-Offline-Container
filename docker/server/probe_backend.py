@@ -40,6 +40,11 @@ def _require_provider(label: str, providers: list[str], expected: str) -> None:
         raise RuntimeError(f"{label} is using {providers}, expected {expected}")
 
 
+def _require_no_provider(label: str, providers: list[str], forbidden: str) -> None:
+    if forbidden in providers:
+        raise RuntimeError(f"{label} is using {providers}, expected not to use {forbidden}")
+
+
 def main() -> int:
     model_type = ServerConfig.model_type.lower()
     engine = None
@@ -54,16 +59,41 @@ def main() -> int:
                 }
             )
 
-            if Qwen3ASRGGUFArgs.use_cuda:
+            frontend_providers = _provider_names(engine.engine.encoder.sess_fe)
+            backend_providers = _provider_names(engine.engine.encoder.sess_be)
+
+            if Qwen3ASRGGUFArgs.resolved_onnx_backend == "cuda":
                 _require_provider(
                     "qwen frontend encoder",
-                    _provider_names(engine.engine.encoder.sess_fe),
+                    frontend_providers,
                     "CUDAExecutionProvider",
                 )
                 _require_provider(
                     "qwen backend encoder",
-                    _provider_names(engine.engine.encoder.sess_be),
+                    backend_providers,
                     "CUDAExecutionProvider",
+                )
+            else:
+                _require_no_provider(
+                    "qwen frontend encoder",
+                    frontend_providers,
+                    "CUDAExecutionProvider",
+                )
+                _require_no_provider(
+                    "qwen backend encoder",
+                    backend_providers,
+                    "CUDAExecutionProvider",
+                )
+
+            expected_llama_backend = Qwen3ASRGGUFArgs.resolved_llama_backend
+            actual_vulkan = bool(Qwen3ASRGGUFArgs.vulkan_enable)
+            if expected_llama_backend == "cpu" and actual_vulkan:
+                raise RuntimeError(
+                    f"qwen llama backend resolved to cpu, but vulkan_enable={actual_vulkan}"
+                )
+            if expected_llama_backend == "vulkan" and not actual_vulkan:
+                raise RuntimeError(
+                    f"qwen llama backend resolved to vulkan, but vulkan_enable={actual_vulkan}"
                 )
         elif model_type == "fun_asr_nano":
             engine = create_fun_asr_engine(

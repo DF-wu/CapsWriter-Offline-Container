@@ -139,7 +139,7 @@ def benchmark_qwen(
     init_time = time.perf_counter() - t0
 
     print(
-        f"model=qwen_asr hardware={hardware} preset={Qwen3ASRGGUFArgs.preset} onnx={onnx or ('gpu' if Qwen3ASRGGUFArgs.use_cuda else 'cpu')} llama={llama or ('gpu' if Qwen3ASRGGUFArgs.vulkan_enable else 'cpu')}"
+        f"model=qwen_asr hardware={hardware} raw_preset={Qwen3ASRGGUFArgs.raw_preset} preset={Qwen3ASRGGUFArgs.preset} profile={Qwen3ASRGGUFArgs.resolved_profile} onnx={onnx or Qwen3ASRGGUFArgs.resolved_onnx_backend} llama={llama or Qwen3ASRGGUFArgs.resolved_llama_backend}"
     )
     print(f"providers={qwen_providers(engine)}")
     print(f"audio_samples={len(audio)}")

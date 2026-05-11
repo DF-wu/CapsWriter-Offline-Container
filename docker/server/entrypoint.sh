@@ -1,67 +1,52 @@
 #!/bin/sh
 set -eu
 
-configure_backend() {
+print_qwen_summary() {
+  python - <<'PY'
+from config_server import Qwen3ASRGGUFArgs
+for line in Qwen3ASRGGUFArgs.summary_lines():
+    print(line)
+PY
+}
+
+export_resolved_runtime() {
+  eval "$(python - <<'PY'
+from config_server import Qwen3ASRGGUFArgs
+print(f'export CAPSWRITER_LLAMA_BACKEND={Qwen3ASRGGUFArgs.resolved_llama_backend}')
+print(f'export CAPSWRITER_QWEN_USE_CUDA={str(Qwen3ASRGGUFArgs.use_cuda).lower()}')
+print(f'export CAPSWRITER_QWEN_USE_DML={str(Qwen3ASRGGUFArgs.use_dml).lower()}')
+print(f'export CAPSWRITER_QWEN_VULKAN_ENABLE={str(Qwen3ASRGGUFArgs.vulkan_enable).lower()}')
+print(f'export CAPSWRITER_QWEN_VULKAN_FORCE_FP32={str(Qwen3ASRGGUFArgs.vulkan_force_fp32).lower()}')
+PY
+)"
+
+  # Fun-ASR still follows the old hardware-first behavior for now. Keep it stable,
+  # but do not let it affect the Qwen resolver semantics.
   inference_hardware="${CAPSWRITER_INFERENCE_HARDWARE:-${CAPSWRITER_GPU_MODE:-auto}}"
-  qwen_preset="${CAPSWRITER_QWEN_PRESET:-balanced}"
-  llama_backend="cpu"
-
-  gpu_visible="false"
-  nvidia_visible="false"
-  if [ -e /dev/nvidiactl ] || [ -d /dev/dri ]; then
-    gpu_visible="true"
-  fi
-  if [ -e /dev/nvidiactl ]; then
-    nvidia_visible="true"
-  fi
-
   if [ "$inference_hardware" = "cpu" ]; then
-    llama_backend="cpu"
-  elif [ "$gpu_visible" = "true" ]; then
-    llama_backend="vulkan"
-  else
-    llama_backend="cpu"
-  fi
-
-  if [ "$llama_backend" = "vulkan" ]; then
-    export CAPSWRITER_LLAMA_BACKEND="vulkan"
-    export CAPSWRITER_QWEN_VULKAN_ENABLE="true"
+    export CAPSWRITER_FUNASR_USE_CUDA="false"
+    export CAPSWRITER_FUNASR_VULKAN_ENABLE="false"
+  elif [ -e /dev/nvidiactl ] || [ -d /dev/dri ]; then
     export CAPSWRITER_FUNASR_VULKAN_ENABLE="true"
-    if [ "$nvidia_visible" = "true" ]; then
-      export CAPSWRITER_QWEN_USE_CUDA="true"
+    if [ -e /dev/nvidiactl ]; then
       export CAPSWRITER_FUNASR_USE_CUDA="true"
     else
-      export CAPSWRITER_QWEN_USE_CUDA="false"
       export CAPSWRITER_FUNASR_USE_CUDA="false"
     fi
-    echo "[capswriter] GPU runtime detected, preferring Vulkan backend"
-
-    if [ "$qwen_preset" = "low_vram_gpu" ]; then
-      export CAPSWRITER_QWEN_VULKAN_ENABLE="false"
-      export CAPSWRITER_QWEN_USE_CUDA="true"
-      echo "[capswriter] qwen preset low_vram_gpu enabled: ONNX on GPU, llama on CPU"
-    fi
   else
-    export CAPSWRITER_LLAMA_BACKEND="cpu"
-    export CAPSWRITER_QWEN_VULKAN_ENABLE="false"
-    export CAPSWRITER_FUNASR_VULKAN_ENABLE="false"
-    export CAPSWRITER_QWEN_USE_CUDA="false"
     export CAPSWRITER_FUNASR_USE_CUDA="false"
-    if [ "$inference_hardware" = "gpu" ] || [ "$inference_hardware" = "auto" ]; then
-      echo "[capswriter] GPU runtime unavailable, falling back to CPU backend"
-    else
-      echo "[capswriter] CPU mode forced"
-    fi
+    export CAPSWRITER_FUNASR_VULKAN_ENABLE="false"
   fi
 }
 
-fallback_to_cpu() {
+fallback_qwen_onnx_to_cpu() {
   export CAPSWRITER_QWEN_USE_CUDA="false"
-  export CAPSWRITER_FUNASR_USE_CUDA="false"
-  echo "[capswriter] ONNX GPU probe failed, retrying with CPU ONNX while keeping llama backend"
+  export CAPSWRITER_QWEN_USE_DML="false"
+  echo "[capswriter] ONNX GPU probe failed, retrying Qwen ONNX on CPU while keeping resolved llama backend"
 }
 
-configure_backend
+export_resolved_runtime
+print_qwen_summary
 
 if [ "$#" -gt 0 ]; then
   exec "$@"
@@ -69,9 +54,15 @@ fi
 
 python /app/docker/server/download_models.py
 
-if [ "${CAPSWRITER_LLAMA_BACKEND:-cpu}" = "vulkan" ]; then
+if [ "${CAPSWRITER_MODEL_TYPE:-qwen_asr}" = "qwen_asr" ]; then
   if ! python /app/docker/server/probe_backend.py; then
-    fallback_to_cpu
+    fallback_qwen_onnx_to_cpu
+    python /app/docker/server/download_models.py
+  fi
+elif [ "${CAPSWRITER_LLAMA_BACKEND:-cpu}" = "vulkan" ]; then
+  if ! python /app/docker/server/probe_backend.py; then
+    export CAPSWRITER_FUNASR_USE_CUDA="false"
+    echo "[capswriter] Fun-ASR GPU probe failed, retrying ONNX on CPU while keeping llama backend"
     python /app/docker/server/download_models.py
   fi
 fi
