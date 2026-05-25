@@ -1,0 +1,22 @@
+# Fun-ASR-Nano override
+#
+# 用法 (在主 compose 之上疊加):
+#   docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml up -d
+#
+# 與預設的 qwen_asr 相比:
+#   - 推論延遲較低 (適合 HTTP API / 即時互動場景)
+#   - 對話精度略低 (對短句、命令、轉錄表現良好)
+#   - 模型體積較小, 顯存佔用較少
+#
+# 若要長期切換, 也可直接在 .env 設 CAPSWRITER_MODEL_TYPE=fun_asr_nano,
+# 此 override 檔僅是為了讓「一個指令」就能切換, 不需編輯 .env。
+
+services:
+  capswriter-server:
+    environment:
+      CAPSWRITER_MODEL_TYPE: fun_asr_nano
+
+      # Fun-ASR-Nano 推薦加速設定
+      CAPSWRITER_FUNASR_USE_CUDA: ${CAPSWRITER_FUNASR_USE_CUDA:-true}
+      CAPSWRITER_FUNASR_VULKAN_ENABLE: ${CAPSWRITER_FUNASR_VULKAN_ENABLE:-true}
+      CAPSWRITER_FUNASR_ENABLE_CTC: ${CAPSWRITER_FUNASR_ENABLE_CTC:-true}

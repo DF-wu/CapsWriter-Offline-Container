@@ -205,10 +205,25 @@ docker compose up -d capswriter-server
 
 ### Switch to `fun_asr_nano`
 
+Use the bundled compose override (no `.env` editing needed):
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml up -d
+```
+
+Or, set it inline for a one-off:
+
 ```bash
 CAPSWRITER_MODEL_TYPE=fun_asr_nano \
 docker compose up -d --force-recreate capswriter-server
 ```
+
+**When to pick which model:**
+
+| Model | Best for | Trade-off |
+| --- | --- | --- |
+| `qwen_asr` (default) | Long-form transcription, highest accuracy | Slower per request |
+| `fun_asr_nano` | HTTP API / real-time / airi / interactive dictation | Lower accuracy on long/complex sentences |
 
 ### Force CPU-only startup
 

@@ -281,6 +281,26 @@ HTTP 任務使用合成 socket_id `http:<task_id>` 並加入 `Cosmic.sockets_id`
 
 ---
 
+### 5.5 推薦的模型搭配
+
+HTTP API 是 batch / 互動式場景，**推薦切到 `fun_asr_nano` 以降低延遲**：
+
+```bash
+# 一行切到 fun_asr_nano + 開 HTTP API
+CAPSWRITER_HTTP_API_ENABLE=true \
+docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml \
+  up -d --force-recreate
+```
+
+| 模型 | 平均單次延遲 (5s 音訊) | 適用 |
+|---|---|---|
+| `qwen_asr` (預設) | 較高 (~2-3s) | 高精度長段轉錄、字幕生成 |
+| `fun_asr_nano` | 較低 (~0.5-1.5s) | airi / 互動聊天 / OpenAI SDK 即時呼叫 |
+
+切換時客戶端**不需要重啟**；只需重啟 server。
+
+---
+
 ## 7. 安全建議
 
 | 場景 | 建議 |

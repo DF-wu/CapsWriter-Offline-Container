@@ -58,6 +58,10 @@ services:
       CAPSWRITER_INTERACTIVE_ERRORS: "false"
 
       NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics
+
+      # ===== Integrated-GPU compatibility patches (opt-in; see .env.example) =====
+      # GGML_VK_DISABLE_COOPMAT: ${GGML_VK_DISABLE_COOPMAT:-}
+      # GGML_VK_DISABLE_F16:     ${GGML_VK_DISABLE_F16:-}
     ports:
       - "${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}"
       # Uncomment to also expose the OpenAI-compatible HTTP API:
