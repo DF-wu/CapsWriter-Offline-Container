@@ -180,11 +180,12 @@ class ModelPaths:
     sensevoice_tokens = sensevoice_dir / "tokens.txt"
 
     # Fun-ASR-Nano 模型路径，自带标点
+    # 與 upstream 57430df 對齊: ONNX 改用 fp16 (实测 int8 在 CPU 上比 fp32 还慢)
     fun_asr_nano_gguf_dir = model_dir / "Fun-ASR-Nano" / "Fun-ASR-Nano-GGUF"
     fun_asr_nano_gguf_encoder_adaptor = (
-        fun_asr_nano_gguf_dir / "Fun-ASR-Nano-Encoder-Adaptor.int4.onnx"
+        fun_asr_nano_gguf_dir / "Fun-ASR-Nano-Encoder-Adaptor.fp16.onnx"
     )
-    fun_asr_nano_gguf_ctc = fun_asr_nano_gguf_dir / "Fun-ASR-Nano-CTC.int4.onnx"
+    fun_asr_nano_gguf_ctc = fun_asr_nano_gguf_dir / "Fun-ASR-Nano-CTC.fp16.onnx"
     fun_asr_nano_gguf_llm_decode = (
         fun_asr_nano_gguf_dir / "Fun-ASR-Nano-Decoder.q5_k.gguf"
     )
@@ -192,14 +193,15 @@ class ModelPaths:
     fun_asr_nano_gguf_hotwords = Path() / "hot-server.txt"
 
     # Qwen3-ASR 模型路径，自带标点
+    # 與 upstream 980a941 對齊: 檔名去掉量化字串, 不分精度版本都能直接吃
     qwen3_asr_gguf_dir = model_dir / "Qwen3-ASR" / "Qwen3-ASR-1.7B"
     qwen3_asr_gguf_encoder_frontend = (
-        qwen3_asr_gguf_dir / "qwen3_asr_encoder_frontend.fp16.onnx"
+        qwen3_asr_gguf_dir / "qwen3_asr_encoder_frontend.onnx"
     )
     qwen3_asr_gguf_encoder_backend = (
-        qwen3_asr_gguf_dir / "qwen3_asr_encoder_backend.fp16.onnx"
+        qwen3_asr_gguf_dir / "qwen3_asr_encoder_backend.onnx"
     )
-    qwen3_asr_gguf_llm_decode = qwen3_asr_gguf_dir / "qwen3_asr_llm.q4_k.gguf"
+    qwen3_asr_gguf_llm_decode = qwen3_asr_gguf_dir / "qwen3_asr_llm.gguf"
 
 
 class ParaformerArgs:
