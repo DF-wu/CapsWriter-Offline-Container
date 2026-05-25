@@ -67,9 +67,10 @@ ASSETS = {
     ],
     "fun_asr_nano": [
         Asset(
+            # upstream 57430df 重打包後改用 fp16 ONNX (舊 int4 已不再發佈)
             name="Fun-ASR-Nano-GGUF.zip",
             url="https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Fun-ASR-Nano-GGUF.zip",
-            sha256="3ca993df54c6f9eacf23e7c3a1dccc8121e506aaff787726648f604603f6af19",
+            sha256="26a557923aedc44f1a3033d0a9b9c7b13cbb551f57fb9fd4b15a67bb4b57f998",
             target_dir=Path("models") / "Fun-ASR-Nano",
             required_files=[
                 ModelPaths.fun_asr_nano_gguf_encoder_adaptor,
@@ -81,9 +82,15 @@ ASSETS = {
     ],
     "qwen_asr": [
         Asset(
-            name="Qwen3-ASR-1.7B.zip",
-            url="https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B.zip",
-            sha256="897c66051a155a324c31684b768fe2e09b767372198c015c629a3b9088c1cf93",
+            # upstream 把單一 Qwen3-ASR-1.7B.zip 拆成 q4_k / q5_k 兩個量化版本,
+            # 本 fork 預設選 q5_k: zip 內含正確的 Qwen3-ASR-1.7B/ 前綴目錄,
+            # 解壓位置與 target_dir 自然對齊, 模型精度也較高。
+            # 若需更小體積, 改用 q4_k 版 (URL 結尾改 -q4_k, sha 改成
+            # 9b3d2a66a4a26a0404c32085ec838b7c482495a7827919a5aa674de617c2757b),
+            # 但 q4_k zip 內沒前綴目錄, target_dir 需相應改為 Qwen3-ASR/Qwen3-ASR-1.7B。
+            name="Qwen3-ASR-1.7B-q5_k.zip",
+            url="https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q5_k.zip",
+            sha256="f40040fe62a5ef0c09f8699fdbcb30f18bb8ae2bcd515ed4954e1f62b8b0e88f",
             target_dir=Path("models") / "Qwen3-ASR",
             required_files=[
                 ModelPaths.qwen3_asr_gguf_encoder_frontend,
