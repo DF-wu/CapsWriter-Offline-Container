@@ -1,12 +1,36 @@
 # CapsWriter-Offline Linux Server Fork
 
-Production-ready Linux and Docker packaging for the CapsWriter server.
+> Offline speech recognition that **runs** on Linux servers and **speaks** OpenAI Whisper's API.
+
+[![License](https://img.shields.io/badge/license-MIT-blue)](#)
+[![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
+[![OpenAI-Compatible](https://img.shields.io/badge/OpenAI%20Whisper-compatible-10A37F?logo=openai&logoColor=white)](docs/HTTP_API.md)
+[![GPU](https://img.shields.io/badge/GPU-NVIDIA%20%2B%20CPU%20fallback-76B900?logo=nvidia&logoColor=white)](#-configuration-that-matters-first)
+[![Upstream](https://img.shields.io/badge/upstream-HaujetZhao%2FCapsWriter--Offline-181717?logo=github)](https://github.com/HaujetZhao/CapsWriter-Offline)
 
 This repository is a focused fork of [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline). It keeps the upstream recognition stack, but redesigns the **server deployment path** for Linux hosts, containers, GPU-backed machines, and predictable long-running operation.
 
-**Start here:** [Quick start](#quick-start) · [Deployment notes](docs/docker-server.md) · [Upstream project](https://github.com/HaujetZhao/CapsWriter-Offline)
-
 > Use the upstream project for the original Windows desktop workflow. Use this fork when you want to run CapsWriter as a Linux-friendly server.
+
+---
+
+## 📑 Table of Contents
+
+- [🚀 Quick start](#-quick-start)
+- [🤖 OpenAI-Compatible ASR API](#-openai-compatible-asr-api)
+- [🎯 Supported deployment scope](#-supported-deployment-scope)
+- [⚙️ Configuration that matters first](#%EF%B8%8F-configuration-that-matters-first)
+- [🧠 Operational model](#-operational-model)
+- [📦 Example files](#-example-files)
+- [▶️ Common start modes](#%EF%B8%8F-common-start-modes)
+- [💾 Persistence](#-persistence)
+- [✅ What success looks like](#-what-success-looks-like)
+- [📚 Docs and repository map](#-docs-and-repository-map)
+- [🔗 Relationship to upstream](#-relationship-to-upstream)
+- [🤝 Contributing](#-contributing)
+- [🙏 Acknowledgements](#-acknowledgements)
+
+---
 
 ## Why this fork exists
 
@@ -16,13 +40,18 @@ This fork exists for that deployment target. The goal is straightforward: make t
 
 ## What you get here
 
-- A Linux-oriented Docker image and Compose entry point
-- Automatic model bootstrap at container startup
-- GPU-first runtime selection with CPU fallback
-- Headless-safe server defaults for container deployment
-- Root-level example files for faster onboarding
+| Capability | Detail |
+| --- | --- |
+| 🐳 **Docker-first** | Linux-oriented Docker image and Compose entry point |
+| 📥 **Auto bootstrap** | Models download automatically at container startup |
+| 🎮 **GPU-aware** | GPU-first runtime selection with graceful CPU fallback |
+| 🖥️ **Headless-safe** | Server defaults tuned for container deployment (no tray, no UI) |
+| 🤖 **OpenAI-compatible** | Optional `POST /v1/audio/transcriptions` endpoint — drop-in for any OpenAI SDK |
+| 🧪 **Easy onboarding** | Root-level example files (`.env.example`, `docker-compose.example.yml`) |
 
-## Quick start
+---
+
+## 🚀 Quick start
 
 ### Prerequisites
 
@@ -63,7 +92,42 @@ ws://127.0.0.1:6016
 docker compose down
 ```
 
-## Supported deployment scope
+---
+
+## 🤖 OpenAI-Compatible ASR API
+
+Any OpenAI Whisper client (Python / Node / curl / your favourite app) can talk to this server with **zero code changes** — just point `base_url` at the local service. The endpoint is opt-in and runs **alongside** the WebSocket server, sharing the same recognition subprocess.
+
+**Three steps to enable:**
+
+```bash
+# 1. Turn it on in .env (or in docker compose environment)
+echo "CAPSWRITER_HTTP_API_ENABLE=true" >> .env
+
+# 2. Expose port 6017 (uncomment the line in docker-compose.yml under `ports:`)
+#    Or restart with both ports bound:
+docker compose up -d --force-recreate capswriter-server
+
+# 3. Point the OpenAI SDK at it
+python -c "
+from openai import OpenAI
+client = OpenAI(base_url='http://localhost:6017/v1', api_key='dummy')
+with open('sample.mp3', 'rb') as f:
+    print(client.audio.transcriptions.create(model='whisper-1', file=f).text)
+"
+```
+
+| Endpoint | Purpose |
+| --- | --- |
+| `POST /v1/audio/transcriptions` | Whisper-compatible transcription (`json` / `text` / `srt` / `vtt` / `verbose_json`) |
+| `GET  /v1/models` | OpenAI SDK introspection |
+| `GET  /health` | Liveness probe |
+
+> 📖 **Full reference, security guidance, OpenAI SDK examples, design notes & troubleshooting →  [`docs/HTTP_API.md`](docs/HTTP_API.md)**
+
+---
+
+## 🎯 Supported deployment scope
 
 This repository is intentionally narrow in scope.
 
@@ -74,7 +138,9 @@ This repository is intentionally narrow in scope.
 
 This repo is **not** a Linux desktop port of the full project. It is a server-focused deployment fork.
 
-## Configuration that matters first
+---
+
+## ⚙️ Configuration that matters first
 
 These are the environment variables most users need first:
 
@@ -88,10 +154,14 @@ These are the environment variables most users need first:
 | `CAPSWRITER_SERVER_PORT` | `6016` | WebSocket port |
 | `CAPSWRITER_LOG_LEVEL` | `INFO` | Server log verbosity |
 | `CAPSWRITER_NUM_THREADS` | `4` | CPU thread hint for CPU-bound stages |
+| `CAPSWRITER_HTTP_API_ENABLE` | `false` | Opt-in OpenAI-compatible REST endpoint (see [docs/HTTP_API.md](docs/HTTP_API.md)) |
+| `CAPSWRITER_HTTP_API_PORT` | `6017` | HTTP API port, if enabled |
 
 See [`.env.example`](.env.example) for the full deployment-oriented template.
 
-## Operational model
+---
+
+## 🧠 Operational model
 
 At startup, the container follows a fixed boot path:
 
@@ -99,12 +169,14 @@ At startup, the container follows a fixed boot path:
 2. [`docker/server/entrypoint.sh`](docker/server/entrypoint.sh) selects the hardware path.
 3. [`docker/server/download_models.py`](docker/server/download_models.py) downloads missing model assets and Linux `llama.cpp` libraries.
 4. [`docker/server/probe_backend.py`](docker/server/probe_backend.py) verifies the selected GPU backend when applicable.
-5. [`start_server.py`](start_server.py) and [`core_server.py`](core_server.py) bring up the WebSocket service.
+5. [`start_server.py`](start_server.py) and [`core_server.py`](core_server.py) bring up the WebSocket service (and HTTP API if enabled).
 6. [`util/server/service.py`](util/server/service.py) runs recognition in a separate subprocess so model inference does not block the main server loop.
 
 The practical outcome is simple: prefer GPU when available, fall back to CPU when necessary, and keep the service start path predictable.
 
-## Example files
+---
+
+## 📦 Example files
 
 This fork includes root-level examples so onboarding does not depend on nested Docker folders:
 
@@ -121,7 +193,9 @@ cp docker-compose.example.yml docker-compose.local.yml
 docker compose -f docker-compose.local.yml up -d capswriter-server
 ```
 
-## Common start modes
+---
+
+## ▶️ Common start modes
 
 ### Default `qwen_asr`
 
@@ -144,7 +218,17 @@ CAPSWRITER_INFERENCE_HARDWARE=cpu \
 docker compose up -d --force-recreate capswriter-server
 ```
 
-## Persistence
+### Enable OpenAI-compatible API
+
+```bash
+CAPSWRITER_HTTP_API_ENABLE=true \
+docker compose up -d --force-recreate capswriter-server
+# Remember to also uncomment the second port mapping in docker-compose.yml.
+```
+
+---
+
+## 💾 Persistence
 
 The default Compose setup mounts:
 
@@ -158,27 +242,34 @@ In practice:
 - `hot-server.txt` provides the server-side hotword file, mainly relevant for `fun_asr_nano`
 - `capswriter-server-logs` keeps logs persistent without requiring a host bind mount
 
-## What success looks like
+---
+
+## ✅ What success looks like
 
 The deployment is in a good state when all three are true:
 
 1. `docker compose ps` shows the service as `healthy`
 2. `docker compose logs -f capswriter-server` shows model loading and server startup messages
-3. Your client or test tool can connect to `ws://127.0.0.1:${CAPSWRITER_SERVER_PORT}`
+3. Your client or test tool can connect to `ws://127.0.0.1:${CAPSWRITER_SERVER_PORT}` (and, if enabled, `http://127.0.0.1:${CAPSWRITER_HTTP_API_PORT}/health` returns `{"status":"ok"}`)
 
-## Docs and repository map
+---
+
+## 📚 Docs and repository map
 
 Start with these files if you want to understand or extend the server path:
 
 - [`readme.md`](readme.md), project front page
 - [`docs/docker-server.md`](docs/docker-server.md), deeper deployment notes
+- [`docs/HTTP_API.md`](docs/HTTP_API.md), OpenAI-compatible HTTP API reference
 - [`docker-compose.yml`](docker-compose.yml), default deployment entry point
 - [`config_server.py`](config_server.py), runtime configuration surface
 - [`core_server.py`](core_server.py), server bootstrap
 - [`docker/server/Dockerfile`](docker/server/Dockerfile), image definition
 - [`util/server/service.py`](util/server/service.py), recognition subprocess management
 
-## Relationship to upstream
+---
+
+## 🔗 Relationship to upstream
 
 - Upstream project: [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
 - Upstream focus: offline speech input on Windows
@@ -186,13 +277,18 @@ Start with these files if you want to understand or extend the server path:
 
 This fork extends the upstream deployment story. It does not replace the upstream project.
 
-## Contributing
+---
+
+## 🤝 Contributing
 
 Issues and pull requests that improve the Linux server path are welcome. If you are changing runtime behavior, Docker packaging, or deployment defaults, keep the server-first scope intact and prefer changes that preserve predictable startup and fallback behavior.
 
-## Acknowledgements
+---
+
+## 🙏 Acknowledgements
 
 - [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
 - [Sherpa-ONNX](https://github.com/k2-fsa/sherpa-onnx)
 - [FunASR](https://github.com/alibaba-damo-academy/FunASR)
 - [llama.cpp](https://github.com/ggml-org/llama.cpp)
+- [FastAPI](https://fastapi.tiangolo.com/) & [uvicorn](https://www.uvicorn.org/) (HTTP API layer)

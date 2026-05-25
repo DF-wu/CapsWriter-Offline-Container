@@ -127,6 +127,18 @@ class ServerConfig:
         "CAPSWRITER_LOG_LEVEL", "INFO"
     )  # 日志级别：'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
 
+    # OpenAI 兼容 HTTP API 配置
+    # 启动后可通过 POST {bind}:{port}/v1/audio/transcriptions 调用,
+    # OpenAI Python SDK 设 base_url 即可直接使用 (详见 docs/HTTP_API.md)。
+    http_api_enable = _env_bool("CAPSWRITER_HTTP_API_ENABLE", False)
+    http_api_bind = _env_str(
+        "CAPSWRITER_HTTP_API_BIND", "127.0.0.1"
+    )  # 默认仅本机, 暴露公网请显式改为 0.0.0.0 并设置 api_key
+    http_api_port = _env_str("CAPSWRITER_HTTP_API_PORT", "6017")
+    http_api_key = _env_str("CAPSWRITER_HTTP_API_KEY", "")  # 空字串 = 不启用 Bearer 鉴权
+    http_api_max_upload_mb = int(_env_str("CAPSWRITER_HTTP_API_MAX_UPLOAD_MB", "100"))
+    http_api_task_timeout = float(_env_str("CAPSWRITER_HTTP_API_TASK_TIMEOUT", "600"))
+
 
 class ModelDownloadLinks:
     """模型下载链接配置"""

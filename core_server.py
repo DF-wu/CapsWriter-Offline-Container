@@ -72,6 +72,12 @@ async def run_websocket_server():
     ):
         send_task = asyncio.create_task(ws_send())
 
+        # 可选: 启动 OpenAI 兼容 HTTP API (与 WebSocket 共用同一 event loop 与识别子进程)
+        http_task = None
+        if Config.http_api_enable:
+            from util.server.http_api import run_http_server
+            http_task = asyncio.create_task(run_http_server())
+
         # 3. 等待退出信号
         # 如果已经处于 shutting down 状态，ensure event is set
         if lifecycle.is_shutting_down:
@@ -79,12 +85,21 @@ async def run_websocket_server():
 
         wait_shutdown_task = asyncio.create_task(lifecycle.wait_for_shutdown())
 
+        watch_tasks = [send_task, wait_shutdown_task]
+        if http_task is not None:
+            watch_tasks.append(http_task)
+
         done, pending = await asyncio.wait(
-            [send_task, wait_shutdown_task], return_when=asyncio.FIRST_COMPLETED
+            watch_tasks, return_when=asyncio.FIRST_COMPLETED
         )
 
         if wait_shutdown_task in done:
             logger.info("收到退出信号，正在关闭服务...")
+        if http_task is not None and http_task in done and not http_task.cancelled():
+            try:
+                await http_task
+            except Exception as e:
+                logger.error(f"HTTP API 异常退出: {e}", exc_info=True)
 
         # 4. 取消所有相关任务
         for task in pending:

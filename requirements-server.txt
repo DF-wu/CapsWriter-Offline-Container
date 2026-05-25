@@ -10,6 +10,11 @@ websockets
 watchdog
 pypinyin
 
+# OpenAI-compatible HTTP API (optional, gated by CAPSWRITER_HTTP_API_ENABLE)
+fastapi
+uvicorn
+python-multipart
+
 # tray and image
 pystray
 Pillow
