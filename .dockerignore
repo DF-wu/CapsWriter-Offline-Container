@@ -1,0 +1,43 @@
+# Build artefacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Fork archive (used for rollback reference, not for runtime)
+.fork-archive-*/
+
+# Local tooling state
+.claude/
+.serena/
+.sisyphus/
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Logs and previous run output
+logs/
+20*/
+
+# Local env files
+.env
+.env.local
+
+# Models stay outside image (mounted at runtime)
+models/.downloads/
+
+# Client-only assets (server image doesn't need them)
+build-client.spec
+build.spec
+build_hook.py
+zip_release.py
+
+# Benchmarks (test data, not runtime)
+benchmarks/
+

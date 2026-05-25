@@ -170,6 +170,18 @@ logs/
 .claude
 .vscode
 .agent
+.serena
+.sisyphus
+.ruff_cache
+
+# Fork archive (回滾參考用; 不在 git 內追蹤)
+.fork-archive-*/
+
+# 模型下載快取 (體積大, 不該入版本控制)
+models/.downloads/
+
+# 本地 benchmark 測試資料
+benchmarks/
 
 diag*.py
 test_*.py 
