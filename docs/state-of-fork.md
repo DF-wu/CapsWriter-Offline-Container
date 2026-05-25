@@ -16,7 +16,7 @@
 
 | | |
 |---|---|
-| 上游檔案修改數 | **1**（僅 `.gitignore` 加 `.fork-archive-*/` 一行） |
+| 上游檔案修改數 | **2**（`.gitignore` 加忽略規則，`readme.md` 完全重寫為 fork 視角；後者為設計選擇，接受偶發 merge 衝突） |
 | Fork 新增檔案 | `fork_server/`、`docker/`、`docker-compose*.yml`、`.env.example`、`requirements-server-docker.txt`、`start_server_docker.py`、`.github/workflows/publish-server-image.yml` |
 | Hook 策略 | 子類化 + 1 處 monkey-patch（`server_manager.ws_send`） |
 | 唯一漂移點 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 內嵌了上游 ws_send 邏輯複本 |
@@ -126,9 +126,10 @@ docker compose up -d --force-recreate capswriter-server
 
 - [`readme.md`](../readme.md) — fork 視角
 
-### 修改的上游檔（**只有 1 個**）
+### 修改的上游檔（**2 個**）
 
-- [`.gitignore`](../.gitignore) — 加 `.fork-archive-*/` 排除
+- [`.gitignore`](../.gitignore) — 加 `.fork-archive-*/` / `models/.downloads/` / `benchmarks/` 排除
+- [`readme.md`](../readme.md) — 完全重寫為 fork 視角（用戶於 reset 計畫階段明確同意此選擇）
 
 ### 文件
 
