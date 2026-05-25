@@ -1,0 +1,200 @@
+# 對齊上游指南
+
+> 未來要拉上游更新時的標準操作流程。本 fork 刻意設計成 merge 衝突極小，理想情況 `git merge origin/master` 一行搞定。
+
+## 1. 心智模型
+
+```
+upstream (HaujetZhao/CapsWriter-Offline)
+        │
+        │  fork modifies: 1 file (.gitignore)
+        │  fork adds:    fork_server/ docker/ docker-compose*.yml
+        │                .env.example .dockerignore start_server_docker.py
+        │                .github/workflows/ requirements-server-docker.txt
+        │
+        ▼
+fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
+```
+
+關鍵：fork 修改上游檔案數 = **1** (`.gitignore`)。其他都是新增檔，**不會與上游衝突**。
+
+## 2. 標準同步流程
+
+### 2.1 預設情境：upstream 沒改動 fork 在意的檔案
+
+```bash
+git fetch origin
+git checkout master
+git merge --ff-only origin/master   # 試 fast-forward
+```
+
+如果 `--ff-only` 失敗，代表 fork 有自己的 commits 領先：
+
+```bash
+git merge origin/master
+```
+
+預期結果：**zero conflicts**。`.gitignore` 可能會被 auto-merge（兩邊各加自己的行）。
+
+跑驗證：
+
+```bash
+# 1. 確保 import 不壞
+python3 -c "import fork_server.bootstrap"
+
+# 2. Container 構建
+docker build -t capswriter-server:upstream-merge-test -f docker/server/Dockerfile .
+
+# 3. 隔離測試 (見 docs/state-of-fork.md §3)
+```
+
+### 2.2 高風險情境：upstream 改了 fork 接觸點
+
+下表是 fork 對上游的「間接依賴」。**任何一項變動都應觸發完整 re-test**。
+
+| 上游檔/符號 | 變動類型 | Fork 對應檔 | Fork 動作 |
+|---|---|---|---|
+| `core/server/connection/ws_send.py` | 函式邏輯、Result 欄位、訊息協議 | `fork_server/http_api/ws_send_with_http.py` | **手動 re-port** 上游修改 |
+| `core/server/connection/server_manager.py` | 重命名 `ws_send` import 或 `SocketManager.start` 結構 | `fork_server/bootstrap.py::_install_ws_send_hook` | 確認 module attribute 名稱仍正確 |
+| `core/server/app.py` | `CapsWriterServer.start()` 流程 (signal/tray/process/socket 順序) | `fork_server/bootstrap.py::ForkedCapsWriterServer.start` | 比對覆寫版是否需同步調整 |
+| `core/server/schema.py` | `Task` 或 `Result` 新欄位 | `fork_server/http_api/{api.py,task_router.py,ws_send_with_http.py}` | 如新欄位影響 HTTP 路由 → 適配 |
+| `config_server.py` | `Qwen3ASRGGUFArgs` / `FunASRNanoGGUFArgs` / `ModelPaths` 新增屬性或重命名 | `fork_server/env_config.py` | 加新 env binding、移除過時的 |
+| `core/server/engines/factory.py` | `EngineFactory.create_asr_engine()` 簽名 | `docker/server/probe_backend.py` | 適配 probe |
+| `core/server/worker/model_loader.py` | 模型載入順序、新模型類型 | `docker/server/download_models.py` | 新增 ASSETS 條目 |
+
+### 2.3 衝突處理 SOP
+
+如果 merge 出現衝突：
+
+#### 衝突在 `.gitignore`
+99% auto-merge 成功。手動處理也只是兩邊加的 ignore 規則合在一起。
+
+#### 衝突在 `readme.md`
+本 fork 的 readme 完全是 fork 視角。**保留 fork 版本**：
+
+```bash
+git checkout --ours readme.md
+git add readme.md
+```
+
+如果上游 readme 有重要新內容（例如新模型支援），手動把那段引用到 fork readme 對應段落。
+
+#### 衝突在 `core/server/connection/ws_send.py`
+**這不應該衝突** — fork 沒改這檔。如果衝突，代表 fork 之前曾經被「污染」修改過。檢查：
+
+```bash
+git log --oneline origin/master..HEAD -- core/server/connection/ws_send.py
+```
+
+如果有結果，那就是污染源。決定是 revert 還是 keep。
+
+#### 衝突在 `core/server/` 任何其他檔
+**這代表設計失敗了** — fork 不應該動上游檔案。看 commit history 找污染源，回滾。
+
+## 3. 每次 merge 後的 health check
+
+把這當作 PR check list：
+
+```bash
+# (A) Syntax / Import smoke
+python3 -m py_compile $(find fork_server start_server_docker.py -name "*.py")
+python3 -c "from fork_server.bootstrap import apply_env_config, create_server"
+
+# (B) 上游檔修改數應為 1 (only .gitignore)
+echo "Modified upstream files:"
+git diff origin/master..HEAD --name-only \
+  | xargs -I {} sh -c 'git ls-tree origin/master --name-only -- {} 2>/dev/null | grep -q . && echo "  {}"' \
+  || echo "  (none beyond .gitignore)"
+
+# (C) Container build
+docker build -t capswriter-server:merge-test -f docker/server/Dockerfile .
+
+# (D) ws_send_with_http 仍對齊上游 (簡單對比 loop 結構)
+echo "=== upstream ws_send loop ==="
+git show origin/master:core/server/connection/ws_send.py | sed -n '/while True:/,/except Exception/p' | head -30
+echo ""
+echo "=== fork ws_send_with_http loop ==="
+sed -n '/while True:/,/except Exception/p' fork_server/http_api/ws_send_with_http.py | head -30
+
+# (E) 隔離 smoke test (見下節)
+```
+
+## 4. 隔離 smoke test (建議流程)
+
+每次 merge 後跑這個矩陣，不影響 production：
+
+```bash
+mkdir -p /tmp/cw-merge-test
+cat > /tmp/cw-merge-test/docker-compose.yml <<EOF
+services:
+  cwmerge-server:
+    image: capswriter-server:merge-test
+    container_name: cwmerge-server
+    restart: "no"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      CAPSWRITER_MODEL_TYPE: qwen_asr
+      CAPSWRITER_HTTP_API_ENABLE: "true"
+      CAPSWRITER_HTTP_API_BIND: 0.0.0.0
+      CAPSWRITER_HTTP_API_PORT: 16017
+      CAPSWRITER_SERVER_PORT: 16016
+      CAPSWRITER_LOG_LEVEL: INFO
+    ports:
+      - "16016:16016"
+      - "16017:16017"
+    volumes:
+      - /home/df/workspace/CapsWriter-Offline/models:/app/models
+      - /home/df/workspace/CapsWriter-Offline/hot-server.txt:/app/hot-server.txt:ro
+EOF
+
+docker compose -p cwmerge -f /tmp/cw-merge-test/docker-compose.yml up -d
+sleep 90   # 模型載入
+
+curl http://localhost:16017/health
+curl http://localhost:16017/v1/models
+
+# 用任意音檔測 5 種 format
+for fmt in json text srt vtt verbose_json; do
+  curl -X POST http://localhost:16017/v1/audio/transcriptions \
+    -F file=@some_audio.wav -F response_format=$fmt -w "[$fmt %{http_code}]\n"
+done
+
+# Production 不能受影響
+docker ps --filter "name=capswriter-offline" --format '{{.Names}} {{.Status}}'
+
+# 清理
+docker compose -p cwmerge -f /tmp/cw-merge-test/docker-compose.yml down -v
+docker rmi capswriter-server:merge-test
+rm -rf /tmp/cw-merge-test
+```
+
+## 5. 沒事先做這些 = 痛苦
+
+1. **不要直接在 production container 上 `docker compose pull && up`**。先在隔離專案測過。
+2. **不要 `git merge origin/master` 進 master**。在 feature branch 上 merge 與測試，OK 後再 fast-forward master。
+3. **不要忽略 ws_send_with_http re-port**。上游若改 ws_send 邏輯而 fork 沒同步，HTTP 任務的 result 可能會被 ws 廣播（送錯地方）或漏掉。
+
+## 6. Image 重 build & 發布
+
+合入 master 後，[`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 會自動觸發 GHCR build。等 CI 綠燈後再通知使用者拉新 image。
+
+## 7. 萬一被卡死的回滾
+
+每次 reset 都有 safety tag：
+
+```bash
+git tag | grep fork-pre-
+# 例: fork-pre-reset-20260525-1411
+
+# 緊急回滾
+git reset --hard fork-pre-reset-20260525-1411
+git push --force fork master   # 只在自己控制的 fork 上才能 force-push
+```
+
+詳見 [state-of-fork.md](state-of-fork.md) 內當前 safety tag 名稱。
