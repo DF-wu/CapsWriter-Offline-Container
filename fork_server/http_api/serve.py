@@ -10,7 +10,7 @@ import asyncio
 import shutil
 
 from config_server import ServerConfig as Config
-from core.server import logger
+from core.server import logger, console
 
 from .api import create_app
 from .task_router import router as task_router
@@ -40,15 +40,36 @@ async def run_http_server(cw_server) -> None:
     server = uvicorn.Server(config)
 
     api_key = getattr(Config, "http_api_key", "") or ""
+    max_upload = getattr(Config, "http_api_max_upload_mb", 100)
     logger.info(
         f"HTTP API 監聽 {config.host}:{config.port} "
-        f"(auth={'on' if api_key else 'off'})"
+        f"(auth={'on' if api_key else 'off'}, max_upload={max_upload}MB)"
     )
+    auth_flag = f'-H "Authorization: Bearer $KEY"' if api_key else ""
+    auth_hint = "  [yellow](需 API key)[/]" if api_key else ""
+    key_arg = "--key $KEY " if api_key else ""
+
+    console.print()
+    console.print(
+        f"  [bold cyan]OpenAI 相容 API[/] — [green]http://{config.host}:{config.port}[/]"
+        f"{auth_hint}"
+    )
+    console.print(f"    • 健康检查: curl http://{config.host}:{config.port}/health")
+    console.print(
+        f"    • 模型列表: curl {auth_flag} http://{config.host}:{config.port}/v1/models"
+    )
+    console.print(
+        f"    • 语音转写: curl -X POST {auth_flag} "
+        f"http://{config.host}:{config.port}/v1/audio/transcriptions "
+        f'-F "file=@test.wav"'
+    )
+    console.print(f"    • 诊断工具: python check_http_api.py {key_arg}--audio test.wav")
 
     if shutil.which("ffmpeg") is None:
-        logger.warning(
-            "HTTP API 已啟用但系統找不到 ffmpeg; "
-            "/v1/audio/transcriptions 對非 raw PCM 上傳會回 500。"
-        )
+        console.print(f"    [red]⚠ ffmpeg 未安装[/] — 非 raw PCM 音频会上传失败")
+    else:
+        console.print(f"    • ffmpeg: [green]已安装[/]")
+
+    console.print()
 
     await server.serve()

@@ -34,7 +34,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from config_server import ServerConfig as Config, __version__
 from core.constants import AudioFormat
 from core.server.schema import Task, Result
-from core.server import logger
+from core.server import logger, console
 
 from .audio_decoder import AudioDecodeError, FFmpegNotFoundError, decode_to_pcm
 from .openai_formatter import format_response
@@ -53,7 +53,7 @@ def _check_auth(authorization: Optional[str]) -> None:
         return
     if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(401, "Missing or invalid Authorization header")
-    token = authorization[len("Bearer "):].strip()
+    token = authorization[len("Bearer ") :].strip()
     if token != api_key:
         raise HTTPException(401, "Invalid API key")
 
@@ -69,7 +69,9 @@ def _split_and_submit(task_id: str, pcm: bytes) -> None:
     queue_in = task_router.queue_in
     socket_id = task_router.synthetic_socket_id(task_id)
 
-    segment_bytes = AudioFormat.seconds_to_bytes(DEFAULT_SEG_DURATION + DEFAULT_SEG_OVERLAP)
+    segment_bytes = AudioFormat.seconds_to_bytes(
+        DEFAULT_SEG_DURATION + DEFAULT_SEG_OVERLAP
+    )
     stride_bytes = AudioFormat.seconds_to_bytes(DEFAULT_SEG_DURATION)
     total_bytes = len(pcm)
 
@@ -79,10 +81,46 @@ def _split_and_submit(task_id: str, pcm: bytes) -> None:
 
     # 短音訊: 單一 final task 即可
     if total_bytes <= segment_bytes:
-        queue_in.put(Task(
+        queue_in.put(
+            Task(
+                source="file",
+                data=pcm,
+                offset=0.0,
+                overlap=DEFAULT_SEG_OVERLAP,
+                task_id=task_id,
+                socket_id=socket_id,
+                is_final=True,
+                time_start=time_start,
+                time_submit=time.time(),
+                context="",
+            )
+        )
+        return
+
+    # 長音訊: 多段中間 + 1 段 final
+    while pos + segment_bytes < total_bytes:
+        queue_in.put(
+            Task(
+                source="file",
+                data=pcm[pos : pos + segment_bytes],
+                offset=offset,
+                overlap=DEFAULT_SEG_OVERLAP,
+                task_id=task_id,
+                socket_id=socket_id,
+                is_final=False,
+                time_start=time_start,
+                time_submit=time.time(),
+                context="",
+            )
+        )
+        offset += DEFAULT_SEG_DURATION
+        pos += stride_bytes
+
+    queue_in.put(
+        Task(
             source="file",
-            data=pcm,
-            offset=0.0,
+            data=pcm[pos:],
+            offset=offset,
             overlap=DEFAULT_SEG_OVERLAP,
             task_id=task_id,
             socket_id=socket_id,
@@ -90,38 +128,8 @@ def _split_and_submit(task_id: str, pcm: bytes) -> None:
             time_start=time_start,
             time_submit=time.time(),
             context="",
-        ))
-        return
-
-    # 長音訊: 多段中間 + 1 段 final
-    while pos + segment_bytes < total_bytes:
-        queue_in.put(Task(
-            source="file",
-            data=pcm[pos:pos + segment_bytes],
-            offset=offset,
-            overlap=DEFAULT_SEG_OVERLAP,
-            task_id=task_id,
-            socket_id=socket_id,
-            is_final=False,
-            time_start=time_start,
-            time_submit=time.time(),
-            context="",
-        ))
-        offset += DEFAULT_SEG_DURATION
-        pos += stride_bytes
-
-    queue_in.put(Task(
-        source="file",
-        data=pcm[pos:],
-        offset=offset,
-        overlap=DEFAULT_SEG_OVERLAP,
-        task_id=task_id,
-        socket_id=socket_id,
-        is_final=True,
-        time_start=time_start,
-        time_submit=time.time(),
-        context="",
-    ))
+        )
+    )
 
 
 def _wrap_response(body, media_type: str) -> Response:
@@ -153,12 +161,14 @@ def create_app() -> FastAPI:
         _check_auth(authorization)
         return {
             "object": "list",
-            "data": [{
-                "id": Config.model_type,
-                "object": "model",
-                "owned_by": "capswriter-offline",
-                "created": 0,
-            }],
+            "data": [
+                {
+                    "id": Config.model_type,
+                    "object": "model",
+                    "owned_by": "capswriter-offline",
+                    "created": 0,
+                }
+            ],
         }
 
     @app.post("/v1/audio/transcriptions")
@@ -167,25 +177,35 @@ def create_app() -> FastAPI:
         model: str = Form("whisper-1"),
         language: Optional[str] = Form(None),
         prompt: Optional[str] = Form(None),
-        response_format: Literal["json", "text", "srt", "verbose_json", "vtt"] = Form("json"),
+        response_format: Literal["json", "text", "srt", "verbose_json", "vtt"] = Form(
+            "json"
+        ),
         temperature: float = Form(0.0),
         authorization: Optional[str] = Header(None),
     ):
         _check_auth(authorization)
         del model, temperature  # OpenAI 相容占位; 本地模型由 Config.model_type 決定
+        request_start = time.time()
 
         max_bytes = int(getattr(Config, "http_api_max_upload_mb", 100)) * 1024 * 1024
         audio_bytes = await file.read()
         if not audio_bytes:
             raise HTTPException(400, "Empty file")
         if len(audio_bytes) > max_bytes:
-            raise HTTPException(413, f"File too large (>{max_bytes // (1024*1024)} MB)")
+            raise HTTPException(
+                413, f"File too large (>{max_bytes // (1024 * 1024)} MB)"
+            )
 
         try:
             pcm = await decode_to_pcm(audio_bytes)
         except FFmpegNotFoundError as e:
+            logger.error(
+                f"[HTTP] ffmpeg not found: {e}. "
+                "Install ffmpeg or upload raw PCM (16kHz/f32le/mono)."
+            )
             raise HTTPException(500, f"Server misconfigured: {e}")
         except AudioDecodeError as e:
+            logger.warning(f"[HTTP] audio decode failed: {e}")
             raise HTTPException(400, f"Audio decode failed: {e}")
 
         duration = AudioFormat.bytes_to_seconds(len(pcm))
@@ -207,16 +227,29 @@ def create_app() -> FastAPI:
             result: Result = await asyncio.wait_for(future, timeout=timeout)
         except asyncio.TimeoutError:
             task_router.cancel(task_id)
-            logger.error(f"[HTTP] task={task_id[:8]} timeout after {timeout:.0f}s")
+            logger.error(
+                f"[HTTP] task={task_id[:8]} timeout after {timeout:.0f}s "
+                f"(duration={duration:.1f}s). Audio may be too long or model too slow."
+            )
             raise HTTPException(504, "Recognition timeout")
         except Exception as e:
             task_router.cancel(task_id)
-            logger.error(f"[HTTP] task={task_id[:8]} error: {e}", exc_info=True)
+            logger.error(
+                f"[HTTP] task={task_id[:8]} unexpected error: {e}", exc_info=True
+            )
             raise HTTPException(500, f"Recognition error: {e}")
 
         body, media_type = format_response(result, response_format, language=language)
         text = result.text_accu or result.text
-        logger.info(f"[HTTP] task={task_id[:8]} done, text_len={len(text)}")
+        delay = max(0.0, time.time() - request_start)
+        safe_text = text.replace("\n", " ").replace("\r", "")
+        logger.info(
+            f"[HTTP] task={task_id[:8]} done, delay={delay:.1f}s, text={safe_text}"
+        )
+        console.print(f"    转录时延：{delay:.2f}s")
+        console.print("    识别结果：", end="")
+        console.print(text, style="green")
+        console.line()
         return _wrap_response(body, media_type)
 
     @app.post("/v1/audio/translations")
