@@ -43,8 +43,18 @@
 | 模型載入時 GPU 偵測 | ✅ 自動 fallback CPU（host 無 GPU 暴露給 docker） |
 | Production unaffected | ✅ port 6016 容器 throughout healthy |
 
+### 2026-05-26 自動下載端到端驗證
+
+於空 models 目錄（`/tmp/cw-fresh-test/models/`）冷啟動，獨立 compose project `cwfresh`（port 16016/16017），**全程不影響 production 容器**：
+
+| 模型 | 流程 | 結果 |
+|---|---|---|
+| qwen_asr | 空目錄 → 自動下載 `Qwen3-ASR-1.7B-q5_k.zip` (1.95GB) + `llama-b7798 vulkan tar.gz` (38MB) → 解壓 → 模型載入 | ✅ ~90s 達 healthy; HTTP transcription 5.3s |
+| fun_asr_nano | 切 env `CAPSWRITER_MODEL_TYPE=fun_asr_nano` 重啟 → 自動下載 `Fun-ASR-Nano-GGUF.zip` (834MB) → 解壓 → 模型載入 | ✅ ~120s 達 healthy; HTTP transcription 2-3s |
+
+修正了一個 bug：`docker/server/download_models.py` 與 `probe_backend.py` 原本只讀 `ServerConfig.model_type` 的 class 預設值，**沒讀 env**。已改為獨立 `os.environ.get(...)` 讀取，與 `start_server_docker.py` 經 `fork_server.env_config` 套用的值對齊。
+
 **未跑的測試**：
-- Fun-ASR-Nano live 端到端：host 模型是舊 int4 格式，新 v2.5 expect fp16。架構與 qwen 共享，HTTP 路徑等效驗證
 - 多 GPU 環境驗證：host 此次測試 GPU 已被 production 容器占用，CPU fallback 路徑已通
 
 ---
@@ -77,7 +87,7 @@ docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml up -d
 
 | 變數 | 預設 | |
 |---|---|---|
-| `CAPSWRITER_MODEL_TYPE` | `qwen_asr` | `fun_asr_nano` / `sensevoice` / `paraformer` |
+| `CAPSWRITER_MODEL_TYPE` | `qwen_asr` | `fun_asr_nano`（**這兩個是本 fork 容器化路徑正式支援的全部**） |
 | `CAPSWRITER_QWEN_PRESET` | `default` | `low_vram_gpu` / `cpu_only` |
 | `CAPSWRITER_INFERENCE_HARDWARE` | `auto` | `gpu` / `cpu` |
 | `CAPSWRITER_HTTP_API_ENABLE` | `false` | `true` 開 HTTP |
@@ -87,13 +97,10 @@ docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml up -d
 
 ## 5. 已知未決事項
 
-### 5.1 Fun-ASR-Nano live 測試延後
-Host 上模型仍是舊 int4 ONNX，需新版 fp16 release zip 重下載。**架構驗證已透過 qwen_asr 共用通路完成**，Fun-ASR 只是換引擎參數，理論上同 image 直接可跑。
-
-### 5.2 GHCR `:latest` 尚未含本次 reset 的程式碼
+### 5.1 GHCR `:latest` 尚未含本次 reset 的程式碼
 GHCR 上的 `:latest` 是 reset 前的 fork。push 後 [`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 會自動 build；CI 綠燈後使用者可 `docker compose pull && up -d --force-recreate` 升級。
 
-### 5.3 Production port 6016 容器
+### 5.2 Production port 6016 容器
 仍跑舊 image。**reset 不影響它**。要 migrate 自行：
 
 ```bash
@@ -101,7 +108,7 @@ docker compose pull capswriter-server
 docker compose up -d --force-recreate capswriter-server
 ```
 
-### 5.4 Force aligner 模型未自動下載
+### 5.3 Force aligner 模型未自動下載
 上游 v2.5 引入 `force_aligner_gguf` 引擎用於字級時間戳。本次 fork 的 [`docker/server/download_models.py`](../docker/server/download_models.py) 只下載 qwen / fun-asr 主模型，未含 aligner（`models/Qwen3-ForcedAligner/Qwen3-ForcedAligner-0.6B/`）。
 
 影響：HTTP API 的 `verbose_json` 仍能提供字級 timestamp（recognizer 內建估算），只是精度可能略低於專屬 aligner。`aligner_idle_timeout=10` 在 [`config_server.py`](../config_server.py) 已預設啟用 idle 卸載，缺 aligner 時 `EngineFactory.create_align_engine()` 自動 fallback 到 no-op，無錯誤。

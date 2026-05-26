@@ -39,42 +39,15 @@ class Asset:
         return all(path.exists() for path in self.required_files)
 
 
+# 本 fork 只支援兩個 ASR 模型: fun_asr_nano (低延遲) 與 qwen_asr (高精度)。
+# 兩者皆為 GGUF 後端, 自帶標點 (EngineCapabilities.PUNC), 因此不需額外的 punct 模型。
+# 上游 release page: https://github.com/HaujetZhao/CapsWriter-Offline/releases/tag/models
+SUPPORTED_MODELS = ("fun_asr_nano", "qwen_asr")
+
 ASSETS = {
-    "sensevoice": [
-        Asset(
-            # 上游 v2.5 把 SenseVoice 拆成 encoder/decoder + tokenizer.bpe.model;
-            # 本 fork 的 SenseVoice 路徑目前對齊上游 attribute 命名, 實際使用時
-            # 需確認該 release zip 是否包含三個 fp16 檔; 不影響 qwen_asr / fun_asr_nano。
-            name="sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.zip",
-            url="https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17.zip",
-            sha256="eece077adcd80eb90fc7905c3b11b9bab8588d810bde88ad694b8f3c78716320",
-            target_dir=Path("models") / "SenseVoice-Small",
-            required_files=[
-                ModelPaths.sensevoice_encoder,
-                ModelPaths.sensevoice_decoder,
-                ModelPaths.sensevoice_tokenizer,
-            ],
-        )
-    ],
-    "paraformer": [
-        Asset(
-            name="speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-onnx.zip",
-            url="https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-onnx.zip",
-            sha256="49ce9dabea9812fd9cf510316ce2041fa45c6a5e361ee19025b8ef53d1c7af88",
-            target_dir=Path("models") / "Paraformer",
-            required_files=[ModelPaths.paraformer_model, ModelPaths.paraformer_tokens],
-        ),
-        Asset(
-            name="sherpa-onnx-punct-ct-transformer-zh-en-vocab272727-2024-04-12.zip",
-            url="https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/sherpa-onnx-punct-ct-transformer-zh-en-vocab272727-2024-04-12.zip",
-            sha256="082c932ecac8e31981b0a3a168ef994373012bd17dc1b6681b094f167c5a45bc",
-            target_dir=Path("models") / "Punct-CT-Transformer",
-            required_files=[ModelPaths.punc_model_dir],
-        ),
-    ],
     "fun_asr_nano": [
         Asset(
-            # upstream 57430df 重打包後改用 fp16 ONNX (舊 int4 已不再發佈)
+            # upstream Fun-ASR-Nano-GGUF.zip (fp16 ONNX + q5_k GGUF, 2026-05-08 release)
             name="Fun-ASR-Nano-GGUF.zip",
             url="https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Fun-ASR-Nano-GGUF.zip",
             sha256="26a557923aedc44f1a3033d0a9b9c7b13cbb551f57fb9fd4b15a67bb4b57f998",
@@ -89,12 +62,10 @@ ASSETS = {
     ],
     "qwen_asr": [
         Asset(
-            # upstream 把單一 Qwen3-ASR-1.7B.zip 拆成 q4_k / q5_k 兩個量化版本,
-            # 本 fork 預設選 q5_k: zip 內含正確的 Qwen3-ASR-1.7B/ 前綴目錄,
-            # 解壓位置與 target_dir 自然對齊, 模型精度也較高。
-            # 若需更小體積, 改用 q4_k 版 (URL 結尾改 -q4_k, sha 改成
-            # 9b3d2a66a4a26a0404c32085ec838b7c482495a7827919a5aa674de617c2757b),
-            # 但 q4_k zip 內沒前綴目錄, target_dir 需相應改為 Qwen3-ASR/Qwen3-ASR-1.7B。
+            # upstream Qwen3-ASR-1.7B-q5_k.zip (2026-05-08 release).
+            # zip 內含 Qwen3-ASR-1.7B/ 前綴目錄, 解壓位置與 target_dir 自然對齊。
+            # 若需更小體積, 改用 q4_k 版 (URL 結尾 -q4_k, sha 不同), 但 q4_k zip
+            # 內沒前綴目錄, target_dir 需相應改為 Qwen3-ASR/Qwen3-ASR-1.7B。
             name="Qwen3-ASR-1.7B-q5_k.zip",
             url="https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q5_k.zip",
             sha256="f40040fe62a5ef0c09f8699fdbcb30f18bb8ae2bcd515ed4954e1f62b8b0e88f",
@@ -113,14 +84,16 @@ LLAMA_CPP_ASSETS = {
         name="llama-b7798-bin-ubuntu-x64.tar.gz",
         url="https://github.com/ggml-org/llama.cpp/releases/download/b7798/llama-b7798-bin-ubuntu-x64.tar.gz",
         sha256="13e0fbbb2e1a3379ec5ed84ee9fe230f7d0c1dedbfc1b769424f0adc37f616b8",
-        target_dir=Path("util") / "llama" / "bin",
+        # 此欄位對 llama assets 是 sentinel; 實際解壓目錄請看 LLAMA_TARGET_DIRS
+        target_dir=Path("core") / "server" / "engines" / "qwen_asr_gguf" / "inference" / "bin",
         required_files=[],
     ),
     "vulkan": Asset(
         name="llama-b7798-bin-ubuntu-vulkan-x64.tar.gz",
         url="https://github.com/ggml-org/llama.cpp/releases/download/b7798/llama-b7798-bin-ubuntu-vulkan-x64.tar.gz",
         sha256="5a4ee2db7e6f9d5c0a04741f79437b433e63862d72a962466b9f28f09f7ffff9",
-        target_dir=Path("util") / "llama" / "bin",
+        # 此欄位對 llama assets 是 sentinel; 實際解壓目錄請看 LLAMA_TARGET_DIRS
+        target_dir=Path("core") / "server" / "engines" / "qwen_asr_gguf" / "inference" / "bin",
         required_files=[],
     ),
 }
@@ -249,11 +222,29 @@ def _prepare_llama_binaries() -> int:
     return 0
 
 
+def _resolve_model_type() -> str:
+    """env > ServerConfig class default.
+
+    download_models.py 在 entrypoint.sh 內早於 start_server_docker.py 跑,
+    那時 fork_server.env_config 還沒 setattr 過 ServerConfig, 所以需要
+    在這獨立讀一次 env。"""
+    return os.environ.get("CAPSWRITER_MODEL_TYPE", ServerConfig.model_type).lower()
+
+
 def main() -> int:
-    model_type = ServerConfig.model_type.lower()
+    model_type = _resolve_model_type()
     assets = ASSETS.get(model_type)
     if not assets:
-        print(f"不支持的模型类型: {ServerConfig.model_type}", file=sys.stderr)
+        print(
+            f"本 fork 只支援這幾個 ASR 模型: {SUPPORTED_MODELS}; 但 "
+            f"CAPSWRITER_MODEL_TYPE={ServerConfig.model_type!r}",
+            file=sys.stderr,
+        )
+        print(
+            "上游 release 仍有其他模型 (sensevoice / paraformer / 等), 但本 "
+            "fork 容器化路徑不自動下載這些, 也未經測試; 如需使用請改用上游裸機部署。",
+            file=sys.stderr,
+        )
         return 1
 
     for asset in assets:

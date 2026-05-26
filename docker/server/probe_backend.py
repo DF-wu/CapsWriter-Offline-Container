@@ -17,11 +17,16 @@ ROOT_DIR = Path(__file__).resolve().parents[2]
 if ROOT_DIR.as_posix() not in sys.path:
     sys.path.insert(0, ROOT_DIR.as_posix())
 
+import os
 from config_server import ServerConfig
 
 
 def main() -> int:
-    model_type = ServerConfig.model_type.lower()
+    # entrypoint.sh 在 start_server_docker.py 之前跑 probe, 所以 env 還沒透過
+    # fork_server.env_config 套到 ServerConfig; 在此獨立讀一次 env 以對齊。
+    model_type = os.environ.get(
+        "CAPSWRITER_MODEL_TYPE", ServerConfig.model_type
+    ).lower()
 
     # Skip probe for non-GGUF engines (sensevoice/paraformer don't load llama.cpp).
     if model_type not in {"qwen_asr", "fun_asr_nano"}:
