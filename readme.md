@@ -1,6 +1,8 @@
 # CapsWriter-Offline Linux Container Fork
 
 > **離線中文/英文語音識別，跑在 Linux 容器，講 OpenAI Whisper 的 API。**
+>
+> *English: see [README.en.md](README.en.md).*
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
