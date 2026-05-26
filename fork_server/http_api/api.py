@@ -149,7 +149,8 @@ def create_app() -> FastAPI:
         }
 
     @app.get("/v1/models")
-    async def list_models():
+    async def list_models(authorization: Optional[str] = Header(None)):
+        _check_auth(authorization)
         return {
             "object": "list",
             "data": [{

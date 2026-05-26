@@ -33,6 +33,12 @@ def main() -> int:
         print(f"[capswriter] probe skipped: {model_type} does not use llama.cpp")
         return 0
 
+    # ModelPaths 預設用相對路徑, 而 llama 初始化會 os.chdir 到 bin/ 目錄;
+    # 在這提前絕對路徑化, 避免 ONNX 在 EngineFactory 建構過程中拿到失效相對路徑。
+    # (start_server_docker.py 之後 env_config.apply() 也會呼叫一次, idempotent.)
+    from fork_server.env_config import _absolutize_model_paths
+    _absolutize_model_paths()
+
     try:
         from core.server.engines.factory import EngineFactory
         engine = EngineFactory.create_asr_engine(model_type)
