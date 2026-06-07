@@ -21,6 +21,9 @@ def wait_for_port(host: str, port: int, timeout: float, process: subprocess.Pope
             return False
         try:
             with socket.create_connection((host, port), timeout=1):
+                time.sleep(0.5)
+                if process.poll() is not None:
+                    return False
                 return True
         except OSError:
             time.sleep(0.5)
