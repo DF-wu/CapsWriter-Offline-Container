@@ -1,0 +1,141 @@
+name: client-ci
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/client-ci.yml"
+      - "apps/capswriter-client/**"
+      - "docs/ASR_CLIENT.md"
+  push:
+    branches:
+      - master
+      - "feature/**"
+    paths:
+      - ".github/workflows/client-ci.yml"
+      - "apps/capswriter-client/**"
+      - "docs/ASR_CLIENT.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  web-and-api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/capswriter-client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/capswriter-client/package-lock.json
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browser
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Expo doctor
+        run: npx expo-doctor
+
+      - name: Compile verification scripts
+        run: python -m py_compile scripts/*.py
+
+      - name: Verify Android generated config
+        run: npm run verify:android-config
+
+      - name: Verify web layout smoke
+        run: >
+          python scripts/with-servers.py
+          --server "BROWSER=none npx expo start --web --port 8081 --host localhost"
+          --port 8081
+          --timeout 120
+          --
+          python scripts/verify-web.py
+
+      - name: Verify mock provider integrations
+        run: >
+          python scripts/with-servers.py
+          --server "BROWSER=none npx expo start --web --port 8081 --host localhost"
+          --port 8081
+          --server "python scripts/mock-openai-compatible.py --port 8099"
+          --port 8099
+          --timeout 120
+          --
+          sh -c "python scripts/verify-asr-mock.py && python scripts/verify-openai-mock.py"
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: client-web-artifacts
+          path: apps/capswriter-client/test-artifacts
+          if-no-files-found: ignore
+          retention-days: 7
+
+  android-debug-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/capswriter-client
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/capswriter-client/package-lock.json
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-36" \
+            "build-tools;36.0.0" \
+            "cmake;3.22.1" \
+            "ndk;27.1.12297006"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build debug APK
+        run: npm run verify:android-build
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: capswriter-client-debug-apk
+          path: apps/capswriter-client/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
