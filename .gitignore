@@ -15,6 +15,8 @@ downloads/
 eggs/
 .eggs/
 lib/
+!apps/capswriter-client/src/lib/
+!apps/capswriter-client/src/lib/**
 lib64/
 parts/
 sdist/
@@ -136,6 +138,22 @@ dmypy.json
 
 # Cython 调试符号
 cython_debug/
+
+# JavaScript / Expo client workspace
+node_modules/
+.expo/
+.expo-shared/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+apps/*/node_modules/
+apps/*/.expo/
+apps/*/.expo-shared/
+apps/*/dist/
+apps/*/web-build/
+apps/*/.env
+apps/*/.env.local
 
 # PyCharm 设置
 .idea/
