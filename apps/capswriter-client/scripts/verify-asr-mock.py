@@ -90,6 +90,11 @@ def main() -> int:
             chooser.value.set_files(audio.name)
             expect(page.get_by_text("Mock ASR transcript.").first).to_be_visible(timeout=10000)
             expect(page.get_by_text("Transcribed")).to_be_visible(timeout=10000)
+            with page.expect_response(
+                lambda response: "/v1/audio/speech" in response.url and response.status == 200
+            ):
+                page.get_by_label("Speak").click()
+            expect(page.get_by_text("TTS audio is playing.")).to_be_visible(timeout=10000)
             with page.expect_download() as download_info:
                 page.get_by_label("Export transcript").click()
             download = download_info.value
@@ -100,7 +105,7 @@ def main() -> int:
             assert "Mock ASR transcript." in export_text
             assert "Raw ASR Response" in export_text
             browser.close()
-    print("mock ASR upload integration passed")
+    print("mock ASR upload and TTS integration passed")
     return 0
 
 

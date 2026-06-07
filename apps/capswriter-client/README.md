@@ -105,7 +105,7 @@ python /home/df/.agents/skills/webapp-testing/scripts/with_server.py \
   -- python apps/capswriter-client/scripts/verify-web.py
 ```
 
-Run the ASR upload integration check:
+Run the ASR upload and TTS integration check:
 
 ```bash
 python /home/df/.agents/skills/webapp-testing/scripts/with_server.py \

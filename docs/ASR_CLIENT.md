@@ -79,7 +79,7 @@ npm run ios:native          # native run on macOS
 
 ## Current Notes
 
-- Mock provider scripts under `apps/capswriter-client/scripts/` verify ASR uploads, provider diagnostics, and both streaming API modes without calling external services.
+- Mock provider scripts under `apps/capswriter-client/scripts/` verify ASR uploads, TTS speech, provider diagnostics, and both streaming API modes without calling external services.
 - Android native config disables background audio services; Expo config resolves to `RECORD_AUDIO` and `MODIFY_AUDIO_SETTINGS` only.
 - Native API keys use `expo-secure-store` when available.
 - Web API keys use `localStorage`, which is convenient for local work but not suitable for shared machines.
