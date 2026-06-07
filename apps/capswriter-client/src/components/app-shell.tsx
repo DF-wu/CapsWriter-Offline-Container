@@ -304,6 +304,18 @@ export function AppShell() {
     }
   }
 
+  async function useProviderModel(provider: ProviderKey, modelId: string) {
+    const label = providerConfig(settings, provider).label;
+    const next =
+      provider === "asr"
+        ? { ...settings, asr: { ...settings.asr, model: modelId } }
+        : provider === "tts"
+          ? { ...settings, tts: { ...settings.tts, model: modelId } }
+          : { ...settings, conversation: { ...settings.conversation, model: modelId } };
+    await saveSettings(next);
+    setNotice(`${label} model set to ${modelId}.`);
+  }
+
   async function applyTemplate(templateId: string) {
     const template = templates.find((item) => item.id === templateId);
     if (!template) {
@@ -412,6 +424,7 @@ export function AppShell() {
           onProbeProvider={probeProvider}
           onReset={resetSettings}
           onUpdate={updateSettings}
+          onUseModel={useProviderModel}
         />
       ) : null}
 
@@ -611,6 +624,7 @@ function SettingsView({
   onProbeProvider,
   onReset,
   onUpdate,
+  onUseModel,
   settings,
   wide,
 }: {
@@ -620,6 +634,7 @@ function SettingsView({
   onProbeProvider: (provider: ProviderKey) => void;
   onReset: () => void;
   onUpdate: (settings: ClientSettings) => void;
+  onUseModel: (provider: ProviderKey, modelId: string) => void;
   settings: ClientSettings;
   wide: boolean;
 }) {
@@ -644,6 +659,7 @@ function SettingsView({
               model={settings.asr.model}
               result={diagnostics.asr}
               onPress={() => onProbeProvider("asr")}
+              onUseModel={(modelId) => onUseModel("asr", modelId)}
               style={{ flex: 1 }}
             />
             <ProviderProbeCard
@@ -651,6 +667,7 @@ function SettingsView({
               model={settings.conversation.model}
               result={diagnostics.conversation}
               onPress={() => onProbeProvider("conversation")}
+              onUseModel={(modelId) => onUseModel("conversation", modelId)}
               style={{ flex: 1 }}
             />
             <ProviderProbeCard
@@ -658,6 +675,7 @@ function SettingsView({
               model={settings.tts.model}
               result={diagnostics.tts}
               onPress={() => onProbeProvider("tts")}
+              onUseModel={(modelId) => onUseModel("tts", modelId)}
               style={{ flex: 1 }}
             />
           </View>
@@ -761,18 +779,20 @@ function ProviderProbeCard({
   label,
   model,
   onPress,
+  onUseModel,
   result,
   style,
 }: {
   label: string;
   model: string;
   onPress: () => void;
+  onUseModel: (modelId: string) => void;
   result?: ProviderDiagnostic;
   style?: object;
 }) {
   const ok = result?.ok;
   const modelIds = result?.modelIds ?? [];
-  const modelPreview = modelIds.slice(0, 3).join(", ");
+  const modelPreview = modelIds.slice(0, 4);
   return (
     <View
       style={[
@@ -801,11 +821,39 @@ function ProviderProbeCard({
           ? `${result.status ? `HTTP ${result.status} · ` : ""}${result.message}`
           : `Configured model: ${model}`}
       </Text>
-      {modelPreview ? (
-        <Text selectable style={{ color: colors.ink, lineHeight: 20 }}>
-          {modelPreview}
-          {modelIds.length > 3 ? ` +${modelIds.length - 3}` : ""}
-        </Text>
+      {modelPreview.length ? (
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing.xs }}>
+          {modelPreview.map((modelId) => {
+            const selected = modelId === model;
+            return (
+              <Pressable
+                key={modelId}
+                accessibilityRole="button"
+                accessibilityLabel={`Use ${modelId} for ${label}`}
+                accessibilityState={{ selected }}
+                onPress={() => onUseModel(modelId)}
+                style={({ pressed }) => ({
+                  borderWidth: 1,
+                  borderColor: selected ? colors.black : colors.line,
+                  backgroundColor: selected ? colors.black : colors.panel,
+                  borderRadius: radii.small,
+                  paddingHorizontal: spacing.sm,
+                  paddingVertical: spacing.xs,
+                  opacity: pressed ? 0.75 : 1,
+                })}
+              >
+                <Text style={{ color: selected ? colors.white : colors.ink, fontSize: 12, fontWeight: "800" }}>
+                  {modelId}
+                </Text>
+              </Pressable>
+            );
+          })}
+          {modelIds.length > modelPreview.length ? (
+            <Text style={{ color: colors.muted, paddingVertical: spacing.xs, fontWeight: "800" }}>
+              +{modelIds.length - modelPreview.length}
+            </Text>
+          ) : null}
+        </View>
       ) : null}
     </View>
   );

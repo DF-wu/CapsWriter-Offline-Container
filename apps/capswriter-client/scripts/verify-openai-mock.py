@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-import json
 import os
+import pathlib
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -14,6 +14,8 @@ from browser_utils import goto_with_retry
 CLIENT_URL = os.environ.get("CLIENT_URL", "http://localhost:8081")
 MOCK_BASE_URL = os.environ.get("MOCK_BASE_URL", "http://127.0.0.1:8099/v1")
 SETTINGS_KEY = "capswriter-client.settings.v1"
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+ARTIFACTS = ROOT / "test-artifacts"
 
 
 def settings(mode: str) -> dict:
@@ -84,9 +86,20 @@ def run_diagnostics(page) -> None:
     )
     expect(page.get_by_text("2 models available").first).to_be_visible(timeout=10000)
     expect(page.get_by_text("mock-chat").first).to_be_visible(timeout=10000)
+    page.get_by_label("Use mock-chat for Chat").click()
+    expect(page.get_by_text("Conversation model set to mock-chat.")).to_be_visible(
+        timeout=10000
+    )
+    model = page.evaluate(
+        """(key) => JSON.parse(localStorage.getItem(key)).conversation.model""",
+        SETTINGS_KEY,
+    )
+    assert model == "mock-chat", model
+    page.screenshot(path=str(ARTIFACTS / "web-diagnostics-models.png"), full_page=True)
 
 
 def main() -> int:
+    ARTIFACTS.mkdir(exist_ok=True)
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": 1180, "height": 900})

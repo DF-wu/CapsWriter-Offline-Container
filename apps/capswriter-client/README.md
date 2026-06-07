@@ -84,7 +84,7 @@ The app exposes the parameters users normally need to tune:
 
 Streaming is enabled per conversation profile. Chat Completions reads `choices[].delta.content`; Responses reads `response.output_text.delta`.
 
-Provider checks run independently for the ASR, conversation, and TTS base URLs. Each check reports HTTP status and model IDs returned by `/v1/models`.
+Provider checks run independently for the ASR, conversation, and TTS base URLs. Each check reports HTTP status and model IDs returned by `/v1/models`; returned model IDs can be applied directly to that provider.
 
 ## Verification
 

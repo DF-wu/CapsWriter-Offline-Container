@@ -13,7 +13,7 @@ The client is designed as an operational workbench, not a landing page:
 - OpenAI-compatible ASR, chat, responses, and TTS integrations,
 - streaming Chat Completions and Responses output,
 - editable provider parameters and reusable templates.
-- per-provider diagnostics for ASR, conversation, and TTS `/v1/models` endpoints.
+- per-provider diagnostics for ASR, conversation, and TTS `/v1/models` endpoints, with model IDs selectable into the matching provider settings.
 
 ## Architecture
 
