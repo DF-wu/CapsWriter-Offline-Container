@@ -50,6 +50,7 @@ http://localhost:6017/v1
 ```
 
 On physical phones, replace `localhost` with the server LAN IP.
+For Android emulators, use the built-in `Android Emulator Host` template to route provider URLs through `10.0.2.2`.
 
 ## Development
 
@@ -58,6 +59,7 @@ cd apps/capswriter-client
 npm install
 npm run typecheck
 npx expo-doctor
+npm run verify:android-config
 npm run web
 ```
 
@@ -80,6 +82,6 @@ npm run ios:native          # native run on macOS
 ## Current Notes
 
 - Mock provider scripts under `apps/capswriter-client/scripts/` verify ASR uploads, TTS speech, provider diagnostics, and both streaming API modes without calling external services.
-- Android native config disables background audio services; Expo config resolves to `RECORD_AUDIO` and `MODIFY_AUDIO_SETTINGS` only.
+- Android native config allows cleartext HTTP for local CapsWriter/LAN endpoints and disables background audio services.
 - Native API keys use `expo-secure-store` when available.
 - Web API keys use `localStorage`, which is convenient for local work but not suitable for shared machines.

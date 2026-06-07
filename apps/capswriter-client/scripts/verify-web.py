@@ -47,6 +47,7 @@ def main() -> int:
         page.get_by_role("button", name="範本").click()
         expect(page.get_by_text("CapsWriter 本機 ASR")).to_be_visible()
         expect(page.get_by_text("OpenAI / 相容雲端")).to_be_visible()
+        expect(page.get_by_text("Android Emulator Host")).to_be_visible()
 
         page.set_viewport_size({"width": 390, "height": 844})
         page.get_by_role("button", name="語音").click()

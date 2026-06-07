@@ -78,6 +78,29 @@ export const templates: ClientTemplate[] = [
     },
   },
   {
+    id: "android-emulator-host",
+    name: "Android Emulator Host",
+    description:
+      "Android emulator 連到開發機上的 CapsWriter、LM Studio 或本機 TTS。10.0.2.2 會指回 host machine。",
+    tags: ["android", "emulator", "local"],
+    settings: {
+      ...defaultSettings,
+      asr: {
+        ...defaultSettings.asr,
+        baseUrl: "http://10.0.2.2:6017/v1",
+      },
+      conversation: {
+        ...defaultSettings.conversation,
+        baseUrl: "http://10.0.2.2:1234/v1",
+        stream: true,
+      },
+      tts: {
+        ...defaultSettings.tts,
+        baseUrl: "http://10.0.2.2:8880/v1",
+      },
+    },
+  },
+  {
     id: "lm-studio-chat",
     name: "CapsWriter + LM Studio",
     description:

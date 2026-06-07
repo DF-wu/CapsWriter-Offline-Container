@@ -43,6 +43,7 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "prebuild:android": "expo prebuild --platform android --no-install",
+    "verify:android-config": "npm run prebuild:android && python scripts/verify-android-config.py",
     "mock:provider": "python scripts/mock-openai-compatible.py",
     "verify:web": "python scripts/verify-web.py",
     "verify:asr": "python scripts/verify-asr-mock.py",

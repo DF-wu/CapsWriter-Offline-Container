@@ -74,6 +74,7 @@ http://YOUR_SERVER_IP:6017/v1
 ```
 
 For Android emulators, `localhost` points at the emulator itself. Use your LAN IP or `10.0.2.2` when the server is on the host machine.
+The app includes an `Android Emulator Host` template that applies `10.0.2.2` to ASR, chat, and TTS providers.
 
 ## Provider Settings
 
@@ -94,6 +95,7 @@ Run static checks:
 ```bash
 npm run typecheck
 npx expo-doctor
+npm run verify:android-config
 ```
 
 Run the browser smoke tests from the repository root:
@@ -129,4 +131,4 @@ python /home/df/.agents/skills/webapp-testing/scripts/with_server.py \
 
 On Android and iOS, settings are stored with `expo-secure-store` when available. On web, settings are stored in browser `localStorage`; avoid saving production cloud API keys on shared machines.
 
-The Android native config requests microphone access and audio setting control only. Background audio recording/playback services are disabled in the `expo-audio` config plugin.
+The Android native config enables cleartext HTTP so local CapsWriter, `10.0.2.2`, and LAN IP endpoints work in release builds. Background audio recording/playback services are disabled in the `expo-audio` config plugin.

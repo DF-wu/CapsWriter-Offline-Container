@@ -44,7 +44,8 @@
       ],
       "expo-secure-store",
       "expo-asset",
-      "expo-system-ui"
+      "expo-system-ui",
+      "./plugins/with-local-http-android"
     ]
   }
 }
