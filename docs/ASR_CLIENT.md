@@ -61,6 +61,7 @@ npm run typecheck
 npx expo-doctor
 npm run verify:android-config
 npm run verify:android-build
+npm run verify:android-runtime
 npm run web
 ```
 
@@ -70,6 +71,7 @@ Android:
 npm run android:go          # Expo Go
 npm run prebuild:android    # verifies native Android project generation
 npm run verify:android-build # builds :app:assembleDebug when JDK/Android SDK exist
+npm run verify:android-runtime # installs and launches the APK on an online adb device
 npm run android             # native Android run
 npx eas build --platform android --profile preview
 ```
@@ -86,6 +88,7 @@ npm run ios:native          # native run on macOS
 - Mock provider scripts under `apps/capswriter-client/scripts/` verify ASR uploads, TTS speech, provider diagnostics, and both streaming API modes without calling external services.
 - Android native config allows cleartext HTTP for local CapsWriter/LAN endpoints and pins the generated Gradle wrapper to `gradle-8.14.3-bin.zip`, avoiding the React Native Gradle plugin Foojay resolver incompatibility seen with Gradle 9.x.
 - `npm run verify:android-build` requires JDK 17+ plus an Android SDK exposed through `ANDROID_HOME`, `ANDROID_SDK_ROOT`, or `android/local.properties` `sdk.dir`.
+- `npm run verify:android-runtime` requires one online adb device or emulator. Headless or VM hosts without an online adb device or emulator acceleration cannot run this check.
 - Background audio services are disabled through the `expo-audio` config plugin.
 - Native API keys use `expo-secure-store` when available.
 - Web API keys use `localStorage`, which is convenient for local work but not suitable for shared machines.
