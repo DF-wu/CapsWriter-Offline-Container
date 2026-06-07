@@ -95,6 +95,10 @@ class Handler(BaseHTTPRequestHandler):
                         {"type": "response.output_text.delta", "delta": "Mock "},
                         {"type": "response.output_text.delta", "delta": "responses "},
                         {"type": "response.output_text.delta", "delta": "stream."},
+                        {
+                            "type": "response.completed",
+                            "output_text": "Mock responses stream.",
+                        },
                     ],
                     event="response.output_text.delta",
                 )

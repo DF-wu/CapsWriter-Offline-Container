@@ -296,7 +296,7 @@ async function readConversationStream(
     }
     const delta =
       mode === "responses"
-        ? extractResponseStreamDelta(event.event, parsed)
+        ? extractResponseStreamDelta(event.event, parsed, text.length > 0)
         : extractChatStreamDelta(parsed);
     emit(delta);
   };
@@ -395,7 +395,7 @@ function extractChatStreamDelta(raw: unknown): string {
   return "";
 }
 
-function extractResponseStreamDelta(event: string, raw: unknown): string {
+function extractResponseStreamDelta(event: string, raw: unknown, hasStreamedText: boolean): string {
   const value = raw as {
     type?: string;
     delta?: string;
@@ -405,7 +405,11 @@ function extractResponseStreamDelta(event: string, raw: unknown): string {
   if (type === "response.output_text.delta" && typeof value.delta === "string") {
     return value.delta;
   }
-  if (type === "response.completed" && typeof value.output_text === "string") {
+  if (
+    type === "response.completed" &&
+    !hasStreamedText &&
+    typeof value.output_text === "string"
+  ) {
     return value.output_text;
   }
   return "";

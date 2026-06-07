@@ -70,6 +70,8 @@ def run_case(page, mode: str, expected: str, *, verify_export: bool = False) -> 
     page.get_by_placeholder("Type a message, or send the latest transcript.").fill("hello")
     page.get_by_role("button", name="Send").click()
     expect(page.get_by_text(expected)).to_be_visible(timeout=10000)
+    body_text = page.locator("body").inner_text()
+    assert body_text.count(expected) == 1, body_text
     if verify_export:
         with page.expect_download() as download_info:
             page.get_by_role("button", name="Export").click()

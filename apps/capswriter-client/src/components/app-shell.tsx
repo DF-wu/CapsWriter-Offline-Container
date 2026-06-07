@@ -986,7 +986,7 @@ function TabButton({ active, icon: IconComponent, label, onPress }: { active: bo
       accessibilityState={{ selected: active }}
       onPress={onPress}
       style={({ pressed }) => ({
-        minHeight: 42,
+        minHeight: 44,
         minWidth: 86,
         borderRadius: radii.small,
         borderWidth: 1,
@@ -1061,8 +1061,8 @@ function IconOnly({ disabled, icon: IconComponent, label, onPress }: { disabled?
       disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => ({
-        width: 38,
-        height: 38,
+        width: 44,
+        height: 44,
         borderRadius: radii.small,
         borderWidth: 1,
         borderColor: colors.line,
@@ -1150,7 +1150,7 @@ function Segmented<T extends string>({
               accessibilityState={{ selected }}
               onPress={() => onChange(option.value)}
               style={({ pressed }) => ({
-                minHeight: 38,
+                minHeight: 44,
                 borderRadius: radii.small,
                 borderWidth: 1,
                 borderColor: selected ? colors.black : colors.line,
@@ -1172,7 +1172,7 @@ function Segmented<T extends string>({
 
 function SwitchRow({ label, onValueChange, value }: { label: string; onValueChange: (value: boolean) => void; value: boolean }) {
   return (
-    <View style={{ minHeight: 42, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md }}>
+    <View style={{ minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md }}>
       <Text style={labelStyle}>{label}</Text>
       <Switch value={value} onValueChange={onValueChange} trackColor={{ false: colors.line, true: colors.greenSoft }} thumbColor={value ? colors.green : colors.faint} />
     </View>
