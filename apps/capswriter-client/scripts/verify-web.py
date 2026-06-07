@@ -34,9 +34,15 @@ def main() -> int:
         page.screenshot(path=str(ARTIFACTS / "web-home.png"), full_page=True)
 
         page.get_by_role("button", name="設定").click()
+        expect(page.get_by_text("Provider checks")).to_be_visible()
         expect(page.get_by_text("Transcription provider")).to_be_visible()
         expect(page.get_by_text("Chat provider")).to_be_visible()
         expect(page.get_by_text("Speech provider")).to_be_visible()
+        page.screenshot(path=str(ARTIFACTS / "web-settings.png"), full_page=True)
+        page.set_viewport_size({"width": 390, "height": 844})
+        expect(page.get_by_text("Provider checks")).to_be_visible()
+        page.screenshot(path=str(ARTIFACTS / "web-settings-mobile.png"), full_page=True)
+        page.set_viewport_size({"width": 1366, "height": 900})
 
         page.get_by_role("button", name="範本").click()
         expect(page.get_by_text("CapsWriter 本機 ASR")).to_be_visible()

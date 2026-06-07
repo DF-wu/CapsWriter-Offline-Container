@@ -78,6 +78,8 @@ export type ApiProbe = {
   ok: boolean;
   status?: number;
   message: string;
+  endpoint?: string;
+  modelIds?: string[];
 };
 
 export type TranscriptionResult = {

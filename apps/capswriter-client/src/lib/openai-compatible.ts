@@ -173,18 +173,37 @@ export async function synthesizeSpeech(settings: TtsSettings, input: string): Pr
 }
 
 export async function probeModels(baseUrl: string, apiKey: string): Promise<ApiProbe> {
+  const modelsEndpoint = endpoint(baseUrl, "/models");
   try {
-    const response = await fetch(endpoint(baseUrl, "/models"), {
+    const response = await fetch(modelsEndpoint, {
       headers: authHeaders(apiKey),
     });
     if (!response.ok) {
-      return { ok: false, status: response.status, message: await readError(response) };
+      return {
+        ok: false,
+        status: response.status,
+        endpoint: modelsEndpoint,
+        message: await readError(response),
+        modelIds: [],
+      };
     }
-    return { ok: true, status: response.status, message: "Model endpoint reachable" };
+    const raw = (await response.json().catch(() => ({}))) as unknown;
+    const modelIds = extractModelIds(raw);
+    return {
+      ok: true,
+      status: response.status,
+      endpoint: modelsEndpoint,
+      message: modelIds.length
+        ? `${modelIds.length} model${modelIds.length === 1 ? "" : "s"} available`
+        : "Model endpoint reachable",
+      modelIds,
+    };
   } catch (error) {
     return {
       ok: false,
+      endpoint: modelsEndpoint,
       message: error instanceof Error ? error.message : "Network request failed",
+      modelIds: [],
     };
   }
 }
@@ -429,4 +448,14 @@ function extractResponseText(raw: unknown): string {
     .map((part) => part.text ?? "")
     .join("");
   return text || JSON.stringify(raw, null, 2);
+}
+
+function extractModelIds(raw: unknown): string[] {
+  const value = raw as { data?: Array<{ id?: unknown }> };
+  if (!Array.isArray(value.data)) {
+    return [];
+  }
+  return value.data
+    .map((model) => model.id)
+    .filter((modelId): modelId is string => typeof modelId === "string" && modelId.length > 0);
 }

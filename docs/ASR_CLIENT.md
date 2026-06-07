@@ -13,6 +13,7 @@ The client is designed as an operational workbench, not a landing page:
 - OpenAI-compatible ASR, chat, responses, and TTS integrations,
 - streaming Chat Completions and Responses output,
 - editable provider parameters and reusable templates.
+- per-provider diagnostics for ASR, conversation, and TTS `/v1/models` endpoints.
 
 ## Architecture
 
@@ -77,7 +78,7 @@ npm run ios:native          # native run on macOS
 
 ## Current Notes
 
-- Mock provider scripts under `apps/capswriter-client/scripts/` verify ASR uploads and both streaming API modes without calling external services.
+- Mock provider scripts under `apps/capswriter-client/scripts/` verify ASR uploads, provider diagnostics, and both streaming API modes without calling external services.
 - Android native config disables background audio services; Expo config resolves to `RECORD_AUDIO` and `MODIFY_AUDIO_SETTINGS` only.
 - Native API keys use `expo-secure-store` when available.
 - Web API keys use `localStorage`, which is convenient for local work but not suitable for shared machines.

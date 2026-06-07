@@ -19,7 +19,7 @@ SETTINGS_KEY = "capswriter-client.settings.v1"
 def settings(mode: str) -> dict:
     return {
         "asr": {
-            "baseUrl": "http://localhost:6017/v1",
+            "baseUrl": MOCK_BASE_URL,
             "apiKey": "",
             "model": "whisper-1",
             "responseFormat": "verbose_json",
@@ -70,11 +70,28 @@ def run_case(page, mode: str, expected: str) -> None:
     expect(page.get_by_text(expected)).to_be_visible(timeout=10000)
 
 
+def run_diagnostics(page) -> None:
+    page.evaluate(
+        """([key, value]) => localStorage.setItem(key, JSON.stringify(value))""",
+        [SETTINGS_KEY, settings("responses")],
+    )
+    page.reload(wait_until="domcontentloaded")
+    page.wait_for_selector("text=CapsWriter ASR Workbench")
+    page.get_by_role("button", name="設定").click()
+    page.get_by_role("button", name="Check all").click()
+    expect(page.get_by_text("All provider model endpoints are reachable.")).to_be_visible(
+        timeout=10000
+    )
+    expect(page.get_by_text("2 models available").first).to_be_visible(timeout=10000)
+    expect(page.get_by_text("mock-chat").first).to_be_visible(timeout=10000)
+
+
 def main() -> int:
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": 1180, "height": 900})
         goto_with_retry(page, CLIENT_URL)
+        run_diagnostics(page)
         run_case(page, "chat_completions", "Mock chat stream.")
         run_case(page, "responses", "Mock responses stream.")
         browser.close()

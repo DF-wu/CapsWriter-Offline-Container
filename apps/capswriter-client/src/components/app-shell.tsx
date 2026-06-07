@@ -44,6 +44,7 @@ import { isIOS } from "@/lib/platform";
 import { useSettings } from "@/state/settings";
 import { colors, radii, spacing } from "@/theme";
 import type {
+  ApiProbe,
   AsrResponseFormat,
   AsrSettings,
   ChatMessage,
@@ -57,6 +58,8 @@ import type {
 type TabId = "capture" | "chat" | "settings" | "templates";
 type BusyState = "record" | "transcribe" | "chat" | "tts" | "probe" | null;
 type Icon = ComponentType<{ color?: string; size?: number; strokeWidth?: number }>;
+type ProviderKey = "asr" | "conversation" | "tts";
+type ProviderDiagnostic = ApiProbe & { checkedAt: number };
 
 const tabs: Array<{ id: TabId; label: string; icon: Icon }> = [
   { id: "capture", label: "語音", icon: Mic },
@@ -64,6 +67,7 @@ const tabs: Array<{ id: TabId; label: string; icon: Icon }> = [
   { id: "settings", label: "設定", icon: Settings2 },
   { id: "templates", label: "範本", icon: Sparkles },
 ];
+const providerKeys: ProviderKey[] = ["asr", "conversation", "tts"];
 
 function id() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -81,6 +85,9 @@ export function AppShell() {
   const [rawResult, setRawResult] = useState("");
   const [chatDraft, setChatDraft] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [providerDiagnostics, setProviderDiagnostics] = useState<
+    Partial<Record<ProviderKey, ProviderDiagnostic>>
+  >({});
   const { width } = useWindowDimensions();
   const wide = width >= 900;
 
@@ -256,11 +263,45 @@ export function AppShell() {
     }
   }
 
-  async function probe() {
+  async function runProviderProbe(provider: ProviderKey) {
+    const config = providerConfig(settings, provider);
+    const result = await probeModels(config.baseUrl, config.apiKey);
+    const diagnostic = { ...result, checkedAt: Date.now() };
+    setProviderDiagnostics((current) => ({ ...current, [provider]: diagnostic }));
+    return diagnostic;
+  }
+
+  async function probeProvider(provider: ProviderKey) {
     setBusy("probe");
-    const result = await probeModels(settings.conversation.baseUrl, settings.conversation.apiKey);
-    setNotice(result.ok ? "Conversation provider is reachable." : result.message);
-    setBusy(null);
+    const label = providerConfig(settings, provider).label;
+    try {
+      const result = await runProviderProbe(provider);
+      setNotice(result.ok ? `${label} provider is reachable.` : `${label}: ${result.message}`);
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function probeAllProviders() {
+    setBusy("probe");
+    try {
+      const results = await Promise.all(
+        providerKeys.map(async (provider) => {
+          const config = providerConfig(settings, provider);
+          const result = await probeModels(config.baseUrl, config.apiKey);
+          return [provider, { ...result, checkedAt: Date.now() }] as const;
+        }),
+      );
+      setProviderDiagnostics(Object.fromEntries(results));
+      const failed = results.filter(([, result]) => !result.ok);
+      setNotice(
+        failed.length
+          ? `${failed.length} provider check${failed.length === 1 ? "" : "s"} failed.`
+          : "All provider model endpoints are reachable.",
+      );
+    } finally {
+      setBusy(null);
+    }
   }
 
   async function applyTemplate(templateId: string) {
@@ -363,9 +404,12 @@ export function AppShell() {
 
       {activeTab === "settings" ? (
         <SettingsView
+          busy={busy}
+          diagnostics={providerDiagnostics}
           settings={settings}
           wide={wide}
-          onProbe={probe}
+          onProbeAll={probeAllProviders}
+          onProbeProvider={probeProvider}
           onReset={resetSettings}
           onUpdate={updateSettings}
         />
@@ -561,13 +605,19 @@ function ChatView({
 }
 
 function SettingsView({
-  onProbe,
+  busy,
+  diagnostics,
+  onProbeAll,
+  onProbeProvider,
   onReset,
   onUpdate,
   settings,
   wide,
 }: {
-  onProbe: () => void;
+  busy: BusyState;
+  diagnostics: Partial<Record<ProviderKey, ProviderDiagnostic>>;
+  onProbeAll: () => void;
+  onProbeProvider: (provider: ProviderKey) => void;
   onReset: () => void;
   onUpdate: (settings: ClientSettings) => void;
   settings: ClientSettings;
@@ -582,6 +632,38 @@ function SettingsView({
 
   return (
     <View style={{ gap: spacing.lg }}>
+      <Surface>
+        <View style={{ gap: spacing.md }}>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md, flexWrap: "wrap" }}>
+            <PanelTitle icon={Wifi} eyebrow="Diagnostics" title="Provider checks" />
+            <CommandButton label="Check all" tone="secondary" icon={Wifi} loading={busy === "probe"} onPress={onProbeAll} />
+          </View>
+          <View style={{ flexDirection: wide ? "row" : "column", gap: spacing.md }}>
+            <ProviderProbeCard
+              label="ASR"
+              model={settings.asr.model}
+              result={diagnostics.asr}
+              onPress={() => onProbeProvider("asr")}
+              style={{ flex: 1 }}
+            />
+            <ProviderProbeCard
+              label="Chat"
+              model={settings.conversation.model}
+              result={diagnostics.conversation}
+              onPress={() => onProbeProvider("conversation")}
+              style={{ flex: 1 }}
+            />
+            <ProviderProbeCard
+              label="TTS"
+              model={settings.tts.model}
+              result={diagnostics.tts}
+              onPress={() => onProbeProvider("tts")}
+              style={{ flex: 1 }}
+            />
+          </View>
+        </View>
+      </Surface>
+
       <View style={{ flexDirection: wide ? "row" : "column", gap: spacing.lg }}>
         <Surface style={{ flex: 1 }}>
           <View style={{ gap: spacing.md }}>
@@ -637,7 +719,6 @@ function SettingsView({
             <SwitchRow label="Keep history" value={settings.keepConversationHistory} onValueChange={(value) => onUpdate({ ...settings, keepConversationHistory: value })} />
             <SwitchRow label="Auto speak replies" value={settings.autoSpeak} onValueChange={(value) => onUpdate({ ...settings, autoSpeak: value })} />
             <SwitchRow label="Streaming responses" value={settings.conversation.stream} onValueChange={(value) => updateConversation("stream", value)} />
-            <CommandButton label="Probe /models" tone="secondary" icon={Wifi} onPress={onProbe} />
           </View>
         </Surface>
       </View>
@@ -672,6 +753,60 @@ function SettingsView({
           <CommandButton label="Reset defaults" tone="plain" icon={RotateCcw} onPress={onReset} />
         </View>
       </Surface>
+    </View>
+  );
+}
+
+function ProviderProbeCard({
+  label,
+  model,
+  onPress,
+  result,
+  style,
+}: {
+  label: string;
+  model: string;
+  onPress: () => void;
+  result?: ProviderDiagnostic;
+  style?: object;
+}) {
+  const ok = result?.ok;
+  const modelIds = result?.modelIds ?? [];
+  const modelPreview = modelIds.slice(0, 3).join(", ");
+  return (
+    <View
+      style={[
+        {
+          borderWidth: 1,
+          borderColor: ok === undefined ? colors.line : ok ? colors.green : colors.danger,
+          backgroundColor: ok === undefined ? colors.panel : ok ? colors.greenSoft : colors.coralSoft,
+          borderRadius: radii.medium,
+          padding: spacing.md,
+          gap: spacing.sm,
+        },
+        style,
+      ]}
+    >
+      <View style={{ flexDirection: "row", justifyContent: "space-between", gap: spacing.sm, alignItems: "center" }}>
+        <View style={{ gap: 2, flex: 1 }}>
+          <Text style={eyebrowStyle}>{label}</Text>
+          <Text selectable style={{ color: colors.ink, fontWeight: "800" }}>
+            {ok === undefined ? "Not checked" : ok ? "Reachable" : "Failed"}
+          </Text>
+        </View>
+        <IconOnly icon={Wifi} label={`Check ${label}`} onPress={onPress} />
+      </View>
+      <Text selectable style={{ color: colors.muted, lineHeight: 20 }}>
+        {result
+          ? `${result.status ? `HTTP ${result.status} · ` : ""}${result.message}`
+          : `Configured model: ${model}`}
+      </Text>
+      {modelPreview ? (
+        <Text selectable style={{ color: colors.ink, lineHeight: 20 }}>
+          {modelPreview}
+          {modelIds.length > 3 ? ` +${modelIds.length - 3}` : ""}
+        </Text>
+      ) : null}
     </View>
   );
 }
@@ -998,4 +1133,26 @@ const eyebrowStyle = {
 
 function trimUrl(url: string) {
   return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+}
+
+function providerConfig(settings: ClientSettings, provider: ProviderKey) {
+  if (provider === "asr") {
+    return {
+      label: "ASR",
+      baseUrl: settings.asr.baseUrl,
+      apiKey: settings.asr.apiKey,
+    };
+  }
+  if (provider === "tts") {
+    return {
+      label: "TTS",
+      baseUrl: settings.tts.baseUrl,
+      apiKey: settings.tts.apiKey,
+    };
+  }
+  return {
+    label: "Conversation",
+    baseUrl: settings.conversation.baseUrl,
+    apiKey: settings.conversation.apiKey,
+  };
 }

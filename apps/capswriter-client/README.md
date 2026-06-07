@@ -17,6 +17,7 @@ This app targets:
 - Send transcript text to either `POST /v1/chat/completions` or `POST /v1/responses`
 - Stream Chat Completions and Responses replies over server-sent events
 - Generate speech with `POST /v1/audio/speech`
+- Check ASR, chat, and TTS providers with `GET /v1/models`
 - Persist provider settings and API keys locally
 - Apply provider templates for CapsWriter local, cloud-compatible, and LM Studio/Ollama-style setups
 
@@ -82,6 +83,8 @@ The app exposes the parameters users normally need to tune:
 - TTS: base URL, API key, model, voice, output format, speed, instructions, timeout
 
 Streaming is enabled per conversation profile. Chat Completions reads `choices[].delta.content`; Responses reads `response.output_text.delta`.
+
+Provider checks run independently for the ASR, conversation, and TTS base URLs. Each check reports HTTP status and model IDs returned by `/v1/models`.
 
 ## Verification
 
