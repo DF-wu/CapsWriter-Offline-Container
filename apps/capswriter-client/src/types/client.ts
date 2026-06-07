@@ -39,8 +39,12 @@ export type ConversationSettings = {
   model: string;
   systemPrompt: string;
   temperature: number;
+  topP: number;
+  frequencyPenalty: number;
+  presencePenalty: number;
   maxOutputTokens: number;
   stream: boolean;
+  timeoutSec: number;
 };
 
 export type TtsSettings = {
@@ -51,6 +55,7 @@ export type TtsSettings = {
   responseFormat: SpeechFormat;
   speed: number;
   instructions: string;
+  timeoutSec: number;
 };
 
 export type ClientSettings = {

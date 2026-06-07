@@ -16,12 +16,10 @@ import {
   FileAudio,
   MessageSquare,
   Mic,
-  Play,
   RotateCcw,
   Save,
   Send,
   Settings2,
-  SlidersHorizontal,
   Sparkles,
   Square,
   Upload,
@@ -176,25 +174,61 @@ export function AppShell() {
 
     const userMessage: ChatMessage = { id: id(), role: "user", content, createdAt: Date.now() };
     const inputMessages = settings.keepConversationHistory ? [...messages, userMessage] : [userMessage];
-    setMessages((current) => (settings.keepConversationHistory ? [...current, userMessage] : [userMessage]));
+    const assistantId = id();
+    const pendingAssistant: ChatMessage = {
+      id: assistantId,
+      role: "assistant",
+      content: "",
+      createdAt: Date.now(),
+    };
+    setMessages((current) =>
+      settings.keepConversationHistory
+        ? [...current, userMessage, pendingAssistant]
+        : [userMessage, pendingAssistant],
+    );
     setChatDraft("");
     setBusy("chat");
     setActiveTab("chat");
 
     try {
-      const answer = await runConversation(settings.conversation, inputMessages);
-      const assistantMessage: ChatMessage = {
-        id: id(),
-        role: "assistant",
-        content: answer,
-        createdAt: Date.now(),
-      };
-      setMessages((current) => [...current, assistantMessage]);
+      let streamed = "";
+      const answer = await runConversation(settings.conversation, inputMessages, {
+        onDelta: (delta) => {
+          streamed += delta;
+          setMessages((current) =>
+            current.map((message) =>
+              message.id === assistantId
+                ? { ...message, content: `${message.content}${delta}` }
+                : message,
+            ),
+          );
+        },
+      });
+      if (!streamed || streamed !== answer) {
+        setMessages((current) =>
+          current.map((message) =>
+            message.id === assistantId ? { ...message, content: answer } : message,
+          ),
+        );
+      }
       setNotice("Conversation response received.");
       if (settings.autoSpeak) {
         await speak(answer);
       }
     } catch (error) {
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === assistantId
+            ? {
+                ...message,
+                content:
+                  error instanceof Error
+                    ? `Request failed: ${error.message}`
+                    : "Conversation request failed.",
+              }
+            : message,
+        ),
+      );
       setNotice(error instanceof Error ? error.message : "Conversation request failed.");
     } finally {
       setBusy(null);
@@ -517,7 +551,7 @@ function ChatView({
               {message.role === "assistant" ? <IconOnly icon={Volume2} label="Speak" onPress={() => onSpeak(message.content)} /> : null}
             </View>
             <Text selectable style={{ color: colors.ink, lineHeight: 23 }}>
-              {message.content}
+              {message.content || (message.role === "assistant" ? "Waiting for response..." : "")}
             </Text>
           </View>
         ))}
@@ -590,11 +624,19 @@ function SettingsView({
             />
             <Field label="Model" value={settings.conversation.model} onChangeText={(value) => updateConversation("model", value)} />
             <Field label="System prompt" value={settings.conversation.systemPrompt} multiline onChangeText={(value) => updateConversation("systemPrompt", value)} />
-            <NumericField label="Temperature" value={settings.conversation.temperature} onChange={(value) => updateConversation("temperature", value)} />
-            <NumericField label="Max output tokens" value={settings.conversation.maxOutputTokens} onChange={(value) => updateConversation("maxOutputTokens", value)} />
+            <View style={{ flexDirection: wide ? "row" : "column", gap: spacing.md }}>
+              <NumericField label="Temperature" value={settings.conversation.temperature} onChange={(value) => updateConversation("temperature", value)} style={{ flex: 1 }} />
+              <NumericField label="Top P" value={settings.conversation.topP} onChange={(value) => updateConversation("topP", value)} style={{ flex: 1 }} />
+              <NumericField label="Max output tokens" value={settings.conversation.maxOutputTokens} onChange={(value) => updateConversation("maxOutputTokens", value)} style={{ flex: 1 }} />
+            </View>
+            <View style={{ flexDirection: wide ? "row" : "column", gap: spacing.md }}>
+              <NumericField label="Frequency penalty" value={settings.conversation.frequencyPenalty} onChange={(value) => updateConversation("frequencyPenalty", value)} style={{ flex: 1 }} />
+              <NumericField label="Presence penalty" value={settings.conversation.presencePenalty} onChange={(value) => updateConversation("presencePenalty", value)} style={{ flex: 1 }} />
+              <NumericField label="Timeout seconds" value={settings.conversation.timeoutSec} onChange={(value) => updateConversation("timeoutSec", value)} style={{ flex: 1 }} />
+            </View>
             <SwitchRow label="Keep history" value={settings.keepConversationHistory} onValueChange={(value) => onUpdate({ ...settings, keepConversationHistory: value })} />
             <SwitchRow label="Auto speak replies" value={settings.autoSpeak} onValueChange={(value) => onUpdate({ ...settings, autoSpeak: value })} />
-            <SwitchRow label="Stream flag" value={settings.conversation.stream} onValueChange={(value) => updateConversation("stream", value)} />
+            <SwitchRow label="Streaming responses" value={settings.conversation.stream} onValueChange={(value) => updateConversation("stream", value)} />
             <CommandButton label="Probe /models" tone="secondary" icon={Wifi} onPress={onProbe} />
           </View>
         </Surface>
@@ -611,6 +653,7 @@ function SettingsView({
             <Field label="Model" value={settings.tts.model} onChangeText={(value) => updateTts("model", value)} style={{ flex: 1 }} />
             <Field label="Voice" value={settings.tts.voice} onChangeText={(value) => updateTts("voice", value)} style={{ flex: 1 }} />
             <NumericField label="Speed" value={settings.tts.speed} onChange={(value) => updateTts("speed", value)} style={{ flex: 1 }} />
+            <NumericField label="Timeout seconds" value={settings.tts.timeoutSec} onChange={(value) => updateTts("timeoutSec", value)} style={{ flex: 1 }} />
           </View>
           <Segmented<SpeechFormat>
             label="Speech format"

@@ -19,8 +19,12 @@ export const defaultSettings: ClientSettings = {
     systemPrompt:
       "你是精準、直接的語音工作助理。先理解使用者口述內容，再用繁體中文給出可直接使用的回覆。",
     temperature: 0.4,
+    topP: 1,
+    frequencyPenalty: 0,
+    presencePenalty: 0,
     maxOutputTokens: 1200,
     stream: false,
+    timeoutSec: 120,
   },
   tts: {
     baseUrl: "http://localhost:8880/v1",
@@ -30,6 +34,7 @@ export const defaultSettings: ClientSettings = {
     responseFormat: "mp3",
     speed: 1,
     instructions: "語氣自然清楚，適合工作場景。",
+    timeoutSec: 120,
   },
   autoSpeak: false,
   keepConversationHistory: true,
@@ -62,6 +67,7 @@ export const templates: ClientTemplate[] = [
         baseUrl: "https://api.openai.com/v1",
         mode: "responses",
         model: "gpt-4.1-mini",
+        stream: true,
       },
       tts: {
         ...defaultSettings.tts,
@@ -85,6 +91,7 @@ export const templates: ClientTemplate[] = [
         mode: "chat_completions",
         model: "local-model",
         temperature: 0.2,
+        stream: true,
       },
       tts: {
         ...defaultSettings.tts,

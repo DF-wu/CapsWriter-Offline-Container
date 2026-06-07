@@ -36,7 +36,10 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "mock:provider": "python scripts/mock-openai-compatible.py",
+    "verify:web": "python scripts/verify-web.py",
+    "verify:mock": "python scripts/verify-openai-mock.py"
   },
   "private": true
 }

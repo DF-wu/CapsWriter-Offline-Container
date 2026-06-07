@@ -11,6 +11,7 @@ The client is designed as an operational workbench, not a landing page:
 - optional iOS support through the same codebase,
 - CapsWriter local ASR integration,
 - OpenAI-compatible ASR, chat, responses, and TTS integrations,
+- streaming Chat Completions and Responses output,
 - editable provider parameters and reusable templates.
 
 ## Architecture
@@ -35,6 +36,11 @@ The app calls standard OpenAI-compatible paths:
 | TTS | `POST /v1/audio/speech` |
 | Provider probe | `GET /v1/models` |
 
+Streaming support uses server-sent events:
+
+- Chat Completions: `choices[0].delta.content`
+- Responses: `response.output_text.delta`
+
 CapsWriter's local HTTP API is the default ASR template:
 
 ```text
@@ -49,6 +55,7 @@ On physical phones, replace `localhost` with the server LAN IP.
 cd apps/capswriter-client
 npm install
 npm run typecheck
+npx expo-doctor
 npm run web
 ```
 
@@ -61,6 +68,6 @@ npx eas build --platform android --profile preview
 
 ## Current Notes
 
-- The UI stores a stream flag because providers expose it differently, but request execution is currently non-streaming for consistent web/native behavior.
+- Mock provider scripts under `apps/capswriter-client/scripts/` verify both streaming API modes without calling external services.
 - Native API keys use `expo-secure-store` when available.
 - Web API keys use `localStorage`, which is convenient for local work but not suitable for shared machines.

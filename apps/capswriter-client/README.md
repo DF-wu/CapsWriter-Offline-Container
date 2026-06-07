@@ -15,6 +15,7 @@ This app targets:
 - Use CapsWriter's local Whisper-compatible HTTP API
 - Use any OpenAI-compatible ASR provider
 - Send transcript text to either `POST /v1/chat/completions` or `POST /v1/responses`
+- Stream Chat Completions and Responses replies over server-sent events
 - Generate speech with `POST /v1/audio/speech`
 - Persist provider settings and API keys locally
 - Apply provider templates for CapsWriter local, cloud-compatible, and LM Studio/Ollama-style setups
@@ -69,10 +70,36 @@ For Android emulators, `localhost` points at the emulator itself. Use your LAN I
 The app exposes the parameters users normally need to tune:
 
 - ASR: base URL, API key, model, `response_format`, language, prompt, temperature, timeout
-- Conversation: base URL, API key, API mode, model, system prompt, temperature, max output tokens, history, stream flag
-- TTS: base URL, API key, model, voice, output format, speed, instructions
+- Conversation: base URL, API key, API mode, model, system prompt, temperature, top P, penalties, max output tokens, history, streaming, timeout
+- TTS: base URL, API key, model, voice, output format, speed, instructions, timeout
 
-The conversation stream flag is stored as part of the provider profile. The current UI sends non-streaming requests for maximum provider compatibility across web and native fetch implementations.
+Streaming is enabled per conversation profile. Chat Completions reads `choices[].delta.content`; Responses reads `response.output_text.delta`.
+
+## Verification
+
+Run static checks:
+
+```bash
+npm run typecheck
+npx expo-doctor
+```
+
+Run the browser smoke tests from the repository root:
+
+```bash
+python /home/df/.agents/skills/webapp-testing/scripts/with_server.py \
+  --server "cd apps/capswriter-client && BROWSER=none npx expo start --web --port 8081 --host localhost" --port 8081 \
+  -- python apps/capswriter-client/scripts/verify-web.py
+```
+
+Run the streaming provider integration check:
+
+```bash
+python /home/df/.agents/skills/webapp-testing/scripts/with_server.py \
+  --server "cd apps/capswriter-client && BROWSER=none npx expo start --web --port 8081 --host localhost" --port 8081 \
+  --server "python apps/capswriter-client/scripts/mock-openai-compatible.py --port 8099" --port 8099 \
+  -- python apps/capswriter-client/scripts/verify-openai-mock.py
+```
 
 ## Security
 
