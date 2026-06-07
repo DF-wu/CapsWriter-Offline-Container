@@ -17,6 +17,7 @@ This app targets:
 - Send transcript text to either `POST /v1/chat/completions` or `POST /v1/responses`
 - Stream Chat Completions and Responses replies over server-sent events
 - Generate speech with `POST /v1/audio/speech`
+- Export transcripts, raw ASR payloads, and conversations as Markdown
 - Check ASR, chat, and TTS providers with `GET /v1/models`
 - Persist provider settings and API keys locally
 - Apply provider templates for CapsWriter local, cloud-compatible, and LM Studio/Ollama-style setups

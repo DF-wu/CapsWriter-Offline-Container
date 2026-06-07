@@ -13,6 +13,7 @@ import {
 import {
   Check,
   Copy,
+  Download,
   FileAudio,
   MessageSquare,
   Mic,
@@ -39,6 +40,7 @@ import {
 } from "react-native";
 
 import { templates } from "@/data/templates";
+import { conversationMarkdownExport, exportTextFile, transcriptMarkdownExport } from "@/lib/export-text";
 import { documentAssetToAudio, probeModels, recordingUriToAudio, runConversation, synthesizeSpeech, transcribeAudio } from "@/lib/openai-compatible";
 import { isIOS } from "@/lib/platform";
 import { useSettings } from "@/state/settings";
@@ -263,6 +265,32 @@ export function AppShell() {
     }
   }
 
+  async function exportTranscript() {
+    if (!transcript.trim()) {
+      setNotice("No transcript to export.");
+      return;
+    }
+    try {
+      await exportTextFile(transcriptMarkdownExport(transcript, rawResult));
+      setNotice("Transcript export started.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Transcript export failed.");
+    }
+  }
+
+  async function exportConversation() {
+    if (!messages.length) {
+      setNotice("No conversation to export.");
+      return;
+    }
+    try {
+      await exportTextFile(conversationMarkdownExport(messages));
+      setNotice("Conversation export started.");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Conversation export failed.");
+    }
+  }
+
   async function runProviderProbe(provider: ProviderKey) {
     const config = providerConfig(settings, provider);
     const result = await probeModels(config.baseUrl, config.apiKey);
@@ -392,6 +420,7 @@ export function AppShell() {
             await Clipboard.setStringAsync(transcript);
             setNotice("Transcript copied.");
           }}
+          onExport={exportTranscript}
           onPickAudio={pickAudio}
           onSendToChat={() => sendChat(transcript)}
           onSpeak={() => speak(transcript)}
@@ -408,6 +437,7 @@ export function AppShell() {
           transcript={transcript}
           onChangeDraft={setChatDraft}
           onClear={() => setMessages([])}
+          onExport={exportConversation}
           onSend={() => sendChat()}
           onSendTranscript={() => sendChat(transcript)}
           onSpeak={speak}
@@ -438,6 +468,7 @@ export function AppShell() {
 function CaptureView({
   busy,
   onCopy,
+  onExport,
   onPickAudio,
   onSendToChat,
   onSpeak,
@@ -449,6 +480,7 @@ function CaptureView({
 }: {
   busy: BusyState;
   onCopy: () => void;
+  onExport: () => void;
   onPickAudio: () => void;
   onSendToChat: () => void;
   onSpeak: () => void;
@@ -508,6 +540,7 @@ function CaptureView({
             </View>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing.sm }}>
               <IconOnly disabled={!transcript} icon={Copy} label="Copy" onPress={onCopy} />
+              <IconOnly disabled={!transcript} icon={Download} label="Export transcript" onPress={onExport} />
               <IconOnly disabled={!transcript} icon={Send} label="Send to chat" onPress={onSendToChat} />
               <IconOnly disabled={!transcript} icon={Volume2} label="Speak" onPress={onSpeak} />
             </View>
@@ -541,6 +574,7 @@ function ChatView({
   onSend,
   onSendTranscript,
   onSpeak,
+  onExport,
   transcript,
 }: {
   busy: BusyState;
@@ -548,6 +582,7 @@ function ChatView({
   messages: ChatMessage[];
   onChangeDraft: (value: string) => void;
   onClear: () => void;
+  onExport: () => void;
   onSend: () => void;
   onSendTranscript: () => void;
   onSpeak: (text: string) => void;
@@ -564,7 +599,10 @@ function ChatView({
                 Chat Completions / Responses
               </Text>
             </View>
-            <CommandButton label="Clear" tone="plain" icon={RotateCcw} onPress={onClear} />
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: spacing.sm }}>
+              <CommandButton label="Export" tone="secondary" icon={Download} disabled={!messages.length} onPress={onExport} />
+              <CommandButton label="Clear" tone="plain" icon={RotateCcw} onPress={onClear} />
+            </View>
           </View>
           <TextInput
             multiline

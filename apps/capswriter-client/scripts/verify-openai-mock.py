@@ -59,7 +59,7 @@ def settings(mode: str) -> dict:
     }
 
 
-def run_case(page, mode: str, expected: str) -> None:
+def run_case(page, mode: str, expected: str, *, verify_export: bool = False) -> None:
     page.evaluate(
         """([key, value]) => localStorage.setItem(key, JSON.stringify(value))""",
         [SETTINGS_KEY, settings(mode)],
@@ -70,6 +70,16 @@ def run_case(page, mode: str, expected: str) -> None:
     page.get_by_placeholder("Type a message, or send the latest transcript.").fill("hello")
     page.get_by_role("button", name="Send").click()
     expect(page.get_by_text(expected)).to_be_visible(timeout=10000)
+    if verify_export:
+        with page.expect_download() as download_info:
+            page.get_by_role("button", name="Export").click()
+        download = download_info.value
+        assert download.suggested_filename.startswith("capswriter-conversation-")
+        export_path = ARTIFACTS / download.suggested_filename
+        download.save_as(export_path)
+        export_text = export_path.read_text(encoding="utf-8")
+        assert "CapsWriter Conversation" in export_text
+        assert expected in export_text
 
 
 def run_diagnostics(page) -> None:
@@ -105,7 +115,7 @@ def main() -> int:
         page = browser.new_page(viewport={"width": 1180, "height": 900})
         goto_with_retry(page, CLIENT_URL)
         run_diagnostics(page)
-        run_case(page, "chat_completions", "Mock chat stream.")
+        run_case(page, "chat_completions", "Mock chat stream.", verify_export=True)
         run_case(page, "responses", "Mock responses stream.")
         browser.close()
     print("mock streaming integration passed")

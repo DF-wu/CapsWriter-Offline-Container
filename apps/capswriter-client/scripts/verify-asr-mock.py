@@ -3,8 +3,8 @@
 
 from __future__ import annotations
 
-import json
 import os
+import pathlib
 import struct
 import tempfile
 import wave
@@ -17,6 +17,8 @@ from browser_utils import goto_with_retry
 CLIENT_URL = os.environ.get("CLIENT_URL", "http://localhost:8081")
 MOCK_BASE_URL = os.environ.get("MOCK_BASE_URL", "http://127.0.0.1:8099/v1")
 SETTINGS_KEY = "capswriter-client.settings.v1"
+ROOT = pathlib.Path(__file__).resolve().parents[1]
+ARTIFACTS = ROOT / "test-artifacts"
 
 
 def settings() -> dict:
@@ -70,6 +72,7 @@ def write_wav(path: str) -> None:
 
 
 def main() -> int:
+    ARTIFACTS.mkdir(exist_ok=True)
     with tempfile.NamedTemporaryFile(suffix=".wav") as audio:
         write_wav(audio.name)
         with sync_playwright() as p:
@@ -87,6 +90,15 @@ def main() -> int:
             chooser.value.set_files(audio.name)
             expect(page.get_by_text("Mock ASR transcript.").first).to_be_visible(timeout=10000)
             expect(page.get_by_text("Transcribed")).to_be_visible(timeout=10000)
+            with page.expect_download() as download_info:
+                page.get_by_label("Export transcript").click()
+            download = download_info.value
+            assert download.suggested_filename.startswith("capswriter-transcript-")
+            export_path = ARTIFACTS / download.suggested_filename
+            download.save_as(export_path)
+            export_text = export_path.read_text(encoding="utf-8")
+            assert "Mock ASR transcript." in export_text
+            assert "Raw ASR Response" in export_text
             browser.close()
     print("mock ASR upload integration passed")
     return 0
