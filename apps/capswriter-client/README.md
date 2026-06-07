@@ -40,6 +40,7 @@ Android native run with a local Android SDK/device:
 
 ```bash
 npm run prebuild:android
+npm run verify:android-build
 npm run android
 ```
 
@@ -96,7 +97,12 @@ Run static checks:
 npm run typecheck
 npx expo-doctor
 npm run verify:android-config
+npm run verify:android-build
 ```
+
+`verify:android-config` regenerates the Android project, checks the cleartext HTTP manifest setting, and pins the Gradle wrapper to `gradle-8.14.3-bin.zip`. The Gradle pin avoids the React Native Gradle plugin's Foojay resolver incompatibility seen with Gradle 9.x.
+
+`verify:android-build` also runs `:app:assembleDebug`. It requires JDK 17+ and an Android SDK with platform/build tools available through `ANDROID_HOME`, `ANDROID_SDK_ROOT`, or `android/local.properties` `sdk.dir`.
 
 Run the browser smoke tests from the repository root:
 
@@ -131,4 +137,4 @@ python /home/df/.agents/skills/webapp-testing/scripts/with_server.py \
 
 On Android and iOS, settings are stored with `expo-secure-store` when available. On web, settings are stored in browser `localStorage`; avoid saving production cloud API keys on shared machines.
 
-The Android native config enables cleartext HTTP so local CapsWriter, `10.0.2.2`, and LAN IP endpoints work in release builds. Background audio recording/playback services are disabled in the `expo-audio` config plugin.
+The Android native config enables cleartext HTTP so local CapsWriter, `10.0.2.2`, and LAN IP endpoints work in release builds. It also pins the generated Gradle wrapper to 8.14.3 for React Native Gradle plugin compatibility. Background audio recording/playback services are disabled in the `expo-audio` config plugin.

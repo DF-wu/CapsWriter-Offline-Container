@@ -11,8 +11,23 @@ import xml.etree.ElementTree as ET
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 APP_JSON = ROOT / "app.json"
 MANIFEST = ROOT / "android" / "app" / "src" / "main" / "AndroidManifest.xml"
+GRADLE_WRAPPER = ROOT / "android" / "gradle" / "wrapper" / "gradle-wrapper.properties"
 ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
 LOCAL_HTTP_PLUGIN = "./plugins/with-local-http-android"
+EXPECTED_GRADLE_DISTRIBUTION = (
+    "https\\://services.gradle.org/distributions/gradle-8.14.3-bin.zip"
+)
+
+
+def read_gradle_distribution() -> str | None:
+    if not GRADLE_WRAPPER.exists():
+        return None
+
+    for line in GRADLE_WRAPPER.read_text(encoding="utf-8").splitlines():
+        key, separator, value = line.partition("=")
+        if separator and key == "distributionUrl":
+            return value.strip()
+    return None
 
 
 def main() -> int:
@@ -35,6 +50,18 @@ def main() -> int:
     cleartext = application.attrib.get(f"{ANDROID_NS}usesCleartextTraffic")
     if cleartext != "true":
         print("android:usesCleartextTraffic must be true for local CapsWriter HTTP")
+        return 1
+
+    distribution_url = read_gradle_distribution()
+    if distribution_url is None:
+        print("Gradle wrapper distributionUrl missing; run npm run prebuild:android first")
+        return 1
+
+    if distribution_url != EXPECTED_GRADLE_DISTRIBUTION:
+        print(
+            "Gradle wrapper must use "
+            f"{EXPECTED_GRADLE_DISTRIBUTION}; got {distribution_url}"
+        )
         return 1
 
     print("android config verification passed")
