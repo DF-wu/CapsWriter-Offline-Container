@@ -113,13 +113,6 @@ def main():
     try:
         data = _api_get(base, "/health", api_key)
         ok(f"model={data.get('model', '?')} v{data.get('version', '?')}")
-    except urllib.error.HTTPError as e:
-        fail(f"HTTP {e.code}")
-        if e.code == 401:
-            print(
-                f"         → 需要 API key: {bold('python check_http_api.py --key YOUR_KEY')}"
-            )
-        return 1
     except urllib.error.URLError as e:
         fail(f"无法连接: {e.reason}")
         print(f"\n{yellow('请确认:')}")
@@ -128,6 +121,13 @@ def main():
         )
         print(f"  2. 环境变量: {bold('CAPSWRITER_HTTP_API_ENABLE=true')}")
         print(f"  3. Docker: 取消 docker-compose.yml 中 HTTP_API 相关注释\n")
+        return 1
+    except urllib.error.HTTPError as e:
+        fail(f"HTTP {e.code}")
+        if e.code == 401:
+            print(
+                f"         → 需要 API key: {bold('python check_http_api.py --key YOUR_KEY')}"
+            )
         return 1
     except Exception as e:
         fail(str(e))
@@ -175,9 +175,6 @@ def main():
                     print("         → 需要 API key 或 key 不正确")
                 elif e.code == 500 and "ffmpeg" in body.lower():
                     print("         → ffmpeg 未安装。运行: apt install ffmpeg")
-                errors += 1
-            except urllib.error.URLError as e:
-                fail(f"连接失败: {e.reason}")
                 errors += 1
             except Exception as e:
                 fail(str(e))

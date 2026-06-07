@@ -162,7 +162,6 @@ start_server_docker.py    ← Fork entrypoint (與上游 start_server.py 並存)
 | [docs/HTTP_API.md](docs/HTTP_API.md) | OpenAI Whisper API 規格、5 種 response_format、認證、SDK 範例 |
 | [docs/docker-server.md](docs/docker-server.md) | 容器部署細節、GPU 設定、env 變數完整表 |
 | [docs/state-of-fork.md](docs/state-of-fork.md) | Fork 當前狀態快照（divergence、已驗證項目） |
-| [docs/ASR_CLIENT.md](docs/ASR_CLIENT.md) | Universal web / Android / optional iOS ASR client 設計與使用方式 |
 
 ---
 
