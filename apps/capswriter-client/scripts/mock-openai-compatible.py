@@ -6,6 +6,8 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from email.parser import BytesParser
+from email.policy import default
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
@@ -39,6 +41,33 @@ class Handler(BaseHTTPRequestHandler):
         self.send_error(404)
 
     def do_POST(self) -> None:
+        if self.path == "/v1/audio/transcriptions":
+            fields = self._multipart_fields()
+            response_format = fields.get("response_format", "json")
+            text = "Mock ASR transcript."
+            if response_format == "text":
+                self._text(text)
+            elif response_format == "srt":
+                self._text("1\n00:00:00,000 --> 00:00:01,000\nMock ASR transcript.\n", "application/x-subrip")
+            elif response_format == "vtt":
+                self._text("WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nMock ASR transcript.\n", "text/vtt")
+            elif response_format == "verbose_json":
+                self._json(
+                    {
+                        "task": "transcribe",
+                        "language": fields.get("language", "zh"),
+                        "duration": 1.0,
+                        "text": text,
+                        "segments": [
+                            {"id": 0, "seek": 0, "start": 0.0, "end": 1.0, "text": text}
+                        ],
+                        "words": [{"word": "Mock", "start": 0.0, "end": 1.0}],
+                    }
+                )
+            else:
+                self._json({"text": text})
+            return
+
         payload = self._payload()
         if self.path == "/v1/chat/completions":
             if payload.get("stream"):
@@ -97,6 +126,24 @@ class Handler(BaseHTTPRequestHandler):
         except json.JSONDecodeError:
             return {}
 
+    def _multipart_fields(self) -> dict[str, str]:
+        length = int(self.headers.get("content-length", "0") or 0)
+        content_type = self.headers.get("content-type", "")
+        if not length or "multipart/form-data" not in content_type:
+            return {}
+        body = self.rfile.read(length)
+        message = BytesParser(policy=default).parsebytes(
+            f"Content-Type: {content_type}\r\n\r\n".encode("utf-8") + body
+        )
+        fields: dict[str, str] = {}
+        for part in message.iter_parts():
+            name = part.get_param("name", header="content-disposition")
+            if not name or part.get_filename():
+                continue
+            content = part.get_content()
+            fields[name] = content if isinstance(content, str) else str(content)
+        return fields
+
     def _cors(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Headers", "authorization,content-type")
@@ -107,6 +154,15 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(status)
         self._cors()
         self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def _text(self, text: str, content_type: str = "text/plain") -> None:
+        body = text.encode("utf-8")
+        self.send_response(200)
+        self._cors()
+        self.send_header("Content-Type", f"{content_type}; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)

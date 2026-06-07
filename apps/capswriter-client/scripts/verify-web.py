@@ -7,6 +7,8 @@ import pathlib
 
 from playwright.sync_api import expect, sync_playwright
 
+from browser_utils import goto_with_retry
+
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 ARTIFACTS = ROOT / "test-artifacts"
@@ -24,7 +26,7 @@ def main() -> int:
             "console",
             lambda msg: console_errors.append(msg.text) if msg.type == "error" else None,
         )
-        page.goto(URL, wait_until="domcontentloaded")
+        goto_with_retry(page, URL)
         page.wait_for_selector("text=CapsWriter ASR Workbench")
 
         expect(page.get_by_text("CapsWriter ASR Workbench")).to_be_visible()

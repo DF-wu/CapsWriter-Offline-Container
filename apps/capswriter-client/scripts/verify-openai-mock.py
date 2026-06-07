@@ -8,6 +8,8 @@ import os
 
 from playwright.sync_api import expect, sync_playwright
 
+from browser_utils import goto_with_retry
+
 
 CLIENT_URL = os.environ.get("CLIENT_URL", "http://localhost:8081")
 MOCK_BASE_URL = os.environ.get("MOCK_BASE_URL", "http://127.0.0.1:8099/v1")
@@ -72,7 +74,7 @@ def main() -> int:
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page(viewport={"width": 1180, "height": 900})
-        page.goto(CLIENT_URL, wait_until="domcontentloaded")
+        goto_with_retry(page, CLIENT_URL)
         run_case(page, "chat_completions", "Mock chat stream.")
         run_case(page, "responses", "Mock responses stream.")
         browser.close()

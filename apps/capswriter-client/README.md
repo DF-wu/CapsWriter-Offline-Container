@@ -31,6 +31,13 @@ npm run web
 Android with Expo Go:
 
 ```bash
+npm run android:go
+```
+
+Android native run with a local Android SDK/device:
+
+```bash
+npm run prebuild:android
 npm run android
 ```
 
@@ -43,7 +50,8 @@ npx eas build --platform android --profile preview
 iOS is optional and uses the same app:
 
 ```bash
-npm run ios
+npm run ios:go       # Expo Go
+npm run ios:native   # native run on macOS
 ```
 
 ## CapsWriter Setup
@@ -89,7 +97,18 @@ Run the browser smoke tests from the repository root:
 ```bash
 python /home/df/.agents/skills/webapp-testing/scripts/with_server.py \
   --server "cd apps/capswriter-client && BROWSER=none npx expo start --web --port 8081 --host localhost" --port 8081 \
+  --timeout 120 \
   -- python apps/capswriter-client/scripts/verify-web.py
+```
+
+Run the ASR upload integration check:
+
+```bash
+python /home/df/.agents/skills/webapp-testing/scripts/with_server.py \
+  --server "cd apps/capswriter-client && BROWSER=none npx expo start --web --port 8081 --host localhost" --port 8081 \
+  --server "python apps/capswriter-client/scripts/mock-openai-compatible.py --port 8099" --port 8099 \
+  --timeout 120 \
+  -- python apps/capswriter-client/scripts/verify-asr-mock.py
 ```
 
 Run the streaming provider integration check:
@@ -98,9 +117,12 @@ Run the streaming provider integration check:
 python /home/df/.agents/skills/webapp-testing/scripts/with_server.py \
   --server "cd apps/capswriter-client && BROWSER=none npx expo start --web --port 8081 --host localhost" --port 8081 \
   --server "python apps/capswriter-client/scripts/mock-openai-compatible.py --port 8099" --port 8099 \
+  --timeout 120 \
   -- python apps/capswriter-client/scripts/verify-openai-mock.py
 ```
 
 ## Security
 
 On Android and iOS, settings are stored with `expo-secure-store` when available. On web, settings are stored in browser `localStorage`; avoid saving production cloud API keys on shared machines.
+
+The Android native config requests microphone access and audio setting control only. Background audio recording/playback services are disabled in the `expo-audio` config plugin.

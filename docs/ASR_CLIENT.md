@@ -62,12 +62,22 @@ npm run web
 Android:
 
 ```bash
-npm run android
+npm run android:go          # Expo Go
+npm run prebuild:android    # verifies native Android project generation
+npm run android             # native Android run
 npx eas build --platform android --profile preview
+```
+
+iOS is optional:
+
+```bash
+npm run ios:go              # Expo Go
+npm run ios:native          # native run on macOS
 ```
 
 ## Current Notes
 
-- Mock provider scripts under `apps/capswriter-client/scripts/` verify both streaming API modes without calling external services.
+- Mock provider scripts under `apps/capswriter-client/scripts/` verify ASR uploads and both streaming API modes without calling external services.
+- Android native config disables background audio services; Expo config resolves to `RECORD_AUDIO` and `MODIFY_AUDIO_SETTINGS` only.
 - Native API keys use `expo-secure-store` when available.
 - Web API keys use `localStorage`, which is convenient for local work but not suitable for shared machines.
