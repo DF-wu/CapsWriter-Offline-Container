@@ -293,7 +293,7 @@ export function AppShell() {
 
   async function runProviderProbe(provider: ProviderKey) {
     const config = providerConfig(settings, provider);
-    const result = await probeModels(config.baseUrl, config.apiKey);
+    const result = await probeModels(config.baseUrl, config.apiKey, config.extraHeadersJson);
     const diagnostic = { ...result, checkedAt: Date.now() };
     setProviderDiagnostics((current) => ({ ...current, [provider]: diagnostic }));
     return diagnostic;
@@ -316,7 +316,7 @@ export function AppShell() {
       const results = await Promise.all(
         providerKeys.map(async (provider) => {
           const config = providerConfig(settings, provider);
-          const result = await probeModels(config.baseUrl, config.apiKey);
+          const result = await probeModels(config.baseUrl, config.apiKey, config.extraHeadersJson);
           return [provider, { ...result, checkedAt: Date.now() }] as const;
         }),
       );
@@ -743,6 +743,8 @@ function SettingsView({
             <Field label="Prompt / vocabulary hint" value={settings.asr.prompt} multiline onChangeText={(value) => updateAsr("prompt", value)} />
             <NumericField label="Temperature" value={settings.asr.temperature} onChange={(value) => updateAsr("temperature", value)} />
             <NumericField label="Timeout seconds" value={settings.asr.timeoutSec} onChange={(value) => updateAsr("timeoutSec", value)} />
+            <Field label="Extra headers JSON" value={settings.asr.extraHeadersJson} multiline onChangeText={(value) => updateAsr("extraHeadersJson", value)} />
+            <Field label="Extra form fields JSON" value={settings.asr.extraFormFieldsJson} multiline onChangeText={(value) => updateAsr("extraFormFieldsJson", value)} />
           </View>
         </Surface>
 
@@ -775,6 +777,8 @@ function SettingsView({
             <SwitchRow label="Keep history" value={settings.keepConversationHistory} onValueChange={(value) => onUpdate({ ...settings, keepConversationHistory: value })} />
             <SwitchRow label="Auto speak replies" value={settings.autoSpeak} onValueChange={(value) => onUpdate({ ...settings, autoSpeak: value })} />
             <SwitchRow label="Streaming responses" value={settings.conversation.stream} onValueChange={(value) => updateConversation("stream", value)} />
+            <Field label="Extra headers JSON" value={settings.conversation.extraHeadersJson} multiline onChangeText={(value) => updateConversation("extraHeadersJson", value)} />
+            <Field label="Extra body JSON" value={settings.conversation.extraBodyJson} multiline onChangeText={(value) => updateConversation("extraBodyJson", value)} />
           </View>
         </Surface>
       </View>
@@ -806,6 +810,8 @@ function SettingsView({
             onChange={(value) => updateTts("responseFormat", value)}
           />
           <Field label="Voice instructions" value={settings.tts.instructions} multiline onChangeText={(value) => updateTts("instructions", value)} />
+          <Field label="Extra headers JSON" value={settings.tts.extraHeadersJson} multiline onChangeText={(value) => updateTts("extraHeadersJson", value)} />
+          <Field label="Extra body JSON" value={settings.tts.extraBodyJson} multiline onChangeText={(value) => updateTts("extraBodyJson", value)} />
           <CommandButton label="Reset defaults" tone="plain" icon={RotateCcw} onPress={onReset} />
         </View>
       </Surface>
@@ -1227,6 +1233,7 @@ function providerConfig(settings: ClientSettings, provider: ProviderKey) {
       label: "ASR",
       baseUrl: settings.asr.baseUrl,
       apiKey: settings.asr.apiKey,
+      extraHeadersJson: settings.asr.extraHeadersJson,
     };
   }
   if (provider === "tts") {
@@ -1234,11 +1241,13 @@ function providerConfig(settings: ClientSettings, provider: ProviderKey) {
       label: "TTS",
       baseUrl: settings.tts.baseUrl,
       apiKey: settings.tts.apiKey,
+      extraHeadersJson: settings.tts.extraHeadersJson,
     };
   }
   return {
     label: "Conversation",
     baseUrl: settings.conversation.baseUrl,
     apiKey: settings.conversation.apiKey,
+    extraHeadersJson: settings.conversation.extraHeadersJson,
   };
 }

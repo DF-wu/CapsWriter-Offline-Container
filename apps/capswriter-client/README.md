@@ -21,6 +21,7 @@ This app targets:
 - Check ASR, chat, and TTS providers with `GET /v1/models`
 - Persist provider settings and API keys locally
 - Apply provider templates for CapsWriter local, cloud-compatible, and LM Studio/Ollama-style setups
+- Add provider-specific headers, ASR multipart fields, and JSON body overrides for OpenAI-compatible variants
 
 ## Run
 
@@ -85,10 +86,13 @@ The app exposes the parameters users normally need to tune:
 - ASR: base URL, API key, model, `response_format`, language, prompt, temperature, timeout
 - Conversation: base URL, API key, API mode, model, system prompt, temperature, top P, penalties, max output tokens, history, streaming, timeout
 - TTS: base URL, API key, model, voice, output format, speed, instructions, timeout
+- Advanced: per-provider extra headers, ASR extra form fields, and conversation/TTS extra JSON body fields
 
 Streaming is enabled per conversation profile. Chat Completions reads `choices[].delta.content`; Responses reads `response.output_text.delta`.
 
 Provider checks run independently for the ASR, conversation, and TTS base URLs. Each check reports HTTP status and model IDs returned by `/v1/models`; returned model IDs can be applied directly to that provider.
+
+Advanced JSON fields are merged into the outgoing request after the built-in settings. They are intended for compatible providers that require custom headers, ASR fields such as timestamp options, or body fields such as `response_format`, `metadata`, `seed`, or vendor-specific flags.
 
 ## Verification
 

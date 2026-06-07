@@ -43,6 +43,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:
         if self.path == "/v1/audio/transcriptions":
             fields = self._multipart_fields()
+            if not self._request_options_ok("asr", fields=fields):
+                return
             response_format = fields.get("response_format", "json")
             text = "Mock ASR transcript."
             if response_format == "text":
@@ -70,6 +72,8 @@ class Handler(BaseHTTPRequestHandler):
 
         payload = self._payload()
         if self.path == "/v1/chat/completions":
+            if not self._request_options_ok("conversation", payload=payload):
+                return
             if payload.get("stream"):
                 self._sse(
                     [
@@ -89,6 +93,8 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if self.path == "/v1/responses":
+            if not self._request_options_ok("conversation", payload=payload):
+                return
             if payload.get("stream"):
                 self._sse(
                     [
@@ -107,6 +113,8 @@ class Handler(BaseHTTPRequestHandler):
             return
 
         if self.path == "/v1/audio/speech":
+            if not self._request_options_ok("tts", payload=payload):
+                return
             self.send_response(200)
             self._cors()
             self.send_header("Content-Type", "audio/wav")
@@ -148,9 +156,41 @@ class Handler(BaseHTTPRequestHandler):
             fields[name] = content if isinstance(content, str) else str(content)
         return fields
 
+    def _request_options_ok(
+        self,
+        scope: str,
+        *,
+        fields: dict[str, str] | None = None,
+        payload: dict | None = None,
+    ) -> bool:
+        marker = self.headers.get("x-capswriter-test")
+        if not marker:
+            return True
+        if marker != scope:
+            self._json({"error": {"message": f"unexpected test header {marker}"}}, status=400)
+            return False
+        if scope == "asr":
+            fields = fields or {}
+            if fields.get("provider_hint") != "asr-extra":
+                self._json({"error": {"message": "missing ASR extra form field"}}, status=400)
+                return False
+        elif scope == "conversation":
+            metadata = (payload or {}).get("metadata")
+            if not isinstance(metadata, dict) or metadata.get("test") != "conversation-extra":
+                self._json({"error": {"message": "missing conversation extra body"}}, status=400)
+                return False
+        elif scope == "tts":
+            if (payload or {}).get("provider_hint") != "tts-extra":
+                self._json({"error": {"message": "missing TTS extra body"}}, status=400)
+                return False
+        return True
+
     def _cors(self) -> None:
         self.send_header("Access-Control-Allow-Origin", "*")
-        self.send_header("Access-Control-Allow-Headers", "authorization,content-type")
+        self.send_header(
+            "Access-Control-Allow-Headers",
+            "authorization,content-type,x-capswriter-test",
+        )
         self.send_header("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
 
     def _json(self, data: dict, status: int = 200) -> None:

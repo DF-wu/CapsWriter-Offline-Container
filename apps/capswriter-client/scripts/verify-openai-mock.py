@@ -29,6 +29,8 @@ def settings(mode: str) -> dict:
             "prompt": "",
             "temperature": 0,
             "timeoutSec": 30,
+            "extraHeadersJson": "",
+            "extraFormFieldsJson": "",
         },
         "conversation": {
             "baseUrl": MOCK_BASE_URL,
@@ -43,6 +45,8 @@ def settings(mode: str) -> dict:
             "maxOutputTokens": 64,
             "stream": True,
             "timeoutSec": 30,
+            "extraHeadersJson": '{"x-capswriter-test":"conversation"}',
+            "extraBodyJson": '{"metadata":{"test":"conversation-extra"}}',
         },
         "tts": {
             "baseUrl": MOCK_BASE_URL,
@@ -53,6 +57,8 @@ def settings(mode: str) -> dict:
             "speed": 1,
             "instructions": "",
             "timeoutSec": 30,
+            "extraHeadersJson": "",
+            "extraBodyJson": "",
         },
         "autoSpeak": False,
         "keepConversationHistory": False,

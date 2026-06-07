@@ -30,6 +30,8 @@ export type AsrSettings = {
   prompt: string;
   temperature: number;
   timeoutSec: number;
+  extraHeadersJson: string;
+  extraFormFieldsJson: string;
 };
 
 export type ConversationSettings = {
@@ -45,6 +47,8 @@ export type ConversationSettings = {
   maxOutputTokens: number;
   stream: boolean;
   timeoutSec: number;
+  extraHeadersJson: string;
+  extraBodyJson: string;
 };
 
 export type TtsSettings = {
@@ -56,6 +60,8 @@ export type TtsSettings = {
   speed: number;
   instructions: string;
   timeoutSec: number;
+  extraHeadersJson: string;
+  extraBodyJson: string;
 };
 
 export type ClientSettings = {

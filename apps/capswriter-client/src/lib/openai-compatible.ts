@@ -30,9 +30,14 @@ function endpoint(baseUrl: string, path: string) {
   return `${cleanBase}/v1${cleanPath}`;
 }
 
-function authHeaders(apiKey: string, extra?: HeadersInit): HeadersInit {
+function authHeaders(
+  apiKey: string,
+  extra?: HeadersInit,
+  extraHeadersJson = "",
+): HeadersInit {
   return {
     ...(apiKey.trim() ? { Authorization: `Bearer ${apiKey.trim()}` } : {}),
+    ...headersFromJson(extraHeadersJson),
     ...extra,
   };
 }
@@ -74,6 +79,30 @@ function appendAudio(form: FormData, audio: UploadableAudio) {
   } as unknown as Blob);
 }
 
+function appendExtraFormFields(form: FormData, extraFormFieldsJson: string) {
+  const fields = jsonObjectFromText(extraFormFieldsJson, "ASR extra form fields JSON");
+  for (const [key, value] of Object.entries(fields)) {
+    appendFormValue(form, key, value);
+  }
+}
+
+function appendFormValue(form: FormData, key: string, value: unknown) {
+  if (value === null || value === undefined) {
+    return;
+  }
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      appendFormValue(form, key, item);
+    }
+    return;
+  }
+  if (typeof value === "object") {
+    form.append(key, JSON.stringify(value));
+    return;
+  }
+  form.append(key, String(value));
+}
+
 export async function transcribeAudio(
   settings: AsrSettings,
   audio: UploadableAudio,
@@ -89,12 +118,13 @@ export async function transcribeAudio(
   if (settings.prompt.trim()) {
     form.append("prompt", settings.prompt.trim());
   }
+  appendExtraFormFields(form, settings.extraFormFieldsJson);
 
   const { signal, cancel } = timeoutSignal(settings.timeoutSec);
   try {
     const response = await fetch(endpoint(settings.baseUrl, "/audio/transcriptions"), {
       method: "POST",
-      headers: authHeaders(settings.apiKey),
+      headers: authHeaders(settings.apiKey, undefined, settings.extraHeadersJson),
       body: form,
       signal,
     });
@@ -121,13 +151,18 @@ export async function runConversation(
     settings.mode === "responses"
       ? responsesPayload(settings, messages)
       : chatCompletionsPayload(settings, messages);
+  const extraBody = jsonObjectFromText(settings.extraBodyJson, "Conversation extra body JSON");
   const path = settings.mode === "responses" ? "/responses" : "/chat/completions";
   const { signal, cancel } = timeoutSignal(settings.timeoutSec);
   try {
     const response = await fetch(endpoint(settings.baseUrl, path), {
       method: "POST",
-      headers: authHeaders(settings.apiKey, { "Content-Type": "application/json" }),
-      body: JSON.stringify(payload),
+      headers: authHeaders(
+        settings.apiKey,
+        { "Content-Type": "application/json" },
+        settings.extraHeadersJson,
+      ),
+      body: JSON.stringify({ ...payload, ...extraBody }),
       signal,
     });
     await ensureOk(response);
@@ -143,10 +178,15 @@ export async function runConversation(
 
 export async function synthesizeSpeech(settings: TtsSettings, input: string): Promise<string> {
   const { signal, cancel } = timeoutSignal(settings.timeoutSec);
+  const extraBody = jsonObjectFromText(settings.extraBodyJson, "TTS extra body JSON");
   try {
     const response = await fetch(endpoint(settings.baseUrl, "/audio/speech"), {
       method: "POST",
-      headers: authHeaders(settings.apiKey, { "Content-Type": "application/json" }),
+      headers: authHeaders(
+        settings.apiKey,
+        { "Content-Type": "application/json" },
+        settings.extraHeadersJson,
+      ),
       body: JSON.stringify({
         model: settings.model,
         voice: settings.voice,
@@ -154,6 +194,7 @@ export async function synthesizeSpeech(settings: TtsSettings, input: string): Pr
         response_format: settings.responseFormat,
         speed: settings.speed,
         ...(settings.instructions.trim() ? { instructions: settings.instructions.trim() } : {}),
+        ...extraBody,
       }),
       signal,
     });
@@ -172,11 +213,15 @@ export async function synthesizeSpeech(settings: TtsSettings, input: string): Pr
   }
 }
 
-export async function probeModels(baseUrl: string, apiKey: string): Promise<ApiProbe> {
+export async function probeModels(
+  baseUrl: string,
+  apiKey: string,
+  extraHeadersJson = "",
+): Promise<ApiProbe> {
   const modelsEndpoint = endpoint(baseUrl, "/models");
   try {
     const response = await fetch(modelsEndpoint, {
-      headers: authHeaders(apiKey),
+      headers: authHeaders(apiKey, undefined, extraHeadersJson),
     });
     if (!response.ok) {
       return {
@@ -206,6 +251,37 @@ export async function probeModels(baseUrl: string, apiKey: string): Promise<ApiP
       modelIds: [],
     };
   }
+}
+
+function jsonObjectFromText(text: string, label: string): Record<string, unknown> {
+  if (!text.trim()) {
+    return {};
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    throw new Error(`${label} is not valid JSON.`);
+  }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error(`${label} must be a JSON object.`);
+  }
+  return parsed as Record<string, unknown>;
+}
+
+function headersFromJson(text: string): Record<string, string> {
+  const headers = jsonObjectFromText(text, "Extra headers JSON");
+  const result: Record<string, string> = {};
+  for (const [key, value] of Object.entries(headers)) {
+    if (value === null || value === undefined) {
+      continue;
+    }
+    if (typeof value === "object") {
+      throw new Error(`Header ${key} must be a string, number, or boolean.`);
+    }
+    result[key] = String(value);
+  }
+  return result;
 }
 
 export function documentAssetToAudio(asset: {

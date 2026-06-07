@@ -13,7 +13,8 @@ The client is designed as an operational workbench, not a landing page:
 - OpenAI-compatible ASR, chat, responses, and TTS integrations,
 - streaming Chat Completions and Responses output,
 - Markdown export/share for transcripts, raw ASR payloads, and conversations,
-- editable provider parameters and reusable templates.
+- editable provider parameters and reusable templates,
+- advanced provider-specific headers, ASR form fields, and JSON body overrides for OpenAI-compatible variants,
 - per-provider diagnostics for ASR, conversation, and TTS `/v1/models` endpoints, with model IDs selectable into the matching provider settings.
 
 ## Architecture
@@ -37,6 +38,8 @@ The app calls standard OpenAI-compatible paths:
 | Responses | `POST /v1/responses` |
 | TTS | `POST /v1/audio/speech` |
 | Provider probe | `GET /v1/models` |
+
+Each provider profile supports extra headers. ASR also supports extra multipart form fields, while Chat Completions, Responses, and TTS support extra JSON body fields merged into the request payload.
 
 Streaming support uses server-sent events:
 

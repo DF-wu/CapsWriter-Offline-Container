@@ -32,6 +32,8 @@ def settings() -> dict:
             "prompt": "mock vocabulary",
             "temperature": 0,
             "timeoutSec": 30,
+            "extraHeadersJson": '{"x-capswriter-test":"asr"}',
+            "extraFormFieldsJson": '{"provider_hint":"asr-extra"}',
         },
         "conversation": {
             "baseUrl": MOCK_BASE_URL,
@@ -46,6 +48,8 @@ def settings() -> dict:
             "maxOutputTokens": 64,
             "stream": True,
             "timeoutSec": 30,
+            "extraHeadersJson": "",
+            "extraBodyJson": "",
         },
         "tts": {
             "baseUrl": MOCK_BASE_URL,
@@ -56,6 +60,8 @@ def settings() -> dict:
             "speed": 1,
             "instructions": "",
             "timeoutSec": 30,
+            "extraHeadersJson": '{"x-capswriter-test":"tts"}',
+            "extraBodyJson": '{"provider_hint":"tts-extra"}',
         },
         "autoSpeak": False,
         "keepConversationHistory": False,

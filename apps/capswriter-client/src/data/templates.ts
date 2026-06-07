@@ -10,6 +10,8 @@ export const defaultSettings: ClientSettings = {
     prompt: "專有名詞、產品名、人名請優先保留原文。",
     temperature: 0,
     timeoutSec: 180,
+    extraHeadersJson: "",
+    extraFormFieldsJson: "",
   },
   conversation: {
     baseUrl: "http://localhost:1234/v1",
@@ -25,6 +27,8 @@ export const defaultSettings: ClientSettings = {
     maxOutputTokens: 1200,
     stream: false,
     timeoutSec: 120,
+    extraHeadersJson: "",
+    extraBodyJson: "",
   },
   tts: {
     baseUrl: "http://localhost:8880/v1",
@@ -35,6 +39,8 @@ export const defaultSettings: ClientSettings = {
     speed: 1,
     instructions: "語氣自然清楚，適合工作場景。",
     timeoutSec: 120,
+    extraHeadersJson: "",
+    extraBodyJson: "",
   },
   autoSpeak: false,
   keepConversationHistory: true,
