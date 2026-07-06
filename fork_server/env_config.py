@@ -190,6 +190,8 @@ def apply() -> None:
          http_api.max_concurrent_requests)
     _set(ServerConfig, "http_api_cors_origins",
          list(http_api.cors_origins))
+    _set(ServerConfig, "http_api_allow_insecure_bind",
+         http_api.allow_insecure_bind)
 
     # ---- Qwen preset (decide onnx_provider + llm_use_gpu before specific overrides) ----
     qwen_preset = _env_str("CAPSWRITER_QWEN_PRESET", "default") or "default"

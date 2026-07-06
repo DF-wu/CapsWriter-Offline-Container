@@ -16,17 +16,20 @@ CapsWriter-Offline 在 WebSocket 服務之外，可選擇性提供與 [OpenAI Wh
 | `CAPSWRITER_HTTP_API_BIND` | `127.0.0.1` | 監聽位址；對外請改 `0.0.0.0` 並一定要設 `KEY` |
 | `CAPSWRITER_HTTP_API_PORT` | `6017` | 監聽 port（與 WebSocket port 不同） |
 | `CAPSWRITER_HTTP_API_KEY` | _(空)_ | Bearer token；空字串視為不啟用認證 |
+| `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND` | `false` | 允許非 loopback bind 在無 KEY 下啟動；只適合受信任測試網路 |
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `100` | 單次上傳上限（MB） |
 | `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `600` | 單次轉錄超時（秒） |
 | `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` | `2` | 同時允許進入上傳/解碼/等待識別的 HTTP 轉錄請求數 |
 | `CAPSWRITER_HTTP_API_CORS_ORIGINS` | _(空)_ | 逗號分隔的瀏覽器 origin allowlist；空字串表示不加 CORS middleware |
 
 HTTP API env 會在 server 啟動時驗證；明確設定的無效值會讓啟動失敗，而不是靜默退回預設值。
+當 `CAPSWRITER_HTTP_API_ENABLE=true` 且 `BIND` 不是 loopback（例如 `0.0.0.0`、`::`、LAN IP 或 hostname）時，必須設定 `CAPSWRITER_HTTP_API_KEY`；若確定只在受信任測試網路使用，才可設 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true` 明確覆寫。
 
 | 變數 | 驗證規則 |
 |---|---|
 | `CAPSWRITER_HTTP_API_ENABLE` | `true/false`、`yes/no`、`on/off`、`1/0` |
 | `CAPSWRITER_HTTP_API_PORT` | `1..65535` |
+| `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND` | `true/false`、`yes/no`、`on/off`、`1/0` |
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `>= 1` |
 | `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `>= 1` 秒 |
 | `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` | `>= 1` |
@@ -376,6 +379,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 
 | Symptom | 原因 / 解法 |
 |---|---|
+| 啟動時 `CAPSWRITER_HTTP_API_KEY is required...BIND is not loopback` | HTTP API 啟用且 bind 到非 loopback；設定 `CAPSWRITER_HTTP_API_KEY`，或只在受信任測試網路設 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true` |
 | 啟動時 `HTTP API 已啟用但系統找不到 ffmpeg` | Docker image 應已內建；裸機請 `apt install ffmpeg` |
 | `500 Server misconfigured: ffmpeg not found` | 同上 |
 | `400 Audio decode failed` | 不是音訊檔 / 編碼損壞，本機 `ffmpeg -i <file>` 看 |

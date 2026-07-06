@@ -4,12 +4,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from ipaddress import ip_address
 from typing import Iterable, Mapping
 from urllib.parse import urlsplit
 
 
 TRUE_VALUES = {"1", "true", "yes", "on"}
 FALSE_VALUES = {"0", "false", "no", "off"}
+ALLOW_INSECURE_BIND_ENV = "CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND"
 
 
 class ConfigError(ValueError):
@@ -26,6 +28,7 @@ class HttpApiSettings:
     task_timeout: float = 600.0
     max_concurrent_requests: int = 2
     cors_origins: tuple[str, ...] = ()
+    allow_insecure_bind: bool = False
 
 
 def _env(env: Mapping[str, str], name: str) -> str | None:
@@ -118,8 +121,41 @@ def normalize_cors_origins(value: str | Iterable[str] | None) -> tuple[str, ...]
     return tuple(origins)
 
 
+def _normalize_bind_host(bind: str) -> str:
+    host = bind.strip()
+    if host.startswith("[") and host.endswith("]"):
+        host = host[1:-1]
+    return host.lower()
+
+
+def bind_requires_auth(bind: str) -> bool:
+    host = _normalize_bind_host(bind)
+    if host == "localhost":
+        return False
+    try:
+        return not ip_address(host).is_loopback
+    except ValueError:
+        return True
+
+
+def validate_http_api_settings(settings: HttpApiSettings) -> HttpApiSettings:
+    if (
+        settings.enable
+        and bind_requires_auth(settings.bind)
+        and not settings.api_key
+        and not settings.allow_insecure_bind
+    ):
+        raise ConfigError(
+            "CAPSWRITER_HTTP_API_KEY is required when "
+            "CAPSWRITER_HTTP_API_ENABLE=true and CAPSWRITER_HTTP_API_BIND is "
+            f"not loopback; set {ALLOW_INSECURE_BIND_ENV}=true only on a "
+            "trusted network"
+        )
+    return settings
+
+
 def parse_http_api_env(env: Mapping[str, str]) -> HttpApiSettings:
-    return HttpApiSettings(
+    settings = HttpApiSettings(
         enable=parse_bool(env, "CAPSWRITER_HTTP_API_ENABLE", False),
         bind=_env(env, "CAPSWRITER_HTTP_API_BIND") or "127.0.0.1",
         port=parse_int_range(
@@ -151,4 +187,6 @@ def parse_http_api_env(env: Mapping[str, str]) -> HttpApiSettings:
         cors_origins=normalize_cors_origins(
             _env(env, "CAPSWRITER_HTTP_API_CORS_ORIGINS")
         ),
+        allow_insecure_bind=parse_bool(env, ALLOW_INSECURE_BIND_ENV, False),
     )
+    return validate_http_api_settings(settings)

@@ -6,6 +6,7 @@ import unittest
 
 from fork_server.http_api.runtime_config import (
     ConfigError,
+    bind_requires_auth,
     normalize_cors_origins,
     parse_http_api_env,
 )
@@ -75,6 +76,52 @@ class HttpRuntimeConfigTest(unittest.TestCase):
             normalize_cors_origins("http://localhost:5173/app")
         with self.assertRaises(ConfigError):
             normalize_cors_origins("file:///tmp/index.html")
+
+    def test_bind_requires_auth_for_non_loopback_interfaces(self) -> None:
+        for bind in ("0.0.0.0", "::", "[::]", "192.168.1.10", "example.test"):
+            with self.subTest(bind=bind):
+                self.assertTrue(bind_requires_auth(bind))
+
+    def test_bind_allows_keyless_loopback_interfaces(self) -> None:
+        for bind in ("127.0.0.1", "127.7.8.9", "::1", "[::1]", "localhost"):
+            with self.subTest(bind=bind):
+                self.assertFalse(bind_requires_auth(bind))
+
+    def test_rejects_enabled_non_loopback_bind_without_key(self) -> None:
+        with self.assertRaisesRegex(ConfigError, "CAPSWRITER_HTTP_API_KEY"):
+            parse_http_api_env(
+                {
+                    "CAPSWRITER_HTTP_API_ENABLE": "true",
+                    "CAPSWRITER_HTTP_API_BIND": "0.0.0.0",
+                }
+            )
+
+    def test_allows_enabled_non_loopback_bind_with_key(self) -> None:
+        settings = parse_http_api_env(
+            {
+                "CAPSWRITER_HTTP_API_ENABLE": "true",
+                "CAPSWRITER_HTTP_API_BIND": "0.0.0.0",
+                "CAPSWRITER_HTTP_API_KEY": "sk-local-dev",
+            }
+        )
+        self.assertEqual(settings.bind, "0.0.0.0")
+        self.assertEqual(settings.api_key, "sk-local-dev")
+        self.assertFalse(settings.allow_insecure_bind)
+
+    def test_allows_explicit_insecure_non_loopback_bind(self) -> None:
+        settings = parse_http_api_env(
+            {
+                "CAPSWRITER_HTTP_API_ENABLE": "true",
+                "CAPSWRITER_HTTP_API_BIND": "0.0.0.0",
+                "CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND": "true",
+            }
+        )
+        self.assertTrue(settings.allow_insecure_bind)
+
+    def test_disabled_http_api_can_parse_non_loopback_bind_without_key(self) -> None:
+        settings = parse_http_api_env({"CAPSWRITER_HTTP_API_BIND": "0.0.0.0"})
+        self.assertFalse(settings.enable)
+        self.assertEqual(settings.bind, "0.0.0.0")
 
 
 if __name__ == "__main__":
