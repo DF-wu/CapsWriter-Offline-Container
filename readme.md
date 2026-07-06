@@ -94,6 +94,7 @@ print(t.text)
 
 詳細 API 規格見 [docs/HTTP_API.md](docs/HTTP_API.md)。
 瀏覽器工作台見 [docs/web-console.md](docs/web-console.md)。
+無 GUI CLI 可封裝為單檔 zipapp：`python client/cli/scripts/build_zipapp.py`，詳見 [docs/cli-client.md](docs/cli-client.md)。
 
 Web Console 也可用靜態容器部署：
 

@@ -13,6 +13,7 @@ The no-GUI client lives in [`client/cli`](../client/cli). It is a standard-libra
 | Formats | `text`, `json`, `verbose_json`, `srt`, `vtt` |
 | Batch output | stdout, one explicit `--output`, or generated files in `--output-dir` |
 | TTS | `speak` text through local OS engines |
+| Packaging | single-file Python zipapp (`capswriter-cli.pyz`) |
 | Isolation | No third-party Python dependency; tests use an in-process mock HTTP server |
 
 ## Requirements
@@ -24,6 +25,24 @@ The no-GUI client lives in [`client/cli`](../client/cli). It is a standard-libra
   - Linux: `spd-say`, `espeak-ng`, or `espeak`.
 
 The CLI does not install or require global packages.
+
+## Packaged CLI
+
+Build a single-file zipapp:
+
+```bash
+python client/cli/scripts/build_zipapp.py
+python client/cli/dist/capswriter-cli.pyz --help
+```
+
+The artifact is written to `client/cli/dist/capswriter-cli.pyz`. It contains only the standard-library CLI source and can be copied to Linux or Windows machines with Python 3.10+:
+
+```bash
+python capswriter-cli.pyz health --base-url http://127.0.0.1:6017
+python capswriter-cli.pyz transcribe meeting.wav --format text
+```
+
+`client/cli/dist` is ignored by Git and removed by the cleanup scripts.
 
 ## Server setup
 
@@ -133,7 +152,9 @@ It performs:
 
 1. `python -m compileall client/cli`
 2. `python -m unittest discover -s client/cli/tests -v`
-3. `python client/cli/scripts/clean.py`
+3. `python client/cli/scripts/build_zipapp.py`
+4. `python client/cli/dist/capswriter-cli.pyz --help`
+5. `python client/cli/scripts/clean.py`
 
 The tests start an in-process mock HTTP API, so they do not need a real model server. The clean step removes `__pycache__` and `.pyc` files even when a previous step fails.
 

@@ -16,6 +16,7 @@ def main() -> int:
         shutil.rmtree(path, ignore_errors=True)
     for path in ROOT.rglob("*.pyc"):
         path.unlink(missing_ok=True)
+    shutil.rmtree(ROOT / "dist", ignore_errors=True)
     return 0
 
 

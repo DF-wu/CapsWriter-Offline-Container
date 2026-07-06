@@ -55,6 +55,7 @@ def main() -> int:
         "test-results",
         ".drawio-tmp",
         "client/web/dist",
+        "client/cli/dist",
         "client/web/coverage",
         "client/web/.vite",
         "client/web/node_modules/.vite",

@@ -14,7 +14,7 @@ The command runs:
 
 | Step | Command | Coverage |
 |---|---|---|
-| CLI | `python client/cli/scripts/verify.py` | CLI syntax, multipart upload, mock HTTP transcription, output files, Linux/Windows TTS command selection |
+| CLI | `python client/cli/scripts/verify.py` | CLI syntax, multipart upload, mock HTTP transcription, output files, Linux/Windows TTS command selection, zipapp packaging |
 | Server | `python -m compileall fork_server check_http_api.py start_server_docker.py` + HTTP unit tests | HTTP sidecar, Docker entrypoint, diagnostic script syntax, dependency-light request limit and runtime config tests |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, TypeScript, production build, web clean script |
 | Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
@@ -91,6 +91,7 @@ Cleanup removes:
 | Path pattern | Reason |
 |---|---|
 | `__pycache__`, `*.pyc` | Python verification output |
+| `client/cli/dist` | Packaged no-GUI CLI zipapp output |
 | `client/web/dist` | Vite production build output |
 | `client/web/.vite`, `client/web/node_modules/.vite` | Vite cache |
 | `coverage`, `htmlcov`, `playwright-report`, `test-results` | Test/report output |

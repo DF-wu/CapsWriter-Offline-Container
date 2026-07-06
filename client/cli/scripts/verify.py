@@ -31,6 +31,10 @@ def main() -> int:
                 "-v",
             ]
         )
+    if status == 0:
+        status = run([sys.executable, "client/cli/scripts/build_zipapp.py"])
+    if status == 0:
+        status = run([sys.executable, "client/cli/dist/capswriter-cli.pyz", "--help"])
     clean_status = run([sys.executable, "client/cli/scripts/clean.py"])
     return status or clean_status
 
