@@ -359,7 +359,7 @@ docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml \
 | 同 LAN 共享 | 設 `KEY`、`BIND=0.0.0.0`、防火牆限制來源 IP |
 | 對外公網 | 設 `KEY`、reverse proxy 加 TLS、限制 IP、設低 `MAX_UPLOAD_MB` 與 `TASK_TIMEOUT` |
 
-KEY 為純 Bearer token，比對時使用 constant-time compare；`Bearer` scheme 大小寫不敏感。建議使用 ≥ 32 字元隨機字串：
+KEY 為純 Bearer token，比對時使用 constant-time compare；header 必須剛好是 `Bearer <token>` 兩段，`Bearer` scheme 大小寫不敏感。建議使用 ≥ 32 字元隨機字串：
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"

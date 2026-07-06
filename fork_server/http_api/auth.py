@@ -14,10 +14,10 @@ def auth_enabled(api_key: Optional[str]) -> bool:
 def extract_bearer_token(authorization: Optional[str]) -> Optional[str]:
     if not authorization:
         return None
-    parts = authorization.strip().split(None, 1)
+    parts = authorization.strip().split()
     if len(parts) != 2:
         return None
-    scheme, token = parts[0], parts[1].strip()
+    scheme, token = parts
     if scheme.casefold() != "bearer" or not token:
         return None
     return token

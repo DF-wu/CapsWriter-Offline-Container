@@ -21,7 +21,18 @@ class HttpAuthTest(unittest.TestCase):
         self.assertEqual(auth.extract_bearer_token("BEARER   sk-local  "), "sk-local")
 
     def test_extract_bearer_token_rejects_malformed_headers(self) -> None:
-        for value in (None, "", "Bearer", "Basic sk-local", "Bearer   "):
+        for value in (
+            None,
+            "",
+            "Bearer",
+            "Basic sk-local",
+            "Bearer   ",
+        ):
+            with self.subTest(value=value):
+                self.assertIsNone(auth.extract_bearer_token(value))
+
+    def test_extract_bearer_token_rejects_extra_fields(self) -> None:
+        for value in ("Bearer sk-local extra", "Bearer sk local"):
             with self.subTest(value=value):
                 self.assertIsNone(auth.extract_bearer_token(value))
 
