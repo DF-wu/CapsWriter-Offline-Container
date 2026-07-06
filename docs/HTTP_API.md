@@ -315,6 +315,8 @@ console.log(r);
 
 HTTP 任務使用合成 `socket_id="http:<task_id>"` 並加入 `state.sockets_id`（跨進程 `Manager().list()`）。recognizer 子進程的 TaskHandler 檢查 `task.socket_id not in sockets_id` 來判定上游是否還在；合成的 socket_id 滿足這個檢查，讓 HTTP 任務不會被丟棄。
 
+HTTP request 成功、timeout、server error 或客戶端取消時，都會清理 pending future 與合成 socket id，避免中斷請求留下不可回收的路由狀態。
+
 ### 4.4 並發
 
 - **識別嚴格串行**：recognizer 一次處理一個 Task，多個 HTTP 請求 = 自然 FIFO backpressure。

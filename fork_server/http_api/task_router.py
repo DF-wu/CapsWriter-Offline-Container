@@ -15,9 +15,10 @@ HTTP 任務路由器
 
 from __future__ import annotations
 import asyncio
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from core.server.schema import Result
+if TYPE_CHECKING:
+    from core.server.schema import Result
 
 
 def _synthetic_socket_id(task_id: str) -> str:
@@ -71,7 +72,7 @@ class TaskRouter:
             fut.cancel()
         self._remove_synthetic(task_id)
 
-    def try_resolve(self, result: Result) -> bool:
+    def try_resolve(self, result: "Result") -> bool:
         """
         ws_send_with_http 取到結果時呼叫。
 
@@ -88,10 +89,15 @@ class TaskRouter:
             self._remove_synthetic(result.task_id)
             if not fut.done():
                 if self._loop is not None and self._loop.is_running():
-                    self._loop.call_soon_threadsafe(fut.set_result, result)
+                    self._loop.call_soon_threadsafe(self._set_result, fut, result)
                 else:
-                    fut.set_result(result)
+                    self._set_result(fut, result)
         return True
+
+    @staticmethod
+    def _set_result(fut: asyncio.Future, result: Any) -> None:
+        if not fut.done():
+            fut.set_result(result)
 
     def _remove_synthetic(self, task_id: str) -> None:
         if self._state is None or self._state.sockets_id is None:

@@ -263,6 +263,10 @@ def create_app() -> FastAPI:
             if context:
                 logger.debug(f"[HTTP] task={task_id[:8]} context={context[:50]!r}")
             result: Result = await asyncio.wait_for(future, timeout=timeout)
+        except asyncio.CancelledError:
+            task_router.cancel(task_id)
+            logger.warning(f"[HTTP] task={task_id[:8]} request cancelled")
+            raise
         except asyncio.TimeoutError:
             task_router.cancel(task_id)
             logger.error(
