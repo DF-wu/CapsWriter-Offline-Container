@@ -44,6 +44,22 @@ function settingsForPersistence(settings: ApiSettings): Omit<ApiSettings, "apiKe
   return persisted;
 }
 
+function writeJson(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Persistence is best-effort; browser privacy/quota settings must not break the app.
+  }
+}
+
+function removeStoredValue(key: string): void {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // Ignore blocked storage during cleanup paths.
+  }
+}
+
 export function loadSettings(): ApiSettings {
   const persisted = readJson<Partial<ApiSettings>>(SETTINGS_KEY, {});
   const { apiKey: _apiKey, ...safePersisted } = persisted;
@@ -51,7 +67,7 @@ export function loadSettings(): ApiSettings {
 }
 
 export function saveSettings(settings: ApiSettings): void {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settingsForPersistence(settings)));
+  writeJson(SETTINGS_KEY, settingsForPersistence(settings));
 }
 
 export function loadHistory(): TranscriptRecord[] {
@@ -64,7 +80,7 @@ export function loadHistory(): TranscriptRecord[] {
 }
 
 export function saveHistory(history: TranscriptRecord[]): void {
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(history.slice(0, HISTORY_LIMIT)));
+  writeJson(HISTORY_KEY, history.slice(0, HISTORY_LIMIT));
 }
 
 export function addHistory(record: TranscriptRecord): TranscriptRecord[] {
@@ -74,5 +90,5 @@ export function addHistory(record: TranscriptRecord): TranscriptRecord[] {
 }
 
 export function clearHistory(): void {
-  localStorage.removeItem(HISTORY_KEY);
+  removeStoredValue(HISTORY_KEY);
 }

@@ -1,10 +1,21 @@
-import { beforeEach, describe, expect, it } from "vitest";
-import { loadSettings, saveSettings, settingsWithRuntimeDefaults } from "./storage";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  addHistory,
+  clearHistory,
+  loadSettings,
+  saveSettings,
+  settingsWithRuntimeDefaults,
+} from "./storage";
+import type { TranscriptRecord } from "../types";
 
 const SETTINGS_KEY = "capswriter.web.settings.v1";
 
 beforeEach(() => {
   localStorage.clear();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });
 
 describe("settingsWithRuntimeDefaults", () => {
@@ -69,5 +80,43 @@ describe("settingsWithRuntimeDefaults", () => {
       baseUrl: "https://saved.example.test",
       responseFormat: "text",
     });
+  });
+
+  it("ignores blocked storage when saving settings", () => {
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("storage blocked");
+    });
+
+    expect(() =>
+      saveSettings({
+        ...settingsWithRuntimeDefaults(undefined),
+        baseUrl: "https://asr.example.test",
+      }),
+    ).not.toThrow();
+  });
+
+  it("returns new history when persistence is blocked", () => {
+    const record: TranscriptRecord = {
+      id: "record-1",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      sourceName: "sample.wav",
+      durationSeconds: 1,
+      format: "text",
+      text: "hello",
+      raw: "hello",
+    };
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
+      throw new Error("quota exceeded");
+    });
+
+    expect(addHistory(record)).toEqual([record]);
+  });
+
+  it("ignores blocked storage when clearing history", () => {
+    vi.spyOn(Storage.prototype, "removeItem").mockImplementation(() => {
+      throw new Error("storage blocked");
+    });
+
+    expect(() => clearHistory()).not.toThrow();
   });
 });
