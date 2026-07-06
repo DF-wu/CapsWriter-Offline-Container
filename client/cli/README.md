@@ -6,6 +6,7 @@ Quick start:
 
 ```bash
 python client/cli/capswriter_cli.py health --base-url http://127.0.0.1:6017
+python client/cli/capswriter_cli.py ready --base-url http://127.0.0.1:6017
 python client/cli/capswriter_cli.py transcribe sample.wav --format text
 python client/cli/capswriter_cli.py speak "CapsWriter transcription completed."
 python client/cli/scripts/build_zipapp.py

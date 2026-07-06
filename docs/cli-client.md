@@ -8,7 +8,7 @@ The no-GUI client lives in [`client/cli`](../client/cli). It is a standard-libra
 
 | Area | Support |
 |---|---|
-| Server checks | `health`, `models` |
+| Server checks | `health`, `ready`, `models` |
 | STT | `transcribe` one or more audio files through `POST /v1/audio/transcriptions` |
 | Formats | `text`, `json`, `verbose_json`, `srt`, `vtt` |
 | Batch output | stdout, one explicit `--output`, or generated files in `--output-dir` |
@@ -39,6 +39,7 @@ The artifact is written to `client/cli/dist/capswriter-cli.pyz`. It contains onl
 
 ```bash
 python capswriter-cli.pyz health --base-url http://127.0.0.1:6017
+python capswriter-cli.pyz ready --base-url http://127.0.0.1:6017
 python capswriter-cli.pyz transcribe meeting.wav --format text
 ```
 
@@ -60,6 +61,7 @@ Then verify:
 ```bash
 python client/cli/capswriter_cli.py --help
 python client/cli/capswriter_cli.py health --base-url http://127.0.0.1:6017 --key sk-local-dev
+python client/cli/capswriter_cli.py ready --base-url http://127.0.0.1:6017 --key sk-local-dev
 python client/cli/capswriter_cli.py models --base-url http://127.0.0.1:6017 --key sk-local-dev
 ```
 
@@ -69,6 +71,7 @@ You can also use environment variables:
 export CAPSWRITER_API_BASE=http://127.0.0.1:6017
 export CAPSWRITER_HTTP_API_KEY=sk-local-dev
 python client/cli/capswriter_cli.py health
+python client/cli/capswriter_cli.py ready
 ```
 
 On Windows PowerShell:
@@ -77,7 +80,12 @@ On Windows PowerShell:
 $env:CAPSWRITER_API_BASE = "http://127.0.0.1:6017"
 $env:CAPSWRITER_HTTP_API_KEY = "sk-local-dev"
 python client\cli\capswriter_cli.py health
+python client\cli\capswriter_cli.py ready
 ```
+
+## Server Diagnostics
+
+`health` confirms that the HTTP process responds. `ready` is stricter: it calls `/ready` and prints deployment diagnostics such as whether the HTTP task router is bound, whether `ffmpeg` is available, and which operational limits are active. Use `ready` before routing production traffic or when a container health check passes but transcription still fails.
 
 ## Transcribe
 

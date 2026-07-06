@@ -190,6 +190,7 @@ def verify_http(
     api_key: str,
     audio_path: str,
     expected_text: str,
+    require_ready: bool,
 ) -> int:
     if not base_url:
         print("HTTP live check skipped (set --http-base-url or CAPSWRITER_VERIFY_HTTP_BASE)")
@@ -208,6 +209,21 @@ def verify_http(
     code = run_required(args)
     if code != 0:
         return code
+    if require_ready:
+        args = [
+            sys.executable,
+            "client/cli/capswriter_cli.py",
+            "ready",
+            "--base-url",
+            base_url,
+            "--timeout",
+            "10",
+        ]
+        if api_key:
+            args.extend(["--key", api_key])
+        code = run_required(args)
+        if code != 0:
+            return code
     return verify_http_transcription(base_url, api_key, audio_path, expected_text)
 
 
@@ -319,6 +335,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional text expected in --http-audio transcription output",
     )
     parser.add_argument(
+        "--http-require-ready",
+        action="store_true",
+        default=os.environ.get("CAPSWRITER_VERIFY_HTTP_REQUIRE_READY", "").lower()
+        in {"1", "true", "yes", "on"},
+        help="Require the live HTTP API /ready endpoint to return success",
+    )
+    parser.add_argument(
         "--docker-build-web",
         action="store_true",
         help="Also build the Web Console production Docker image",
@@ -354,6 +377,7 @@ def main() -> int:
                     args.http_key,
                     args.http_audio,
                     args.http_expect,
+                    args.http_require_ready,
                 )
             ),
         ]:

@@ -63,7 +63,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 ### 3.3 No-GUI CLI
 
 - [`client/cli/capswriter_cli.py`](../client/cli/capswriter_cli.py) 無第三方 Python dependency。
-- 支援 `health`、`models`、`transcribe`、`speak`。
+- 支援 `health`、`ready`、`models`、`transcribe`、`speak`。
 - Linux TTS：`spd-say` / `espeak-ng` / `espeak`；Windows TTS：PowerShell `System.Speech`。
 - 測試使用 in-process mock HTTP server，不需要模型。
 
@@ -92,11 +92,10 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 | Gate | 結果 |
 |---|---|
-| `python scripts/verify_all.py --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 6 tests、server compile、HTTP limit 4 tests、Web 10 tests/build、Web Docker smoke、live `/health` |
-| `python scripts/verify_all.py --skip-web --http-base-url http://127.0.0.1:6017` | 通過：Python/CLI/server/live health 快速 gate |
-| `python scripts/verify_all.py --skip-web --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：Web image build + `/health` + `/config.js` smoke |
+| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 8 tests，含 `/ready` ok/degraded diagnostic command |
+| `python scripts/verify_all.py --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 8 tests、server compile、HTTP 12 tests、Web 10 tests/build、Web Docker smoke、live `/health` |
 
-`check_http_api.py` 的 `--expect` 語法已編譯與 help 驗證；因目前 shell 沒有 live server 的 API key，未用該工具打 `/v1/models`。
+`--http-require-ready` 已加入 root verifier；目前 `127.0.0.1:6017` 上的 live process 仍是舊版 `v2.5`，需重啟到本分支後 `/ready` 才會從 404 變成可驗證 endpoint。因目前 shell 沒有 live server 的 API key，模型音檔 smoke 會在 `/v1/audio/transcriptions` 收到 401；release evidence 需提供 `--http-key`。
 
 Release candidate 若要宣稱「模型轉錄品質已驗證」，需另外提供已知內容音檔並跑：
 

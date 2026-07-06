@@ -1,8 +1,10 @@
+import io
 import json
 import sys
 import tempfile
 import threading
 import unittest
+from contextlib import redirect_stdout
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -13,6 +15,25 @@ from client.cli import capswriter_cli as cli  # noqa: E402
 
 
 class MockCapsWriterHandler(BaseHTTPRequestHandler):
+    ready_status = 200
+    ready_payload = {
+        "status": "ok",
+        "model": "mock_asr",
+        "version": "dev",
+        "checks": {
+            "task_router_bound": True,
+            "ffmpeg_available": True,
+        },
+        "config": {
+            "auth_enabled": False,
+            "max_upload_mb": 100,
+            "task_timeout": 600.0,
+            "max_concurrent_requests": 2,
+            "cors_enabled": False,
+            "cors_origins_count": 0,
+        },
+    }
+
     def log_message(self, *_args):
         return
 
@@ -35,6 +56,9 @@ class MockCapsWriterHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         if self.path == "/health":
             self._json(200, {"status": "ok", "model": "mock_asr", "version": "dev"})
+            return
+        if self.path == "/ready":
+            self._json(self.ready_status, self.ready_payload)
             return
         if self.path == "/v1/models":
             self._json(
@@ -103,6 +127,7 @@ class CapsWriterCliTest(unittest.TestCase):
     def test_health_and_transcribe_against_mock_server(self):
         config = cli.ApiConfig(base_url=self.base_url, timeout=5)
         self.assertEqual(cli.http_get_json(config, "/health")["model"], "mock_asr")
+        self.assertEqual(cli.http_get_json(config, "/ready")["status"], "ok")
 
         with tempfile.TemporaryDirectory() as tmp:
             audio = Path(tmp) / "sample.wav"
@@ -131,6 +156,61 @@ class CapsWriterCliTest(unittest.TestCase):
             )
             self.assertEqual(code, 0)
             self.assertEqual(output.read_text(encoding="utf-8"), "mock cli transcript")
+
+    def test_main_ready_prints_diagnostics(self):
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            code = cli.main(
+                [
+                    "ready",
+                    "--base-url",
+                    self.base_url,
+                    "--timeout",
+                    "5",
+                ]
+            )
+
+        self.assertEqual(code, 0)
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(payload["status"], "ok")
+        self.assertTrue(payload["checks"]["ffmpeg_available"])
+
+    def test_main_ready_prints_degraded_payload_on_http_error(self):
+        class DegradedReadyHandler(MockCapsWriterHandler):
+            ready_status = 503
+            ready_payload = {
+                **MockCapsWriterHandler.ready_payload,
+                "status": "degraded",
+                "checks": {
+                    "task_router_bound": False,
+                    "ffmpeg_available": True,
+                },
+            }
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), DegradedReadyHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            stdout = io.StringIO()
+            with redirect_stdout(stdout):
+                code = cli.main(
+                    [
+                        "ready",
+                        "--base-url",
+                        f"http://127.0.0.1:{server.server_port}",
+                        "--timeout",
+                        "5",
+                    ]
+                )
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+        self.assertEqual(code, 1)
+        payload = json.loads(stdout.getvalue())
+        self.assertEqual(payload["status"], "degraded")
+        self.assertFalse(payload["checks"]["task_router_bound"])
 
     def test_tts_command_selection_linux(self):
         command = cli.select_tts_command(

@@ -81,6 +81,27 @@ def http_get_json(config: ApiConfig, path: str):
         return _read_response(response).json()
 
 
+def http_get_json_status(config: ApiConfig, path: str) -> tuple[int, object]:
+    req = request.Request(
+        f"{normalize_base_url(config.base_url)}{path}",
+        headers=auth_headers(config),
+    )
+    try:
+        with request.urlopen(req, timeout=config.timeout) as response:
+            result = _read_response(response)
+    except error.HTTPError as exc:
+        try:
+            body = exc.read()
+        finally:
+            exc.close()
+        result = HttpResult(
+            status=exc.code,
+            content_type=exc.headers.get("Content-Type", ""),
+            body=body,
+        )
+    return result.status, result.json()
+
+
 def build_multipart(
     file_path: Path,
     fields: dict[str, str],
@@ -264,6 +285,9 @@ def build_parser() -> argparse.ArgumentParser:
     health = sub.add_parser("health", help="Check server health")
     add_common_options(health)
 
+    ready = sub.add_parser("ready", help="Check server readiness diagnostics")
+    add_common_options(ready)
+
     models = sub.add_parser("models", help="List server models")
     add_common_options(models)
 
@@ -307,6 +331,12 @@ def _config(args) -> ApiConfig:
 def command_health(args) -> int:
     print(json.dumps(http_get_json(_config(args), "/health"), ensure_ascii=False, indent=2))
     return 0
+
+
+def command_ready(args) -> int:
+    status, payload = http_get_json_status(_config(args), "/ready")
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return 0 if status < 400 else 1
 
 
 def command_models(args) -> int:
@@ -364,6 +394,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     args = parser.parse_args(list(argv) if argv is not None else None)
     commands = {
         "health": command_health,
+        "ready": command_ready,
         "models": command_models,
         "transcribe": command_transcribe,
         "speak": command_speak,

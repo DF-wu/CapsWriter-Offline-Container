@@ -14,12 +14,12 @@ The command runs:
 
 | Step | Command | Coverage |
 |---|---|---|
-| CLI | `python client/cli/scripts/verify.py` | CLI syntax, multipart upload, mock HTTP transcription, output files, Linux/Windows TTS command selection, zipapp packaging |
+| CLI | `python client/cli/scripts/verify.py` | CLI syntax, health/readiness/models calls, multipart upload, mock HTTP transcription, output files, Linux/Windows TTS command selection, zipapp packaging |
 | Server | `python -m compileall fork_server check_http_api.py start_server_docker.py` + HTTP unit tests | HTTP sidecar, Docker entrypoint, diagnostic script syntax, dependency-light request limit and runtime config tests |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, TypeScript, production build, web clean script |
 | Optional Web browser smoke | temporary mock API + Vite + `agent-browser` | Real browser can check server health, upload audio, and transcribe through the UI |
 | Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
-| Optional live HTTP | `client/cli/capswriter_cli.py health` + optional known-audio transcription | Real server health and model-backed STT when configured |
+| Optional live HTTP | `client/cli/capswriter_cli.py health` + optional readiness and known-audio transcription | Real server health, deployment readiness, and model-backed STT when configured |
 | Cleanup | `python scripts/clean.py` | Removes build/cache/pycache artifacts |
 
 The web dependency install is scoped to `client/web/node_modules`. Nothing is installed globally.
@@ -42,6 +42,14 @@ Add a live server health check:
 
 ```bash
 python scripts/verify_all.py --http-base-url http://127.0.0.1:6017
+```
+
+Require the live server readiness endpoint as well:
+
+```bash
+python scripts/verify_all.py \
+  --http-base-url http://127.0.0.1:6017 \
+  --http-require-ready
 ```
 
 Add a model-backed transcription smoke check with a known audio sample:
@@ -83,6 +91,7 @@ Environment alternative:
 
 ```bash
 CAPSWRITER_VERIFY_HTTP_BASE=http://127.0.0.1:6017 \
+CAPSWRITER_VERIFY_HTTP_REQUIRE_READY=true \
 CAPSWRITER_VERIFY_HTTP_AUDIO=/path/to/known-speech.wav \
 CAPSWRITER_VERIFY_HTTP_EXPECT="expected transcript text" \
 CAPSWRITER_HTTP_API_KEY=sk-local-dev \
@@ -130,7 +139,7 @@ For a release candidate, keep these artifacts or logs:
 | Web Console build valid | `npm run verify` logs from inside the root gate |
 | Web Console browser workflow valid | `--web-browser-smoke` gate output |
 | CLI valid | `client/cli/scripts/verify.py` logs from inside the root gate |
-| Real HTTP server reachable | `--http-base-url` gate output or `check_http_api.py` output |
+| Real HTTP server reachable and ready | `--http-base-url --http-require-ready` gate output or `check_http_api.py` output |
 | Model-backed STT sample works | `--http-audio` + `--http-expect` gate output or `check_http_api.py --audio ... --expect ...` |
 | No generated trash committed | `git status --short` plus cleanup scan |
 

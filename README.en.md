@@ -206,6 +206,7 @@ Published image: `ghcr.io/df-wu/capswriter-offline-web:latest`.
 
 ```bash
 python client/cli/capswriter_cli.py health --base-url http://127.0.0.1:6017 --key sk-your-token
+python client/cli/capswriter_cli.py ready --base-url http://127.0.0.1:6017 --key sk-your-token
 python client/cli/capswriter_cli.py transcribe meeting.wav --format text --key sk-your-token
 python client/cli/capswriter_cli.py speak "CapsWriter transcription completed."
 python client/cli/scripts/build_zipapp.py
