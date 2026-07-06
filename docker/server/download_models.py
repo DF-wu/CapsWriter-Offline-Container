@@ -228,7 +228,11 @@ def _resolve_model_type() -> str:
     download_models.py 在 entrypoint.sh 內早於 start_server_docker.py 跑,
     那時 fork_server.env_config 還沒 setattr 過 ServerConfig, 所以需要
     在這獨立讀一次 env。"""
-    return os.environ.get("CAPSWRITER_MODEL_TYPE", ServerConfig.model_type).lower()
+    return (
+        os.environ.get("CAPSWRITER_MODEL_TYPE", ServerConfig.model_type)
+        .strip()
+        .lower()
+    )
 
 
 def main() -> int:
@@ -237,7 +241,7 @@ def main() -> int:
     if not assets:
         print(
             f"本 fork 只支援這幾個 ASR 模型: {SUPPORTED_MODELS}; 但 "
-            f"CAPSWRITER_MODEL_TYPE={ServerConfig.model_type!r}",
+            f"CAPSWRITER_MODEL_TYPE={model_type!r}",
             file=sys.stderr,
         )
         print(
