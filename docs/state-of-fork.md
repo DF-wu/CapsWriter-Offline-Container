@@ -52,6 +52,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 - `/ready` 回報 `task_router` 與 `ffmpeg` readiness，不暴露 secrets。
 - `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` 對 HTTP 轉錄請求做 request-slot backpressure。
 - HTTP error 使用 OpenAI-style `{"error": ...}` JSON envelope，保留原 HTTP status。
+- `language` 會正規化 OpenAI-style alias（如 `zh`/`en`）並傳入 recognizer；`prompt` 會正規化後作為 upstream `Task.context`。
 - `response_format` 支援 `json`、`text`、`verbose_json`、`srt`、`vtt`。
 
 ### 3.2 Docker / 模型
@@ -98,7 +99,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 |---|---|
 | `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 10 tests，含 `/ready` ok/degraded diagnostic command 與 OpenAI-style error parsing |
 | `python -m unittest discover -s docker/server/tests -v` | 通過：Docker healthcheck 6 tests，含 HTTP `/ready` ok/degraded/non-JSON/protocol-error cases |
-| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 10 tests、server compile、HTTP 16 tests、Docker healthcheck 6 tests、Web 16 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
+| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 10 tests、server compile、HTTP 20 tests、Docker healthcheck 6 tests、Web 16 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 
 `--http-require-ready` 已加入 root verifier；目前 `127.0.0.1:6017` 上的 live process 仍是舊版 `v2.5`，需重啟到本分支後 `/ready` 才會從 404 變成可驗證 endpoint。因目前 shell 沒有 live server 的 API key，模型音檔 smoke 會在 `/v1/audio/transcriptions` 收到 401；release evidence 需提供 `--http-key`。
 
@@ -119,7 +120,6 @@ python scripts/verify_all.py \
 |---|---|
 | CI 不下載模型 | 預期設計；CI 驗證協議、格式、build、Docker smoke。模型品質由 `--http-audio` release gate 補足 |
 | Browser TTS 可用性依賴瀏覽器 / OS voice | Web Console 文件已標明；不走雲端 TTS |
-| `prompt` 目前未注入 ASR backend context | HTTP API 文件列為相容占位；hotword 引導仍建議走既有 hotword 機制 |
 | `ws_send_with_http.py` 需人工追 upstream | upstream merge checklist 已列入 |
 | 公開 image 需 merge 到 master 後由 workflow 發布 | feature branch 只提供 workflow 與 local Docker smoke |
 

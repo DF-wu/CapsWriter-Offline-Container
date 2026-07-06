@@ -79,8 +79,8 @@ OpenAI Whisper 規格的 multipart 端點。
 |---|---|---|---|
 | `file` | ✅ | — | 音訊檔；ffmpeg 能解的格式都行（mp3/wav/m4a/flac/ogg/webm/...） |
 | `model` | — | `whisper-1` | OpenAI 相容占位，**實際模型由 `CAPSWRITER_MODEL_TYPE` 決定** |
-| `language` | — | _(無)_ | 不影響識別，僅在 `verbose_json` 回填 |
-| `prompt` | — | _(無)_ | 目前僅 log，未注入 recognizer context（見 §6） |
+| `language` | — | `auto` | 語言提示；接受 `chinese`/`english` 等統一名稱，也接受常見 OpenAI-style alias 如 `zh`、`en`、`ja`、`ko` |
+| `prompt` | — | _(無)_ | 轉為 upstream `Task.context` 傳給 recognizer；會正規化換行並截斷到前 2048 字元 |
 | `response_format` | — | `json` | 五選一：`json`/`text`/`verbose_json`/`srt`/`vtt` |
 | `temperature` | — | `0.0` | OpenAI 相容占位 |
 
@@ -363,9 +363,8 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 
 | 限制 | 原因 | 影響 |
 |---|---|---|
-| `prompt` 僅 log 未注入 context | 不同 backend 對 prompt 支援方式差異大 | 想做 hot-word 引導請用 WebSocket 模式或客戶端 post-processing |
 | `model` / `temperature` 為占位 | 由 `CAPSWRITER_MODEL_TYPE` 決定模型；無 sampling | OpenAI SDK 寫什麼都不影響 |
-| 不做語言自動偵測 | 識別模型語言固定 | `language` 欄位只回填，不影響識別 |
+| 語言提示依 backend 支援度生效 | Qwen / FunASR / SenseVoice / Paraformer 支援的語言集合不同 | 不支援的語言會落回該 backend 的預設行為 |
 | 無 streaming（SSE） | OpenAI Whisper API 本身亦無 streaming | 需 streaming 請用 WebSocket |
 | `/v1/audio/translations` 永不實作 | 本地模型不做翻譯 | 客戶端如用 `translate()`，請改 `transcribe()` |
 
@@ -393,6 +392,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 | [`fork_server/http_api/errors.py`](../fork_server/http_api/errors.py) | OpenAI-style JSON error payload handlers |
 | [`fork_server/http_api/readiness.py`](../fork_server/http_api/readiness.py) | `/ready` payload/status helper |
 | [`fork_server/http_api/task_router.py`](../fork_server/http_api/task_router.py) | task_id ↔ asyncio.Future 路由；合成 socket_id 管理 |
+| [`fork_server/http_api/transcription_tasks.py`](../fork_server/http_api/transcription_tasks.py) | HTTP audio segmentation, language alias normalization, prompt/context normalization |
 | [`fork_server/http_api/audio_decoder.py`](../fork_server/http_api/audio_decoder.py) | FFmpeg subprocess → 16k/f32/mono PCM |
 | [`fork_server/http_api/openai_formatter.py`](../fork_server/http_api/openai_formatter.py) | 5 種 `response_format` 輸出 |
 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) | 結果分派；HTTP 攔截點 `try_resolve` |

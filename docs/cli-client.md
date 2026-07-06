@@ -119,6 +119,8 @@ python client/cli/capswriter_cli.py transcribe meeting.wav \
   --prompt "會議術語：CapsWriter, Qwen, FunASR"
 ```
 
+The server normalizes common aliases such as `zh`, `zh_CN`, `en`, `ja`, `ko`, and `yue` to the internal language names used by the ASR engines. Prompt text is passed as recognizer context after newline normalization and a 2048-character cap.
+
 ## Speak
 
 Speak direct text:
@@ -179,6 +181,7 @@ python client/cli/scripts/clean.py
 - Multipart upload is implemented with `urllib.request` and a generated boundary.
 - `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
 - `--output-dir` maps output extensions by response format: `.txt`, `.json`, `.srt`, `.vtt`.
+- `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.
 - HTTP errors normalize OpenAI-style `error.message` and legacy `detail` payloads.
 - Windows TTS uses PowerShell `System.Speech`.
 - Linux TTS prefers `spd-say`, then `espeak-ng`, then `espeak`.

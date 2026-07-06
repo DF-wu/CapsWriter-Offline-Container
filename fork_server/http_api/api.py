@@ -53,11 +53,11 @@ from .openai_formatter import format_response
 from .readiness import build_readiness
 from .runtime_config import normalize_cors_origins
 from .task_router import router as task_router
-
-
-# HTTP 任務的分段參數與客戶端檔案模式一致
-DEFAULT_SEG_DURATION = 60.0
-DEFAULT_SEG_OVERLAP = 4.0
+from .transcription_tasks import (
+    iter_transcription_task_specs,
+    normalize_language_hint,
+    normalize_prompt_context,
+)
 
 
 def _check_auth(authorization: Optional[str]) -> None:
@@ -72,78 +72,39 @@ def _check_auth(authorization: Optional[str]) -> None:
         raise HTTPException(401, "Invalid API key")
 
 
-def _split_and_submit(task_id: str, pcm: bytes) -> None:
+def _split_and_submit(
+    task_id: str,
+    pcm: bytes,
+    *,
+    context: str = "",
+    language: str = "auto",
+) -> None:
     """
     把 PCM 切分成 60s + 4s overlap 的片段送入 queue_in,
     最後一段標記 is_final=True。
 
-    與 ws_recv 內的分段邏輯同算法, 複用 AudioFormat 轉換工具。
+    與 ws_recv 內的分段邏輯同算法, 但純切分規則放在
+    transcription_tasks.py 以便在無 FastAPI/server dependency 的環境測試。
     在 thread 中呼叫以避免阻塞 event loop。
     """
     queue_in = task_router.queue_in
     socket_id = task_router.synthetic_socket_id(task_id)
 
-    segment_bytes = AudioFormat.seconds_to_bytes(
-        DEFAULT_SEG_DURATION + DEFAULT_SEG_OVERLAP
-    )
-    stride_bytes = AudioFormat.seconds_to_bytes(DEFAULT_SEG_DURATION)
-    total_bytes = len(pcm)
-
     time_start = time.time()
-    offset = 0.0
-    pos = 0
-
-    # 短音訊: 單一 final task 即可
-    if total_bytes <= segment_bytes:
+    for spec in iter_transcription_task_specs(
+        task_id=task_id,
+        socket_id=socket_id,
+        pcm=pcm,
+        time_start=time_start,
+        context=context,
+        language=language,
+    ):
         queue_in.put(
             Task(
-                source="file",
-                data=pcm,
-                offset=0.0,
-                overlap=DEFAULT_SEG_OVERLAP,
-                task_id=task_id,
-                socket_id=socket_id,
-                is_final=True,
-                time_start=time_start,
+                **spec,
                 time_submit=time.time(),
-                context="",
             )
         )
-        return
-
-    # 長音訊: 多段中間 + 1 段 final
-    while pos + segment_bytes < total_bytes:
-        queue_in.put(
-            Task(
-                source="file",
-                data=pcm[pos : pos + segment_bytes],
-                offset=offset,
-                overlap=DEFAULT_SEG_OVERLAP,
-                task_id=task_id,
-                socket_id=socket_id,
-                is_final=False,
-                time_start=time_start,
-                time_submit=time.time(),
-                context="",
-            )
-        )
-        offset += DEFAULT_SEG_DURATION
-        pos += stride_bytes
-
-    queue_in.put(
-        Task(
-            source="file",
-            data=pcm[pos:],
-            offset=offset,
-            overlap=DEFAULT_SEG_OVERLAP,
-            task_id=task_id,
-            socket_id=socket_id,
-            is_final=True,
-            time_start=time_start,
-            time_submit=time.time(),
-            context="",
-        )
-    )
 
 
 def _wrap_response(
@@ -283,16 +244,24 @@ def create_app() -> FastAPI:
             raise HTTPException(400, "Audio too short to transcribe")
 
         future = task_router.register(task_id)
+        context = normalize_prompt_context(prompt)
+        language_hint = normalize_language_hint(language)
         logger.info(
             f"[HTTP] task={task_id[:8]} duration={duration:.2f}s "
-            f"fmt={response_format} bytes={len(audio_bytes)}"
+            f"fmt={response_format} lang={language_hint} bytes={len(audio_bytes)}"
         )
 
         timeout = task_timeout_seconds(getattr(Config, "http_api_task_timeout", 600.0))
         try:
-            await asyncio.to_thread(_split_and_submit, task_id, pcm)
-            if prompt:
-                logger.debug(f"[HTTP] task={task_id[:8]} prompt={prompt[:50]!r}")
+            await asyncio.to_thread(
+                _split_and_submit,
+                task_id,
+                pcm,
+                context=context,
+                language=language_hint,
+            )
+            if context:
+                logger.debug(f"[HTTP] task={task_id[:8]} context={context[:50]!r}")
             result: Result = await asyncio.wait_for(future, timeout=timeout)
         except asyncio.TimeoutError:
             task_router.cancel(task_id)
@@ -308,7 +277,9 @@ def create_app() -> FastAPI:
             )
             raise HTTPException(500, f"Recognition error: {e}")
 
-        body, media_type = format_response(result, response_format, language=language)
+        body, media_type = format_response(
+            result, response_format, language=language_hint
+        )
         text = result.text_accu or result.text
         delay = max(0.0, time.time() - request_start)
         safe_text = text.replace("\n", " ").replace("\r", "")

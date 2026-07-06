@@ -128,8 +128,8 @@ Runtime variables:
 | `CAPSWRITER_WEB_API_BASE` | `http://localhost:6017` | Default API root shown in the UI |
 | `CAPSWRITER_WEB_API_KEY` | _(empty)_ | Optional default token; visible to browser users |
 | `CAPSWRITER_WEB_MODEL` | `whisper-1` | OpenAI-compatible model field |
-| `CAPSWRITER_WEB_LANGUAGE` | _(empty)_ | Optional language hint |
-| `CAPSWRITER_WEB_PROMPT` | _(empty)_ | Optional prompt text |
+| `CAPSWRITER_WEB_LANGUAGE` | _(empty)_ | Optional language hint; server accepts aliases such as `zh`, `en`, `ja`, `ko`, `yue` |
+| `CAPSWRITER_WEB_PROMPT` | _(empty)_ | Optional recognizer context, normalized and capped server-side |
 | `CAPSWRITER_WEB_RESPONSE_FORMAT` | `verbose_json` | Default response format |
 
 Health check:
