@@ -14,7 +14,7 @@ The command runs:
 
 | Step | Command | Coverage |
 |---|---|---|
-| CLI | `python client/cli/scripts/verify.py` | CLI syntax, health/readiness/models calls, multipart upload, mock HTTP transcription, output files, Linux/Windows TTS command selection, zipapp packaging |
+| CLI | `python client/cli/scripts/verify.py` | CLI syntax, health/readiness/models calls, multipart upload, mock HTTP transcription, HTTP error diagnostics, output files, Linux/Windows TTS command selection, zipapp packaging |
 | Server | `python -m compileall fork_server docker/server check_http_api.py start_server_docker.py` + HTTP and Docker server unit tests | HTTP sidecar, Docker entrypoint/healthcheck syntax, readiness-gated container healthcheck, model downloader diagnostics, dependency-light request limit and runtime config tests |
 | Verifier | `python -m unittest discover -s scripts/tests -v` | Root gate helper behavior, including redaction of live HTTP API keys from shared logs |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, TypeScript, production build, web clean script |

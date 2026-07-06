@@ -4,7 +4,7 @@ import sys
 import tempfile
 import threading
 import unittest
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
@@ -229,6 +229,39 @@ class CapsWriterCliTest(unittest.TestCase):
         payload = json.loads(stdout.getvalue())
         self.assertEqual(payload["status"], "degraded")
         self.assertFalse(payload["checks"]["task_router_bound"])
+
+    def test_main_ready_reports_non_json_http_error(self):
+        class PlainTextReadyHandler(MockCapsWriterHandler):
+            def do_GET(self):
+                if self.path == "/ready":
+                    self._text(502, "Bad gateway", "text/plain")
+                    return
+                super().do_GET()
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), PlainTextReadyHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                code = cli.main(
+                    [
+                        "ready",
+                        "--base-url",
+                        f"http://127.0.0.1:{server.server_port}",
+                        "--timeout",
+                        "5",
+                    ]
+                )
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+        self.assertEqual(code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("capswriter-cli: HTTP 502: Bad gateway", stderr.getvalue())
 
     def test_transcribe_file_raises_api_error_with_openai_message(self):
         server = ThreadingHTTPServer(("127.0.0.1", 0), ErrorCapsWriterHandler)

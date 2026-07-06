@@ -26,6 +26,7 @@ from urllib import error, request
 DEFAULT_BASE_URL = "http://127.0.0.1:6017"
 DEFAULT_MODEL = "whisper-1"
 RESPONSE_FORMATS = ("json", "text", "verbose_json", "srt", "vtt")
+MAX_ERROR_BODY_CHARS = 500
 
 
 @dataclass(frozen=True)
@@ -98,7 +99,10 @@ def error_message_from_body(body: bytes) -> str:
     try:
         payload = json.loads(text)
     except json.JSONDecodeError:
-        return text
+        preview = " ".join(text.split())
+        if len(preview) > MAX_ERROR_BODY_CHARS:
+            return f"{preview[:MAX_ERROR_BODY_CHARS].rstrip()}..."
+        return preview
     if isinstance(payload, dict):
         error_payload = payload.get("error")
         if isinstance(error_payload, dict) and error_payload.get("message"):
@@ -106,6 +110,24 @@ def error_message_from_body(body: bytes) -> str:
         if payload.get("detail"):
             return str(payload["detail"])
     return text
+
+
+def _json_or_raise(result: HttpResult, path: str):
+    try:
+        return result.json()
+    except json.JSONDecodeError:
+        message = error_message_from_body(result.body)
+        if result.status >= 400:
+            raise ApiError(
+                result.status,
+                message
+                or f"Expected JSON response from {path}, got "
+                f"{result.content_type or 'unknown content type'}",
+            ) from None
+        raise ValueError(
+            f"Expected JSON response from {path}, got "
+            f"{result.content_type or 'unknown content type'}"
+        ) from None
 
 
 def _raise_api_error(exc: error.HTTPError) -> None:
@@ -121,7 +143,7 @@ def http_get_json(config: ApiConfig, path: str):
     )
     try:
         with request.urlopen(req, timeout=config.timeout) as response:
-            return _read_response(response).json()
+            return _json_or_raise(_read_response(response), path)
     except error.HTTPError as exc:
         _raise_api_error(exc)
 
@@ -136,7 +158,7 @@ def http_get_json_status(config: ApiConfig, path: str) -> tuple[int, object]:
             result = _read_response(response)
     except error.HTTPError as exc:
         result = _result_from_http_error(exc)
-    return result.status, result.json()
+    return result.status, _json_or_raise(result, path)
 
 
 def build_multipart(
