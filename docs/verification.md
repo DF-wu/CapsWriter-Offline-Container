@@ -17,6 +17,7 @@ The command runs:
 | CLI | `python client/cli/scripts/verify.py` | CLI syntax, multipart upload, mock HTTP transcription, output files, Linux/Windows TTS command selection |
 | Server | `python -m compileall fork_server check_http_api.py start_server_docker.py` | HTTP sidecar, Docker entrypoint, diagnostic script syntax |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, TypeScript, production build, web clean script |
+| Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
 | Optional live HTTP | `client/cli/capswriter_cli.py health` | Real server health when configured |
 | Cleanup | `python scripts/clean.py` | Removes build/cache/pycache artifacts |
 
@@ -41,6 +42,14 @@ Add a live server health check:
 ```bash
 python scripts/verify_all.py --http-base-url http://127.0.0.1:6017
 ```
+
+Build the Web Console production image as part of the gate:
+
+```bash
+python scripts/verify_all.py --docker-build-web
+```
+
+This uses the temporary image tag `capswriter-web-console:verify`, starts a temporary container named `capswriter-web-console-verify`, checks `/health` and `/config.js`, then removes both during cleanup.
 
 With auth:
 

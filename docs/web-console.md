@@ -81,6 +81,52 @@ npm run verify
 
 `verify` 會依序執行單元測試、production build 與清理腳本；即使 build 失敗也會嘗試清理已產生的暫存輸出。
 
+## Production Docker
+
+Web Console can be served as a static Nginx container. Runtime configuration is written to `/config.js` when the container starts, so the same image can point to different CapsWriter HTTP API hosts.
+
+Build and run only the web service:
+
+```bash
+docker compose -f docker-compose.web.yml up -d --build capswriter-web
+```
+
+Run it beside the server:
+
+```bash
+CAPSWRITER_HTTP_API_ENABLE=true \
+CAPSWRITER_HTTP_API_BIND=0.0.0.0 \
+CAPSWRITER_HTTP_API_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080 \
+docker compose -f docker-compose.yml -f docker-compose.web.yml up -d --build
+```
+
+Open `http://localhost:8080`. The browser calls `CAPSWRITER_WEB_API_BASE`, which defaults to `http://localhost:6017`.
+
+Runtime variables:
+
+| Variable | Default | Description |
+|---|---|---|
+| `CAPSWRITER_WEB_PORT` | `8080` | Host port for the static web service |
+| `CAPSWRITER_WEB_API_BASE` | `http://localhost:6017` | Default API root shown in the UI |
+| `CAPSWRITER_WEB_API_KEY` | _(empty)_ | Optional default token; visible to browser users |
+| `CAPSWRITER_WEB_MODEL` | `whisper-1` | OpenAI-compatible model field |
+| `CAPSWRITER_WEB_LANGUAGE` | _(empty)_ | Optional language hint |
+| `CAPSWRITER_WEB_PROMPT` | _(empty)_ | Optional prompt text |
+| `CAPSWRITER_WEB_RESPONSE_FORMAT` | `verbose_json` | Default response format |
+
+Health check:
+
+```bash
+curl http://localhost:8080/health
+curl http://localhost:8080/config.js
+```
+
+Container image build can also be included in the root gate:
+
+```bash
+python scripts/verify_all.py --docker-build-web
+```
+
 ## 清理策略
 
 ```bash

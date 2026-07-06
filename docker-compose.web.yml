@@ -1,0 +1,21 @@
+services:
+  capswriter-web:
+    build:
+      context: ./client/web
+      dockerfile: Dockerfile
+    image: ${CAPSWRITER_WEB_IMAGE:-capswriter-web-console:local}
+    restart: unless-stopped
+    environment:
+      CAPSWRITER_WEB_API_BASE: ${CAPSWRITER_WEB_API_BASE:-http://localhost:6017}
+      CAPSWRITER_WEB_API_KEY: ${CAPSWRITER_WEB_API_KEY:-}
+      CAPSWRITER_WEB_MODEL: ${CAPSWRITER_WEB_MODEL:-whisper-1}
+      CAPSWRITER_WEB_LANGUAGE: ${CAPSWRITER_WEB_LANGUAGE:-}
+      CAPSWRITER_WEB_PROMPT: ${CAPSWRITER_WEB_PROMPT:-}
+      CAPSWRITER_WEB_RESPONSE_FORMAT: ${CAPSWRITER_WEB_RESPONSE_FORMAT:-verbose_json}
+    ports:
+      - "${CAPSWRITER_WEB_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

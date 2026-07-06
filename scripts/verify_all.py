@@ -18,6 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB_ROOT = ROOT / "client" / "web"
+WEB_VERIFY_IMAGE = "capswriter-web-console:verify"
+WEB_VERIFY_CONTAINER = "capswriter-web-console-verify"
 
 
 def run(
@@ -35,6 +37,16 @@ def run_required(args: list[str], *, cwd: Path = ROOT) -> int:
     if code != 0:
         print(f"Command failed with exit code {code}: {' '.join(args)}", file=sys.stderr)
     return code
+
+
+def run_cleanup(args: list[str], *, cwd: Path = ROOT) -> int:
+    return subprocess.run(
+        args,
+        cwd=cwd,
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    ).returncode
 
 
 def verify_cli() -> int:
@@ -95,6 +107,77 @@ def verify_http(base_url: str, api_key: str) -> int:
     return run_required(args)
 
 
+def verify_web_docker() -> int:
+    if shutil.which("docker") is None:
+        print("docker is required for --docker-build-web", file=sys.stderr)
+        return 1
+    code = run_required(
+        [
+            "docker",
+            "build",
+            "-f",
+            "client/web/Dockerfile",
+            "-t",
+            WEB_VERIFY_IMAGE,
+            "client/web",
+        ]
+    )
+    if code != 0:
+        return code
+
+    run_cleanup(["docker", "rm", "-f", WEB_VERIFY_CONTAINER])
+    code = run_required(
+        [
+            "docker",
+            "run",
+            "-d",
+            "--name",
+            WEB_VERIFY_CONTAINER,
+            "-e",
+            "CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017",
+            "-e",
+            "CAPSWRITER_WEB_RESPONSE_FORMAT=text",
+            WEB_VERIFY_IMAGE,
+        ]
+    )
+    if code != 0:
+        return code
+    try:
+        return run_required(
+            [
+                "docker",
+                "exec",
+                WEB_VERIFY_CONTAINER,
+                "sh",
+                "-c",
+                (
+                    "healthy=0; "
+                    "for i in $(seq 1 20); do "
+                    "if wget -qO- http://127.0.0.1:8080/health | grep -qx ok; then "
+                    "healthy=1; break; "
+                    "fi; "
+                    "sleep 0.5; "
+                    "done; "
+                    "test \"$healthy\" = 1 && "
+                    "wget -qO- http://127.0.0.1:8080/config.js "
+                    "| grep 'baseUrl: \"http://127.0.0.1:6017\"' "
+                    "&& wget -qO- http://127.0.0.1:8080/config.js "
+                    "| grep 'responseFormat: \"text\"'"
+                ),
+            ]
+        )
+    finally:
+        run_cleanup(["docker", "rm", "-f", WEB_VERIFY_CONTAINER])
+
+
+def clean_web_docker() -> int:
+    if shutil.which("docker") is None:
+        return 0
+    run_cleanup(["docker", "rm", "-f", WEB_VERIFY_CONTAINER])
+    run_cleanup(["docker", "image", "rm", "-f", WEB_VERIFY_IMAGE])
+    return 0
+
+
 def clean() -> int:
     return run([sys.executable, "scripts/clean.py"])
 
@@ -121,6 +204,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=os.environ.get("CAPSWRITER_HTTP_API_KEY", ""),
         help="Optional live HTTP API Bearer token",
     )
+    parser.add_argument(
+        "--docker-build-web",
+        action="store_true",
+        help="Also build the Web Console production Docker image",
+    )
     return parser
 
 
@@ -134,6 +222,7 @@ def main() -> int:
             verify_cli,
             verify_server_compile,
             (lambda: 0 if args.skip_web else verify_web(install=not args.no_web_install)),
+            (lambda: verify_web_docker() if args.docker_build_web else 0),
             (lambda: verify_http(args.http_base_url, args.http_key)),
         ]:
             status = step()
@@ -142,8 +231,9 @@ def main() -> int:
         return status
     finally:
         clean_status = clean()
-        if status == 0 and clean_status != 0:
-            raise SystemExit(clean_status)
+        docker_clean_status = clean_web_docker() if args.docker_build_web else 0
+        if status == 0 and (clean_status != 0 or docker_clean_status != 0):
+            raise SystemExit(clean_status or docker_clean_status)
 
 
 if __name__ == "__main__":

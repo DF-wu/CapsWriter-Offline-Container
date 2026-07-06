@@ -192,6 +192,12 @@ npm run dev
 
 See [docs/web-console.md](docs/web-console.md) for the browser STT/TTS workflow, CORS setup, verification commands, and cleanup policy.
 
+Production static container:
+
+```bash
+docker compose -f docker-compose.web.yml up -d --build capswriter-web
+```
+
 ### 8. Run the no-GUI CLI client
 
 ```bash

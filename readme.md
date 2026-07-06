@@ -95,6 +95,12 @@ print(t.text)
 詳細 API 規格見 [docs/HTTP_API.md](docs/HTTP_API.md)。
 瀏覽器工作台見 [docs/web-console.md](docs/web-console.md)。
 
+Web Console 也可用靜態容器部署：
+
+```bash
+docker compose -f docker-compose.web.yml up -d --build capswriter-web
+```
+
 ---
 
 ## 模型矩陣
