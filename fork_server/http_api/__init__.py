@@ -6,6 +6,7 @@ fork_server.http_api — OpenAI Whisper API 相容的 REST 端點
 - api:                FastAPI app + 4 endpoints
 - task_router:        HTTP task ↔ asyncio.Future routing + 與 sockets_id 整合
 - audio_decoder:      ffmpeg subprocess → 16kHz/float32/mono PCM
+- errors:             OpenAI-style JSON error payload handlers
 - readiness:          /ready payload and status code helper
 - runtime_config:     CAPSWRITER_HTTP_API_* validation and normalization
 - openai_formatter:   Result → json/text/srt/vtt/verbose_json

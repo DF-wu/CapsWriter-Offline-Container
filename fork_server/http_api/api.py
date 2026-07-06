@@ -33,6 +33,8 @@ from fastapi import (
 )
 from fastapi.responses import JSONResponse, PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from config_server import ServerConfig as Config, __version__
 from core.constants import AudioFormat
@@ -40,6 +42,7 @@ from core.server.schema import Task, Result
 from core.server import logger, console
 
 from .audio_decoder import AudioDecodeError, FFmpegNotFoundError, decode_to_pcm
+from .errors import http_exception_handler, validation_exception_handler
 from .limits import (
     UploadTooLargeError,
     read_upload_limited,
@@ -178,6 +181,9 @@ def create_app() -> FastAPI:
             allow_headers=["Authorization", "Content-Type"],
             max_age=600,
         )
+
+    app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
     max_concurrent_requests = int(
         getattr(Config, "http_api_max_concurrent_requests", 2)
