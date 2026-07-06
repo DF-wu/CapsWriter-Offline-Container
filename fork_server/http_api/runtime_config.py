@@ -29,6 +29,7 @@ class HttpApiSettings:
     max_concurrent_requests: int = 2
     cors_origins: tuple[str, ...] = ()
     allow_insecure_bind: bool = False
+    log_transcripts: bool = False
 
 
 def _env(env: Mapping[str, str], name: str) -> str | None:
@@ -188,5 +189,10 @@ def parse_http_api_env(env: Mapping[str, str]) -> HttpApiSettings:
             _env(env, "CAPSWRITER_HTTP_API_CORS_ORIGINS")
         ),
         allow_insecure_bind=parse_bool(env, ALLOW_INSECURE_BIND_ENV, False),
+        log_transcripts=parse_bool(
+            env,
+            "CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS",
+            False,
+        ),
     )
     return validate_http_api_settings(settings)

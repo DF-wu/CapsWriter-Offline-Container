@@ -50,6 +50,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
   - `POST /v1/audio/translations`（明確 501）
 - HTTP 上傳以 chunk 讀取並套用 `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB`，成功回應帶 `X-CapsWriter-Task-ID`。
 - `/ready` 回報 `task_router` 與 `ffmpeg` readiness，不暴露 secrets。
+- HTTP API 預設不把 prompt/context 或轉錄文字寫入 server log/console；需明確設定 `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS=true` 才輸出全文。
 - `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` 對 HTTP 轉錄請求做 request-slot backpressure。
 - HTTP API 啟用且 bind 到非 loopback 時會要求 Bearer key；無 KEY 只允許 loopback 或明確 insecure opt-out。
 - HTTP error 使用 OpenAI-style `{"error": ...}` JSON envelope，保留原 HTTP status。
@@ -101,7 +102,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 | `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 12 tests，含 `/ready` ok/degraded diagnostic command、OpenAI-style error parsing、non-JSON HTTP error diagnostics 與 multipart filename escaping |
 | `python -m unittest discover -s docker/server/tests -v` | 通過：Docker server 12 tests，含 HTTP `/ready` healthcheck、healthcheck env parsing 與 model downloader env diagnostics |
 | `python -m unittest discover -s scripts/tests -v` | 通過：Verifier 4 tests，含 live HTTP API key log redaction |
-| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 12 tests、server compile、HTTP 42 tests、Docker server 12 tests、Verifier 4 tests、Web 19 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
+| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 12 tests、server compile、HTTP 45 tests、Docker server 12 tests、Verifier 4 tests、Web 19 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 
 `--http-require-ready` 已加入 root verifier；目前 `127.0.0.1:6017` 上的 live process 仍是舊版 `v2.5`，需重啟到本分支後 `/ready` 才會從 404 變成可驗證 endpoint。因目前 shell 沒有 live server 的 API key，模型音檔 smoke 會在 `/v1/audio/transcriptions` 收到 401；release evidence 需提供 `--http-key`。
 

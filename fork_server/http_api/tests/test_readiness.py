@@ -19,6 +19,7 @@ class ReadinessTest(unittest.TestCase):
             task_timeout=600,
             max_concurrent_requests=2,
             cors_origins=["http://localhost:5173"],
+            log_transcripts=True,
         )
 
         self.assertEqual(status, 200)
@@ -26,6 +27,7 @@ class ReadinessTest(unittest.TestCase):
         self.assertTrue(payload["checks"]["task_router_bound"])
         self.assertTrue(payload["config"]["auth_enabled"])
         self.assertEqual(payload["config"]["cors_origins_count"], 1)
+        self.assertTrue(payload["config"]["log_transcripts"])
 
     def test_ready_payload_is_degraded_when_required_check_fails(self) -> None:
         payload, status = build_readiness(
@@ -44,6 +46,7 @@ class ReadinessTest(unittest.TestCase):
         self.assertEqual(payload["status"], "degraded")
         self.assertFalse(payload["checks"]["task_router_bound"])
         self.assertFalse(payload["config"]["cors_enabled"])
+        self.assertFalse(payload["config"]["log_transcripts"])
 
     def test_readiness_auth_enabled_matches_auth_policy(self) -> None:
         self.assertFalse(readiness_auth_enabled(None))

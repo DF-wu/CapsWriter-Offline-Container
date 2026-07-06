@@ -51,6 +51,7 @@ from .limits import (
     upload_limit_bytes,
 )
 from .openai_formatter import format_response
+from .privacy import log_prompt_context, log_transcription_result
 from .readiness import build_readiness, readiness_auth_enabled
 from .runtime_config import normalize_cors_origins
 from .task_router import router as task_router
@@ -122,6 +123,10 @@ def _cors_origins() -> list[str]:
     return list(normalize_cors_origins(value))
 
 
+def _log_sensitive_text_enabled() -> bool:
+    return bool(getattr(Config, "http_api_log_transcripts", False))
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="CapsWriter-Offline OpenAI-Compatible ASR",
@@ -177,6 +182,9 @@ def create_app() -> FastAPI:
                 getattr(Config, "http_api_max_concurrent_requests", 2)
             ),
             cors_origins=cors_origins,
+            log_transcripts=bool(
+                getattr(Config, "http_api_log_transcripts", False)
+            ),
         )
         return JSONResponse(content=payload, status_code=status_code)
 
@@ -260,8 +268,12 @@ def create_app() -> FastAPI:
                 context=context,
                 language=language_hint,
             )
-            if context:
-                logger.debug(f"[HTTP] task={task_id[:8]} context={context[:50]!r}")
+            log_prompt_context(
+                logger,
+                task_id,
+                context,
+                log_sensitive_text=_log_sensitive_text_enabled(),
+            )
             result: Result = await asyncio.wait_for(future, timeout=timeout)
         except asyncio.CancelledError:
             task_router.cancel(task_id)
@@ -286,14 +298,14 @@ def create_app() -> FastAPI:
         )
         text = result.text_accu or result.text
         delay = max(0.0, time.time() - request_start)
-        safe_text = text.replace("\n", " ").replace("\r", "")
-        logger.info(
-            f"[HTTP] task={task_id[:8]} done, delay={delay:.1f}s, text={safe_text}"
+        log_transcription_result(
+            logger,
+            console,
+            task_id,
+            delay,
+            text,
+            log_sensitive_text=_log_sensitive_text_enabled(),
         )
-        console.print(f"    转录时延：{delay:.2f}s")
-        console.print("    识别结果：", end="")
-        console.print(text, style="green")
-        console.line()
         return _wrap_response(
             body,
             media_type,

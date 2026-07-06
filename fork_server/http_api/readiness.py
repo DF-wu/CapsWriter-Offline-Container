@@ -23,6 +23,7 @@ def build_readiness(
     task_timeout: float,
     max_concurrent_requests: int,
     cors_origins: list[str],
+    log_transcripts: bool = False,
 ) -> tuple[dict[str, Any], int]:
     """Return ``(payload, status_code)`` for ``GET /ready``."""
     checks = {
@@ -42,6 +43,7 @@ def build_readiness(
             "max_concurrent_requests": int(max_concurrent_requests),
             "cors_enabled": bool(cors_origins),
             "cors_origins_count": len(cors_origins),
+            "log_transcripts": bool(log_transcripts),
         },
     }
     return payload, 200 if ready else 503

@@ -22,6 +22,7 @@ class HttpRuntimeConfigTest(unittest.TestCase):
         self.assertEqual(settings.task_timeout, 600.0)
         self.assertEqual(settings.max_concurrent_requests, 2)
         self.assertEqual(settings.cors_origins, ())
+        self.assertFalse(settings.log_transcripts)
 
     def test_parses_valid_deploy_values(self) -> None:
         settings = parse_http_api_env(
@@ -36,6 +37,7 @@ class HttpRuntimeConfigTest(unittest.TestCase):
                 "CAPSWRITER_HTTP_API_CORS_ORIGINS": (
                     "http://localhost:5173/, https://example.test"
                 ),
+                "CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS": "true",
             }
         )
         self.assertTrue(settings.enable)
@@ -49,6 +51,7 @@ class HttpRuntimeConfigTest(unittest.TestCase):
             settings.cors_origins,
             ("http://localhost:5173", "https://example.test"),
         )
+        self.assertTrue(settings.log_transcripts)
 
     def test_rejects_invalid_boolean(self) -> None:
         with self.assertRaises(ConfigError):

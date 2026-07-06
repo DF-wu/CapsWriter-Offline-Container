@@ -192,6 +192,8 @@ def apply() -> None:
          list(http_api.cors_origins))
     _set(ServerConfig, "http_api_allow_insecure_bind",
          http_api.allow_insecure_bind)
+    _set(ServerConfig, "http_api_log_transcripts",
+         http_api.log_transcripts)
 
     # ---- Qwen preset (decide onnx_provider + llm_use_gpu before specific overrides) ----
     qwen_preset = _env_str("CAPSWRITER_QWEN_PRESET", "default") or "default"
