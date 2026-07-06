@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from fork_server.http_api.readiness import build_readiness
+from fork_server.http_api.readiness import build_readiness, readiness_auth_enabled
 
 
 class ReadinessTest(unittest.TestCase):
@@ -44,6 +44,12 @@ class ReadinessTest(unittest.TestCase):
         self.assertEqual(payload["status"], "degraded")
         self.assertFalse(payload["checks"]["task_router_bound"])
         self.assertFalse(payload["config"]["cors_enabled"])
+
+    def test_readiness_auth_enabled_matches_auth_policy(self) -> None:
+        self.assertFalse(readiness_auth_enabled(None))
+        self.assertFalse(readiness_auth_enabled(""))
+        self.assertFalse(readiness_auth_enabled("   "))
+        self.assertTrue(readiness_auth_enabled("sk-local-dev"))
 
 
 if __name__ == "__main__":

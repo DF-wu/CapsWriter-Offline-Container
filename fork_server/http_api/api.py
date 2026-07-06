@@ -51,7 +51,7 @@ from .limits import (
     upload_limit_bytes,
 )
 from .openai_formatter import format_response
-from .readiness import build_readiness
+from .readiness import build_readiness, readiness_auth_enabled
 from .runtime_config import normalize_cors_origins
 from .task_router import router as task_router
 from .transcription_tasks import (
@@ -170,7 +170,7 @@ def create_app() -> FastAPI:
             version=__version__,
             task_router_bound=task_router.is_bound(),
             ffmpeg_available=shutil.which("ffmpeg") is not None,
-            auth_enabled=bool(getattr(Config, "http_api_key", "") or ""),
+            auth_enabled=readiness_auth_enabled(getattr(Config, "http_api_key", "")),
             max_upload_mb=int(getattr(Config, "http_api_max_upload_mb", 100)),
             task_timeout=float(getattr(Config, "http_api_task_timeout", 600.0)),
             max_concurrent_requests=int(

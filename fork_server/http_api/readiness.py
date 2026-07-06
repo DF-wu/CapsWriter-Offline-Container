@@ -5,6 +5,12 @@ from __future__ import annotations
 
 from typing import Any
 
+from .auth import auth_enabled as _auth_enabled
+
+
+def readiness_auth_enabled(api_key: str | None) -> bool:
+    return _auth_enabled(api_key)
+
 
 def build_readiness(
     *,
