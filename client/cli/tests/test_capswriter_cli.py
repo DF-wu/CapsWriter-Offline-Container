@@ -142,6 +142,20 @@ class CapsWriterCliTest(unittest.TestCase):
             self.assertIn(b"whisper-1", body)
             self.assertIn(b"RIFF", body)
 
+    def test_build_multipart_escapes_filename_header_value(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / 'sample"\r\nX-Injected: yes.wav'
+            audio.write_bytes(b"RIFF")
+            body, _boundary = cli.build_multipart(
+                audio,
+                {"model": "whisper-1"},
+                boundary="test-boundary",
+            )
+            header = body.split(b"\r\n\r\n", 1)[0]
+
+            self.assertIn(b'filename="sample\\"  X-Injected: yes.wav"', header)
+            self.assertNotIn(b"\r\nX-Injected:", header)
+
     def test_health_and_transcribe_against_mock_server(self):
         config = cli.ApiConfig(base_url=self.base_url, timeout=5)
         self.assertEqual(cli.http_get_json(config, "/health")["model"], "mock_asr")

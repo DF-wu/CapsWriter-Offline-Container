@@ -178,7 +178,7 @@ python client/cli/scripts/clean.py
 
 ## Implementation notes
 
-- Multipart upload is implemented with `urllib.request` and a generated boundary.
+- Multipart upload is implemented with `urllib.request` and a generated boundary; local filenames are escaped before writing the `Content-Disposition` header.
 - `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
 - `--output-dir` maps output extensions by response format: `.txt`, `.json`, `.srt`, `.vtt`.
 - `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.

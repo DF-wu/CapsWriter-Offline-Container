@@ -161,6 +161,15 @@ def http_get_json_status(config: ApiConfig, path: str) -> tuple[int, object]:
     return result.status, _json_or_raise(result, path)
 
 
+def multipart_header_value(value: str) -> str:
+    return (
+        value.replace("\\", "\\\\")
+        .replace('"', r"\"")
+        .replace("\r", " ")
+        .replace("\n", " ")
+    )
+
+
 def build_multipart(
     file_path: Path,
     fields: dict[str, str],
@@ -173,7 +182,8 @@ def build_multipart(
     chunks.append(
         (
             f"--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="file"; filename="{file_path.name}"\r\n'
+            'Content-Disposition: form-data; name="file"; '
+            f'filename="{multipart_header_value(file_path.name)}"\r\n'
             f"Content-Type: application/octet-stream\r\n\r\n"
         ).encode("utf-8")
     )
