@@ -82,6 +82,7 @@ def verify_server_compile() -> int:
             "-m",
             "compileall",
             "fork_server",
+            "docker/server",
             "check_http_api.py",
             "start_server_docker.py",
         ]
@@ -97,6 +98,20 @@ def verify_server_tests() -> int:
             "discover",
             "-s",
             "fork_server/http_api/tests",
+            "-v",
+        ]
+    )
+
+
+def verify_docker_server_tests() -> int:
+    return run_required(
+        [
+            sys.executable,
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "docker/server/tests",
             "-v",
         ]
     )
@@ -364,6 +379,7 @@ def main() -> int:
             verify_cli,
             verify_server_compile,
             verify_server_tests,
+            verify_docker_server_tests,
             (lambda: 0 if args.skip_web else verify_web(install=not args.no_web_install)),
             (
                 lambda: verify_web_browser_smoke(install=not args.no_web_install)

@@ -66,7 +66,7 @@ docker/                                 ← Container 構建 (上游無此目錄
 │   ├── entrypoint.sh                   ← GPU 偵測 + env defaults
 │   ├── download_models.py              ← 模型 + llama.cpp .so 下載
 │   ├── probe_backend.py                ← 啟動前 GPU smoke test
-│   └── healthcheck.py                  ← TCP probe 6016
+│   └── healthcheck.py                  ← WebSocket probe + optional HTTP /ready
 docker-compose.yml                      ← 主 compose
 docker-compose.fun-asr.yml              ← Fun-ASR override
 docker-compose.example.yml              ← 範例

@@ -13,7 +13,7 @@
 | 入口 | [`docker/server/entrypoint.sh`](../docker/server/entrypoint.sh) → `start_server_docker.py` |
 | 模型策略 | 容器啟動時自動下載缺失模型；走 host bind-mount `./models:/app/models` |
 | GPU 策略 | `CAPSWRITER_INFERENCE_HARDWARE=auto`：先試 GPU，失敗回退 CPU |
-| Healthcheck | TCP probe `CAPSWRITER_SERVER_PORT`（預設 6016） |
+| Healthcheck | WebSocket port probe；若 `CAPSWRITER_HTTP_API_ENABLE=true`，再要求 `/ready` 回 `status=ok` |
 | 公開 image | `ghcr.io/df-wu/capswriter-offline-server:latest`（[`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 自動發布） |
 
 ---
@@ -203,13 +203,19 @@ docker compose up -d --force-recreate capswriter-server
 docker compose pull && docker compose up -d --force-recreate capswriter-server
 ```
 
+Container healthcheck 行為：
+
+1. 一律對 `CAPSWRITER_SERVER_PORT` 發送合法 HTTP/1.1 request，確認 WebSocket server 已接受連線且不製造 traceback noise。
+2. 若 `CAPSWRITER_HTTP_API_ENABLE=true`，再呼叫容器內 `CAPSWRITER_HTTP_API_PORT` 的 `/ready`。
+3. `/ready` 必須回 HTTP `200` 且 JSON `status="ok"`；`503 degraded` 會讓容器保持 unhealthy，避免 HTTP sidecar 未綁定 router 或找不到 `ffmpeg` 時被當作可接流量。
+
 ---
 
 ## 10. 故障排除
 
 | Symptom | 解法 |
 |---|---|
-| 容器啟動 20 分鐘後 healthcheck 還沒過 | 模型尚未載入；`docker logs` 看進度。冷啟動可能 30+ 分鐘 |
+| 容器啟動 20 分鐘後 healthcheck 還沒過 | 模型尚未載入或 HTTP `/ready` 還是 degraded；`docker logs` 看進度，`curl :6017/ready` 看 checks。冷啟動可能 30+ 分鐘 |
 | `ONNXRuntimeError: NO_SUCHFILE` | 模型檔不在預期路徑。檢查 `./models/Qwen3-ASR/Qwen3-ASR-1.7B/` 內檔名是否對齊 [`config_server.py:ModelPaths`](../config_server.py) |
 | AMD iGPU 模型載入失敗 | `.env` 設 `GGML_VK_DISABLE_COOPMAT=1` |
 | Intel iGPU 解碼結果亂 | `.env` 設 `GGML_VK_DISABLE_F16=1` |

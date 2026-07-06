@@ -59,6 +59,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 - [`docker/server/Dockerfile`](../docker/server/Dockerfile) 建 server image。
 - [`docker/server/download_models.py`](../docker/server/download_models.py) 依 `CAPSWRITER_MODEL_TYPE` 自動下載模型。
 - [`docker/server/entrypoint.sh`](../docker/server/entrypoint.sh) 做 GPU/CPU backend 選擇與 fallback。
+- [`docker/server/healthcheck.py`](../docker/server/healthcheck.py) 一律檢查 WebSocket port；若啟用 HTTP API，還要求 `/ready` 回 `status="ok"`。
 - [`docker-compose.yml`](../docker-compose.yml) 啟動 server；[`docker-compose.fun-asr.yml`](../docker-compose.fun-asr.yml) 切低延遲 Fun-ASR。
 
 ### 3.3 No-GUI CLI
@@ -96,7 +97,8 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 | Gate | 結果 |
 |---|---|
 | `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 10 tests，含 `/ready` ok/degraded diagnostic command 與 OpenAI-style error parsing |
-| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 10 tests、server compile、HTTP 16 tests、Web 16 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
+| `python -m unittest discover -s docker/server/tests -v` | 通過：Docker healthcheck 6 tests，含 HTTP `/ready` ok/degraded/non-JSON/protocol-error cases |
+| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 10 tests、server compile、HTTP 16 tests、Docker healthcheck 6 tests、Web 16 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 
 `--http-require-ready` 已加入 root verifier；目前 `127.0.0.1:6017` 上的 live process 仍是舊版 `v2.5`，需重啟到本分支後 `/ready` 才會從 404 變成可驗證 endpoint。因目前 shell 沒有 live server 的 API key，模型音檔 smoke 會在 `/v1/audio/transcriptions` 收到 401；release evidence 需提供 `--http-key`。
 
