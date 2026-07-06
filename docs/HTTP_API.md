@@ -18,6 +18,7 @@ CapsWriter-Offline 在 WebSocket 服務之外，可選擇性提供與 [OpenAI Wh
 | `CAPSWRITER_HTTP_API_KEY` | _(空)_ | Bearer token；空字串視為不啟用認證 |
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `100` | 單次上傳上限（MB） |
 | `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `600` | 單次轉錄超時（秒） |
+| `CAPSWRITER_HTTP_API_CORS_ORIGINS` | _(空)_ | 逗號分隔的瀏覽器 origin allowlist；空字串表示不加 CORS middleware |
 
 ### 1.1 Docker
 
@@ -29,6 +30,7 @@ environment:
   CAPSWRITER_HTTP_API_BIND: 0.0.0.0
   CAPSWRITER_HTTP_API_PORT: "6017"
   CAPSWRITER_HTTP_API_KEY: "sk-your-token"   # 對外時必填
+  CAPSWRITER_HTTP_API_CORS_ORIGINS: "http://127.0.0.1:5173"
 ports:
   - "6017:6017"
 ```

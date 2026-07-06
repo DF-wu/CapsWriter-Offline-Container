@@ -1,0 +1,662 @@
+import { useEffect, useRef, useState } from "react";
+import {
+  Activity,
+  CheckCircle2,
+  Copy,
+  Download,
+  FileAudio,
+  Mic,
+  Pause,
+  Play,
+  RefreshCw,
+  Settings2,
+  Square,
+  Trash2,
+  Upload,
+  Volume2,
+  XCircle,
+} from "lucide-react";
+import { fetchHealth, fetchModels, transcribeAudio } from "./api/capswriter";
+import {
+  chooseRecorderMimeType,
+  extensionForMimeType,
+  fileToBrowserAudio,
+  formatDuration,
+  revokeAudio,
+  type BrowserAudio,
+} from "./lib/audio";
+import { downloadText, extensionForFormat, serialiseResult, timestampSlug } from "./lib/export";
+import { DEFAULT_SETTINGS, addHistory, clearHistory, loadHistory, loadSettings, saveHistory, saveSettings } from "./lib/storage";
+import { loadVoices, speakText } from "./lib/speech";
+import type { ApiSettings, HealthResponse, ResponseFormat, TranscriptRecord, TranscriptionResult } from "./types";
+
+type StatusKind = "idle" | "working" | "ok" | "error";
+type SpeechState = "idle" | "speaking" | "paused";
+
+function iconStatus(kind: StatusKind) {
+  if (kind === "ok") return <CheckCircle2 size={18} aria-hidden="true" />;
+  if (kind === "error") return <XCircle size={18} aria-hidden="true" />;
+  if (kind === "working") return <RefreshCw size={18} aria-hidden="true" className="spin" />;
+  return <Activity size={18} aria-hidden="true" />;
+}
+
+function makeRecord(
+  result: TranscriptionResult,
+  audio: BrowserAudio,
+): TranscriptRecord {
+  return {
+    id: crypto.randomUUID?.() ?? `${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    sourceName: audio.name,
+    durationSeconds: audio.durationSeconds,
+    format: result.format,
+    text: result.text,
+    raw: result.raw,
+  };
+}
+
+export default function App() {
+  const [settings, setSettings] = useState<ApiSettings>(() => loadSettings());
+  const [statusKind, setStatusKind] = useState<StatusKind>("idle");
+  const [statusText, setStatusText] = useState("未連線");
+  const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [models, setModels] = useState<string[]>([]);
+  const [currentAudio, setCurrentAudio] = useState<BrowserAudio | null>(null);
+  const [transcript, setTranscript] = useState<TranscriptionResult | null>(null);
+  const [history, setHistory] = useState<TranscriptRecord[]>(() => loadHistory());
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [ttsText, setTtsText] = useState("");
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [voiceURI, setVoiceURI] = useState("");
+  const [rate, setRate] = useState(1);
+  const [pitch, setPitch] = useState(1);
+  const [speechState, setSpeechState] = useState<SpeechState>("idle");
+  const ttsAvailable = voices.length > 0;
+
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<number | null>(null);
+  const startedAtRef = useRef<number>(0);
+  const abortRef = useRef<AbortController | null>(null);
+  const currentAudioRef = useRef<BrowserAudio | null>(null);
+
+  useEffect(() => saveSettings(settings), [settings]);
+
+  useEffect(() => {
+    currentAudioRef.current = currentAudio;
+  }, [currentAudio]);
+
+  useEffect(() => {
+    loadVoices().then((items) => {
+      setVoices(items);
+      setVoiceURI((current) => current || items[0]?.voiceURI || "");
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      revokeAudio(currentAudioRef.current);
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      abortRef.current?.abort();
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    };
+  }, []);
+
+  const updateSettings = <K extends keyof ApiSettings>(key: K, value: ApiSettings[K]) => {
+    setSettings((current) => ({ ...current, [key]: value }));
+  };
+
+  const setAudio = (audio: BrowserAudio | null) => {
+    setCurrentAudio((previous) => {
+      revokeAudio(previous);
+      return audio;
+    });
+    setTranscript(null);
+    setStatusKind(audio ? "ok" : "idle");
+    setStatusText(audio ? `已載入 ${audio.name}` : "未載入音訊");
+  };
+
+  const checkServer = async () => {
+    setStatusKind("working");
+    setStatusText("檢查服務");
+    try {
+      const [nextHealth, nextModels] = await Promise.all([
+        fetchHealth(settings),
+        fetchModels(settings),
+      ]);
+      setHealth(nextHealth);
+      setModels(nextModels.data.map((item) => item.id));
+      setStatusKind("ok");
+      setStatusText(`服務正常：${nextHealth.model} v${nextHealth.version}`);
+    } catch (error) {
+      setStatusKind("error");
+      setStatusText(error instanceof Error ? error.message : "服務檢查失敗");
+    }
+  };
+
+  const startRecording = async () => {
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setStatusKind("error");
+      setStatusText("此瀏覽器不支援麥克風錄音");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        },
+      });
+      const mimeType = chooseRecorderMimeType();
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      streamRef.current = stream;
+      recorderRef.current = recorder;
+      chunksRef.current = [];
+      startedAtRef.current = Date.now();
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          chunksRef.current.push(event.data);
+        }
+      };
+      recorder.onstop = () => {
+        const finalMimeType = recorder.mimeType || mimeType || "audio/webm";
+        const blob = new Blob(chunksRef.current, { type: finalMimeType });
+        const durationSeconds = Math.max(0, (Date.now() - startedAtRef.current) / 1000);
+        const ext = extensionForMimeType(finalMimeType);
+        setAudio({
+          blob,
+          name: `recording-${timestampSlug()}.${ext}`,
+          objectUrl: URL.createObjectURL(blob),
+          durationSeconds,
+        });
+        stream.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        setRecordingSeconds(Math.round(durationSeconds));
+      };
+
+      recorder.start(250);
+      setIsRecording(true);
+      setRecordingSeconds(0);
+      setStatusKind("working");
+      setStatusText("錄音中");
+      timerRef.current = window.setInterval(() => {
+        setRecordingSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
+      }, 250);
+    } catch (error) {
+      setStatusKind("error");
+      setStatusText(error instanceof Error ? error.message : "無法啟動錄音");
+    }
+  };
+
+  const stopRecording = () => {
+    if (timerRef.current) {
+      window.clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsRecording(false);
+    const recorder = recorderRef.current;
+    if (recorder && recorder.state !== "inactive") {
+      recorder.stop();
+    }
+  };
+
+  const handleFile = (file: File | null) => {
+    if (!file) return;
+    if (!file.type.startsWith("audio/") && !file.name.match(/\.(wav|mp3|m4a|flac|ogg|webm)$/i)) {
+      setStatusKind("error");
+      setStatusText("請選擇音訊檔");
+      return;
+    }
+    setAudio(fileToBrowserAudio(file));
+  };
+
+  const runTranscription = async () => {
+    if (!currentAudio) {
+      setStatusKind("error");
+      setStatusText("未載入音訊");
+      return;
+    }
+    abortRef.current?.abort();
+    const aborter = new AbortController();
+    abortRef.current = aborter;
+    setIsTranscribing(true);
+    setStatusKind("working");
+    setStatusText("轉錄中");
+    try {
+      const result = await transcribeAudio(
+        currentAudio.blob,
+        currentAudio.name,
+        settings,
+        aborter.signal,
+      );
+      setTranscript(result);
+      setTtsText(result.text);
+      setHistory(addHistory(makeRecord(result, currentAudio)));
+      setStatusKind("ok");
+      setStatusText(`完成：${result.text.length} 字`);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") {
+        setStatusKind("idle");
+        setStatusText("已取消");
+      } else {
+        setStatusKind("error");
+        setStatusText(error instanceof Error ? error.message : "轉錄失敗");
+      }
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const cancelTranscription = () => {
+    abortRef.current?.abort();
+    setIsTranscribing(false);
+  };
+
+  const copyTranscript = async () => {
+    if (!transcript) return;
+    await navigator.clipboard.writeText(transcript.text);
+    setStatusKind("ok");
+    setStatusText("已複製");
+  };
+
+  const downloadTranscript = () => {
+    if (!transcript) return;
+    const extension = extensionForFormat(transcript.format);
+    downloadText(`capswriter-${timestampSlug()}.${extension}`, serialiseResult(transcript));
+  };
+
+  const useHistoryRecord = (record: TranscriptRecord) => {
+    setTranscript({
+      text: record.text,
+      format: record.format,
+      raw: record.raw,
+      contentType: "",
+    });
+    setTtsText(record.text);
+    setStatusKind("ok");
+    setStatusText(`已載入歷史：${record.sourceName}`);
+  };
+
+  const clearAllHistory = () => {
+    clearHistory();
+    setHistory([]);
+    setStatusKind("ok");
+    setStatusText("歷史已清除");
+  };
+
+  const startSpeech = () => {
+    speakText({
+      text: ttsText,
+      voiceURI,
+      rate,
+      pitch,
+      onEnd: () => setSpeechState("idle"),
+      onError: (message) => {
+        setSpeechState("idle");
+        setStatusKind("error");
+        setStatusText(message);
+      },
+    });
+    setSpeechState("speaking");
+  };
+
+  const pauseSpeech = () => {
+    window.speechSynthesis.pause();
+    setSpeechState("paused");
+  };
+
+  const resumeSpeech = () => {
+    window.speechSynthesis.resume();
+    setSpeechState("speaking");
+  };
+
+  const stopSpeech = () => {
+    window.speechSynthesis.cancel();
+    setSpeechState("idle");
+  };
+
+  return (
+    <div className="app-shell">
+      <header className="topbar">
+        <div>
+          <p className="eyebrow">CapsWriter Offline</p>
+          <h1>Web Console</h1>
+        </div>
+        <div className={`status-pill ${statusKind}`} aria-live="polite">
+          {iconStatus(statusKind)}
+          <span>{statusText}</span>
+        </div>
+      </header>
+
+      <main className="workspace">
+        <section className="panel controls-panel" aria-labelledby="connection-title">
+          <div className="panel-heading">
+            <Settings2 size={20} aria-hidden="true" />
+            <h2 id="connection-title">連線</h2>
+          </div>
+
+          <label className="field">
+            <span>API root</span>
+            <input
+              value={settings.baseUrl}
+              onChange={(event) => updateSettings("baseUrl", event.target.value)}
+              placeholder={DEFAULT_SETTINGS.baseUrl}
+              inputMode="url"
+            />
+          </label>
+          <label className="field">
+            <span>API key</span>
+            <input
+              value={settings.apiKey}
+              onChange={(event) => updateSettings("apiKey", event.target.value)}
+              type="password"
+              autoComplete="off"
+            />
+          </label>
+          <div className="field-row">
+            <label className="field">
+              <span>格式</span>
+              <select
+                value={settings.responseFormat}
+                onChange={(event) => updateSettings("responseFormat", event.target.value as ResponseFormat)}
+              >
+                <option value="verbose_json">verbose_json</option>
+                <option value="json">json</option>
+                <option value="text">text</option>
+                <option value="srt">srt</option>
+                <option value="vtt">vtt</option>
+              </select>
+            </label>
+            <label className="field">
+              <span>語言</span>
+              <input
+                value={settings.language}
+                onChange={(event) => updateSettings("language", event.target.value)}
+                placeholder="auto"
+              />
+            </label>
+          </div>
+          <label className="field">
+            <span>模型</span>
+            <input
+              value={settings.model}
+              onChange={(event) => updateSettings("model", event.target.value)}
+              placeholder="whisper-1"
+            />
+          </label>
+          <label className="field">
+            <span>Prompt</span>
+            <textarea
+              value={settings.prompt}
+              onChange={(event) => updateSettings("prompt", event.target.value)}
+              rows={3}
+            />
+          </label>
+          <button className="secondary-action" type="button" onClick={checkServer}>
+            <RefreshCw size={18} aria-hidden="true" />
+            檢查服務
+          </button>
+
+          <dl className="server-meta">
+            <div>
+              <dt>Health</dt>
+              <dd>{health ? health.status : "-"}</dd>
+            </div>
+            <div>
+              <dt>Server model</dt>
+              <dd>{health ? health.model : "-"}</dd>
+            </div>
+            <div>
+              <dt>Models</dt>
+              <dd>{models.length ? models.join(", ") : "-"}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section className="panel input-panel" aria-labelledby="audio-title">
+          <div className="panel-heading">
+            <FileAudio size={20} aria-hidden="true" />
+            <h2 id="audio-title">音訊</h2>
+          </div>
+
+          <div className="recording-controls">
+            <button
+              className="primary-action"
+              type="button"
+              onClick={isRecording ? stopRecording : startRecording}
+              disabled={isTranscribing}
+            >
+              {isRecording ? <Square size={18} aria-hidden="true" /> : <Mic size={18} aria-hidden="true" />}
+              {isRecording ? "停止" : "錄音"}
+            </button>
+            <span className="timer" aria-label="錄音時間">
+              {formatDuration(recordingSeconds)}
+            </span>
+          </div>
+
+          <label
+            className={`drop-zone ${isDragging ? "dragging" : ""}`}
+            onDragEnter={(event) => {
+              event.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragOver={(event) => event.preventDefault()}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={(event) => {
+              event.preventDefault();
+              setIsDragging(false);
+              handleFile(event.dataTransfer.files.item(0));
+            }}
+          >
+            <Upload size={22} aria-hidden="true" />
+            <span>{currentAudio ? currentAudio.name : "選擇音訊檔"}</span>
+            <input
+              type="file"
+              accept="audio/*,.wav,.mp3,.m4a,.flac,.ogg,.webm"
+              onChange={(event) => handleFile(event.target.files?.item(0) ?? null)}
+            />
+          </label>
+
+          {currentAudio ? (
+            <div className="audio-preview">
+              <audio
+                controls
+                src={currentAudio.objectUrl}
+                onLoadedMetadata={(event) => {
+                  const duration = event.currentTarget.duration;
+                  if (Number.isFinite(duration)) {
+                    setCurrentAudio((audio) =>
+                      audio ? { ...audio, durationSeconds: duration } : audio,
+                    );
+                  }
+                }}
+              />
+              <span>{formatDuration(currentAudio.durationSeconds)}</span>
+            </div>
+          ) : null}
+
+          <div className="action-row">
+            <button
+              className="primary-action"
+              type="button"
+              onClick={runTranscription}
+              disabled={!currentAudio || isTranscribing}
+            >
+              <Play size={18} aria-hidden="true" />
+              轉錄
+            </button>
+            <button
+              className="secondary-action"
+              type="button"
+              onClick={cancelTranscription}
+              disabled={!isTranscribing}
+            >
+              <Square size={18} aria-hidden="true" />
+              取消
+            </button>
+          </div>
+        </section>
+
+        <section className="panel transcript-panel" aria-labelledby="transcript-title">
+          <div className="panel-heading split">
+            <div className="heading-inline">
+              <Activity size={20} aria-hidden="true" />
+              <h2 id="transcript-title">轉錄</h2>
+            </div>
+            <div className="toolbar">
+              <button type="button" onClick={copyTranscript} disabled={!transcript} title="複製" aria-label="複製">
+                <Copy size={18} aria-hidden="true" />
+              </button>
+              <button type="button" onClick={downloadTranscript} disabled={!transcript} title="下載" aria-label="下載">
+                <Download size={18} aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+          <textarea
+            className="transcript-output"
+            value={transcript?.text ?? ""}
+            onChange={(event) => {
+              const text = event.target.value;
+              setTranscript((current) =>
+                current ? { ...current, text } : { text, format: "text", raw: text, contentType: "text/plain" },
+              );
+              setTtsText(text);
+            }}
+            rows={12}
+          />
+          <div className="result-meta">
+            <span>{transcript ? transcript.format : "no result"}</span>
+            <span>{transcript ? `${transcript.text.length} chars` : "0 chars"}</span>
+          </div>
+        </section>
+
+        <section className="panel tts-panel" aria-labelledby="tts-title">
+          <div className="panel-heading">
+            <Volume2 size={20} aria-hidden="true" />
+            <h2 id="tts-title">TTS</h2>
+          </div>
+          <label className="field">
+            <span>文字</span>
+            <textarea
+              value={ttsText}
+              onChange={(event) => setTtsText(event.target.value)}
+              rows={6}
+            />
+          </label>
+          <label className="field">
+            <span>聲音</span>
+            <select value={voiceURI} onChange={(event) => setVoiceURI(event.target.value)}>
+              {voices.length === 0 ? <option value="">no voices</option> : null}
+              {voices.map((voice) => (
+                <option key={voice.voiceURI} value={voice.voiceURI}>
+                  {voice.name} ({voice.lang})
+                </option>
+              ))}
+            </select>
+          </label>
+          <div className="field-row">
+            <label className="field">
+              <span>速度 {rate.toFixed(1)}</span>
+              <input
+                type="range"
+                min="0.5"
+                max="2"
+                step="0.1"
+                value={rate}
+                onChange={(event) => setRate(Number(event.target.value))}
+              />
+            </label>
+            <label className="field">
+              <span>音高 {pitch.toFixed(1)}</span>
+              <input
+                type="range"
+                min="0.5"
+                max="2"
+                step="0.1"
+                value={pitch}
+                onChange={(event) => setPitch(Number(event.target.value))}
+              />
+            </label>
+          </div>
+          <div className="action-row">
+            <button
+              className="primary-action"
+              type="button"
+              onClick={speechState === "paused" ? resumeSpeech : startSpeech}
+              disabled={!ttsText.trim() || !ttsAvailable}
+            >
+              <Play size={18} aria-hidden="true" />
+              {speechState === "paused" ? "繼續" : "播放"}
+            </button>
+            <button
+              className="secondary-action"
+              type="button"
+              onClick={pauseSpeech}
+              disabled={speechState !== "speaking"}
+            >
+              <Pause size={18} aria-hidden="true" />
+              暫停
+            </button>
+            <button
+              className="secondary-action"
+              type="button"
+              onClick={stopSpeech}
+              disabled={speechState === "idle"}
+            >
+              <Square size={18} aria-hidden="true" />
+              停止
+            </button>
+          </div>
+        </section>
+
+        <section className="panel history-panel" aria-labelledby="history-title">
+          <div className="panel-heading split">
+            <div className="heading-inline">
+              <Download size={20} aria-hidden="true" />
+              <h2 id="history-title">歷史</h2>
+            </div>
+            <button type="button" onClick={clearAllHistory} disabled={history.length === 0} title="清除" aria-label="清除">
+              <Trash2 size={18} aria-hidden="true" />
+            </button>
+          </div>
+          <div className="history-list">
+            {history.length === 0 ? (
+              <p className="empty">No records</p>
+            ) : (
+              history.map((record) => (
+                <article className="history-item" key={record.id}>
+                  <button type="button" onClick={() => useHistoryRecord(record)}>
+                    <span>{record.sourceName}</span>
+                    <small>{new Date(record.createdAt).toLocaleString()}</small>
+                  </button>
+                  <button
+                    type="button"
+                    title="下載"
+                    aria-label={`下載 ${record.sourceName}`}
+                    onClick={() => {
+                      saveHistory(history);
+                      downloadText(
+                        `capswriter-${record.id}.${extensionForFormat(record.format)}`,
+                        typeof record.raw === "string" ? record.raw : JSON.stringify(record.raw, null, 2),
+                      );
+                    }}
+                  >
+                    <Download size={16} aria-hidden="true" />
+                  </button>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}

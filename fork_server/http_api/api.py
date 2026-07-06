@@ -30,6 +30,7 @@ from fastapi import (
     UploadFile,
 )
 from fastapi.responses import JSONResponse, PlainTextResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from config_server import ServerConfig as Config, __version__
 from core.constants import AudioFormat
@@ -138,6 +139,13 @@ def _wrap_response(body, media_type: str) -> Response:
     return PlainTextResponse(content=body, media_type=media_type)
 
 
+def _cors_origins() -> list[str]:
+    value = getattr(Config, "http_api_cors_origins", []) or []
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    return [str(item).strip() for item in value if str(item).strip()]
+
+
 def create_app() -> FastAPI:
     app = FastAPI(
         title="CapsWriter-Offline OpenAI-Compatible ASR",
@@ -147,6 +155,17 @@ def create_app() -> FastAPI:
             "backed by local CapsWriter-Offline recognition (offline, private)."
         ),
     )
+
+    cors_origins = _cors_origins()
+    if cors_origins:
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=cors_origins,
+            allow_credentials=False,
+            allow_methods=["GET", "POST", "OPTIONS"],
+            allow_headers=["Authorization", "Content-Type"],
+            max_age=600,
+        )
 
     @app.get("/health")
     async def health():

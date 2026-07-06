@@ -72,6 +72,7 @@ CAPSWRITER_HTTP_API_ENABLE=true
 CAPSWRITER_HTTP_API_BIND=0.0.0.0
 CAPSWRITER_HTTP_API_PORT=6017
 CAPSWRITER_HTTP_API_KEY=sk-your-token       # 對外時務必設定
+CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:5173  # 使用 Web Console 時設定
 ```
 
 打開 [`docker-compose.yml`](docker-compose.yml) 的 port mapping（取消 `# - "6017:6017"` 那行的註解），然後：
@@ -92,6 +93,7 @@ print(t.text)
 ```
 
 詳細 API 規格見 [docs/HTTP_API.md](docs/HTTP_API.md)。
+瀏覽器工作台見 [docs/web-console.md](docs/web-console.md)。
 
 ---
 
@@ -160,6 +162,7 @@ start_server_docker.py    ← Fork entrypoint (與上游 start_server.py 並存)
 | [docs/architecture.md](docs/architecture.md) | Sidecar 設計、hook 策略、為什麼修改 0 個上游檔 |
 | [docs/upstream-sync-guide.md](docs/upstream-sync-guide.md) | 未來如何 `git merge origin/master`、衝突處理 SOP |
 | [docs/HTTP_API.md](docs/HTTP_API.md) | OpenAI Whisper API 規格、5 種 response_format、認證、SDK 範例 |
+| [docs/web-console.md](docs/web-console.md) | Web Console STT/TTS 工作台、CORS、隔離開發、清理與驗證流程 |
 | [docs/docker-server.md](docs/docker-server.md) | 容器部署細節、GPU 設定、env 變數完整表 |
 | [docs/state-of-fork.md](docs/state-of-fork.md) | Fork 當前狀態快照（divergence、已驗證項目） |
 

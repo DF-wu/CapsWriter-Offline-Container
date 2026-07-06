@@ -97,6 +97,14 @@ ipython_config.py
 # PEP 582 代码隔离相关
 __pypackages__/
 
+# Node / browser client local dependencies and caches
+node_modules/
+.vite/
+coverage/
+playwright-report/
+test-results/
+.drawio-tmp/
+
 # Celery 异步任务相关
 celerybeat-schedule
 celerybeat.pid

@@ -61,6 +61,13 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+def _env_csv(name: str, default: Optional[list[str]] = None) -> list[str]:
+    raw = os.environ.get(name)
+    if raw is None or raw == "":
+        return list(default or [])
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
 def _set(cls: Type, attr: str, value) -> None:
     setattr(cls, attr, value)
 
@@ -176,6 +183,8 @@ def apply() -> None:
          _env_int("CAPSWRITER_HTTP_API_MAX_UPLOAD_MB", 100))
     _set(ServerConfig, "http_api_task_timeout",
          _env_float("CAPSWRITER_HTTP_API_TASK_TIMEOUT", 600.0))
+    _set(ServerConfig, "http_api_cors_origins",
+         _env_csv("CAPSWRITER_HTTP_API_CORS_ORIGINS", []))
 
     # ---- Qwen preset (decide onnx_provider + llm_use_gpu before specific overrides) ----
     qwen_preset = _env_str("CAPSWRITER_QWEN_PRESET", "default") or "default"

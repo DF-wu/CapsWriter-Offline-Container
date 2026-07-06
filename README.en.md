@@ -39,11 +39,13 @@ This fork closes that gap. Its goal is simple: make the server side easier to bu
 - downloads required model assets at container startup,
 - prefers GPU inference when available,
 - falls back to CPU when GPU inference is unavailable or fails backend probing,
-- provides a single `docker-compose.server.yml` entry point.
+- provides a single `docker-compose.yml` entry point,
+- exposes an optional OpenAI-compatible HTTP API,
+- and includes an isolated browser Web Console for STT/TTS workflows.
 
 ### What this fork does not do
 
-- replace the upstream Windows client,
+- replace the upstream Windows desktop client,
 - turn the project into a native Linux desktop application,
 - or redefine the upstream project's product direction.
 
@@ -120,7 +122,8 @@ This fork also addresses deployment-level issues that matter in containers:
 ### 1. Create a local `.env`
 
 ```bash
-cp docker/server/.env.example .env
+cp .env.example .env
+cp hot-server.example.txt hot-server.txt
 ```
 
 Default values:
@@ -137,13 +140,13 @@ The repository-root `.env` file is for local deployment only. It is excluded fro
 ### 2. Build the image
 
 ```bash
-docker compose -f docker-compose.server.yml build
+docker compose build capswriter-server
 ```
 
 ### 3. Start the default server
 
 ```bash
-docker compose -f docker-compose.server.yml up -d capswriter-server
+docker compose up -d capswriter-server
 ```
 
 ### 4. Switch to `fun_asr_nano`
@@ -151,7 +154,7 @@ docker compose -f docker-compose.server.yml up -d capswriter-server
 ```bash
 CAPSWRITER_MODEL_TYPE=fun_asr_nano \
 CAPSWRITER_INFERENCE_HARDWARE=auto \
-docker compose -f docker-compose.server.yml up -d --force-recreate capswriter-server
+docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml up -d --force-recreate
 ```
 
 ### 5. Start in CPU-only mode
@@ -159,14 +162,35 @@ docker compose -f docker-compose.server.yml up -d --force-recreate capswriter-se
 ```bash
 CAPSWRITER_GPU_DEVICE_COUNT=0 \
 CAPSWRITER_INFERENCE_HARDWARE=auto \
-docker compose -f docker-compose.server.yml up -d --force-recreate capswriter-server
+docker compose up -d --force-recreate capswriter-server
 ```
 
-### 6. Download assets without starting the server
+### 6. Enable the OpenAI-compatible HTTP API
 
 ```bash
-docker compose -f docker-compose.server.yml run --rm capswriter-server-models
+CAPSWRITER_HTTP_API_ENABLE=true
+CAPSWRITER_HTTP_API_BIND=0.0.0.0
+CAPSWRITER_HTTP_API_PORT=6017
+CAPSWRITER_HTTP_API_KEY=sk-your-token
+CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:5173
 ```
+
+Expose port `6017` in [`docker-compose.yml`](docker-compose.yml), then restart:
+
+```bash
+docker compose up -d --force-recreate capswriter-server
+python check_http_api.py --host 127.0.0.1 --port 6017 --key sk-your-token
+```
+
+### 7. Run the Web Console
+
+```bash
+cd client/web
+npm install
+npm run dev
+```
+
+See [docs/web-console.md](docs/web-console.md) for the browser STT/TTS workflow, CORS setup, verification commands, and cleanup policy.
 
 ## Startup flow
 
