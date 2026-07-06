@@ -8,6 +8,8 @@ import type {
   VerboseTranscription,
 } from "../types";
 
+const MAX_ERROR_BODY_CHARS = 500;
+
 export function normalizeApiRoot(baseUrl: string): string {
   const trimmed = baseUrl.trim().replace(/\/+$/, "");
   if (!trimmed) {
@@ -22,6 +24,14 @@ function requestHeaders(settings: Pick<ApiSettings, "apiKey">): HeadersInit {
     : {};
 }
 
+function compactErrorText(value: string): string {
+  const text = value.trim().replace(/\s+/g, " ");
+  if (text.length > MAX_ERROR_BODY_CHARS) {
+    return `${text.slice(0, MAX_ERROR_BODY_CHARS).trimEnd()}...`;
+  }
+  return text;
+}
+
 export function apiErrorMessage(body: string): string {
   const text = body.trim();
   if (!text) return "";
@@ -32,14 +42,14 @@ export function apiErrorMessage(body: string): string {
       const errorPayload = record.error;
       if (errorPayload && typeof errorPayload === "object") {
         const message = (errorPayload as Record<string, unknown>).message;
-        if (message) return String(message);
+        if (message) return compactErrorText(String(message));
       }
-      if (record.detail) return String(record.detail);
+      if (record.detail) return compactErrorText(String(record.detail));
     }
   } catch {
-    return text;
+    return compactErrorText(text);
   }
-  return text;
+  return compactErrorText(text);
 }
 
 async function checkedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {

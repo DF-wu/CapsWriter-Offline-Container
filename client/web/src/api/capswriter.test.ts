@@ -91,6 +91,19 @@ describe("apiErrorMessage", () => {
   it("falls back to FastAPI detail payloads", () => {
     expect(apiErrorMessage(JSON.stringify({ detail: "Not Found" }))).toBe("Not Found");
   });
+
+  it("bounds non-json error body previews", () => {
+    const body = `<html>
+      <body>${"x".repeat(700)}</body>
+    </html>`;
+
+    const message = apiErrorMessage(body);
+
+    expect(message).toHaveLength(503);
+    expect(message).toMatch(/^<html> <body>x+/);
+    expect(message.endsWith("...")).toBe(true);
+    expect(message).not.toContain("\n");
+  });
 });
 
 describe("fetchReadiness", () => {
