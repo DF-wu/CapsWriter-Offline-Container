@@ -6,6 +6,7 @@
 """
 
 import re
+import unicodedata
 from typing import List, Tuple, Literal
 from dataclasses import dataclass
 from . import logger
@@ -170,10 +171,6 @@ def get_phoneme_seq(text: str, ascii_split_char: bool = False) -> List[Phoneme]:
     将文本转换为音素序列（带语言属性）
     """
     normalized = normalize_text(text)
-    if not pinyin:
-        logger.warning("pypinyin 未安装，功能将降级。")
-        return [Phoneme(c, 'zh', is_word_start=True, is_word_end=True) for c in split_mixed_label(normalized)]
-
     phoneme_seq: List[Phoneme] = []
     for token in split_mixed_label(normalized):
         # 英文/数字处理
@@ -199,9 +196,6 @@ def get_phoneme_info(text: str, ascii_split_char: bool = True) -> List[Phoneme]:
     """
     获取带位置和语言属性的音素序列（高层编排）
     """
-    if not pinyin:
-        return [Phoneme(c, 'zh', char_start=i, char_end=i+1) for i, c in enumerate(text)]
-
     phoneme_seq: List[Phoneme] = []
     pos = 0
     while pos < len(text):
@@ -215,7 +209,15 @@ def get_phoneme_info(text: str, ascii_split_char: bool = True) -> List[Phoneme]:
             # 处理英文/数字片段 (严格判定 ASCII 字母和数字)
             pos = _process_en_num(text, pos, phoneme_seq, ascii_split_char)
         else:
-            # 其他字符（空格、标点）：跳过，保持音素流连续以便匹配
+            cat = unicodedata.category(char)
+            if cat.startswith('L'):
+                # 非中文、非 ASCII 的字母（希腊字母等）保留为独立音素
+                phoneme_seq.append(Phoneme(
+                    char.lower(), 'other',
+                    is_word_start=True, is_word_end=True,
+                    char_start=pos, char_end=pos + 1
+                ))
+            # 标点 (P*)、分隔符 (Z*)、数学/杂项符号 (Sm, So) 等跳过
             pos += 1
             
     return phoneme_seq
@@ -294,6 +296,7 @@ if __name__ == "__main__":
     # Setup UTF-8 output for Windows
     import sys
     import io
+    import logging
 
     if sys.platform == 'win32':
         sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -315,7 +318,6 @@ if __name__ == "__main__":
 
     for text in test_cases:
         print(f"\nText: {text}")
-        seq, indices = get_phoneme_info(text)
+        seq = get_phoneme_info(text)
         print(f"Phonemes: {seq}")
-        # print(f"Indices: {indices}")
 

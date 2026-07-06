@@ -3,7 +3,10 @@
 主替换逻辑和入口函数
 """
 
-from .mappings import idioms, fuzzy_regex
+from .mappings import idioms, fuzzy_regex, value_mapper
+
+_DIGIT_CHARS = {k for k, v in value_mapper.items() if v <= 9}
+_UNIT_CHARS = {k for k, v in value_mapper.items() if v > 9}
 from .patterns import pattern
 from .utils import convert_pure_num, strip_unit
 from .sequence_parser import parse_sequence, tokenize, parse_tokens, _BASIC_NUMERIC_TYPES
@@ -244,23 +247,38 @@ def replace(match):
     elif fuzzy_regex.search(original):
         final = original
 
-    else:
-        tokens = tokenize(original)
+    elif (_UNIT_CHARS.issuperset(original)
+          and len(original) >= 2
+          and not any(c in _DIGIT_CHARS for c in original)):
+        final = original
 
-        for reducer in [
-            try_reduce_percent,    # 百分比
-            try_reduce_fraction,   # 分数
-            try_reduce_ratio,      # 比值
-            try_reduce_date_time,  # 日期时间
-            try_reduce_range,      # 范围表达式
-            try_reduce_numerical,  # 数值解析
-        ]:
-            res = reducer(tokens, original)
-            if res is not None:
-                final = res
-                break
+    else:
+        # 提取正负号
+        sign_prefix = ""
+        parsed_original = original
+        if original and original[0] in ('正', '负'):
+            sign_prefix = '+' if original[0] == '正' else '-'
+            parsed_original = original[1:]
+
+        if parsed_original == '一' and sign_prefix:
+            final = sign_prefix + '1'
         else:
-            final = original
+            tokens = tokenize(parsed_original)
+
+            for reducer in [
+                try_reduce_percent,    # 百分比
+                try_reduce_fraction,   # 分数
+                try_reduce_ratio,      # 比值
+                try_reduce_date_time,  # 日期时间
+                try_reduce_range,      # 范围表达式
+                try_reduce_numerical,  # 数值解析
+            ]:
+                res = reducer(tokens, parsed_original)
+                if res is not None:
+                    final = sign_prefix + res
+                    break
+            else:
+                final = original
 
     if head:
         final = head + final

@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from pathlib import Path
 
 # 版本信息
-__version__ = '2.5'
+__version__ = '2.6'
 
 # 项目根目录
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +19,7 @@ class ClientConfig:
         {
             'key': 'caps_lock',     # 监听大写锁定键
             'type': 'keyboard',     # 是键盘快捷键
-            'suppress': True,      # 不阻塞按键（但录音结束会补发）
+            'suppress': True,      # 阻塞按键（短按会补发）
             'hold_mode': True,      # 长按模式
             'enabled': True         # 启用此快捷键
         },
@@ -38,6 +38,8 @@ class ClientConfig:
     restore_clip = True         # 模拟粘贴后是否恢复剪贴板
     paste_apps   = ['WeiXin.exe', 'Telegram.exe']  # 匹配时强制粘贴
 
+    enter_apps   = [('happ.exe', 0.5), ('hexin.exe', 0.5)]  # (应用名, 延迟秒数) 输出完成后自动回车，如同花顺，输入股票名后，需要回车才能切换
+
     save_audio = True           # 是否保存录音文件
     audio_name_len = 20         # 将录音识别结果的前多少个字存储到录音文件名中，建议不要超过200
     
@@ -45,6 +47,8 @@ class ClientConfig:
     language = 'auto'           # 识别语言：'auto', 'chinese', 'english', 'japanese' 等（各引擎支持范围不同）
 
     trash_punc = '，。,.'       # 识别结果要消除的末尾标点
+    trash_punc_thresh = 8       # 识别结果的单词数量低于阈值时，强制去除末尾标点
+    trash_punc_apps = ['WeiXin.exe', ]   # 对于指定的应用，强制去除末尾标点
 
     traditional_convert = False     # 是否将识别结果转换为繁体中文
     traditional_locale = 'zh-hant'  # 繁体地区：'zh-hant'（标准繁体）, 'zh-tw'（台湾繁体）, 'zh-hk'（香港繁体）
