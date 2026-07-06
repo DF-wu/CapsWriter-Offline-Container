@@ -3,12 +3,14 @@
 
 用法: python check_http_api.py [--host 127.0.0.1] [--port 6017]
                             [--audio test.wav] [--expect 你好] [--key sk-xxx]
+                            [--timeout 300]
 """
 
 import os, sys, json, shutil, argparse, urllib.request, urllib.error
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 6017
+DEFAULT_TRANSCRIBE_TIMEOUT = 120.0
 
 
 def green(s):
@@ -29,6 +31,16 @@ def bold(s):
 
 def compact_for_match(s):
     return "".join(s.split()).casefold()
+
+
+def positive_float(value):
+    try:
+        parsed = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a number") from exc
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be > 0")
+    return parsed
 
 
 def check(label):
@@ -89,12 +101,12 @@ def _api_get(base, path, api_key):
         return json.loads(r.read())
 
 
-def _api_post(base, path, audio_path, fmt, api_key):
+def _api_post(base, path, audio_path, fmt, api_key, timeout):
     body, boundary = _build_multipart_body(audio_path, fmt)
     h = {"Content-Type": f"multipart/form-data; boundary={boundary}"}
     h.update(_headers(api_key))
     req = urllib.request.Request(f"{base}{path}", data=body, headers=h)
-    with urllib.request.urlopen(req, timeout=120) as r:
+    with urllib.request.urlopen(req, timeout=timeout) as r:
         ct = r.headers.get("Content-Type", "")
         raw = r.read()
         if "application/json" in ct:
@@ -108,6 +120,12 @@ def main():
     p.add_argument("--port", type=int, default=DEFAULT_PORT)
     p.add_argument("--audio", help="测试用音频文件 (wav/mp3)")
     p.add_argument("--expect", help="转录结果中应包含的文字；未设置时只检查非空")
+    p.add_argument(
+        "--timeout",
+        type=positive_float,
+        default=DEFAULT_TRANSCRIBE_TIMEOUT,
+        help="转录 POST 请求超时秒数",
+    )
     p.add_argument(
         "--key",
         default=os.environ.get("CAPSWRITER_HTTP_API_KEY", ""),
@@ -195,7 +213,12 @@ def main():
             check(f"POST /v1/audio/transcriptions fmt={fmt}")
             try:
                 result = _api_post(
-                    base, "/v1/audio/transcriptions", args.audio, fmt, api_key
+                    base,
+                    "/v1/audio/transcriptions",
+                    args.audio,
+                    fmt,
+                    api_key,
+                    args.timeout,
                 )
                 text = result.get("text") or result.get("_raw_text", "")
                 if args.expect and compact_for_match(args.expect) not in compact_for_match(

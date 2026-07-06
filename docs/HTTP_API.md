@@ -249,7 +249,8 @@ python check_http_api.py \
   --host 127.0.0.1 \
   --port 6017 \
   --audio /path/to/known-speech.wav \
-  --expect "expected transcript text"
+  --expect "expected transcript text" \
+  --timeout 300
 ```
 
 ### 3.3 Node / TypeScript

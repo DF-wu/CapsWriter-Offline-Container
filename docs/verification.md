@@ -16,7 +16,7 @@ The command runs:
 |---|---|---|
 | CLI | `python client/cli/scripts/verify.py` | CLI syntax, health/readiness/models calls, multipart upload including filename escaping, mock HTTP transcription, HTTP and invalid JSON diagnostics, output files, Linux/Windows TTS command selection, zipapp packaging |
 | Server | `python -m compileall fork_server docker/server check_http_api.py start_server_docker.py` + HTTP and Docker server unit tests | HTTP sidecar, Docker entrypoint/healthcheck syntax, readiness-gated container healthcheck, privacy-preserving transcript logging, SRT/VTT timestamp formatting, bounded ffmpeg decode diagnostics, model downloader diagnostics, dependency-light request limit and runtime config tests |
-| Verifier/diagnostic | `python -m unittest discover -s scripts/tests -v` | Root gate helper behavior, including redaction of live HTTP API keys from shared logs, plus diagnostic multipart upload escaping, `/health` 401 API-key guidance, cleanup traversal pruning, and source guard for configured ffmpeg decode timeout |
+| Verifier/diagnostic | `python -m unittest discover -s scripts/tests -v` | Root gate helper behavior, including redaction of live HTTP API keys from shared logs, plus diagnostic multipart upload escaping, configurable live transcription timeout, `/health` 401 API-key guidance, cleanup traversal pruning, and source guard for configured ffmpeg decode timeout |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, bounded Web API and invalid JSON diagnostics, recording resource cleanup, best-effort localStorage persistence, runtime `/config.js` escaping, TypeScript, production build, web clean script |
 | Optional Web browser smoke | temporary mock API + Vite + `agent-browser` | Real browser can check server health, upload audio, and transcribe through the UI |
 | Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
@@ -142,7 +142,7 @@ For a release candidate, keep these artifacts or logs:
 | Web Console browser workflow valid | `--web-browser-smoke` gate output |
 | CLI valid | `client/cli/scripts/verify.py` logs from inside the root gate |
 | Real HTTP server reachable and ready | `--http-base-url --http-require-ready` gate output or `check_http_api.py` output |
-| Model-backed STT sample works | `--http-audio` + `--http-expect` gate output or `check_http_api.py --audio ... --expect ...` |
+| Model-backed STT sample works | `--http-audio` + `--http-expect` gate output or `check_http_api.py --audio ... --expect ... --timeout ...` |
 | No generated trash committed | `git status --short` plus cleanup scan |
 
 Default CI does not download models or commit binary audio fixtures. Use `--http-audio` for release-candidate evidence when a real server and known sample are available.

@@ -10,7 +10,7 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
@@ -64,6 +64,42 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
         self.assertIn(b'filename="escaped.wav"', body)
         self.assertIn(b"RIFF", body)
         self.assertIn(b"\r\n\r\ntext\r\n", body)
+
+    def test_api_post_uses_configured_timeout(self) -> None:
+        class Response:
+            headers = {"Content-Type": "text/plain; charset=utf-8"}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self):
+                return b"ok"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "sample.wav"
+            audio.write_bytes(b"RIFF")
+            urlopen = Mock(return_value=Response())
+
+            with patch.object(check_http_api.urllib.request, "urlopen", urlopen):
+                result = check_http_api._api_post(
+                    "http://127.0.0.1:6017",
+                    "/v1/audio/transcriptions",
+                    str(audio),
+                    "text",
+                    "sk-local-dev",
+                    7.5,
+                )
+
+        self.assertEqual(result["_raw_text"], "ok")
+        self.assertEqual(urlopen.call_args.kwargs["timeout"], 7.5)
+
+    def test_positive_float_rejects_non_positive_timeout(self) -> None:
+        self.assertEqual(check_http_api.positive_float("2.5"), 2.5)
+        with self.assertRaises(check_http_api.argparse.ArgumentTypeError):
+            check_http_api.positive_float("0")
 
 
 class CheckHttpApiMainTest(unittest.TestCase):
