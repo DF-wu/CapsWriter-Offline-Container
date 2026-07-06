@@ -167,6 +167,52 @@ class CapsWriterCliTest(unittest.TestCase):
             result = cli.transcribe_file(config, audio, response_format="text")
             self.assertEqual(cli.render_transcription(result, "text"), "mock cli transcript")
 
+    def test_http_get_json_reports_invalid_json_success_response(self):
+        class InvalidHealthHandler(MockCapsWriterHandler):
+            def do_GET(self):
+                if self.path == "/health":
+                    self._text(200, f"<html>{'x' * 700}</html>", "text/html")
+                    return
+                super().do_GET()
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), InvalidHealthHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            config = cli.ApiConfig(
+                base_url=f"http://127.0.0.1:{server.server_port}",
+                timeout=5,
+            )
+            with self.assertRaises(cli.ApiError) as ctx:
+                cli.http_get_json(config, "/health")
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+        self.assertEqual(ctx.exception.status, 200)
+        self.assertRegex(
+            str(ctx.exception),
+            r"^HTTP 200: Expected JSON response from /health: <html>x+.*\.\.\.$",
+        )
+
+    def test_render_transcription_reports_invalid_json_response(self):
+        result = cli.HttpResult(
+            status=200,
+            content_type="text/html",
+            body=f"<html>{'x' * 700}</html>".encode("utf-8"),
+        )
+
+        with self.assertRaises(cli.ApiError) as ctx:
+            cli.render_transcription(result, "json")
+
+        self.assertEqual(ctx.exception.status, 200)
+        self.assertRegex(
+            str(ctx.exception),
+            r"^HTTP 200: Expected JSON response from /v1/audio/transcriptions: "
+            r"<html>x+.*\.\.\.$",
+        )
+
     def test_main_writes_transcription_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             audio = Path(tmp) / "sample.wav"
@@ -276,6 +322,43 @@ class CapsWriterCliTest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("capswriter-cli: HTTP 502: Bad gateway", stderr.getvalue())
+
+    def test_main_ready_reports_invalid_json_degraded_response(self):
+        class InvalidDegradedReadyHandler(MockCapsWriterHandler):
+            def do_GET(self):
+                if self.path == "/ready":
+                    self._text(503, f"<html>{'x' * 700}</html>", "text/html")
+                    return
+                super().do_GET()
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), InvalidDegradedReadyHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                code = cli.main(
+                    [
+                        "ready",
+                        "--base-url",
+                        f"http://127.0.0.1:{server.server_port}",
+                        "--timeout",
+                        "5",
+                    ]
+                )
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+        self.assertEqual(code, 1)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertRegex(
+            stderr.getvalue(),
+            r"capswriter-cli: HTTP 503: Expected JSON response from /ready: "
+            r"<html>x+.*\.\.\.",
+        )
 
     def test_transcribe_file_raises_api_error_with_openai_message(self):
         server = ThreadingHTTPServer(("127.0.0.1", 0), ErrorCapsWriterHandler)

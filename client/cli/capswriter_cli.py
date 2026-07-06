@@ -112,22 +112,29 @@ def error_message_from_body(body: bytes) -> str:
     return text
 
 
-def _json_or_raise(result: HttpResult, path: str):
+def _expected_json_message(result: HttpResult, path: str) -> str:
+    message = error_message_from_body(result.body)
+    if message:
+        return f"Expected JSON response from {path}: {message}"
+    return (
+        f"Expected JSON response from {path}, got "
+        f"{result.content_type or 'unknown content type'}"
+    )
+
+
+def _json_or_raise(
+    result: HttpResult,
+    path: str,
+    *,
+    json_error_statuses: tuple[int, ...] = (),
+):
     try:
         return result.json()
     except json.JSONDecodeError:
+        if result.status < 400 or result.status in json_error_statuses:
+            raise ApiError(result.status, _expected_json_message(result, path)) from None
         message = error_message_from_body(result.body)
-        if result.status >= 400:
-            raise ApiError(
-                result.status,
-                message
-                or f"Expected JSON response from {path}, got "
-                f"{result.content_type or 'unknown content type'}",
-            ) from None
-        raise ValueError(
-            f"Expected JSON response from {path}, got "
-            f"{result.content_type or 'unknown content type'}"
-        ) from None
+        raise ApiError(result.status, message or _expected_json_message(result, path)) from None
 
 
 def _raise_api_error(exc: error.HTTPError) -> None:
@@ -148,7 +155,12 @@ def http_get_json(config: ApiConfig, path: str):
         _raise_api_error(exc)
 
 
-def http_get_json_status(config: ApiConfig, path: str) -> tuple[int, object]:
+def http_get_json_status(
+    config: ApiConfig,
+    path: str,
+    *,
+    json_error_statuses: tuple[int, ...] = (),
+) -> tuple[int, object]:
     req = request.Request(
         f"{normalize_base_url(config.base_url)}{path}",
         headers=auth_headers(config),
@@ -158,7 +170,11 @@ def http_get_json_status(config: ApiConfig, path: str) -> tuple[int, object]:
             result = _read_response(response)
     except error.HTTPError as exc:
         result = _result_from_http_error(exc)
-    return result.status, _json_or_raise(result, path)
+    return result.status, _json_or_raise(
+        result,
+        path,
+        json_error_statuses=json_error_statuses,
+    )
 
 
 def multipart_header_value(value: str) -> str:
@@ -247,7 +263,7 @@ def transcribe_file(
 def render_transcription(result: HttpResult, response_format: str) -> str:
     if response_format in {"text", "srt", "vtt"}:
         return result.text
-    payload = result.json()
+    payload = _json_or_raise(result, "/v1/audio/transcriptions")
     if response_format == "json":
         return payload.get("text", "")
     return json.dumps(payload, ensure_ascii=False, indent=2)
@@ -406,7 +422,11 @@ def command_health(args) -> int:
 
 
 def command_ready(args) -> int:
-    status, payload = http_get_json_status(_config(args), "/ready")
+    status, payload = http_get_json_status(
+        _config(args),
+        "/ready",
+        json_error_statuses=(503,),
+    )
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0 if status < 400 else 1
 

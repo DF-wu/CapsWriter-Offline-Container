@@ -69,7 +69,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 - [`client/cli/capswriter_cli.py`](../client/cli/capswriter_cli.py) 無第三方 Python dependency。
 - 支援 `health`、`ready`、`models`、`transcribe`、`speak`。
-- HTTP error 會解析 OpenAI-style `error.message` 與舊版 `detail`。
+- HTTP error 會解析 OpenAI-style `error.message`、舊版 `detail`、bounded non-JSON body previews，並把 expected JSON endpoint 的 invalid JSON response 轉成帶 endpoint/status 的診斷。
 - Linux TTS：`spd-say` / `espeak-ng` / `espeak`；Windows TTS：PowerShell `System.Speech`。
 - 測試使用 in-process mock HTTP server，不需要模型。
 
@@ -99,10 +99,10 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 | Gate | 結果 |
 |---|---|
-| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 12 tests，含 `/ready` ok/degraded diagnostic command、OpenAI-style error parsing、non-JSON HTTP error diagnostics 與 multipart filename escaping |
+| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 15 tests，含 `/ready` ok/degraded diagnostic command、OpenAI-style error parsing、non-JSON/invalid JSON diagnostics 與 multipart filename escaping |
 | `python -m unittest discover -s docker/server/tests -v` | 通過：Docker server 12 tests，含 HTTP `/ready` healthcheck、healthcheck env parsing 與 model downloader env diagnostics |
 | `python -m unittest discover -s scripts/tests -v` | 通過：Verifier 4 tests，含 live HTTP API key log redaction |
-| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 12 tests、server compile、HTTP 45 tests、Docker server 12 tests、Verifier 4 tests、Web 22 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
+| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 15 tests、server compile、HTTP 45 tests、Docker server 12 tests、Verifier 4 tests、Web 22 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 
 `--http-require-ready` 已加入 root verifier；目前 `127.0.0.1:6017` 上的 live process 仍是舊版 `v2.5`，需重啟到本分支後 `/ready` 才會從 404 變成可驗證 endpoint。因目前 shell 沒有 live server 的 API key，模型音檔 smoke 會在 `/v1/audio/transcriptions` 收到 401；release evidence 需提供 `--http-key`。
 

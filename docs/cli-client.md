@@ -150,7 +150,7 @@ The `speak` command does not call the CapsWriter server and does not send text t
 | `0` | Success |
 | `1` | HTTP failure, unsupported format, missing file, or unavailable local TTS engine |
 
-When the server returns OpenAI-style `{"error": ...}` JSON, the CLI prints the contained `error.message` instead of dumping raw JSON. Legacy FastAPI `{"detail": ...}` payloads are also normalized for compatibility with older servers. If a proxy or old server returns a non-JSON HTTP error body, the CLI prints the HTTP status with a bounded one-line body preview.
+When the server returns OpenAI-style `{"error": ...}` JSON, the CLI prints the contained `error.message` instead of dumping raw JSON. Legacy FastAPI `{"detail": ...}` payloads are also normalized for compatibility with older servers. If a proxy or old server returns a non-JSON HTTP error body, the CLI prints the HTTP status with a bounded one-line body preview. If a health/readiness/models call or JSON transcription response is malformed, the error includes the HTTP status and endpoint.
 
 ## Verification
 
@@ -182,6 +182,6 @@ python client/cli/scripts/clean.py
 - `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
 - `--output-dir` maps output extensions by response format: `.txt`, `.json`, `.srt`, `.vtt`.
 - `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.
-- HTTP errors normalize OpenAI-style `error.message`, legacy `detail` payloads, and non-JSON HTTP error bodies.
+- HTTP errors normalize OpenAI-style `error.message`, legacy `detail` payloads, non-JSON HTTP error bodies, and invalid JSON responses from expected JSON endpoints.
 - Windows TTS uses PowerShell `System.Speech`.
 - Linux TTS prefers `spd-say`, then `espeak-ng`, then `espeak`.
