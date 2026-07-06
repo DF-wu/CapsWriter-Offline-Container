@@ -202,6 +202,16 @@ python client/cli/capswriter_cli.py speak "CapsWriter transcription completed."
 
 See [docs/cli-client.md](docs/cli-client.md) for batch transcription, local TTS backends, isolated verification, and cleanup.
 
+### 9. Run the repository verification gate
+
+```bash
+python scripts/verify_all.py
+python scripts/verify_all.py --http-base-url http://127.0.0.1:6017 --http-key sk-your-token
+python scripts/clean.py
+```
+
+See [docs/verification.md](docs/verification.md) for CI, cleanup, and release evidence expectations.
+
 ## Startup flow
 
 At runtime, the container does the following:

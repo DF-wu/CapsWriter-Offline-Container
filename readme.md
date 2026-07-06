@@ -164,6 +164,7 @@ start_server_docker.py    ← Fork entrypoint (與上游 start_server.py 並存)
 | [docs/HTTP_API.md](docs/HTTP_API.md) | OpenAI Whisper API 規格、5 種 response_format、認證、SDK 範例 |
 | [docs/web-console.md](docs/web-console.md) | Web Console STT/TTS 工作台、CORS、隔離開發、清理與驗證流程 |
 | [docs/cli-client.md](docs/cli-client.md) | 無 GUI CLI client、批次轉錄、本機 TTS、跨平台驗證與清理 |
+| [docs/verification.md](docs/verification.md) | repo-level 驗證、CI、live HTTP check、自動清理策略 |
 | [docs/docker-server.md](docs/docker-server.md) | 容器部署細節、GPU 設定、env 變數完整表 |
 | [docs/state-of-fork.md](docs/state-of-fork.md) | Fork 當前狀態快照（divergence、已驗證項目） |
 
