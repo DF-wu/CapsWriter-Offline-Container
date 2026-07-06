@@ -2,9 +2,13 @@
 
 from __future__ import annotations
 
+import io
 import sys
 import tempfile
+import threading
 import unittest
+from contextlib import redirect_stderr, redirect_stdout
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from unittest.mock import patch
 
@@ -13,6 +17,21 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import check_http_api  # noqa: E402
+
+
+class UnauthorizedHealthHandler(BaseHTTPRequestHandler):
+    def log_message(self, *_args):
+        return
+
+    def do_GET(self):
+        if self.path == "/health":
+            self.send_response(401)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"error":{"message":"Invalid API key"}}')
+            return
+        self.send_response(404)
+        self.end_headers()
 
 
 class CheckHttpApiMultipartTest(unittest.TestCase):
@@ -45,6 +64,43 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
         self.assertIn(b'filename="escaped.wav"', body)
         self.assertIn(b"RIFF", body)
         self.assertIn(b"\r\n\r\ntext\r\n", body)
+
+
+class CheckHttpApiMainTest(unittest.TestCase):
+    def test_health_401_reports_api_key_hint_not_connection_failure(self) -> None:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), UnauthorizedHealthHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                patch.object(check_http_api.shutil, "which", return_value="/usr/bin/ffmpeg"),
+                patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "check_http_api.py",
+                        "--host",
+                        "127.0.0.1",
+                        "--port",
+                        str(server.server_port),
+                    ],
+                ),
+                redirect_stdout(stdout),
+                redirect_stderr(stderr),
+            ):
+                code = check_http_api.main()
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+        output = stdout.getvalue() + stderr.getvalue()
+        self.assertEqual(code, 1)
+        self.assertIn("HTTP 401", output)
+        self.assertIn("需要 API key", output)
+        self.assertNotIn("无法连接", output)
 
 
 if __name__ == "__main__":
