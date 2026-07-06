@@ -17,7 +17,7 @@ The command runs:
 | CLI | `python client/cli/scripts/verify.py` | CLI syntax, health/readiness/models calls, multipart upload, mock HTTP transcription, HTTP error diagnostics, output files, Linux/Windows TTS command selection, zipapp packaging |
 | Server | `python -m compileall fork_server docker/server check_http_api.py start_server_docker.py` + HTTP and Docker server unit tests | HTTP sidecar, Docker entrypoint/healthcheck syntax, readiness-gated container healthcheck, model downloader diagnostics, dependency-light request limit and runtime config tests |
 | Verifier | `python -m unittest discover -s scripts/tests -v` | Root gate helper behavior, including redaction of live HTTP API keys from shared logs |
-| Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, TypeScript, production build, web clean script |
+| Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, runtime `/config.js` escaping, TypeScript, production build, web clean script |
 | Optional Web browser smoke | temporary mock API + Vite + `agent-browser` | Real browser can check server health, upload audio, and transcribe through the UI |
 | Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
 | Optional live HTTP | `client/cli/capswriter_cli.py health` + optional readiness and known-audio transcription | Real server health, deployment readiness, and model-backed STT when configured |
