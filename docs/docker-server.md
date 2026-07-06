@@ -184,6 +184,9 @@ CI 自動 build 走 [`.github/workflows/publish-server-image.yml`](../.github/wo
 # 是否健康
 docker compose ps
 
+# HTTP API readiness (when enabled)
+curl http://localhost:6017/ready
+
 # 跑了多久
 docker ps --filter "name=capswriter" --format '{{.Names}} {{.Status}}'
 

@@ -16,6 +16,7 @@ OpenAI-compatible HTTP API
 
 from __future__ import annotations
 import asyncio
+import shutil
 import time
 import uuid
 from typing import Literal, Optional
@@ -46,6 +47,7 @@ from .limits import (
     upload_limit_bytes,
 )
 from .openai_formatter import format_response
+from .readiness import build_readiness
 from .runtime_config import normalize_cors_origins
 from .task_router import router as task_router
 
@@ -193,6 +195,23 @@ def create_app() -> FastAPI:
             "model": Config.model_type,
             "version": __version__,
         }
+
+    @app.get("/ready")
+    async def ready():
+        payload, status_code = build_readiness(
+            model=Config.model_type,
+            version=__version__,
+            task_router_bound=task_router.is_bound(),
+            ffmpeg_available=shutil.which("ffmpeg") is not None,
+            auth_enabled=bool(getattr(Config, "http_api_key", "") or ""),
+            max_upload_mb=int(getattr(Config, "http_api_max_upload_mb", 100)),
+            task_timeout=float(getattr(Config, "http_api_task_timeout", 600.0)),
+            max_concurrent_requests=int(
+                getattr(Config, "http_api_max_concurrent_requests", 2)
+            ),
+            cors_origins=cors_origins,
+        )
+        return JSONResponse(content=payload, status_code=status_code)
 
     @app.get("/v1/models")
     async def list_models(authorization: Optional[str] = Header(None)):

@@ -44,10 +44,12 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 - [`start_server_docker.py`](../start_server_docker.py) 在 import upstream server 前套用 [`fork_server/env_config.py`](../fork_server/env_config.py)。
 - [`fork_server/http_api/api.py`](../fork_server/http_api/api.py) 提供：
   - `GET /health`
+  - `GET /ready`
   - `GET /v1/models`
   - `POST /v1/audio/transcriptions`
   - `POST /v1/audio/translations`（明確 501）
 - HTTP 上傳以 chunk 讀取並套用 `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB`，成功回應帶 `X-CapsWriter-Task-ID`。
+- `/ready` 回報 `task_router` 與 `ffmpeg` readiness，不暴露 secrets。
 - `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` 對 HTTP 轉錄請求做 request-slot backpressure。
 - `response_format` 支援 `json`、`text`、`verbose_json`、`srt`、`vtt`。
 

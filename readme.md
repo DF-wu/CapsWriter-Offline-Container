@@ -80,6 +80,7 @@ CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:5173  # 使用 Web Console 時
 ```bash
 docker compose up -d --force-recreate capswriter-server
 curl http://localhost:6017/health
+curl http://localhost:6017/ready
 ```
 
 任何 OpenAI SDK 設 `base_url=http://localhost:6017/v1` 即可使用：

@@ -180,6 +180,7 @@ Expose port `6017` in [`docker-compose.yml`](docker-compose.yml), then restart:
 ```bash
 docker compose up -d --force-recreate capswriter-server
 python check_http_api.py --host 127.0.0.1 --port 6017 --key sk-your-token
+curl http://127.0.0.1:6017/ready
 ```
 
 ### 7. Run the Web Console

@@ -152,6 +152,23 @@ def main():
         fail(str(e))
         errors += 1
 
+    check("GET /ready")
+    try:
+        data = _api_get(base, "/ready", api_key)
+        status = data.get("status", "?")
+        checks = data.get("checks", {})
+        ok(
+            f"{status}; ffmpeg={checks.get('ffmpeg_available', '?')}, "
+            f"router={checks.get('task_router_bound', '?')}"
+        )
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        fail(f"HTTP {e.code}: {body[:100]}")
+        errors += 1
+    except Exception as e:
+        fail(str(e))
+        errors += 1
+
     if not args.audio:
         print(f"\n{yellow('未提供 --audio，跳过转录测试。')}")
         print(f"用法: python check_http_api.py --audio test.wav\n")
