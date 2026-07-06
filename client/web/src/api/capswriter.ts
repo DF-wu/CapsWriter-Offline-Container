@@ -52,6 +52,21 @@ export function apiErrorMessage(body: string): string {
   return compactErrorText(text);
 }
 
+function parseJsonBody<T>(body: string, path: string, status: number): T {
+  try {
+    return JSON.parse(body) as T;
+  } catch {
+    const message = apiErrorMessage(body);
+    throw new Error(
+      `HTTP ${status}: Expected JSON response from ${path}${message ? `: ${message}` : ""}`,
+    );
+  }
+}
+
+async function readJsonResponse<T>(response: Response, path: string): Promise<T> {
+  return parseJsonBody<T>(await response.text(), path, response.status);
+}
+
 async function checkedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const response = await fetch(input, init);
   if (!response.ok) {
@@ -67,7 +82,7 @@ export async function fetchHealth(settings: ApiSettings): Promise<HealthResponse
   const response = await checkedFetch(`${root}/health`, {
     headers: requestHeaders(settings),
   });
-  return response.json() as Promise<HealthResponse>;
+  return readJsonResponse<HealthResponse>(response, "/health");
 }
 
 export async function fetchReadiness(settings: ApiSettings): Promise<ReadinessResponse> {
@@ -77,7 +92,7 @@ export async function fetchReadiness(settings: ApiSettings): Promise<ReadinessRe
   });
   const body = await response.text();
   if (response.ok || response.status === 503) {
-    return JSON.parse(body) as ReadinessResponse;
+    return parseJsonBody<ReadinessResponse>(body, "/ready", response.status);
   }
   const message = apiErrorMessage(body);
   throw new Error(`HTTP ${response.status}${message ? `: ${message}` : ""}`);
@@ -88,7 +103,7 @@ export async function fetchModels(settings: ApiSettings): Promise<ModelListRespo
   const response = await checkedFetch(`${root}/v1/models`, {
     headers: requestHeaders(settings),
   });
-  return response.json() as Promise<ModelListResponse>;
+  return readJsonResponse<ModelListResponse>(response, "/v1/models");
 }
 
 export async function parseTranscriptionResponse(
@@ -101,7 +116,11 @@ export async function parseTranscriptionResponse(
     return { text, format, raw: text, contentType };
   }
 
-  const payload = (await response.json()) as VerboseTranscription | { text?: string };
+  const payload = parseJsonBody<VerboseTranscription | { text?: string }>(
+    await response.text(),
+    "/v1/audio/transcriptions",
+    response.status,
+  );
   return {
     text: payload.text ?? "",
     format,

@@ -57,6 +57,17 @@ describe("parseTranscriptionResponse", () => {
     expect(result.raw).toEqual({ text: "你好" });
   });
 
+  it("throws bounded diagnostics for invalid json transcription responses", async () => {
+    const response = new Response(`<html>${"x".repeat(700)}</html>`, {
+      status: 200,
+      headers: { "Content-Type": "text/html" },
+    });
+
+    await expect(parseTranscriptionResponse(response, "json")).rejects.toThrow(
+      /^HTTP 200: Expected JSON response from \/v1\/audio\/transcriptions: <html>x+.*\.\.\.$/,
+    );
+  });
+
   it("preserves verbose json payloads", async () => {
     const payload = {
       text: "capswriter",
@@ -140,6 +151,17 @@ describe("fetchReadiness", () => {
     );
 
     await expect(fetchReadiness(settings)).rejects.toThrow("HTTP 404");
+  });
+
+  it("throws bounded diagnostics when readiness returns invalid json", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(`<html>${"x".repeat(700)}</html>`, { status: 503 })),
+    );
+
+    await expect(fetchReadiness(settings)).rejects.toThrow(
+      /^HTTP 503: Expected JSON response from \/ready: <html>x+.*\.\.\.$/,
+    );
   });
 });
 
