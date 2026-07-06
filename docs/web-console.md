@@ -91,6 +91,15 @@ Build and run only the web service:
 docker compose -f docker-compose.web.yml up -d --build capswriter-web
 ```
 
+Published image:
+
+```bash
+docker run -d --name capswriter-web --restart unless-stopped \
+  -p 8080:8080 \
+  -e CAPSWRITER_WEB_API_BASE=http://localhost:6017 \
+  ghcr.io/df-wu/capswriter-offline-web:latest
+```
+
 Run it beside the server:
 
 ```bash
@@ -126,6 +135,8 @@ Container image build can also be included in the root gate:
 ```bash
 python scripts/verify_all.py --docker-build-web
 ```
+
+Maintainers publish the static image through [`.github/workflows/publish-web-image.yml`](../.github/workflows/publish-web-image.yml). It builds from [`client/web/Dockerfile`](../client/web/Dockerfile) and pushes `ghcr.io/<owner>/capswriter-offline-web:{latest,sha-*}`.
 
 ## 清理策略
 

@@ -198,6 +198,8 @@ Production static container:
 docker compose -f docker-compose.web.yml up -d --build capswriter-web
 ```
 
+Published image: `ghcr.io/df-wu/capswriter-offline-web:latest`.
+
 ### 8. Run the no-GUI CLI client
 
 ```bash

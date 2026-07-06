@@ -107,7 +107,7 @@ Cleanup removes:
 checkout -> setup Python 3.12 -> setup Node 24 -> python scripts/verify_all.py
 ```
 
-The publish workflow remains separate. CI verifies source, tests, and local builds; [`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) builds and publishes the server image when maintainers choose to publish.
+The publish workflows remain separate. CI verifies source, tests, and local builds; [`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) builds the server image and [`publish-web-image.yml`](../.github/workflows/publish-web-image.yml) builds the static Web Console image when maintainers choose to publish.
 
 ## Evidence expected before release
 

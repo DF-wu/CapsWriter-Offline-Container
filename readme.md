@@ -101,6 +101,8 @@ Web Console 也可用靜態容器部署：
 docker compose -f docker-compose.web.yml up -d --build capswriter-web
 ```
 
+發布 image：`ghcr.io/df-wu/capswriter-offline-web:latest`。
+
 ---
 
 ## 模型矩陣
