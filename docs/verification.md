@@ -15,7 +15,7 @@ The command runs:
 | Step | Command | Coverage |
 |---|---|---|
 | CLI | `python client/cli/scripts/verify.py` | CLI syntax, health/readiness/models calls, multipart upload including filename escaping, mock HTTP transcription, HTTP and invalid JSON diagnostics, output files, Linux/Windows TTS command selection, zipapp packaging |
-| Server | `python -m compileall fork_server docker/server check_http_api.py start_server_docker.py` + HTTP and Docker server unit tests | HTTP sidecar, Docker entrypoint/healthcheck syntax, readiness-gated container healthcheck, privacy-preserving transcript logging, model downloader diagnostics, dependency-light request limit and runtime config tests |
+| Server | `python -m compileall fork_server docker/server check_http_api.py start_server_docker.py` + HTTP and Docker server unit tests | HTTP sidecar, Docker entrypoint/healthcheck syntax, readiness-gated container healthcheck, privacy-preserving transcript logging, SRT/VTT timestamp formatting, model downloader diagnostics, dependency-light request limit and runtime config tests |
 | Verifier/diagnostic | `python -m unittest discover -s scripts/tests -v` | Root gate helper behavior, including redaction of live HTTP API keys from shared logs, plus diagnostic multipart upload escaping |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, bounded Web API and invalid JSON diagnostics, runtime `/config.js` escaping, TypeScript, production build, web clean script |
 | Optional Web browser smoke | temporary mock API + Vite + `agent-browser` | Real browser can check server health, upload audio, and transcribe through the UI |

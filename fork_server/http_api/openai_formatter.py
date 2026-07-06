@@ -76,27 +76,21 @@ def _words_from_tokens(
     return out
 
 
+def _split_timestamp(seconds: float) -> Tuple[int, int, int, int]:
+    total_ms = int(round(max(0.0, seconds) * 1000))
+    h, remainder = divmod(total_ms, 60 * 60 * 1000)
+    m, remainder = divmod(remainder, 60 * 1000)
+    s, ms = divmod(remainder, 1000)
+    return h, m, s, ms
+
+
 def _fmt_srt_ts(seconds: float) -> str:
-    seconds = max(0.0, seconds)
-    h = int(seconds // 3600)
-    m = int((seconds % 3600) // 60)
-    s = int(seconds % 60)
-    ms = int(round((seconds - int(seconds)) * 1000))
-    if ms == 1000:
-        ms = 0
-        s += 1
+    h, m, s, ms = _split_timestamp(seconds)
     return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 
 def _fmt_vtt_ts(seconds: float) -> str:
-    seconds = max(0.0, seconds)
-    h = int(seconds // 3600)
-    m = int((seconds % 3600) // 60)
-    s = int(seconds % 60)
-    ms = int(round((seconds - int(seconds)) * 1000))
-    if ms == 1000:
-        ms = 0
-        s += 1
+    h, m, s, ms = _split_timestamp(seconds)
     return f"{h:02d}:{m:02d}:{s:02d}.{ms:03d}"
 
 
