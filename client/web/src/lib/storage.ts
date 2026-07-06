@@ -73,7 +73,9 @@ export function saveSettings(settings: ApiSettings): void {
 export function loadHistory(): TranscriptRecord[] {
   try {
     const raw = localStorage.getItem(HISTORY_KEY);
-    return raw ? (JSON.parse(raw) as TranscriptRecord[]) : [];
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? (parsed as TranscriptRecord[]) : [];
   } catch {
     return [];
   }

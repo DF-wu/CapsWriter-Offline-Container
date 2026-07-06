@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   addHistory,
   clearHistory,
+  loadHistory,
   loadSettings,
   saveSettings,
   settingsWithRuntimeDefaults,
@@ -9,6 +10,7 @@ import {
 import type { TranscriptRecord } from "../types";
 
 const SETTINGS_KEY = "capswriter.web.settings.v1";
+const HISTORY_KEY = "capswriter.web.history.v1";
 
 beforeEach(() => {
   localStorage.clear();
@@ -109,6 +111,22 @@ describe("settingsWithRuntimeDefaults", () => {
       throw new Error("quota exceeded");
     });
 
+    expect(addHistory(record)).toEqual([record]);
+  });
+
+  it("ignores non-array persisted history", () => {
+    const record: TranscriptRecord = {
+      id: "record-1",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      sourceName: "sample.wav",
+      durationSeconds: 1,
+      format: "text",
+      text: "hello",
+      raw: "hello",
+    };
+    localStorage.setItem(HISTORY_KEY, JSON.stringify({ bad: "shape" }));
+
+    expect(loadHistory()).toEqual([]);
     expect(addHistory(record)).toEqual([record]);
   });
 
