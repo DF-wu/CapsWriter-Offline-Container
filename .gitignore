@@ -192,7 +192,7 @@ models/.downloads/
 benchmarks/
 
 diag*.py
-test_*.py 
+/test_*.py
 test_*.ipynb 
 test_*.md 
 test_*.txt

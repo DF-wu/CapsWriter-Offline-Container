@@ -66,6 +66,20 @@ def verify_server_compile() -> int:
     )
 
 
+def verify_server_tests() -> int:
+    return run_required(
+        [
+            sys.executable,
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "fork_server/http_api/tests",
+            "-v",
+        ]
+    )
+
+
 def ensure_web_deps(*, install: bool) -> int:
     if shutil.which("npm") is None:
         print("npm is required for Web Console verification", file=sys.stderr)
@@ -221,6 +235,7 @@ def main() -> int:
         for step in [
             verify_cli,
             verify_server_compile,
+            verify_server_tests,
             (lambda: 0 if args.skip_web else verify_web(install=not args.no_web_install)),
             (lambda: verify_web_docker() if args.docker_build_web else 0),
             (lambda: verify_http(args.http_base_url, args.http_key)),

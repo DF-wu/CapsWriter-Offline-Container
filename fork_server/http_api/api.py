@@ -38,6 +38,12 @@ from core.server.schema import Task, Result
 from core.server import logger, console
 
 from .audio_decoder import AudioDecodeError, FFmpegNotFoundError, decode_to_pcm
+from .limits import (
+    UploadTooLargeError,
+    read_upload_limited,
+    task_timeout_seconds,
+    upload_limit_bytes,
+)
 from .openai_formatter import format_response
 from .task_router import router as task_router
 
@@ -133,10 +139,14 @@ def _split_and_submit(task_id: str, pcm: bytes) -> None:
     )
 
 
-def _wrap_response(body, media_type: str) -> Response:
+def _wrap_response(
+    body,
+    media_type: str,
+    headers: Optional[dict[str, str]] = None,
+) -> Response:
     if isinstance(body, (dict, list)):
-        return JSONResponse(content=body, media_type=media_type)
-    return PlainTextResponse(content=body, media_type=media_type)
+        return JSONResponse(content=body, media_type=media_type, headers=headers)
+    return PlainTextResponse(content=body, media_type=media_type, headers=headers)
 
 
 def _cors_origins() -> list[str]:
@@ -205,15 +215,20 @@ def create_app() -> FastAPI:
         _check_auth(authorization)
         del model, temperature  # OpenAI 相容占位; 本地模型由 Config.model_type 決定
         request_start = time.time()
+        task_id = uuid.uuid4().hex
 
-        max_bytes = int(getattr(Config, "http_api_max_upload_mb", 100)) * 1024 * 1024
-        audio_bytes = await file.read()
+        max_bytes, max_mb = upload_limit_bytes(
+            getattr(Config, "http_api_max_upload_mb", 100)
+        )
+        try:
+            audio_bytes = await read_upload_limited(file, max_bytes)
+        except UploadTooLargeError:
+            logger.warning(
+                f"[HTTP] task={task_id[:8]} upload rejected: >{max_mb} MB"
+            )
+            raise HTTPException(413, f"File too large (>{max_mb} MB)")
         if not audio_bytes:
             raise HTTPException(400, "Empty file")
-        if len(audio_bytes) > max_bytes:
-            raise HTTPException(
-                413, f"File too large (>{max_bytes // (1024 * 1024)} MB)"
-            )
 
         try:
             pcm = await decode_to_pcm(audio_bytes)
@@ -231,14 +246,13 @@ def create_app() -> FastAPI:
         if duration < 0.05:
             raise HTTPException(400, "Audio too short to transcribe")
 
-        task_id = uuid.uuid4().hex
         future = task_router.register(task_id)
         logger.info(
             f"[HTTP] task={task_id[:8]} duration={duration:.2f}s "
             f"fmt={response_format} bytes={len(audio_bytes)}"
         )
 
-        timeout = float(getattr(Config, "http_api_task_timeout", 600.0))
+        timeout = task_timeout_seconds(getattr(Config, "http_api_task_timeout", 600.0))
         try:
             await asyncio.to_thread(_split_and_submit, task_id, pcm)
             if prompt:
@@ -269,7 +283,11 @@ def create_app() -> FastAPI:
         console.print("    识别结果：", end="")
         console.print(text, style="green")
         console.line()
-        return _wrap_response(body, media_type)
+        return _wrap_response(
+            body,
+            media_type,
+            headers={"X-CapsWriter-Task-ID": task_id},
+        )
 
     @app.post("/v1/audio/translations")
     async def translations():

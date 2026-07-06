@@ -15,7 +15,7 @@ The command runs:
 | Step | Command | Coverage |
 |---|---|---|
 | CLI | `python client/cli/scripts/verify.py` | CLI syntax, multipart upload, mock HTTP transcription, output files, Linux/Windows TTS command selection |
-| Server | `python -m compileall fork_server check_http_api.py start_server_docker.py` | HTTP sidecar, Docker entrypoint, diagnostic script syntax |
+| Server | `python -m compileall fork_server check_http_api.py start_server_docker.py` + HTTP unit tests | HTTP sidecar, Docker entrypoint, diagnostic script syntax, dependency-light request limit tests |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, TypeScript, production build, web clean script |
 | Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
 | Optional live HTTP | `client/cli/capswriter_cli.py health` | Real server health when configured |
