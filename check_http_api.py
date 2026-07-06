@@ -51,20 +51,24 @@ def _headers(api_key):
     return h
 
 
-def _api_get(base, path, api_key):
-    req = urllib.request.Request(f"{base}{path}", headers=_headers(api_key))
-    with urllib.request.urlopen(req, timeout=5) as r:
-        return json.loads(r.read())
+def multipart_header_value(value):
+    return (
+        value.replace("\\", "\\\\")
+        .replace('"', r"\"")
+        .replace("\r", " ")
+        .replace("\n", " ")
+    )
 
 
-def _api_post(base, path, audio_path, fmt, api_key):
-    boundary = "----FormBoundary7MA4YWxkTrZu0gW"
+def _build_multipart_body(audio_path, fmt, boundary=None):
+    boundary = boundary or "----FormBoundary7MA4YWxkTrZu0gW"
     with open(audio_path, "rb") as f:
         audio_data = f.read()
+    filename = multipart_header_value(os.path.basename(audio_path))
     body = (
         (
             f"--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="file"; filename="{os.path.basename(audio_path)}"\r\n'
+            f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
             f"Content-Type: application/octet-stream\r\n\r\n"
         ).encode()
         + audio_data
@@ -76,6 +80,17 @@ def _api_post(base, path, audio_path, fmt, api_key):
             f"--{boundary}--\r\n"
         ).encode()
     )
+    return body, boundary
+
+
+def _api_get(base, path, api_key):
+    req = urllib.request.Request(f"{base}{path}", headers=_headers(api_key))
+    with urllib.request.urlopen(req, timeout=5) as r:
+        return json.loads(r.read())
+
+
+def _api_post(base, path, audio_path, fmt, api_key):
+    body, boundary = _build_multipart_body(audio_path, fmt)
     h = {"Content-Type": f"multipart/form-data; boundary={boundary}"}
     h.update(_headers(api_key))
     req = urllib.request.Request(f"{base}{path}", data=body, headers=h)
