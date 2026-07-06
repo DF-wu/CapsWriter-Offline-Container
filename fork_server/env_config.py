@@ -14,6 +14,8 @@ from __future__ import annotations
 import os
 from typing import Optional, Type
 
+from fork_server.http_api.runtime_config import parse_http_api_env
+
 
 # ---------- helpers ----------
 
@@ -171,20 +173,21 @@ def apply() -> None:
         _set(ServerConfig, "hotwords_path", Path(v))
 
     # ---- HTTP API (fork-only attributes) ----
+    http_api = parse_http_api_env(os.environ)
     _set(ServerConfig, "http_api_enable",
-         _env_bool("CAPSWRITER_HTTP_API_ENABLE", False))
+         http_api.enable)
     _set(ServerConfig, "http_api_bind",
-         _env_str("CAPSWRITER_HTTP_API_BIND", "127.0.0.1"))
+         http_api.bind)
     _set(ServerConfig, "http_api_port",
-         _env_int("CAPSWRITER_HTTP_API_PORT", 6017))
+         http_api.port)
     _set(ServerConfig, "http_api_key",
-         _env_str("CAPSWRITER_HTTP_API_KEY", "") or "")
+         http_api.api_key)
     _set(ServerConfig, "http_api_max_upload_mb",
-         _env_int("CAPSWRITER_HTTP_API_MAX_UPLOAD_MB", 100))
+         http_api.max_upload_mb)
     _set(ServerConfig, "http_api_task_timeout",
-         _env_float("CAPSWRITER_HTTP_API_TASK_TIMEOUT", 600.0))
+         http_api.task_timeout)
     _set(ServerConfig, "http_api_cors_origins",
-         _env_csv("CAPSWRITER_HTTP_API_CORS_ORIGINS", []))
+         list(http_api.cors_origins))
 
     # ---- Qwen preset (decide onnx_provider + llm_use_gpu before specific overrides) ----
     qwen_preset = _env_str("CAPSWRITER_QWEN_PRESET", "default") or "default"

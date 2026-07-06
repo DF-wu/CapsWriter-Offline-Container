@@ -45,6 +45,7 @@ from .limits import (
     upload_limit_bytes,
 )
 from .openai_formatter import format_response
+from .runtime_config import normalize_cors_origins
 from .task_router import router as task_router
 
 
@@ -151,9 +152,7 @@ def _wrap_response(
 
 def _cors_origins() -> list[str]:
     value = getattr(Config, "http_api_cors_origins", []) or []
-    if isinstance(value, str):
-        return [item.strip() for item in value.split(",") if item.strip()]
-    return [str(item).strip() for item in value if str(item).strip()]
+    return list(normalize_cors_origins(value))
 
 
 def create_app() -> FastAPI:

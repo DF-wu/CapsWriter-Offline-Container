@@ -20,6 +20,16 @@ CapsWriter-Offline 在 WebSocket 服務之外，可選擇性提供與 [OpenAI Wh
 | `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `600` | 單次轉錄超時（秒） |
 | `CAPSWRITER_HTTP_API_CORS_ORIGINS` | _(空)_ | 逗號分隔的瀏覽器 origin allowlist；空字串表示不加 CORS middleware |
 
+HTTP API env 會在 server 啟動時驗證；明確設定的無效值會讓啟動失敗，而不是靜默退回預設值。
+
+| 變數 | 驗證規則 |
+|---|---|
+| `CAPSWRITER_HTTP_API_ENABLE` | `true/false`、`yes/no`、`on/off`、`1/0` |
+| `CAPSWRITER_HTTP_API_PORT` | `1..65535` |
+| `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `>= 1` |
+| `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `>= 1` 秒 |
+| `CAPSWRITER_HTTP_API_CORS_ORIGINS` | `http://` 或 `https://` origin，不含 path/query；`*` 允許但只建議本機測試 |
+
 ### 1.1 Docker
 
 [`docker-compose.yml`](../docker-compose.yml) 已有預留註解段。最小啟用：

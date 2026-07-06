@@ -63,6 +63,8 @@ docker compose logs -f capswriter-server
 | `CAPSWRITER_HTTP_API_PORT` | `6017` | HTTP API port |
 | `CAPSWRITER_HTTP_API_KEY` | _(空)_ | Bearer token；對外時必填 |
 
+HTTP API 相關 env 會在啟動時做範圍驗證。錯誤的 port、上傳大小、timeout 或 CORS origin 會讓 server 直接退出，避免 production 以意外預設值啟動。
+
 ### 3.3 GPU/Vulkan 細部
 
 | 變數 | 預設 | 說明 |
