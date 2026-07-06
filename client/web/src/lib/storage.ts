@@ -39,12 +39,19 @@ function readJson<T>(key: string, fallback: T): T {
   }
 }
 
+function settingsForPersistence(settings: ApiSettings): Omit<ApiSettings, "apiKey"> {
+  const { apiKey: _apiKey, ...persisted } = settings;
+  return persisted;
+}
+
 export function loadSettings(): ApiSettings {
-  return readJson<ApiSettings>(SETTINGS_KEY, DEFAULT_SETTINGS);
+  const persisted = readJson<Partial<ApiSettings>>(SETTINGS_KEY, {});
+  const { apiKey: _apiKey, ...safePersisted } = persisted;
+  return { ...DEFAULT_SETTINGS, ...safePersisted };
 }
 
 export function saveSettings(settings: ApiSettings): void {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settingsForPersistence(settings)));
 }
 
 export function loadHistory(): TranscriptRecord[] {

@@ -126,7 +126,7 @@ Runtime variables:
 |---|---|---|
 | `CAPSWRITER_WEB_PORT` | `8080` | Host port for the static web service |
 | `CAPSWRITER_WEB_API_BASE` | `http://localhost:6017` | Default API root shown in the UI |
-| `CAPSWRITER_WEB_API_KEY` | _(empty)_ | Optional default token; visible to browser users |
+| `CAPSWRITER_WEB_API_KEY` | _(empty)_ | Optional default token; written to public `/config.js`, so only use for trusted private deployments |
 | `CAPSWRITER_WEB_MODEL` | `whisper-1` | OpenAI-compatible model field |
 | `CAPSWRITER_WEB_LANGUAGE` | _(empty)_ | Optional language hint; server accepts aliases such as `zh`, `en`, `ja`, `ko`, `yue` |
 | `CAPSWRITER_WEB_PROMPT` | _(empty)_ | Optional recognizer context, normalized and capped server-side |
@@ -185,7 +185,8 @@ npm run clean
 - STT 只透過 `POST /v1/audio/transcriptions` 呼叫 server。
 - HTTP error 會優先顯示 OpenAI-style `error.message`，並相容舊版 `detail` payload。
 - TTS 目前是 browser-local Web Speech API；不把音訊傳到雲端。
-- localStorage 只保存使用者設定與最近 20 筆轉錄歷史。
+- localStorage 只保存非敏感使用者設定與最近 20 筆轉錄歷史；手動輸入的 API key 只留在目前頁面記憶體中。
+- 若透過 `CAPSWRITER_WEB_API_KEY` 注入預設 token，該值會出現在公開的 `/config.js`。
 - 若 server 有設定 API key，前端只使用 Bearer token header，不使用 cookie。
 
 ## 常見問題
