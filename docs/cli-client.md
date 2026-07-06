@@ -1,0 +1,152 @@
+# No-GUI CLI Client
+
+The no-GUI client lives in [`client/cli`](../client/cli). It is a standard-library Python client for the OpenAI-compatible CapsWriter HTTP API and local OS text-to-speech. It is intended for scripts, SSH sessions, CI smoke checks, batch transcription, and users who do not want the desktop GUI or browser console.
+
+![CapsWriter CLI client flow](assets/cli-client-flow.svg)
+
+## Capabilities
+
+| Area | Support |
+|---|---|
+| Server checks | `health`, `models` |
+| STT | `transcribe` one or more audio files through `POST /v1/audio/transcriptions` |
+| Formats | `text`, `json`, `verbose_json`, `srt`, `vtt` |
+| Batch output | stdout, one explicit `--output`, or generated files in `--output-dir` |
+| TTS | `speak` text through local OS engines |
+| Isolation | No third-party Python dependency; tests use an in-process mock HTTP server |
+
+## Requirements
+
+- Python 3.10+ on Linux or Windows.
+- A running CapsWriter HTTP API for real STT.
+- Optional local TTS engine:
+  - Windows: PowerShell `System.Speech` on normal desktop installs.
+  - Linux: `spd-say`, `espeak-ng`, or `espeak`.
+
+The CLI does not install or require global packages.
+
+## Server setup
+
+Enable the HTTP API:
+
+```bash
+CAPSWRITER_HTTP_API_ENABLE=true
+CAPSWRITER_HTTP_API_BIND=0.0.0.0
+CAPSWRITER_HTTP_API_PORT=6017
+CAPSWRITER_HTTP_API_KEY=sk-local-dev
+```
+
+Then verify:
+
+```bash
+python client/cli/capswriter_cli.py --help
+python client/cli/capswriter_cli.py health --base-url http://127.0.0.1:6017 --key sk-local-dev
+python client/cli/capswriter_cli.py models --base-url http://127.0.0.1:6017 --key sk-local-dev
+```
+
+You can also use environment variables:
+
+```bash
+export CAPSWRITER_API_BASE=http://127.0.0.1:6017
+export CAPSWRITER_HTTP_API_KEY=sk-local-dev
+python client/cli/capswriter_cli.py health
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:CAPSWRITER_API_BASE = "http://127.0.0.1:6017"
+$env:CAPSWRITER_HTTP_API_KEY = "sk-local-dev"
+python client\cli\capswriter_cli.py health
+```
+
+## Transcribe
+
+Print plain text:
+
+```bash
+python client/cli/capswriter_cli.py transcribe meeting.wav --format text
+```
+
+Write one output file:
+
+```bash
+python client/cli/capswriter_cli.py transcribe meeting.wav \
+  --format verbose_json \
+  --output meeting.transcript.json
+```
+
+Batch mode:
+
+```bash
+python client/cli/capswriter_cli.py transcribe audio/*.wav \
+  --format srt \
+  --output-dir transcripts/
+```
+
+Language and prompt hints are passed to the HTTP API for compatibility:
+
+```bash
+python client/cli/capswriter_cli.py transcribe meeting.wav \
+  --language zh \
+  --prompt "會議術語：CapsWriter, Qwen, FunASR"
+```
+
+## Speak
+
+Speak direct text:
+
+```bash
+python client/cli/capswriter_cli.py speak "CapsWriter transcription completed."
+```
+
+Read text from a UTF-8 file:
+
+```bash
+python client/cli/capswriter_cli.py speak transcript.txt --file
+```
+
+Preview which local command would be used:
+
+```bash
+python client/cli/capswriter_cli.py speak "test" --dry-run
+```
+
+The `speak` command does not call the CapsWriter server and does not send text to a cloud service. It shells out to the local operating system TTS engine.
+
+## Exit codes
+
+| Code | Meaning |
+|---|---|
+| `0` | Success |
+| `1` | HTTP failure, unsupported format, missing file, or unavailable local TTS engine |
+
+## Verification
+
+Run the isolated verification script:
+
+```bash
+python client/cli/scripts/verify.py
+```
+
+It performs:
+
+1. `python -m compileall client/cli`
+2. `python -m unittest discover -s client/cli/tests -v`
+3. `python client/cli/scripts/clean.py`
+
+The tests start an in-process mock HTTP API, so they do not need a real model server. The clean step removes `__pycache__` and `.pyc` files even when a previous step fails.
+
+Manual cleanup:
+
+```bash
+python client/cli/scripts/clean.py
+```
+
+## Implementation notes
+
+- Multipart upload is implemented with `urllib.request` and a generated boundary.
+- `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
+- `--output-dir` maps output extensions by response format: `.txt`, `.json`, `.srt`, `.vtt`.
+- Windows TTS uses PowerShell `System.Speech`.
+- Linux TTS prefers `spd-say`, then `espeak-ng`, then `espeak`.

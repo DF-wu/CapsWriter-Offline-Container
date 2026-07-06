@@ -192,6 +192,16 @@ npm run dev
 
 See [docs/web-console.md](docs/web-console.md) for the browser STT/TTS workflow, CORS setup, verification commands, and cleanup policy.
 
+### 8. Run the no-GUI CLI client
+
+```bash
+python client/cli/capswriter_cli.py health --base-url http://127.0.0.1:6017 --key sk-your-token
+python client/cli/capswriter_cli.py transcribe meeting.wav --format text --key sk-your-token
+python client/cli/capswriter_cli.py speak "CapsWriter transcription completed."
+```
+
+See [docs/cli-client.md](docs/cli-client.md) for batch transcription, local TTS backends, isolated verification, and cleanup.
+
 ## Startup flow
 
 At runtime, the container does the following:
