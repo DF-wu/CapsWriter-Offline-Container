@@ -62,6 +62,7 @@ docker compose logs -f capswriter-server
 | `CAPSWRITER_HTTP_API_BIND` | `127.0.0.1` | 對外請改 `0.0.0.0` |
 | `CAPSWRITER_HTTP_API_PORT` | `6017` | HTTP API port |
 | `CAPSWRITER_HTTP_API_KEY` | _(空)_ | Bearer token；對外時必填 |
+| `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` | `2` | HTTP 轉錄請求同時上傳/解碼/等待的上限 |
 
 HTTP API 相關 env 會在啟動時做範圍驗證。錯誤的 port、上傳大小、timeout 或 CORS origin 會讓 server 直接退出，避免 production 以意外預設值啟動。
 

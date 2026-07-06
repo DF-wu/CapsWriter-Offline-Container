@@ -24,6 +24,7 @@ class HttpApiSettings:
     api_key: str = ""
     max_upload_mb: int = 100
     task_timeout: float = 600.0
+    max_concurrent_requests: int = 2
     cors_origins: tuple[str, ...] = ()
 
 
@@ -140,6 +141,12 @@ def parse_http_api_env(env: Mapping[str, str]) -> HttpApiSettings:
             "CAPSWRITER_HTTP_API_TASK_TIMEOUT",
             600.0,
             minimum=1.0,
+        ),
+        max_concurrent_requests=parse_int_range(
+            env,
+            "CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS",
+            2,
+            minimum=1,
         ),
         cors_origins=normalize_cors_origins(
             _env(env, "CAPSWRITER_HTTP_API_CORS_ORIGINS")

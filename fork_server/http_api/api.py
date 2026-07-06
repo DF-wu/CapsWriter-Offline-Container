@@ -21,6 +21,7 @@ import uuid
 from typing import Literal, Optional
 
 from fastapi import (
+    Depends,
     FastAPI,
     File,
     Form,
@@ -176,6 +177,15 @@ def create_app() -> FastAPI:
             max_age=600,
         )
 
+    max_concurrent_requests = int(
+        getattr(Config, "http_api_max_concurrent_requests", 2)
+    )
+    transcription_slots = asyncio.Semaphore(max(1, max_concurrent_requests))
+
+    async def transcription_slot():
+        async with transcription_slots:
+            yield
+
     @app.get("/health")
     async def health():
         return {
@@ -210,7 +220,9 @@ def create_app() -> FastAPI:
         ),
         temperature: float = Form(0.0),
         authorization: Optional[str] = Header(None),
+        _slot: None = Depends(transcription_slot),
     ):
+        del _slot
         _check_auth(authorization)
         del model, temperature  # OpenAI 相容占位; 本地模型由 Config.model_type 決定
         request_start = time.time()

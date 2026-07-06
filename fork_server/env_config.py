@@ -186,6 +186,8 @@ def apply() -> None:
          http_api.max_upload_mb)
     _set(ServerConfig, "http_api_task_timeout",
          http_api.task_timeout)
+    _set(ServerConfig, "http_api_max_concurrent_requests",
+         http_api.max_concurrent_requests)
     _set(ServerConfig, "http_api_cors_origins",
          list(http_api.cors_origins))
 

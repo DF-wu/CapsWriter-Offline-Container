@@ -48,6 +48,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
   - `POST /v1/audio/transcriptions`
   - `POST /v1/audio/translations`（明確 501）
 - HTTP 上傳以 chunk 讀取並套用 `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB`，成功回應帶 `X-CapsWriter-Task-ID`。
+- `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` 對 HTTP 轉錄請求做 request-slot backpressure。
 - `response_format` 支援 `json`、`text`、`verbose_json`、`srt`、`vtt`。
 
 ### 3.2 Docker / 模型

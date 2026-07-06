@@ -41,9 +41,11 @@ async def run_http_server(cw_server) -> None:
 
     api_key = getattr(Config, "http_api_key", "") or ""
     max_upload = getattr(Config, "http_api_max_upload_mb", 100)
+    max_concurrent = getattr(Config, "http_api_max_concurrent_requests", 2)
     logger.info(
         f"HTTP API 監聽 {config.host}:{config.port} "
-        f"(auth={'on' if api_key else 'off'}, max_upload={max_upload}MB)"
+        f"(auth={'on' if api_key else 'off'}, max_upload={max_upload}MB, "
+        f"max_concurrent={max_concurrent})"
     )
     auth_flag = f'-H "Authorization: Bearer $KEY"' if api_key else ""
     auth_hint = "  [yellow](需 API key)[/]" if api_key else ""

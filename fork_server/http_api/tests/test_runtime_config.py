@@ -19,6 +19,7 @@ class HttpRuntimeConfigTest(unittest.TestCase):
         self.assertEqual(settings.port, 6017)
         self.assertEqual(settings.max_upload_mb, 100)
         self.assertEqual(settings.task_timeout, 600.0)
+        self.assertEqual(settings.max_concurrent_requests, 2)
         self.assertEqual(settings.cors_origins, ())
 
     def test_parses_valid_deploy_values(self) -> None:
@@ -30,6 +31,7 @@ class HttpRuntimeConfigTest(unittest.TestCase):
                 "CAPSWRITER_HTTP_API_KEY": "sk-local-dev",
                 "CAPSWRITER_HTTP_API_MAX_UPLOAD_MB": "16",
                 "CAPSWRITER_HTTP_API_TASK_TIMEOUT": "30.5",
+                "CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS": "3",
                 "CAPSWRITER_HTTP_API_CORS_ORIGINS": (
                     "http://localhost:5173/, https://example.test"
                 ),
@@ -41,6 +43,7 @@ class HttpRuntimeConfigTest(unittest.TestCase):
         self.assertEqual(settings.api_key, "sk-local-dev")
         self.assertEqual(settings.max_upload_mb, 16)
         self.assertEqual(settings.task_timeout, 30.5)
+        self.assertEqual(settings.max_concurrent_requests, 3)
         self.assertEqual(
             settings.cors_origins,
             ("http://localhost:5173", "https://example.test"),
@@ -60,6 +63,7 @@ class HttpRuntimeConfigTest(unittest.TestCase):
         for name in (
             "CAPSWRITER_HTTP_API_MAX_UPLOAD_MB",
             "CAPSWRITER_HTTP_API_TASK_TIMEOUT",
+            "CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS",
         ):
             with self.subTest(name=name):
                 with self.assertRaises(ConfigError):
