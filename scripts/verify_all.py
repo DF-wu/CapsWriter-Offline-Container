@@ -20,6 +20,54 @@ ROOT = Path(__file__).resolve().parents[1]
 WEB_ROOT = ROOT / "client" / "web"
 WEB_VERIFY_IMAGE = "capswriter-web-console:verify"
 WEB_VERIFY_CONTAINER = "capswriter-web-console-verify"
+REDACTED = "<redacted>"
+SENSITIVE_FLAGS = {"--key", "--http-key"}
+SENSITIVE_ENV_PREFIXES = (
+    "CAPSWRITER_HTTP_API_KEY=",
+    "CAPSWRITER_WEB_API_KEY=",
+)
+
+
+def redact_command_args(args: list[str]) -> list[str]:
+    redacted: list[str] = []
+    redact_next = False
+    for arg in args:
+        if redact_next:
+            redacted.append(REDACTED)
+            redact_next = False
+            continue
+        if arg in SENSITIVE_FLAGS:
+            redacted.append(arg)
+            redact_next = True
+            continue
+        matched_prefix = next(
+            (
+                prefix
+                for prefix in SENSITIVE_ENV_PREFIXES
+                if arg.startswith(prefix)
+            ),
+            None,
+        )
+        if matched_prefix is not None:
+            redacted.append(f"{matched_prefix}{REDACTED}")
+            continue
+        flag_with_value = next(
+            (
+                flag
+                for flag in SENSITIVE_FLAGS
+                if arg.startswith(f"{flag}=")
+            ),
+            None,
+        )
+        if flag_with_value is not None:
+            redacted.append(f"{flag_with_value}={REDACTED}")
+            continue
+        redacted.append(arg)
+    return redacted
+
+
+def format_command(args: list[str]) -> str:
+    return " ".join(redact_command_args(args))
 
 
 def run(
@@ -28,19 +76,22 @@ def run(
     cwd: Path = ROOT,
     env: dict[str, str] | None = None,
 ) -> int:
-    print(f"$ {' '.join(args)}", flush=True)
+    print(f"$ {format_command(args)}", flush=True)
     return subprocess.run(args, cwd=cwd, env=env, check=False).returncode
 
 
 def run_required(args: list[str], *, cwd: Path = ROOT) -> int:
     code = run(args, cwd=cwd)
     if code != 0:
-        print(f"Command failed with exit code {code}: {' '.join(args)}", file=sys.stderr)
+        print(
+            f"Command failed with exit code {code}: {format_command(args)}",
+            file=sys.stderr,
+        )
     return code
 
 
 def run_capture(args: list[str], *, cwd: Path = ROOT) -> tuple[int, str]:
-    print(f"$ {' '.join(args)}", flush=True)
+    print(f"$ {format_command(args)}", flush=True)
     completed = subprocess.run(
         args,
         cwd=cwd,
@@ -55,7 +106,8 @@ def run_capture(args: list[str], *, cwd: Path = ROOT) -> tuple[int, str]:
         print(completed.stderr, end="", file=sys.stderr)
     if completed.returncode != 0:
         print(
-            f"Command failed with exit code {completed.returncode}: {' '.join(args)}",
+            f"Command failed with exit code {completed.returncode}: "
+            f"{format_command(args)}",
             file=sys.stderr,
         )
     return completed.returncode, completed.stdout
@@ -112,6 +164,20 @@ def verify_docker_server_tests() -> int:
             "discover",
             "-s",
             "docker/server/tests",
+            "-v",
+        ]
+    )
+
+
+def verify_scripts_tests() -> int:
+    return run_required(
+        [
+            sys.executable,
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "scripts/tests",
             "-v",
         ]
     )
@@ -380,6 +446,7 @@ def main() -> int:
             verify_server_compile,
             verify_server_tests,
             verify_docker_server_tests,
+            verify_scripts_tests,
             (lambda: 0 if args.skip_web else verify_web(install=not args.no_web_install)),
             (
                 lambda: verify_web_browser_smoke(install=not args.no_web_install)
