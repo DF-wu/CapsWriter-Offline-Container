@@ -2,17 +2,29 @@ export function loadVoices(): Promise<SpeechSynthesisVoice[]> {
   if (!("speechSynthesis" in window)) {
     return Promise.resolve([]);
   }
-  const existing = window.speechSynthesis.getVoices();
+  const synth = window.speechSynthesis;
+  const existing = synth.getVoices();
   if (existing.length > 0) {
     return Promise.resolve(existing);
   }
   return new Promise((resolve) => {
-    const timeout = window.setTimeout(() => {
-      resolve(window.speechSynthesis.getVoices());
-    }, 500);
-    window.speechSynthesis.onvoiceschanged = () => {
+    const previousHandler = synth.onvoiceschanged;
+    let settled = false;
+    let timeout = 0;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
       window.clearTimeout(timeout);
-      resolve(window.speechSynthesis.getVoices());
+      synth.onvoiceschanged = previousHandler;
+      resolve(synth.getVoices());
+    };
+    timeout = window.setTimeout(finish, 500);
+    synth.onvoiceschanged = function onVoicesChanged(event: Event) {
+      try {
+        previousHandler?.call(synth, event);
+      } finally {
+        finish();
+      }
     };
   });
 }
