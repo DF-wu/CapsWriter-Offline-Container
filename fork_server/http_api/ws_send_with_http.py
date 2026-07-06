@@ -10,7 +10,7 @@ ws_send_with_http — 上游 ws_send 的 fork 版本
 上游 ws_send 若變更 (新欄位、新訊號處理…), 需 re-port 到此檔。
 請參考 docs/upstream-sync-guide.md §關鍵漂移點 章節。
 
-最後 re-port 自上游版本: origin/master @ 0362630
+最後 re-port 自上游版本: origin/master @ 7d7fac3 (upstream v2.6)
 """
 
 from __future__ import annotations
@@ -76,9 +76,9 @@ async def ws_send_with_http(app):
             await websocket.send(msg.to_json())
             logger.debug(f"發送識別結果，任務ID: {result.task_id}, 文本長度: {len(result.text)}")
 
-            if result.source == 'mic':
+            if result.type == 'mic':
                 logger.info(f"麥克風識別結果: {result.text}")
-            elif result.source == 'file':
+            elif result.type == 'file':
                 console.print(f'    轉錄進度：{result.duration:.2f}s', end='\r')
                 logger.debug(f"檔案轉錄進度: {result.duration:.2f}s")
                 if result.is_final:

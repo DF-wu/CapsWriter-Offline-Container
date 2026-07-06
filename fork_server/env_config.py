@@ -3,7 +3,7 @@
 env_config — 把環境變數套用到上游 config_server 的 class 屬性
 
 設計要點:
-1. 上游 config_server.py (v2.5) 是純 class-based config, 無 env 處理。
+1. 上游 config_server.py (v2.6) 是純 class-based config, 無 env 處理。
 2. 本檔在 bootstrap 階段執行, 必須在 `import core.server.*` 之前 (因為
    core/server/__init__.py 會在 import 時 setup_logger(level=Config.log_level))。
 3. setattr 出來的屬性如果在上游不存在 (例如 http_api_*), 視為純 fork 加值,

@@ -13,7 +13,7 @@
 | 易理解、易維護 | 每個 hook 點都是「子類化」或「module attribute 替換」，零侵入 |
 | 容器啟動可預測 | env 驅動的設定 + 自動模型下載 + GPU 偵測 + CPU fallback |
 
-## 2. 上游結構回顧（origin/master @ 0362630, v2.5）
+## 2. 上游結構回顧（origin/master @ 7d7fac3, upstream v2.6）
 
 ```
 core/
@@ -78,7 +78,7 @@ requirements-server-docker.txt          ← Linux GPU 版依賴
 start_server_docker.py                  ← Fork 入口 (與上游 start_server.py 並存)
 ```
 
-**修改的上游檔案：1 個**（`.gitignore`，加入 `.fork-archive-*/` 一行）。
+**修改的上游檔案：2 個**（`.gitignore`、`readme.md`）。
 
 ## 4. Hook 策略
 
@@ -182,4 +182,4 @@ ForkedCapsWriterServer().start()
 2. **第二選擇**：fork 內 monkey-patch（runtime 替換）
 3. **第三選擇**：直接修改上游檔。**這時要在該檔頂部加註解標記 fork-modified，並在 `upstream-sync-guide.md` 的「known divergent files」加一筆**
 
-目前 (2026-05-25) 為止：**第三類為 0**。
+目前 (2026-07-07) 為止：**第三類為 0**。
