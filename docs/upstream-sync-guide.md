@@ -7,16 +7,16 @@
 ```
 upstream (HaujetZhao/CapsWriter-Offline)
         │
-        │  fork modifies: 1 file (.gitignore)
-        │  fork adds:    fork_server/ docker/ docker-compose*.yml
-        │                .env.example .dockerignore start_server_docker.py
+        │  fork modifies: .gitignore, readme.md
+        │  fork adds:    fork_server/ docker/ client/cli/ client/web/
+        │                docs/ scripts/ docker-compose*.yml .env.example
         │                .github/workflows/ requirements-server-docker.txt
         │
         ▼
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 ```
 
-關鍵：fork 修改上游檔案數 = **1** (`.gitignore`)。其他都是新增檔，**不會與上游衝突**。
+關鍵：fork 修改上游檔案數 = **2**（`.gitignore`、`readme.md`）。其他主要功能都在新增路徑，正常情況不會與上游衝突。
 
 ## 2. 標準同步流程
 
@@ -39,13 +39,14 @@ git merge origin/master
 跑驗證：
 
 ```bash
-# 1. 確保 import 不壞
-python3 -c "import fork_server.bootstrap"
+# 1. Repo gate
+python scripts/verify_all.py
 
 # 2. Container 構建
 docker build -t capswriter-server:upstream-merge-test -f docker/server/Dockerfile .
 
-# 3. 隔離測試 (見 docs/state-of-fork.md §3)
+# 3. Web image smoke (optional but recommended after Web changes)
+python scripts/verify_all.py --skip-web --docker-build-web
 ```
 
 ### 2.2 高風險情境：upstream 改了 fork 接觸點
@@ -100,7 +101,7 @@ git log --oneline origin/master..HEAD -- core/server/connection/ws_send.py
 python3 -m py_compile $(find fork_server start_server_docker.py -name "*.py")
 python3 -c "from fork_server.bootstrap import apply_env_config, create_server"
 
-# (B) 上游檔修改數應為 1 (only .gitignore)
+# (B) 上游檔修改數應為 2 (.gitignore + readme.md)
 echo "Modified upstream files:"
 git diff origin/master..HEAD --name-only \
   | xargs -I {} sh -c 'git ls-tree origin/master --name-only -- {} 2>/dev/null | grep -q . && echo "  {}"' \
@@ -182,7 +183,12 @@ rm -rf /tmp/cw-merge-test
 
 ## 6. Image 重 build & 發布
 
-合入 master 後，[`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 會自動觸發 GHCR build。等 CI 綠燈後再通知使用者拉新 image。
+合入 master 後：
+
+- [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 發布 `capswriter-offline-server`
+- [`.github/workflows/publish-web-image.yml`](../.github/workflows/publish-web-image.yml) 發布 `capswriter-offline-web`
+
+等 CI / publish workflows 綠燈後，再通知使用者拉新 image。
 
 ## 7. 萬一被卡死的回滾
 

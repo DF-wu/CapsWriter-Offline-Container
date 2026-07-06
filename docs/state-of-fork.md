@@ -1,176 +1,143 @@
 # Fork 現況（State of Fork）
 
-> **更新時間**：2026-05-25（reset 後）
-> **基底**：origin/master @ `0362630` (upstream v2.5)
-> **工作分支**：`feat/reset-to-upstream`
+> **更新時間**：2026-07-07
+> **基底**：`origin/master` @ `7d7fac3`（upstream v2.6）
+> **工作分支**：`feature/universal-asr-client`
 
 ---
 
 ## 1. 一句話定位
 
-本 fork 是 [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline) 的 **Linux container 化貼皮**。fork 的全部價值集中在：(a) Linux/Docker 容器部署、(b) env 驅動配置、(c) OpenAI Whisper 相容 HTTP API。**ASR 識別引擎完全來自 upstream**。
+本 fork 在不改動 ASR 引擎核心的前提下，將 CapsWriter-Offline 做成可部署、可測、可發布的離線語音服務：
+
+| 面向 | 交付 |
+|---|---|
+| Server | Docker 化、env 驅動設定、GPU/CPU fallback、OpenAI Whisper-compatible HTTP API |
+| Client | 標準函式庫 no-GUI CLI、瀏覽器 Web Console、保留上游桌面 GUI |
+| Web | React/Vite STT/TTS 工作台、Nginx static image、runtime `/config.js` |
+| Verification | repo-level gate、CLI/server/Web unit tests、Docker smoke、可選 live STT |
+| Release | server/web GHCR publish workflows |
+| Docs | 架構、HTTP API、CLI、Web、Docker、驗證與上游同步文件，含 SVG 架構圖 |
+
+ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 ---
 
-## 2. 設計現況
+## 2. 分支設計現況
 
 | | |
 |---|---|
-| 上游檔案修改數 | **2**（`.gitignore` 加忽略規則，`readme.md` 完全重寫為 fork 視角；後者為設計選擇，接受偶發 merge 衝突） |
-| Fork 新增檔案 | `fork_server/`、`docker/`、`docker-compose*.yml`、`.env.example`、`requirements-server-docker.txt`、`start_server_docker.py`、`.github/workflows/publish-server-image.yml` |
-| Hook 策略 | 子類化 + 1 處 monkey-patch（`server_manager.ws_send`） |
-| 唯一漂移點 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 內嵌了上游 ws_send 邏輯複本 |
-| Safety tag | `fork-pre-reset-20260525-1411`（pre-reset 快照，已 push fork remote） |
+| 修改的 upstream 檔案 | **2**：`.gitignore`、`readme.md` |
+| Fork 新增主要目錄 | `fork_server/`、`docker/`、`client/cli/`、`client/web/`、`docs/`、`.github/workflows/` |
+| Hook 策略 | `ForkedCapsWriterServer` 子類化 + `server_manager.ws_send` 單點 monkey-patch |
+| 唯一高漂移點 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 內嵌 upstream `ws_send` loop，merge upstream 後需比對 |
+| 預設相容性 | 不設 `CAPSWRITER_HTTP_API_ENABLE=true` 時，server 啟動路徑保持接近 upstream WebSocket 模式 |
 
-詳細設計：[architecture.md](architecture.md)。對齊上游：[upstream-sync-guide.md](upstream-sync-guide.md)。
+詳細架構見 [architecture.md](architecture.md)。上游同步 SOP 見 [upstream-sync-guide.md](upstream-sync-guide.md)。
 
 ---
 
-## 3. 驗證紀錄（2026-05-25）
+## 3. 目前可用功能
 
-於 `/tmp/cw-reset-test/` 用獨立 compose project（name=`cwreset`、port 16016/16017）跑本地 build image + bind-mount 模型，**全程不影響** production container `capswriter-offline-capswriter-server-1`（port 6016，Up 3 weeks healthy 整個過程未中斷）。
+### 3.1 Server / HTTP API
 
-| 模式 | 結果 |
+- [`start_server_docker.py`](../start_server_docker.py) 在 import upstream server 前套用 [`fork_server/env_config.py`](../fork_server/env_config.py)。
+- [`fork_server/http_api/api.py`](../fork_server/http_api/api.py) 提供：
+  - `GET /health`
+  - `GET /v1/models`
+  - `POST /v1/audio/transcriptions`
+  - `POST /v1/audio/translations`（明確 501）
+- HTTP 上傳以 chunk 讀取並套用 `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB`，成功回應帶 `X-CapsWriter-Task-ID`。
+- `response_format` 支援 `json`、`text`、`verbose_json`、`srt`、`vtt`。
+
+### 3.2 Docker / 模型
+
+- [`docker/server/Dockerfile`](../docker/server/Dockerfile) 建 server image。
+- [`docker/server/download_models.py`](../docker/server/download_models.py) 依 `CAPSWRITER_MODEL_TYPE` 自動下載模型。
+- [`docker/server/entrypoint.sh`](../docker/server/entrypoint.sh) 做 GPU/CPU backend 選擇與 fallback。
+- [`docker-compose.yml`](../docker-compose.yml) 啟動 server；[`docker-compose.fun-asr.yml`](../docker-compose.fun-asr.yml) 切低延遲 Fun-ASR。
+
+### 3.3 No-GUI CLI
+
+- [`client/cli/capswriter_cli.py`](../client/cli/capswriter_cli.py) 無第三方 Python dependency。
+- 支援 `health`、`models`、`transcribe`、`speak`。
+- Linux TTS：`spd-say` / `espeak-ng` / `espeak`；Windows TTS：PowerShell `System.Speech`。
+- 測試使用 in-process mock HTTP server，不需要模型。
+
+### 3.4 Web Console
+
+- [`client/web`](../client/web/) 是 React/Vite app。
+- 支援錄音、上傳、播放、STT、五種輸出格式、歷史紀錄、下載、browser Web Speech TTS。
+- [`client/web/Dockerfile`](../client/web/Dockerfile) 產出 Nginx static image。
+- [`docker-compose.web.yml`](../docker-compose.web.yml) 提供 local build 部署。
+- runtime config 由 container 啟動時寫入 `/config.js`。
+
+### 3.5 CI / Release
+
+- [`scripts/verify_all.py`](../scripts/verify_all.py) 是 repo-level gate。
+- [`scripts/clean.py`](../scripts/clean.py) 清 Python/Web/Docker 驗證輸出。
+- [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) 跑 root gate。
+- [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 發 server image。
+- [`.github/workflows/publish-web-image.yml`](../.github/workflows/publish-web-image.yml) 發 Web Console image。
+
+---
+
+## 4. 已跑驗證
+
+本分支已跑過以下 gate，且執行後確認無 build/cache/Docker 殘留：
+
+| Gate | 結果 |
 |---|---|
-| qwen_asr container build | ✅ image ~5GB |
-| qwen_asr container start | ✅ healthcheck pass 47s |
-| qwen_asr WebSocket port listen | ✅ 6016/16016 各自 listen |
-| qwen_asr HTTP `/health` | ✅ 200 |
-| qwen_asr HTTP `/v1/models` | ✅ 200 |
-| qwen_asr HTTP `/v1/audio/transcriptions` × 5 format | ✅ json/text/srt/vtt/verbose_json 全 200 |
-| 順序重複請求 | ✅ 3 次連續 200，輸出一致，延遲穩定 ~4s |
-| 並發請求 | ✅ task_router 正確處理 |
-| 模型載入時 GPU 偵測 | ✅ 自動 fallback CPU（host 無 GPU 暴露給 docker） |
-| Production unaffected | ✅ port 6016 容器 throughout healthy |
+| `python scripts/verify_all.py --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 6 tests、server compile、HTTP limit 4 tests、Web 10 tests/build、Web Docker smoke、live `/health` |
+| `python scripts/verify_all.py --skip-web --http-base-url http://127.0.0.1:6017` | 通過：Python/CLI/server/live health 快速 gate |
+| `python scripts/verify_all.py --skip-web --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：Web image build + `/health` + `/config.js` smoke |
 
-### 2026-05-26 自動下載端到端驗證
+`check_http_api.py` 的 `--expect` 語法已編譯與 help 驗證；因目前 shell 沒有 live server 的 API key，未用該工具打 `/v1/models`。
 
-於空 models 目錄（`/tmp/cw-fresh-test/models/`）冷啟動，獨立 compose project `cwfresh`（port 16016/16017），**全程不影響 production 容器**：
-
-| 模型 | 流程 | 結果 |
-|---|---|---|
-| qwen_asr | 空目錄 → 自動下載 `Qwen3-ASR-1.7B-q5_k.zip` (1.95GB) + `llama-b7798 vulkan tar.gz` (38MB) → 解壓 → 模型載入 | ✅ ~90s 達 healthy; HTTP transcription 5.3s |
-| fun_asr_nano | 切 env `CAPSWRITER_MODEL_TYPE=fun_asr_nano` 重啟 → 自動下載 `Fun-ASR-Nano-GGUF.zip` (834MB) → 解壓 → 模型載入 | ✅ ~120s 達 healthy; HTTP transcription 2-3s |
-
-修正了一個 bug：`docker/server/download_models.py` 與 `probe_backend.py` 原本只讀 `ServerConfig.model_type` 的 class 預設值，**沒讀 env**。已改為獨立 `os.environ.get(...)` 讀取，與 `start_server_docker.py` 經 `fork_server.env_config` 套用的值對齊。
-
-**未跑的測試**：
-- 多 GPU 環境驗證：host 此次測試 GPU 已被 production 容器占用，CPU fallback 路徑已通
-
----
-
-## 4. 容器內目前可用功能
-
-### 4.1 啟動
+Release candidate 若要宣稱「模型轉錄品質已驗證」，需另外提供已知內容音檔並跑：
 
 ```bash
-# 預設：qwen_asr + WebSocket
-docker compose up -d capswriter-server
-
-# 切 fun_asr_nano（低延遲）
-docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml up -d
+python scripts/verify_all.py \
+  --http-base-url http://127.0.0.1:6017 \
+  --http-audio /path/to/known-speech.wav \
+  --http-expect "expected transcript text"
 ```
-
-### 4.2 OpenAI HTTP API
-
-預設關閉。設 `CAPSWRITER_HTTP_API_ENABLE=true` + 打開 port 映射即可。詳見 [HTTP_API.md](HTTP_API.md)。
-
-支援端點：
-| 端點 | 用途 |
-|---|---|
-| `POST /v1/audio/transcriptions` | OpenAI Whisper API；5 format |
-| `GET  /v1/models` | OpenAI SDK introspection |
-| `GET  /health` | Liveness |
-| `POST /v1/audio/translations` | 明確 501（本地模型不翻譯） |
-
-### 4.3 env 驅動的關鍵變數
-
-| 變數 | 預設 | |
-|---|---|---|
-| `CAPSWRITER_MODEL_TYPE` | `qwen_asr` | `fun_asr_nano`（**這兩個是本 fork 容器化路徑正式支援的全部**） |
-| `CAPSWRITER_QWEN_PRESET` | `default` | `low_vram_gpu` / `cpu_only` |
-| `CAPSWRITER_INFERENCE_HARDWARE` | `auto` | `gpu` / `cpu` |
-| `CAPSWRITER_HTTP_API_ENABLE` | `false` | `true` 開 HTTP |
-| 其他 | 見 [`.env.example`](../.env.example) | 含 CUDA / Vulkan / iGPU 補丁 |
 
 ---
 
-## 5. 已知未決事項
+## 5. 已知限制
 
-### 5.1 GHCR `:latest` 尚未含本次 reset 的程式碼
-GHCR 上的 `:latest` 是 reset 前的 fork。push 後 [`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 會自動 build；CI 綠燈後使用者可 `docker compose pull && up -d --force-recreate` 升級。
-
-### 5.2 Production port 6016 容器
-仍跑舊 image。**reset 不影響它**。要 migrate 自行：
-
-```bash
-docker compose pull capswriter-server
-docker compose up -d --force-recreate capswriter-server
-```
-
-### 5.3 Force aligner 模型未自動下載
-上游 v2.5 引入 `force_aligner_gguf` 引擎用於字級時間戳。本次 fork 的 [`docker/server/download_models.py`](../docker/server/download_models.py) 只下載 qwen / fun-asr 主模型，未含 aligner（`models/Qwen3-ForcedAligner/Qwen3-ForcedAligner-0.6B/`）。
-
-影響：HTTP API 的 `verbose_json` 仍能提供字級 timestamp（recognizer 內建估算），只是精度可能略低於專屬 aligner。`aligner_idle_timeout=10` 在 [`config_server.py`](../config_server.py) 已預設啟用 idle 卸載，缺 aligner 時 `EngineFactory.create_align_engine()` 自動 fallback 到 no-op，無錯誤。
+| 限制 | 狀態 / 處理 |
+|---|---|
+| CI 不下載模型 | 預期設計；CI 驗證協議、格式、build、Docker smoke。模型品質由 `--http-audio` release gate 補足 |
+| Browser TTS 可用性依賴瀏覽器 / OS voice | Web Console 文件已標明；不走雲端 TTS |
+| `prompt` 目前未注入 ASR backend context | HTTP API 文件列為相容占位；hotword 引導仍建議走既有 hotword 機制 |
+| `ws_send_with_http.py` 需人工追 upstream | upstream merge checklist 已列入 |
+| 公開 image 需 merge 到 master 後由 workflow 發布 | feature branch 只提供 workflow 與 local Docker smoke |
 
 ---
 
 ## 6. 檔案地圖
 
-### Fork 加值（上游無此目錄/檔）
-
-- [`fork_server/`](../fork_server/) — Sidecar 套件
-  - `bootstrap.py` — `ForkedCapsWriterServer.start()`
-  - `env_config.py` — env → ServerConfig
-  - `http_api/` — OpenAI Whisper API
-- [`docker/`](../docker/) — 容器構建
-- [`docker-compose.yml`](../docker-compose.yml)、[`docker-compose.fun-asr.yml`](../docker-compose.fun-asr.yml)
-- [`.env.example`](../.env.example)、[`requirements-server-docker.txt`](../requirements-server-docker.txt)
-- [`start_server_docker.py`](../start_server_docker.py) — Fork 入口
-- [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml)
-
-### 重寫但與上游同名（接受偶發 merge 衝突）
-
-- [`readme.md`](../readme.md) — fork 視角
-
-### 修改的上游檔（**2 個**）
-
-- [`.gitignore`](../.gitignore) — 加 `.fork-archive-*/` / `models/.downloads/` / `benchmarks/` 排除
-- [`readme.md`](../readme.md) — 完全重寫為 fork 視角（用戶於 reset 計畫階段明確同意此選擇）
-
-### 文件
-
-- [`readme.md`](../readme.md) — fork 首頁
-- [`docs/architecture.md`](architecture.md) — Sidecar 設計
-- [`docs/upstream-sync-guide.md`](upstream-sync-guide.md) — Merge SOP
-- [`docs/HTTP_API.md`](HTTP_API.md) — OpenAI API 規格
-- [`docs/docker-server.md`](docker-server.md) — Container 部署細節
-- [`docs/state-of-fork.md`](state-of-fork.md) — 本檔
+| 路徑 | 用途 |
+|---|---|
+| [`fork_server/`](../fork_server/) | Server sidecar、HTTP API、env config、upstream hook |
+| [`docker/`](../docker/) | Server image、entrypoint、模型下載、backend probe |
+| [`client/cli/`](../client/cli/) | no-GUI Python CLI 與 tests |
+| [`client/web/`](../client/web/) | React/Vite Web Console、mock API、Docker/Nginx deployment |
+| [`docs/assets/`](assets/) | 架構與驗證 SVG |
+| [`scripts/`](../scripts/) | root verify/clean automation |
+| [`.github/workflows/`](../.github/workflows/) | CI 與 GHCR publish workflows |
+| [`docker-compose*.yml`](../docker-compose.yml) | server、Fun-ASR、Web deployment entry points |
 
 ---
 
-## 7. 對話歷史的廢棄部分
+## 7. 回滾與追溯
 
-reset 之前的 session 紀錄出現過、但 reset 後**不再代表方向**：
-
-- ~~`util/server/*` 模組路徑~~ — reset 後全部移到 `fork_server/http_api/`
-- ~~Cosmic 全域單例~~ — 改用 `state` 注入（上游 v2.5 設計）
-- ~~`core_server.py` cotask 啟動~~ — 改在 `ForkedCapsWriterServer.start()` 用 `asyncio.gather`
-- ~~`server_ws_send.py` 修改~~ — 改 monkey-patch `server_manager.ws_send`，上游檔不動
-- ~~`balanced` / `quality` preset~~ — 已正式淘汰，剩 `default` / `low_vram_gpu` / `cpu_only`
-
----
-
-## 8. 回滾保險
+本分支每個功能切片都有 commit：
 
 ```bash
-# 列出 safety tags
-git tag | grep fork-pre-
-
-# 緊急回滾到 reset 前狀態
-git checkout fork-pre-reset-20260525-1411
-# 或
-git reset --hard fork-pre-reset-20260525-1411
+git log --oneline origin/master..feature/universal-asr-client
 ```
 
-Pre-reset 狀態詳細快照保存在工作樹的 `.fork-archive-2026-05-25/`（27 個關鍵檔），未追蹤但保留在 disk 上作為次要保險。
+回滾單一切片優先使用 `git revert <commit>`。不要用 `git reset --hard` 清工作樹，除非已明確決定丟棄整個分支狀態。
