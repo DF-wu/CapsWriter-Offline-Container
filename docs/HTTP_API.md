@@ -182,6 +182,16 @@ curl -X POST https://your-host:6017/v1/audio/transcriptions \
   -F response_format=verbose_json
 ```
 
+模型已載入後，可用診斷工具同時檢查 health、models 與三種轉錄格式。若有已知內容的測試音訊，加入 `--expect` 讓檢查失敗於錯誤轉錄：
+
+```bash
+python check_http_api.py \
+  --host 127.0.0.1 \
+  --port 6017 \
+  --audio /path/to/known-speech.wav \
+  --expect "expected transcript text"
+```
+
 ### 3.3 Node / TypeScript
 
 ```ts

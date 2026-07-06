@@ -18,7 +18,7 @@ The command runs:
 | Server | `python -m compileall fork_server check_http_api.py start_server_docker.py` + HTTP unit tests | HTTP sidecar, Docker entrypoint, diagnostic script syntax, dependency-light request limit tests |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, TypeScript, production build, web clean script |
 | Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
-| Optional live HTTP | `client/cli/capswriter_cli.py health` | Real server health when configured |
+| Optional live HTTP | `client/cli/capswriter_cli.py health` + optional known-audio transcription | Real server health and model-backed STT when configured |
 | Cleanup | `python scripts/clean.py` | Removes build/cache/pycache artifacts |
 
 The web dependency install is scoped to `client/web/node_modules`. Nothing is installed globally.
@@ -43,6 +43,17 @@ Add a live server health check:
 python scripts/verify_all.py --http-base-url http://127.0.0.1:6017
 ```
 
+Add a model-backed transcription smoke check with a known audio sample:
+
+```bash
+python scripts/verify_all.py \
+  --http-base-url http://127.0.0.1:6017 \
+  --http-audio /path/to/known-speech.wav \
+  --http-expect "expected transcript text"
+```
+
+If `--http-expect` is omitted, the gate only requires a non-empty transcript. Keep release-candidate sample audio outside Git unless it is small, redistributable, and intentionally part of the repository.
+
 Build the Web Console production image as part of the gate:
 
 ```bash
@@ -63,6 +74,8 @@ Environment alternative:
 
 ```bash
 CAPSWRITER_VERIFY_HTTP_BASE=http://127.0.0.1:6017 \
+CAPSWRITER_VERIFY_HTTP_AUDIO=/path/to/known-speech.wav \
+CAPSWRITER_VERIFY_HTTP_EXPECT="expected transcript text" \
 CAPSWRITER_HTTP_API_KEY=sk-local-dev \
 python scripts/verify_all.py
 ```
@@ -107,6 +120,7 @@ For a release candidate, keep these artifacts or logs:
 | Web Console build valid | `npm run verify` logs from inside the root gate |
 | CLI valid | `client/cli/scripts/verify.py` logs from inside the root gate |
 | Real HTTP server reachable | `--http-base-url` gate output or `check_http_api.py` output |
+| Model-backed STT sample works | `--http-audio` + `--http-expect` gate output or `check_http_api.py --audio ... --expect ...` |
 | No generated trash committed | `git status --short` plus cleanup scan |
 
-Real STT quality still requires a model-backed test audio set. The current automated gate proves protocol behavior, formatting, buildability, and CLI/Web integration paths without requiring model downloads in CI.
+Default CI does not download models or commit binary audio fixtures. Use `--http-audio` for release-candidate evidence when a real server and known sample are available.

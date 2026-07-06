@@ -39,6 +39,28 @@ def run_required(args: list[str], *, cwd: Path = ROOT) -> int:
     return code
 
 
+def run_capture(args: list[str], *, cwd: Path = ROOT) -> tuple[int, str]:
+    print(f"$ {' '.join(args)}", flush=True)
+    completed = subprocess.run(
+        args,
+        cwd=cwd,
+        check=False,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if completed.stdout:
+        print(completed.stdout, end="")
+    if completed.stderr:
+        print(completed.stderr, end="", file=sys.stderr)
+    if completed.returncode != 0:
+        print(
+            f"Command failed with exit code {completed.returncode}: {' '.join(args)}",
+            file=sys.stderr,
+        )
+    return completed.returncode, completed.stdout
+
+
 def run_cleanup(args: list[str], *, cwd: Path = ROOT) -> int:
     return subprocess.run(
         args,
@@ -103,10 +125,68 @@ def verify_web(*, install: bool) -> int:
     return run_required(["npm", "run", "verify"], cwd=WEB_ROOT)
 
 
-def verify_http(base_url: str, api_key: str) -> int:
+def _compact_for_match(value: str) -> str:
+    return "".join(value.split()).casefold()
+
+
+def verify_http_transcription(
+    base_url: str,
+    api_key: str,
+    audio_path: str,
+    expected_text: str,
+) -> int:
+    if not audio_path:
+        return 0
+    if not base_url:
+        print("--http-audio requires --http-base-url", file=sys.stderr)
+        return 1
+    audio = Path(audio_path)
+    if not audio.exists():
+        print(f"HTTP transcription sample not found: {audio}", file=sys.stderr)
+        return 1
+    args = [
+        sys.executable,
+        "client/cli/capswriter_cli.py",
+        "transcribe",
+        "--base-url",
+        base_url,
+        "--timeout",
+        "300",
+        "--format",
+        "text",
+    ]
+    if api_key:
+        args.extend(["--key", api_key])
+    args.append(str(audio))
+    code, stdout = run_capture(args)
+    if code != 0:
+        return code
+
+    transcript = stdout.strip()
+    if not transcript:
+        print("HTTP transcription returned empty text", file=sys.stderr)
+        return 1
+    if expected_text and _compact_for_match(expected_text) not in _compact_for_match(
+        transcript
+    ):
+        print(
+            "HTTP transcription did not contain expected text: "
+            f"{expected_text!r}",
+            file=sys.stderr,
+        )
+        return 1
+    return 0
+
+
+def verify_http(
+    base_url: str,
+    api_key: str,
+    audio_path: str,
+    expected_text: str,
+) -> int:
     if not base_url:
         print("HTTP live check skipped (set --http-base-url or CAPSWRITER_VERIFY_HTTP_BASE)")
-        return 0
+        return verify_http_transcription(base_url, api_key, audio_path, expected_text)
     args = [
         sys.executable,
         "client/cli/capswriter_cli.py",
@@ -118,7 +198,10 @@ def verify_http(base_url: str, api_key: str) -> int:
     ]
     if api_key:
         args.extend(["--key", api_key])
-    return run_required(args)
+    code = run_required(args)
+    if code != 0:
+        return code
+    return verify_http_transcription(base_url, api_key, audio_path, expected_text)
 
 
 def verify_web_docker() -> int:
@@ -219,6 +302,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional live HTTP API Bearer token",
     )
     parser.add_argument(
+        "--http-audio",
+        default=os.environ.get("CAPSWRITER_VERIFY_HTTP_AUDIO", ""),
+        help="Optional known audio file for a live transcription smoke test",
+    )
+    parser.add_argument(
+        "--http-expect",
+        default=os.environ.get("CAPSWRITER_VERIFY_HTTP_EXPECT", ""),
+        help="Optional text expected in --http-audio transcription output",
+    )
+    parser.add_argument(
         "--docker-build-web",
         action="store_true",
         help="Also build the Web Console production Docker image",
@@ -238,7 +331,14 @@ def main() -> int:
             verify_server_tests,
             (lambda: 0 if args.skip_web else verify_web(install=not args.no_web_install)),
             (lambda: verify_web_docker() if args.docker_build_web else 0),
-            (lambda: verify_http(args.http_base_url, args.http_key)),
+            (
+                lambda: verify_http(
+                    args.http_base_url,
+                    args.http_key,
+                    args.http_audio,
+                    args.http_expect,
+                )
+            ),
         ]:
             status = step()
             if status != 0:

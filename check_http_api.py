@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """CapsWriter HTTP API 诊断工具 — 检查 OpenAI 相容 API 是否正常运作。
 
-用法: python check_http_api.py [--host 127.0.0.1] [--port 6017] [--audio test.wav] [--key sk-xxx]
+用法: python check_http_api.py [--host 127.0.0.1] [--port 6017]
+                            [--audio test.wav] [--expect 你好] [--key sk-xxx]
 """
 
 import os, sys, json, shutil, argparse, urllib.request, urllib.error
@@ -24,6 +25,10 @@ def yellow(s):
 
 def bold(s):
     return f"\033[1m{s}\033[0m"
+
+
+def compact_for_match(s):
+    return "".join(s.split()).casefold()
 
 
 def check(label):
@@ -87,6 +92,7 @@ def main():
     p.add_argument("--host", default=DEFAULT_HOST)
     p.add_argument("--port", type=int, default=DEFAULT_PORT)
     p.add_argument("--audio", help="测试用音频文件 (wav/mp3)")
+    p.add_argument("--expect", help="转录结果中应包含的文字；未设置时只检查非空")
     p.add_argument(
         "--key",
         default=os.environ.get("CAPSWRITER_HTTP_API_KEY", ""),
@@ -160,6 +166,12 @@ def main():
                     base, "/v1/audio/transcriptions", args.audio, fmt, api_key
                 )
                 text = result.get("text") or result.get("_raw_text", "")
+                if args.expect and compact_for_match(args.expect) not in compact_for_match(
+                    text
+                ):
+                    fail(f"未包含预期文字: {args.expect}")
+                    errors += 1
+                    continue
                 has_chinese = any("\u4e00" <= c <= "\u9fff" for c in text)
                 if has_chinese:
                     ok(f"中文 ✓ ({len(text)}字) — {text[:50]}…")
