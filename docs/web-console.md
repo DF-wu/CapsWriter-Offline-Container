@@ -65,6 +65,15 @@ npm run mock-api
 
 Mock API 會在 `http://127.0.0.1:6017` 提供 `/health`、`/v1/models`、`/v1/audio/transcriptions`。它只回傳固定文字，用來測 UI、CORS、multipart upload、格式解析與匯出；真實 STT 驗證仍需使用 CapsWriter server。
 
+Real-browser smoke test:
+
+```bash
+cd client/web
+npm run browser-smoke
+```
+
+This starts a temporary mock API and Vite server on free local ports, opens the app with `agent-browser`, sets the API root, checks health, uploads a generated WAV, runs transcription, and asserts the transcript textarea. It does not need a model server.
+
 ## Production build
 
 ```bash
@@ -163,6 +172,7 @@ npm run clean
 |---|---|---|
 | 依賴安全 | `npm install` | `found 0 vulnerabilities` |
 | 單元測試 | `npm run test` | API parsing 與 App render 測試通過 |
+| Browser smoke | `npm run browser-smoke` | 真實瀏覽器完成 health、upload、transcribe workflow |
 | Production build | `npm run build` | Vite 輸出 `dist` |
 | 清理 | `npm run clean` | build/cache/test artifacts 被移除 |
 | Server 語法 | `python -m compileall fork_server check_http_api.py start_server_docker.py` | 無 syntax error |

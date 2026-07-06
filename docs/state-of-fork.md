@@ -69,6 +69,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 - [`client/web`](../client/web/) 是 React/Vite app。
 - 支援錄音、上傳、播放、STT、五種輸出格式、歷史紀錄、下載、browser Web Speech TTS。
+- `npm run browser-smoke` 以 `agent-browser` 驗證真實瀏覽器 health、upload、transcribe workflow。
 - [`client/web/Dockerfile`](../client/web/Dockerfile) 產出 Nginx static image。
 - [`docker-compose.web.yml`](../docker-compose.web.yml) 提供 local build 部署。
 - runtime config 由 container 啟動時寫入 `/config.js`。

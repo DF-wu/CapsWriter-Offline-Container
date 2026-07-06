@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
+    "browser-smoke": "node scripts/browser-smoke.mjs",
     "clean": "node scripts/clean.mjs",
     "mock-api": "node scripts/mock-api.mjs",
     "preview": "vite preview --host 127.0.0.1",

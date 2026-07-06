@@ -125,6 +125,13 @@ def verify_web(*, install: bool) -> int:
     return run_required(["npm", "run", "verify"], cwd=WEB_ROOT)
 
 
+def verify_web_browser_smoke(*, install: bool) -> int:
+    code = ensure_web_deps(install=install)
+    if code != 0:
+        return code
+    return run_required(["npm", "run", "browser-smoke"], cwd=WEB_ROOT)
+
+
 def _compact_for_match(value: str) -> str:
     return "".join(value.split()).casefold()
 
@@ -316,6 +323,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Also build the Web Console production Docker image",
     )
+    parser.add_argument(
+        "--web-browser-smoke",
+        action="store_true",
+        help="Also run a real-browser Web Console smoke test with the mock API",
+    )
     return parser
 
 
@@ -330,6 +342,11 @@ def main() -> int:
             verify_server_compile,
             verify_server_tests,
             (lambda: 0 if args.skip_web else verify_web(install=not args.no_web_install)),
+            (
+                lambda: verify_web_browser_smoke(install=not args.no_web_install)
+                if args.web_browser_smoke
+                else 0
+            ),
             (lambda: verify_web_docker() if args.docker_build_web else 0),
             (
                 lambda: verify_http(

@@ -191,6 +191,7 @@ npm run dev
 ```
 
 See [docs/web-console.md](docs/web-console.md) for the browser STT/TTS workflow, CORS setup, verification commands, and cleanup policy.
+Run `npm run browser-smoke` in `client/web` for a real-browser mock API workflow check.
 
 Production static container:
 

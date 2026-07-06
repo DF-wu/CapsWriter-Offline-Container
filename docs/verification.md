@@ -17,6 +17,7 @@ The command runs:
 | CLI | `python client/cli/scripts/verify.py` | CLI syntax, multipart upload, mock HTTP transcription, output files, Linux/Windows TTS command selection, zipapp packaging |
 | Server | `python -m compileall fork_server check_http_api.py start_server_docker.py` + HTTP unit tests | HTTP sidecar, Docker entrypoint, diagnostic script syntax, dependency-light request limit and runtime config tests |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, TypeScript, production build, web clean script |
+| Optional Web browser smoke | temporary mock API + Vite + `agent-browser` | Real browser can check server health, upload audio, and transcribe through the UI |
 | Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
 | Optional live HTTP | `client/cli/capswriter_cli.py health` + optional known-audio transcription | Real server health and model-backed STT when configured |
 | Cleanup | `python scripts/clean.py` | Removes build/cache/pycache artifacts |
@@ -61,6 +62,14 @@ python scripts/verify_all.py --docker-build-web
 ```
 
 This uses the temporary image tag `capswriter-web-console:verify`, starts a temporary container named `capswriter-web-console-verify`, checks `/health` and `/config.js`, then removes both during cleanup.
+
+Run the browser-level Web Console smoke:
+
+```bash
+python scripts/verify_all.py --web-browser-smoke
+```
+
+This requires `npx agent-browser` to be available. It starts temporary local services on free ports and removes browser/test artifacts through the normal cleanup path.
 
 With auth:
 
@@ -119,6 +128,7 @@ For a release candidate, keep these artifacts or logs:
 | Upstream merged | Git merge commit in branch history |
 | Server syntax and HTTP sidecar valid | `python scripts/verify_all.py` logs |
 | Web Console build valid | `npm run verify` logs from inside the root gate |
+| Web Console browser workflow valid | `--web-browser-smoke` gate output |
 | CLI valid | `client/cli/scripts/verify.py` logs from inside the root gate |
 | Real HTTP server reachable | `--http-base-url` gate output or `check_http_api.py` output |
 | Model-backed STT sample works | `--http-audio` + `--http-expect` gate output or `check_http_api.py --audio ... --expect ...` |
