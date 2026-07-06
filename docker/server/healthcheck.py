@@ -8,6 +8,17 @@ from http.client import HTTPConnection, HTTPException
 TRUE_VALUES = {"1", "true", "yes", "on"}
 
 
+def env_port(name: str, default: int) -> int | None:
+    raw = os.getenv(name, str(default)).strip()
+    try:
+        port = int(raw)
+    except ValueError:
+        return None
+    if port < 1 or port > 65535:
+        return None
+    return port
+
+
 def normalize_loopback_host(host: str) -> str:
     if host in ("", "0.0.0.0", "::", "[::]"):
         return "127.0.0.1"
@@ -27,7 +38,9 @@ def check_websocket_port() -> bool:
     送出合法 HTTP request 之後 server 走正常 reject 路徑, 不寫 traceback。
     """
     host = normalize_loopback_host(os.getenv("CAPSWRITER_SERVER_ADDR", "127.0.0.1"))
-    port = int(os.getenv("CAPSWRITER_SERVER_PORT", "6016"))
+    port = env_port("CAPSWRITER_SERVER_PORT", 6016)
+    if port is None:
+        return False
 
     request = (
         "GET / HTTP/1.1\r\n"
@@ -52,7 +65,9 @@ def check_websocket_port() -> bool:
 
 def check_http_readiness() -> bool:
     host = normalize_loopback_host(os.getenv("CAPSWRITER_HTTP_API_BIND", "127.0.0.1"))
-    port = int(os.getenv("CAPSWRITER_HTTP_API_PORT", "6017"))
+    port = env_port("CAPSWRITER_HTTP_API_PORT", 6017)
+    if port is None:
+        return False
     conn = HTTPConnection(host, port, timeout=3)
     try:
         conn.request("GET", "/ready", headers={"User-Agent": "capswriter-healthcheck"})

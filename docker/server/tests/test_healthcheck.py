@@ -60,6 +60,22 @@ class HealthcheckTest(unittest.TestCase):
         with patch.dict(os.environ, {"X_FLAG": "false"}):
             self.assertFalse(healthcheck.env_enabled("X_FLAG"))
 
+    def test_env_port_rejects_invalid_values(self) -> None:
+        for value in ("", "abc", "0", "65536"):
+            with (
+                self.subTest(value=value),
+                patch.dict(os.environ, {"X_PORT": value}),
+            ):
+                self.assertIsNone(healthcheck.env_port("X_PORT", 1234))
+        with patch.dict(os.environ, {"X_PORT": "6017"}):
+            self.assertEqual(healthcheck.env_port("X_PORT", 1234), 6017)
+
+    def test_websocket_check_rejects_invalid_port_without_socket(self) -> None:
+        with patch.dict(os.environ, {"CAPSWRITER_SERVER_PORT": "not-a-port"}):
+            with patch.object(healthcheck.socket, "socket") as socket_factory:
+                self.assertFalse(healthcheck.check_websocket_port())
+        socket_factory.assert_not_called()
+
     def test_http_readiness_accepts_ok_payload(self) -> None:
         server = self._serve(ReadyHandler)
         with patch.dict(
@@ -116,6 +132,12 @@ class HealthcheckTest(unittest.TestCase):
 
         with patch.object(healthcheck, "HTTPConnection", BrokenConnection):
             self.assertFalse(healthcheck.check_http_readiness())
+
+    def test_http_readiness_rejects_invalid_port_without_request(self) -> None:
+        with patch.dict(os.environ, {"CAPSWRITER_HTTP_API_PORT": "not-a-port"}):
+            with patch.object(healthcheck, "HTTPConnection") as connection:
+                self.assertFalse(healthcheck.check_http_readiness())
+        connection.assert_not_called()
 
 
 if __name__ == "__main__":
