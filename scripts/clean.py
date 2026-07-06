@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 import sys
@@ -12,6 +13,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB_ROOT = ROOT / "client" / "web"
+PRESERVED_DIRS = {
+    ROOT / ".git",
+    ROOT / "client" / "web" / "node_modules",
+    ROOT / "models",
+}
 
 
 def remove_tree(path: Path) -> None:
@@ -38,13 +44,49 @@ def run_web_clean() -> None:
     )
 
 
+def _is_relative_to(path: Path, parent: Path) -> bool:
+    try:
+        path.relative_to(parent)
+    except ValueError:
+        return False
+    return True
+
+
+def should_prune(path: Path, preserved_dirs: set[Path] | None = None) -> bool:
+    preserved = preserved_dirs or PRESERVED_DIRS
+    resolved = path.resolve()
+    return any(_is_relative_to(resolved, item.resolve()) for item in preserved)
+
+
+def iter_python_cache_artifacts(
+    root: Path = ROOT,
+    preserved_dirs: set[Path] | None = None,
+):
+    for current_str, dirs, files in os.walk(root):
+        current = Path(current_str)
+        next_dirs: list[str] = []
+        for name in dirs:
+            path = current / name
+            if should_prune(path, preserved_dirs):
+                continue
+            if name == "__pycache__":
+                yield path
+                continue
+            next_dirs.append(name)
+        dirs[:] = next_dirs
+        for name in files:
+            if name.endswith(".pyc"):
+                yield current / name
+
+
 def main() -> int:
     run_web_clean()
 
-    for path in ROOT.rglob("__pycache__"):
-        remove_tree(path)
-    for path in ROOT.rglob("*.pyc"):
-        remove_file(path)
+    for path in iter_python_cache_artifacts():
+        if path.name == "__pycache__":
+            remove_tree(path)
+        else:
+            remove_file(path)
 
     for relative in [
         ".pytest_cache",
