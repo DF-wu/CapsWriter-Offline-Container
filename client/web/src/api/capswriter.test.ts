@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { fetchReadiness, normalizeApiRoot, parseTranscriptionResponse } from "./capswriter";
+import {
+  apiErrorMessage,
+  fetchReadiness,
+  normalizeApiRoot,
+  parseTranscriptionResponse,
+  transcribeAudio,
+} from "./capswriter";
 import type { ApiSettings } from "../types";
 
 const settings: ApiSettings = {
@@ -66,6 +72,27 @@ describe("parseTranscriptionResponse", () => {
   });
 });
 
+describe("apiErrorMessage", () => {
+  it("extracts OpenAI-style error messages", () => {
+    expect(
+      apiErrorMessage(
+        JSON.stringify({
+          error: {
+            message: "Invalid API key",
+            type: "authentication_error",
+            param: null,
+            code: null,
+          },
+        }),
+      ),
+    ).toBe("Invalid API key");
+  });
+
+  it("falls back to FastAPI detail payloads", () => {
+    expect(apiErrorMessage(JSON.stringify({ detail: "Not Found" }))).toBe("Not Found");
+  });
+});
+
 describe("fetchReadiness", () => {
   it("returns degraded readiness diagnostics from HTTP 503", async () => {
     const payload = {
@@ -100,5 +127,30 @@ describe("fetchReadiness", () => {
     );
 
     await expect(fetchReadiness(settings)).rejects.toThrow("HTTP 404");
+  });
+});
+
+describe("transcribeAudio", () => {
+  it("throws concise OpenAI-style server error messages", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            error: {
+              message: "File too large (>100 MB)",
+              type: "invalid_request_error",
+              param: null,
+              code: null,
+            },
+          }),
+          { status: 413 },
+        ),
+      ),
+    );
+
+    await expect(
+      transcribeAudio(new Blob(["RIFF"]), "sample.wav", settings),
+    ).rejects.toThrow("HTTP 413: File too large (>100 MB)");
   });
 });

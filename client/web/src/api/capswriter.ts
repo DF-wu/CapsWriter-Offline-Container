@@ -22,11 +22,32 @@ function requestHeaders(settings: Pick<ApiSettings, "apiKey">): HeadersInit {
     : {};
 }
 
+export function apiErrorMessage(body: string): string {
+  const text = body.trim();
+  if (!text) return "";
+  try {
+    const payload = JSON.parse(text) as unknown;
+    if (payload && typeof payload === "object") {
+      const record = payload as Record<string, unknown>;
+      const errorPayload = record.error;
+      if (errorPayload && typeof errorPayload === "object") {
+        const message = (errorPayload as Record<string, unknown>).message;
+        if (message) return String(message);
+      }
+      if (record.detail) return String(record.detail);
+    }
+  } catch {
+    return text;
+  }
+  return text;
+}
+
 async function checkedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const response = await fetch(input, init);
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
-    throw new Error(`HTTP ${response.status}${detail ? `: ${detail}` : ""}`);
+    const message = apiErrorMessage(detail);
+    throw new Error(`HTTP ${response.status}${message ? `: ${message}` : ""}`);
   }
   return response;
 }
@@ -48,7 +69,8 @@ export async function fetchReadiness(settings: ApiSettings): Promise<ReadinessRe
   if (response.ok || response.status === 503) {
     return JSON.parse(body) as ReadinessResponse;
   }
-  throw new Error(`HTTP ${response.status}${body ? `: ${body}` : ""}`);
+  const message = apiErrorMessage(body);
+  throw new Error(`HTTP ${response.status}${message ? `: ${message}` : ""}`);
 }
 
 export async function fetchModels(settings: ApiSettings): Promise<ModelListResponse> {

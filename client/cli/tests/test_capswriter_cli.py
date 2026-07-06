@@ -90,6 +90,24 @@ class MockCapsWriterHandler(BaseHTTPRequestHandler):
         self._json(200, {"text": "mock cli transcript"})
 
 
+class ErrorCapsWriterHandler(MockCapsWriterHandler):
+    def do_POST(self):
+        if self.path == "/v1/audio/transcriptions":
+            self._json(
+                401,
+                {
+                    "error": {
+                        "message": "Invalid API key",
+                        "type": "authentication_error",
+                        "param": None,
+                        "code": None,
+                    }
+                },
+            )
+            return
+        super().do_POST()
+
+
 class CapsWriterCliTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -211,6 +229,35 @@ class CapsWriterCliTest(unittest.TestCase):
         payload = json.loads(stdout.getvalue())
         self.assertEqual(payload["status"], "degraded")
         self.assertFalse(payload["checks"]["task_router_bound"])
+
+    def test_transcribe_file_raises_api_error_with_openai_message(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), ErrorCapsWriterHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            config = cli.ApiConfig(
+                base_url=f"http://127.0.0.1:{server.server_port}",
+                timeout=5,
+            )
+            with tempfile.TemporaryDirectory() as tmp:
+                audio = Path(tmp) / "sample.wav"
+                audio.write_bytes(b"RIFF")
+                with self.assertRaises(cli.ApiError) as ctx:
+                    cli.transcribe_file(config, audio, response_format="text")
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+        self.assertEqual(ctx.exception.status, 401)
+        self.assertEqual(ctx.exception.message, "Invalid API key")
+        self.assertEqual(str(ctx.exception), "HTTP 401: Invalid API key")
+
+    def test_error_message_from_body_accepts_legacy_detail_payload(self):
+        self.assertEqual(
+            cli.error_message_from_body(b'{"detail":"Not Found"}'),
+            "Not Found",
+        )
 
     def test_tts_command_selection_linux(self):
         command = cli.select_tts_command(

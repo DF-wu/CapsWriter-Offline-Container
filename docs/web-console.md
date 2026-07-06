@@ -171,7 +171,7 @@ npm run clean
 | 項目 | 命令或動作 | 預期 |
 |---|---|---|
 | 依賴安全 | `npm install` | `found 0 vulnerabilities` |
-| 單元測試 | `npm run test` | API parsing、readiness diagnostics 與 App render 測試通過 |
+| 單元測試 | `npm run test` | API parsing、OpenAI-style error parsing、readiness diagnostics 與 App render 測試通過 |
 | Browser smoke | `npm run browser-smoke` | 真實瀏覽器完成 health/readiness、upload、transcribe workflow |
 | Production build | `npm run build` | Vite 輸出 `dist` |
 | 清理 | `npm run clean` | build/cache/test artifacts 被移除 |
@@ -183,6 +183,7 @@ npm run clean
 
 - Web Console 不修改上游 `start_client.py` 或桌面 client 行為。
 - STT 只透過 `POST /v1/audio/transcriptions` 呼叫 server。
+- HTTP error 會優先顯示 OpenAI-style `error.message`，並相容舊版 `detail` payload。
 - TTS 目前是 browser-local Web Speech API；不把音訊傳到雲端。
 - localStorage 只保存使用者設定與最近 20 筆轉錄歷史。
 - 若 server 有設定 API key，前端只使用 Bearer token header，不使用 cookie。

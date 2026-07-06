@@ -148,6 +148,8 @@ The `speak` command does not call the CapsWriter server and does not send text t
 | `0` | Success |
 | `1` | HTTP failure, unsupported format, missing file, or unavailable local TTS engine |
 
+When the server returns OpenAI-style `{"error": ...}` JSON, the CLI prints the contained `error.message` instead of dumping raw JSON. Legacy FastAPI `{"detail": ...}` payloads are also normalized for compatibility with older servers.
+
 ## Verification
 
 Run the isolated verification script:
@@ -177,5 +179,6 @@ python client/cli/scripts/clean.py
 - Multipart upload is implemented with `urllib.request` and a generated boundary.
 - `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
 - `--output-dir` maps output extensions by response format: `.txt`, `.json`, `.srt`, `.vtt`.
+- HTTP errors normalize OpenAI-style `error.message` and legacy `detail` payloads.
 - Windows TTS uses PowerShell `System.Speech`.
 - Linux TTS prefers `spd-say`, then `espeak-ng`, then `espeak`.

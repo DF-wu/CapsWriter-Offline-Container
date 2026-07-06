@@ -49,6 +49,13 @@ class HttpResult:
         return json.loads(self.text)
 
 
+class ApiError(RuntimeError):
+    def __init__(self, status: int, message: str) -> None:
+        self.status = status
+        self.message = message
+        super().__init__(f"HTTP {status}: {message}")
+
+
 def normalize_base_url(value: str) -> str:
     base = (value or DEFAULT_BASE_URL).strip().rstrip("/")
     if base.endswith("/v1"):
@@ -72,13 +79,51 @@ def _read_response(response) -> HttpResult:
     )
 
 
+def _result_from_http_error(exc: error.HTTPError) -> HttpResult:
+    try:
+        body = exc.read()
+    finally:
+        exc.close()
+    return HttpResult(
+        status=exc.code,
+        content_type=exc.headers.get("Content-Type", ""),
+        body=body,
+    )
+
+
+def error_message_from_body(body: bytes) -> str:
+    text = body.decode("utf-8", errors="replace").strip()
+    if not text:
+        return ""
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        return text
+    if isinstance(payload, dict):
+        error_payload = payload.get("error")
+        if isinstance(error_payload, dict) and error_payload.get("message"):
+            return str(error_payload["message"])
+        if payload.get("detail"):
+            return str(payload["detail"])
+    return text
+
+
+def _raise_api_error(exc: error.HTTPError) -> None:
+    result = _result_from_http_error(exc)
+    message = error_message_from_body(result.body) or exc.reason or "Request failed"
+    raise ApiError(result.status, message) from None
+
+
 def http_get_json(config: ApiConfig, path: str):
     req = request.Request(
         f"{normalize_base_url(config.base_url)}{path}",
         headers=auth_headers(config),
     )
-    with request.urlopen(req, timeout=config.timeout) as response:
-        return _read_response(response).json()
+    try:
+        with request.urlopen(req, timeout=config.timeout) as response:
+            return _read_response(response).json()
+    except error.HTTPError as exc:
+        _raise_api_error(exc)
 
 
 def http_get_json_status(config: ApiConfig, path: str) -> tuple[int, object]:
@@ -90,15 +135,7 @@ def http_get_json_status(config: ApiConfig, path: str) -> tuple[int, object]:
         with request.urlopen(req, timeout=config.timeout) as response:
             result = _read_response(response)
     except error.HTTPError as exc:
-        try:
-            body = exc.read()
-        finally:
-            exc.close()
-        result = HttpResult(
-            status=exc.code,
-            content_type=exc.headers.get("Content-Type", ""),
-            body=body,
-        )
+        result = _result_from_http_error(exc)
     return result.status, result.json()
 
 
@@ -168,8 +205,11 @@ def transcribe_file(
         headers=headers,
         method="POST",
     )
-    with request.urlopen(req, timeout=config.timeout) as response:
-        return _read_response(response)
+    try:
+        with request.urlopen(req, timeout=config.timeout) as response:
+            return _read_response(response)
+    except error.HTTPError as exc:
+        _raise_api_error(exc)
 
 
 def render_transcription(result: HttpResult, response_format: str) -> str:

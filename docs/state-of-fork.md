@@ -65,6 +65,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 - [`client/cli/capswriter_cli.py`](../client/cli/capswriter_cli.py) 無第三方 Python dependency。
 - 支援 `health`、`ready`、`models`、`transcribe`、`speak`。
+- HTTP error 會解析 OpenAI-style `error.message` 與舊版 `detail`。
 - Linux TTS：`spd-say` / `espeak-ng` / `espeak`；Windows TTS：PowerShell `System.Speech`。
 - 測試使用 in-process mock HTTP server，不需要模型。
 
@@ -72,6 +73,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 - [`client/web`](../client/web/) 是 React/Vite app。
 - 支援錄音、上傳、播放、STT、五種輸出格式、HTTP readiness diagnostics、歷史紀錄、下載、browser Web Speech TTS。
+- API client 會解析 OpenAI-style `error.message` 與舊版 `detail`。
 - `npm run browser-smoke` 以 `agent-browser` 驗證真實瀏覽器 health/readiness、upload、transcribe workflow。
 - [`client/web/Dockerfile`](../client/web/Dockerfile) 產出 Nginx static image。
 - [`docker-compose.web.yml`](../docker-compose.web.yml) 提供 local build 部署。
@@ -93,8 +95,8 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 | Gate | 結果 |
 |---|---|
-| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 8 tests，含 `/ready` ok/degraded diagnostic command |
-| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 8 tests、server compile、HTTP 16 tests、Web 13 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
+| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 10 tests，含 `/ready` ok/degraded diagnostic command 與 OpenAI-style error parsing |
+| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 10 tests、server compile、HTTP 16 tests、Web 16 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 
 `--http-require-ready` 已加入 root verifier；目前 `127.0.0.1:6017` 上的 live process 仍是舊版 `v2.5`，需重啟到本分支後 `/ready` 才會從 404 變成可驗證 endpoint。因目前 shell 沒有 live server 的 API key，模型音檔 smoke 會在 `/v1/audio/transcriptions` 收到 401；release evidence 需提供 `--http-key`。
 
