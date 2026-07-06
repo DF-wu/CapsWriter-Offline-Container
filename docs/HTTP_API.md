@@ -18,7 +18,7 @@ CapsWriter-Offline 在 WebSocket 服務之外，可選擇性提供與 [OpenAI Wh
 | `CAPSWRITER_HTTP_API_KEY` | _(空)_ | Bearer token；空字串視為不啟用認證 |
 | `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND` | `false` | 允許非 loopback bind 在無 KEY 下啟動；只適合受信任測試網路 |
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `100` | 單次上傳上限（MB） |
-| `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `600` | 單次轉錄超時（秒） |
+| `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `600` | 單次轉錄超時（秒）；ffmpeg 解碼與等待識別共用 |
 | `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` | `2` | 同時允許進入上傳/解碼/等待識別的 HTTP 轉錄請求數 |
 | `CAPSWRITER_HTTP_API_CORS_ORIGINS` | _(空)_ | 逗號分隔的瀏覽器 origin allowlist；空字串表示不加 CORS middleware |
 | `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS` | `false` | 預設不把 prompt/context 或轉錄文字寫入 server log/console；設 `true` 才保留全文診斷輸出 |
@@ -386,9 +386,9 @@ HTTP API 預設只記錄 task id、時延、音訊大小、格式、語言與文
 | 啟動時 `CAPSWRITER_HTTP_API_KEY is required...BIND is not loopback` | HTTP API 啟用且 bind 到非 loopback；設定 `CAPSWRITER_HTTP_API_KEY`，或只在受信任測試網路設 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true` |
 | 啟動時 `HTTP API 已啟用但系統找不到 ffmpeg` | Docker image 應已內建；裸機請 `apt install ffmpeg` |
 | `500 Server misconfigured: ffmpeg not found` | 同上 |
-| `400 Audio decode failed` | 不是音訊檔 / 編碼損壞，本機 `ffmpeg -i <file>` 看 |
+| `400 Audio decode failed` | 不是音訊檔、編碼損壞，或 ffmpeg 解碼超過 `TASK_TIMEOUT`；錯誤內容會截斷避免巨大 response/log，本機可用 `ffmpeg -i <file>` 看完整細節 |
 | `503 /ready degraded` | `ffmpeg` 不在 PATH 或 HTTP router 尚未綁定；看 `checks` 欄位 |
-| `504 Recognition timeout` | 對長音訊調高 `TASK_TIMEOUT`；對 CPU 部署考慮 `fun_asr_nano` 或啟用 GPU |
+| `504 Recognition timeout` | 已完成解碼但 recognizer 等待超過 `TASK_TIMEOUT`；對長音訊調高 timeout，對 CPU 部署考慮 `fun_asr_nano` 或啟用 GPU |
 | `413 File too large` | 調高 `MAX_UPLOAD_MB` 或客戶端側分片 |
 | `401 Missing or invalid Authorization` | header 必須是 `Bearer <token>` 格式（scheme 大小寫不敏感）；token 對應 `CAPSWRITER_HTTP_API_KEY` |
 

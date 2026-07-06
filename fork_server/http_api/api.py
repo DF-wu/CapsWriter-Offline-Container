@@ -235,8 +235,11 @@ def create_app() -> FastAPI:
         if not audio_bytes:
             raise HTTPException(400, "Empty file")
 
+        timeout = task_timeout_seconds(
+            getattr(Config, "http_api_task_timeout", 600.0)
+        )
         try:
-            pcm = await decode_to_pcm(audio_bytes)
+            pcm = await decode_to_pcm(audio_bytes, timeout=timeout)
         except FFmpegNotFoundError as e:
             logger.error(
                 f"[HTTP] ffmpeg not found: {e}. "
@@ -259,7 +262,6 @@ def create_app() -> FastAPI:
             f"fmt={response_format} lang={language_hint} bytes={len(audio_bytes)}"
         )
 
-        timeout = task_timeout_seconds(getattr(Config, "http_api_task_timeout", 600.0))
         try:
             await asyncio.to_thread(
                 _split_and_submit,
