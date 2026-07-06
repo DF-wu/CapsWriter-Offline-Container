@@ -60,8 +60,14 @@ class HealthcheckTest(unittest.TestCase):
         with patch.dict(os.environ, {"X_FLAG": "false"}):
             self.assertFalse(healthcheck.env_enabled("X_FLAG"))
 
+    def test_env_port_uses_default_for_missing_or_blank_values(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(healthcheck.env_port("X_PORT", 1234), 1234)
+        with patch.dict(os.environ, {"X_PORT": "  "}):
+            self.assertEqual(healthcheck.env_port("X_PORT", 1234), 1234)
+
     def test_env_port_rejects_invalid_values(self) -> None:
-        for value in ("", "abc", "0", "65536"):
+        for value in ("abc", "0", "65536"):
             with (
                 self.subTest(value=value),
                 patch.dict(os.environ, {"X_PORT": value}),

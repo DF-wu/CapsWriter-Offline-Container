@@ -9,7 +9,10 @@ TRUE_VALUES = {"1", "true", "yes", "on"}
 
 
 def env_port(name: str, default: int) -> int | None:
-    raw = os.getenv(name, str(default)).strip()
+    raw = os.getenv(name)
+    if raw is None or raw.strip() == "":
+        return default
+    raw = raw.strip()
     try:
         port = int(raw)
     except ValueError:
