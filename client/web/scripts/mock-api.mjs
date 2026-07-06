@@ -82,6 +82,26 @@ const server = http.createServer(async (req, res) => {
     sendJson(res, 200, { status: "ok", model: "mock_asr", version: "dev" });
     return;
   }
+  if (req.method === "GET" && req.url === "/ready") {
+    sendJson(res, 200, {
+      status: "ok",
+      model: "mock_asr",
+      version: "dev",
+      checks: {
+        task_router_bound: true,
+        ffmpeg_available: true,
+      },
+      config: {
+        auth_enabled: false,
+        max_upload_mb: 100,
+        task_timeout: 600,
+        max_concurrent_requests: 2,
+        cors_enabled: true,
+        cors_origins_count: 1,
+      },
+    });
+    return;
+  }
   if (req.method === "GET" && req.url === "/v1/models") {
     sendJson(res, 200, {
       object: "list",

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Activity,
+  AlertTriangle,
   CheckCircle2,
   Copy,
   Download,
@@ -16,7 +17,7 @@ import {
   Volume2,
   XCircle,
 } from "lucide-react";
-import { fetchHealth, fetchModels, transcribeAudio } from "./api/capswriter";
+import { fetchHealth, fetchModels, fetchReadiness, transcribeAudio } from "./api/capswriter";
 import {
   chooseRecorderMimeType,
   extensionForMimeType,
@@ -28,16 +29,29 @@ import {
 import { downloadText, extensionForFormat, serialiseResult, timestampSlug } from "./lib/export";
 import { DEFAULT_SETTINGS, addHistory, clearHistory, loadHistory, loadSettings, saveHistory, saveSettings } from "./lib/storage";
 import { loadVoices, speakText } from "./lib/speech";
-import type { ApiSettings, HealthResponse, ResponseFormat, TranscriptRecord, TranscriptionResult } from "./types";
+import type { ApiSettings, HealthResponse, ReadinessResponse, ResponseFormat, TranscriptRecord, TranscriptionResult } from "./types";
 
-type StatusKind = "idle" | "working" | "ok" | "error";
+type StatusKind = "idle" | "working" | "ok" | "degraded" | "error";
 type SpeechState = "idle" | "speaking" | "paused";
 
 function iconStatus(kind: StatusKind) {
   if (kind === "ok") return <CheckCircle2 size={18} aria-hidden="true" />;
+  if (kind === "degraded") return <AlertTriangle size={18} aria-hidden="true" />;
   if (kind === "error") return <XCircle size={18} aria-hidden="true" />;
   if (kind === "working") return <RefreshCw size={18} aria-hidden="true" className="spin" />;
   return <Activity size={18} aria-hidden="true" />;
+}
+
+function readinessValue(value: boolean | undefined): string {
+  if (value === true) return "ok";
+  if (value === false) return "fail";
+  return "-";
+}
+
+function readinessClass(value: boolean | undefined): string {
+  if (value === true) return "meta-state ok";
+  if (value === false) return "meta-state degraded";
+  return "meta-state";
 }
 
 function makeRecord(
@@ -60,6 +74,7 @@ export default function App() {
   const [statusKind, setStatusKind] = useState<StatusKind>("idle");
   const [statusText, setStatusText] = useState("未連線");
   const [health, setHealth] = useState<HealthResponse | null>(null);
+  const [readiness, setReadiness] = useState<ReadinessResponse | null>(null);
   const [models, setModels] = useState<string[]>([]);
   const [currentAudio, setCurrentAudio] = useState<BrowserAudio | null>(null);
   const [transcript, setTranscript] = useState<TranscriptionResult | null>(null);
@@ -126,14 +141,21 @@ export default function App() {
     setStatusKind("working");
     setStatusText("檢查服務");
     try {
-      const [nextHealth, nextModels] = await Promise.all([
+      const [nextHealth, nextReadiness, nextModelList] = await Promise.all([
         fetchHealth(settings),
+        fetchReadiness(settings),
         fetchModels(settings),
       ]);
       setHealth(nextHealth);
-      setModels(nextModels.data.map((item) => item.id));
-      setStatusKind("ok");
-      setStatusText(`服務正常：${nextHealth.model} v${nextHealth.version}`);
+      setReadiness(nextReadiness);
+      setModels(nextModelList.data.map((item) => item.id));
+      if (nextReadiness.status === "ok") {
+        setStatusKind("ok");
+        setStatusText(`服務正常：${nextHealth.model} v${nextHealth.version}`);
+      } else {
+        setStatusKind("degraded");
+        setStatusText(`服務降級：${nextReadiness.status}`);
+      }
     } catch (error) {
       setStatusKind("error");
       setStatusText(error instanceof Error ? error.message : "服務檢查失敗");
@@ -411,12 +433,42 @@ export default function App() {
               <dd>{health ? health.status : "-"}</dd>
             </div>
             <div>
+              <dt>Ready</dt>
+              <dd className={`meta-state ${readiness?.status === "ok" ? "ok" : readiness ? "degraded" : ""}`}>
+                {readiness ? readiness.status : "-"}
+              </dd>
+            </div>
+            <div>
+              <dt>Router</dt>
+              <dd className={readinessClass(readiness?.checks.task_router_bound)}>
+                {readinessValue(readiness?.checks.task_router_bound)}
+              </dd>
+            </div>
+            <div>
+              <dt>FFmpeg</dt>
+              <dd className={readinessClass(readiness?.checks.ffmpeg_available)}>
+                {readinessValue(readiness?.checks.ffmpeg_available)}
+              </dd>
+            </div>
+            <div>
               <dt>Server model</dt>
               <dd>{health ? health.model : "-"}</dd>
             </div>
             <div>
               <dt>Models</dt>
               <dd>{models.length ? models.join(", ") : "-"}</dd>
+            </div>
+            <div>
+              <dt>Auth</dt>
+              <dd>{readiness ? (readiness.config.auth_enabled ? "enabled" : "off") : "-"}</dd>
+            </div>
+            <div>
+              <dt>Limits</dt>
+              <dd>
+                {readiness
+                  ? `${readiness.config.max_upload_mb} MB / ${readiness.config.max_concurrent_requests} slots`
+                  : "-"}
+              </dd>
             </div>
           </dl>
         </section>

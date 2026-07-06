@@ -2,6 +2,7 @@ import type {
   ApiSettings,
   HealthResponse,
   ModelListResponse,
+  ReadinessResponse,
   ResponseFormat,
   TranscriptionResult,
   VerboseTranscription,
@@ -36,6 +37,18 @@ export async function fetchHealth(settings: ApiSettings): Promise<HealthResponse
     headers: requestHeaders(settings),
   });
   return response.json() as Promise<HealthResponse>;
+}
+
+export async function fetchReadiness(settings: ApiSettings): Promise<ReadinessResponse> {
+  const root = normalizeApiRoot(settings.baseUrl);
+  const response = await fetch(`${root}/ready`, {
+    headers: requestHeaders(settings),
+  });
+  const body = await response.text();
+  if (response.ok || response.status === 503) {
+    return JSON.parse(body) as ReadinessResponse;
+  }
+  throw new Error(`HTTP ${response.status}${body ? `: ${body}` : ""}`);
 }
 
 export async function fetchModels(settings: ApiSettings): Promise<ModelListResponse> {

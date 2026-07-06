@@ -1,8 +1,17 @@
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 
 describe("App", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("renders the primary workbench regions", () => {
     render(<App />);
 
@@ -11,5 +20,54 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: "音訊" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "轉錄" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "TTS" })).toBeTruthy();
+  });
+
+  it("shows readiness diagnostics after checking the server", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith("/health")) {
+          return new Response(JSON.stringify({ status: "ok", model: "mock_asr", version: "dev" }));
+        }
+        if (url.endsWith("/ready")) {
+          return new Response(
+            JSON.stringify({
+              status: "ok",
+              model: "mock_asr",
+              version: "dev",
+              checks: {
+                task_router_bound: true,
+                ffmpeg_available: true,
+              },
+              config: {
+                auth_enabled: false,
+                max_upload_mb: 100,
+                task_timeout: 600,
+                max_concurrent_requests: 2,
+                cors_enabled: true,
+                cors_origins_count: 1,
+              },
+            }),
+          );
+        }
+        if (url.endsWith("/v1/models")) {
+          return new Response(
+            JSON.stringify({
+              object: "list",
+              data: [{ id: "mock_asr", object: "model", owned_by: "capswriter-offline", created: 0 }],
+            }),
+          );
+        }
+        return new Response("not found", { status: 404 });
+      }),
+    );
+
+    render(<App />);
+    await userEvent.click(screen.getByRole("button", { name: "檢查服務" }));
+
+    expect(await screen.findByText("服務正常：mock_asr vdev")).toBeTruthy();
+    expect(screen.getByText("100 MB / 2 slots")).toBeTruthy();
+    expect(screen.getByText("off")).toBeTruthy();
   });
 });

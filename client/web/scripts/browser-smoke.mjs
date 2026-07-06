@@ -130,6 +130,7 @@ async function main() {
   runAgent(["select", "select", "text"]);
   runAgent(["find", "role", "button", "click", "--name", "檢查服務"]);
   runAgent(["wait", "--text", "mock_asr"]);
+  runAgent(["wait", "--text", "100 MB / 2 slots"]);
   runAgent(["upload", "input[type=file]", audioPath]);
   runAgent(["wait", "--text", "browser-smoke.wav"]);
   runAgent(["find", "role", "button", "click", "--name", "轉錄"]);

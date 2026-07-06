@@ -1,5 +1,19 @@
-import { describe, expect, it } from "vitest";
-import { normalizeApiRoot, parseTranscriptionResponse } from "./capswriter";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { fetchReadiness, normalizeApiRoot, parseTranscriptionResponse } from "./capswriter";
+import type { ApiSettings } from "../types";
+
+const settings: ApiSettings = {
+  baseUrl: "http://localhost:6017",
+  apiKey: "",
+  model: "whisper-1",
+  language: "",
+  prompt: "",
+  responseFormat: "text",
+};
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe("normalizeApiRoot", () => {
   it("keeps a root API URL unchanged", () => {
@@ -49,5 +63,42 @@ describe("parseTranscriptionResponse", () => {
     const result = await parseTranscriptionResponse(response, "verbose_json");
     expect(result.text).toBe("capswriter");
     expect(result.raw).toEqual(payload);
+  });
+});
+
+describe("fetchReadiness", () => {
+  it("returns degraded readiness diagnostics from HTTP 503", async () => {
+    const payload = {
+      status: "degraded",
+      model: "mock_asr",
+      version: "dev",
+      checks: {
+        task_router_bound: false,
+        ffmpeg_available: true,
+      },
+      config: {
+        auth_enabled: false,
+        max_upload_mb: 100,
+        task_timeout: 600,
+        max_concurrent_requests: 2,
+        cors_enabled: true,
+        cors_origins_count: 1,
+      },
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify(payload), { status: 503 })),
+    );
+
+    await expect(fetchReadiness(settings)).resolves.toEqual(payload);
+  });
+
+  it("throws on unrelated readiness HTTP errors", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify({ detail: "missing" }), { status: 404 })),
+    );
+
+    await expect(fetchReadiness(settings)).rejects.toThrow("HTTP 404");
   });
 });

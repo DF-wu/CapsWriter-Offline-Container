@@ -15,6 +15,26 @@ export interface HealthResponse {
   version: string;
 }
 
+export interface ReadinessResponse {
+  status: "ok" | "degraded" | string;
+  model: string;
+  version: string;
+  checks: {
+    task_router_bound: boolean;
+    ffmpeg_available: boolean;
+    [key: string]: boolean;
+  };
+  config: {
+    auth_enabled: boolean;
+    max_upload_mb: number;
+    task_timeout: number;
+    max_concurrent_requests: number;
+    cors_enabled: boolean;
+    cors_origins_count: number;
+    [key: string]: boolean | number;
+  };
+}
+
 export interface ModelListResponse {
   object: "list";
   data: Array<{
