@@ -353,7 +353,7 @@ docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml \
 | 同 LAN 共享 | 設 `KEY`、`BIND=0.0.0.0`、防火牆限制來源 IP |
 | 對外公網 | 設 `KEY`、reverse proxy 加 TLS、限制 IP、設低 `MAX_UPLOAD_MB` 與 `TASK_TIMEOUT` |
 
-KEY 為純 Bearer token 比對，建議使用 ≥ 32 字元隨機字串：
+KEY 為純 Bearer token，比對時使用 constant-time compare；`Bearer` scheme 大小寫不敏感。建議使用 ≥ 32 字元隨機字串：
 
 ```bash
 python -c "import secrets; print(secrets.token_urlsafe(32))"
@@ -382,7 +382,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 | `503 /ready degraded` | `ffmpeg` 不在 PATH 或 HTTP router 尚未綁定；看 `checks` 欄位 |
 | `504 Recognition timeout` | 對長音訊調高 `TASK_TIMEOUT`；對 CPU 部署考慮 `fun_asr_nano` 或啟用 GPU |
 | `413 File too large` | 調高 `MAX_UPLOAD_MB` 或客戶端側分片 |
-| `401 Missing or invalid Authorization` | header 必須是 `Bearer <token>` 格式；token 對應 `CAPSWRITER_HTTP_API_KEY` |
+| `401 Missing or invalid Authorization` | header 必須是 `Bearer <token>` 格式（scheme 大小寫不敏感）；token 對應 `CAPSWRITER_HTTP_API_KEY` |
 
 ---
 
@@ -391,6 +391,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 | 檔案 | 職責 |
 |---|---|
 | [`fork_server/http_api/api.py`](../fork_server/http_api/api.py) | FastAPI app + 端點實作 |
+| [`fork_server/http_api/auth.py`](../fork_server/http_api/auth.py) | Bearer token parsing and constant-time comparison |
 | [`fork_server/http_api/errors.py`](../fork_server/http_api/errors.py) | OpenAI-style JSON error payload handlers |
 | [`fork_server/http_api/readiness.py`](../fork_server/http_api/readiness.py) | `/ready` payload/status helper |
 | [`fork_server/http_api/task_router.py`](../fork_server/http_api/task_router.py) | task_id ↔ asyncio.Future 路由；合成 socket_id 管理 |

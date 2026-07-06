@@ -42,6 +42,7 @@ from core.server.schema import Task, Result
 from core.server import logger, console
 
 from .audio_decoder import AudioDecodeError, FFmpegNotFoundError, decode_to_pcm
+from .auth import auth_enabled, bearer_token_matches, extract_bearer_token
 from .errors import http_exception_handler, validation_exception_handler
 from .limits import (
     UploadTooLargeError,
@@ -63,12 +64,11 @@ from .transcription_tasks import (
 def _check_auth(authorization: Optional[str]) -> None:
     """空字串的 api_key 視為關閉認證 (預設本地使用場景)。"""
     api_key = getattr(Config, "http_api_key", "") or ""
-    if not api_key:
+    if not auth_enabled(api_key):
         return
-    if not authorization or not authorization.startswith("Bearer "):
+    if extract_bearer_token(authorization) is None:
         raise HTTPException(401, "Missing or invalid Authorization header")
-    token = authorization[len("Bearer ") :].strip()
-    if token != api_key:
+    if not bearer_token_matches(authorization, api_key):
         raise HTTPException(401, "Invalid API key")
 
 
