@@ -102,7 +102,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 | `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 15 tests，含 `/ready` ok/degraded diagnostic command、OpenAI-style error parsing、non-JSON/invalid JSON diagnostics 與 multipart filename escaping |
 | `python -m unittest discover -s docker/server/tests -v` | 通過：Docker server 12 tests，含 HTTP `/ready` healthcheck、healthcheck env parsing 與 model downloader env diagnostics |
 | `python -m unittest discover -s scripts/tests -v` | 通過：Verifier/diagnostic 7 tests，含 live HTTP API key log redaction、diagnostic multipart filename escaping 與 `/health` 401 API-key guidance |
-| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 15 tests、server compile、HTTP 48 tests、Docker server 12 tests、Verifier/diagnostic 7 tests、Web 22 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
+| `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 15 tests、server compile、HTTP 48 tests、Docker server 12 tests、Verifier/diagnostic 7 tests、Web 24 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 
 `--http-require-ready` 已加入 root verifier；目前 `127.0.0.1:6017` 上的 live process 仍是舊版 `v2.5`，需重啟到本分支後 `/ready` 才會從 404 變成可驗證 endpoint。因目前 shell 沒有 live server 的 API key，模型音檔 smoke 會在 `/v1/audio/transcriptions` 收到 401；release evidence 需提供 `--http-key`。
 

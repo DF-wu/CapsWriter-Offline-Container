@@ -114,8 +114,20 @@ export default function App() {
 
   useEffect(() => {
     return () => {
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      const recorder = recorderRef.current;
+      if (recorder && recorder.state !== "inactive") {
+        recorder.ondataavailable = null;
+        recorder.onstop = null;
+        recorder.stop();
+      }
+      recorderRef.current = null;
       revokeAudio(currentAudioRef.current);
       streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
       abortRef.current?.abort();
       if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
@@ -168,8 +180,9 @@ export default function App() {
       setStatusText("此瀏覽器不支援麥克風錄音");
       return;
     }
+    let stream: MediaStream | null = null;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
@@ -178,6 +191,7 @@ export default function App() {
       });
       const mimeType = chooseRecorderMimeType();
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
+      const recordingStream = stream;
       streamRef.current = stream;
       recorderRef.current = recorder;
       chunksRef.current = [];
@@ -199,7 +213,7 @@ export default function App() {
           objectUrl: URL.createObjectURL(blob),
           durationSeconds,
         });
-        stream.getTracks().forEach((track) => track.stop());
+        recordingStream.getTracks().forEach((track) => track.stop());
         streamRef.current = null;
         setRecordingSeconds(Math.round(durationSeconds));
       };
@@ -213,6 +227,18 @@ export default function App() {
         setRecordingSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
       }, 250);
     } catch (error) {
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      recorderRef.current = null;
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+      if (streamRef.current === stream) {
+        streamRef.current = null;
+      }
+      setIsRecording(false);
       setStatusKind("error");
       setStatusText(error instanceof Error ? error.message : "無法啟動錄音");
     }
