@@ -65,6 +65,24 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
         self.assertIn(b"RIFF", body)
         self.assertIn(b"\r\n\r\ntext\r\n", body)
 
+    def test_build_multipart_stream_reports_content_length(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "sample.wav"
+            audio.write_bytes(b"RIFF")
+            body, boundary, content_length = check_http_api._build_multipart_stream(
+                str(audio),
+                "text",
+                boundary="test-boundary",
+                chunk_size=2,
+            )
+            chunks = list(body)
+
+        self.assertEqual(boundary, "test-boundary")
+        self.assertEqual(content_length, sum(len(chunk) for chunk in chunks))
+        self.assertIn(b"RI", chunks)
+        self.assertIn(b"FF", chunks)
+        self.assertIn(b"\r\n\r\ntext\r\n", b"".join(chunks))
+
     def test_api_post_uses_configured_timeout(self) -> None:
         class Response:
             headers = {"Content-Type": "text/plain; charset=utf-8"}
@@ -95,6 +113,49 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
 
         self.assertEqual(result["_raw_text"], "ok")
         self.assertEqual(urlopen.call_args.kwargs["timeout"], 7.5)
+
+    def test_api_post_uses_streaming_multipart(self) -> None:
+        class Response:
+            headers = {"Content-Type": "text/plain; charset=utf-8"}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self):
+                return b"ok"
+
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "sample.wav"
+            audio.write_bytes(b"RIFF")
+            urlopen = Mock(return_value=Response())
+
+            with (
+                patch.object(check_http_api.urllib.request, "urlopen", urlopen),
+                patch.object(
+                    check_http_api,
+                    "_build_multipart_body",
+                    side_effect=AssertionError("byte body helper called"),
+                ),
+            ):
+                result = check_http_api._api_post(
+                    "http://127.0.0.1:6017",
+                    "/v1/audio/transcriptions",
+                    str(audio),
+                    "text",
+                    "",
+                    7.5,
+                )
+
+            request = urlopen.call_args.args[0]
+            self.assertEqual(result["_raw_text"], "ok")
+            self.assertNotIsInstance(request.data, bytes)
+            self.assertEqual(
+                int(request.get_header("Content-length")),
+                sum(len(chunk) for chunk in request.data),
+            )
 
     def test_positive_float_rejects_non_positive_timeout(self) -> None:
         self.assertEqual(check_http_api.positive_float("2.5"), 2.5)

@@ -72,27 +72,56 @@ def multipart_header_value(value):
     )
 
 
-def _build_multipart_body(audio_path, fmt, boundary=None):
-    boundary = boundary or "----FormBoundary7MA4YWxkTrZu0gW"
-    with open(audio_path, "rb") as f:
-        audio_data = f.read()
+class MultipartBody:
+    def __init__(self, audio_path, prefix, suffix, chunk_size):
+        self.audio_path = audio_path
+        self.prefix = prefix
+        self.suffix = suffix
+        self.chunk_size = chunk_size
+
+    def __iter__(self):
+        yield self.prefix
+        with open(self.audio_path, "rb") as f:
+            while True:
+                chunk = f.read(self.chunk_size)
+                if not chunk:
+                    break
+                yield chunk
+        yield self.suffix
+
+
+def _multipart_prefix(audio_path, boundary):
     filename = multipart_header_value(os.path.basename(audio_path))
-    body = (
-        (
-            f"--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
-            f"Content-Type: application/octet-stream\r\n\r\n"
-        ).encode()
-        + audio_data
-        + (
-            f"\r\n--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="model"\r\n\r\nwhisper-1\r\n'
-            f"--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="response_format"\r\n\r\n{fmt}\r\n'
-            f"--{boundary}--\r\n"
-        ).encode()
-    )
-    return body, boundary
+    return (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+        f"Content-Type: application/octet-stream\r\n\r\n"
+    ).encode()
+
+
+def _multipart_suffix(fmt, boundary):
+    return (
+        f"\r\n--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="model"\r\n\r\nwhisper-1\r\n'
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="response_format"\r\n\r\n{fmt}\r\n'
+        f"--{boundary}--\r\n"
+    ).encode()
+
+
+def _build_multipart_stream(audio_path, fmt, boundary=None, chunk_size=1024 * 1024):
+    if chunk_size <= 0:
+        raise ValueError("chunk_size must be positive")
+    boundary = boundary or "----FormBoundary7MA4YWxkTrZu0gW"
+    prefix = _multipart_prefix(audio_path, boundary)
+    suffix = _multipart_suffix(fmt, boundary)
+    content_length = len(prefix) + os.path.getsize(audio_path) + len(suffix)
+    return MultipartBody(audio_path, prefix, suffix, chunk_size), boundary, content_length
+
+
+def _build_multipart_body(audio_path, fmt, boundary=None):
+    body, boundary, _content_length = _build_multipart_stream(audio_path, fmt, boundary)
+    return b"".join(body), boundary
 
 
 def _api_get(base, path, api_key):
@@ -102,8 +131,11 @@ def _api_get(base, path, api_key):
 
 
 def _api_post(base, path, audio_path, fmt, api_key, timeout):
-    body, boundary = _build_multipart_body(audio_path, fmt)
-    h = {"Content-Type": f"multipart/form-data; boundary={boundary}"}
+    body, boundary, content_length = _build_multipart_stream(audio_path, fmt)
+    h = {
+        "Content-Type": f"multipart/form-data; boundary={boundary}",
+        "Content-Length": str(content_length),
+    }
     h.update(_headers(api_key))
     req = urllib.request.Request(f"{base}{path}", data=body, headers=h)
     with urllib.request.urlopen(req, timeout=timeout) as r:
