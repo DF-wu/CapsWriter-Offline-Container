@@ -52,7 +52,7 @@ python check_http_api.py --host 127.0.0.1 --port 6017 --key sk-local-dev
 
 ```bash
 cd client/web
-npm install
+npm ci --no-audit --no-fund
 npm run dev
 ```
 
@@ -175,13 +175,13 @@ npm run clean
 | `playwright-report` / `test-results` | 瀏覽器測試輸出 |
 | `.tmp` | 臨時檔 |
 
-`node_modules` 是隔離依賴目錄，預設不由 `clean` 移除，避免每次驗證都重新下載。若要完全還原前端環境，可刪除 `client/web/node_modules` 後重新 `npm install`。
+`node_modules` 是隔離依賴目錄，預設不由 `clean` 移除，避免每次驗證都重新下載。若要完全還原前端環境，可刪除 `client/web/node_modules` 後重新 `npm ci --no-audit --no-fund`。
 
 ## 驗證清單
 
 | 項目 | 命令或動作 | 預期 |
 |---|---|---|
-| 依賴安全 | `npm install` | `found 0 vulnerabilities` |
+| 依賴重現 | `npm ci --no-audit --no-fund` | 依 `package-lock.json` 安裝，不改寫 lockfile |
 | API root validation | `npm run test -- capswriter.test.ts` | Rejects non-HTTP schemes, URL credentials, query strings, and fragments before fetch |
 | 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、bounded response body reads、invalid JSON diagnostics、bounded/abortable health/readiness/model diagnostics、bounded/abortable transcription request handling、partial readiness display when model listing needs auth、StrictMode-safe diagnostics mounted guard、keyboard-accessible audio upload、readiness upload-size preflight、drag/drop highlight stability、transcription-time audio replacement lock、stale result suppression after cancel/unmount、stale/late diagnostic result suppression、recording cleanup including delayed `getUserMedia` success/failure、download object URL cleanup、download filename sanitization（含 Windows reserved device name）、TTS voice handler/lifecycle cleanup and late callback guards、clipboard copy denial and late result cleanup、blocked localStorage handling、bounded settings controls、bounded/malformed settings/history/runtime-config recovery 與 App render 測試通過 |
 | Web verifier timeout | `python -m unittest discover -s scripts/tests -v` | fake npm 測試覆蓋 hung internal npm step 會回 `124`，且仍會嘗試執行 clean |
