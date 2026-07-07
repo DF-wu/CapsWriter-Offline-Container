@@ -105,6 +105,7 @@ export default function App() {
   const currentAudioRef = useRef<BrowserAudio | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dragDepthRef = useRef(0);
+  const transcriptionRunRef = useRef(0);
 
   useEffect(() => saveSettings(settings), [settings]);
 
@@ -147,6 +148,7 @@ export default function App() {
   };
 
   const setAudio = (audio: BrowserAudio | null) => {
+    transcriptionRunRef.current += 1;
     setCurrentAudio((previous) => {
       revokeAudio(previous);
       return audio;
@@ -342,22 +344,27 @@ export default function App() {
     abortRef.current?.abort();
     const aborter = new AbortController();
     abortRef.current = aborter;
+    const runId = transcriptionRunRef.current + 1;
+    transcriptionRunRef.current = runId;
+    const audio = currentAudio;
     setIsTranscribing(true);
     setStatusKind("working");
     setStatusText("轉錄中");
     try {
       const result = await transcribeAudio(
-        currentAudio.blob,
-        currentAudio.name,
+        audio.blob,
+        audio.name,
         settings,
         aborter.signal,
       );
+      if (runId !== transcriptionRunRef.current) return;
       setTranscript(result);
       setTtsText(result.text);
-      setHistory(addHistory(makeRecord(result, currentAudio)));
+      setHistory(addHistory(makeRecord(result, audio)));
       setStatusKind("ok");
       setStatusText(`完成：${result.text.length} 字`);
     } catch (error) {
+      if (runId !== transcriptionRunRef.current) return;
       if (error instanceof DOMException && error.name === "AbortError") {
         setStatusKind("idle");
         setStatusText("已取消");
@@ -366,13 +373,20 @@ export default function App() {
         setStatusText(error instanceof Error ? error.message : "轉錄失敗");
       }
     } finally {
-      setIsTranscribing(false);
+      if (runId === transcriptionRunRef.current) {
+        abortRef.current = null;
+        setIsTranscribing(false);
+      }
     }
   };
 
   const cancelTranscription = () => {
+    transcriptionRunRef.current += 1;
     abortRef.current?.abort();
+    abortRef.current = null;
     setIsTranscribing(false);
+    setStatusKind("idle");
+    setStatusText("已取消");
   };
 
   const copyTranscript = async () => {

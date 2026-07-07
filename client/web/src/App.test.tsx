@@ -109,6 +109,45 @@ describe("App", () => {
     expect(await screen.findByText("完成：4 字")).toBeTruthy();
   });
 
+  it("ignores stale transcription results after cancel and audio replacement", async () => {
+    const response = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn(() => response.promise));
+    vi.spyOn(URL, "createObjectURL")
+      .mockReturnValueOnce("blob:meeting")
+      .mockReturnValueOnce("blob:other");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const { container } = render(<App />);
+    const input = container.querySelector(".file-input");
+    expect(input).toBeInstanceOf(HTMLInputElement);
+
+    await userEvent.upload(
+      input as HTMLInputElement,
+      new File(["RIFF"], "meeting.wav", { type: "audio/wav" }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "轉錄" }));
+    expect(await screen.findByText("轉錄中")).toBeTruthy();
+
+    await userEvent.click(screen.getByRole("button", { name: "取消" }));
+    expect(await screen.findByText("已取消")).toBeTruthy();
+    await userEvent.upload(
+      input as HTMLInputElement,
+      new File(["RIFF"], "other.wav", { type: "audio/wav" }),
+    );
+    expect(await screen.findByText("已載入 other.wav")).toBeTruthy();
+
+    response.resolve(
+      new Response(JSON.stringify({ text: "done" }), {
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(screen.getByRole("button", { name: "other.wav" })).toBeTruthy();
+    expect(screen.queryByText("完成：4 字")).toBeNull();
+    expect(screen.queryByText("done")).toBeNull();
+  });
+
   it("keeps drag highlight while moving inside the upload target", () => {
     render(<App />);
     const uploadTarget = screen.getByRole("button", { name: "選擇音訊檔" });

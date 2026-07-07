@@ -172,7 +172,7 @@ npm run clean
 | 項目 | 命令或動作 | 預期 |
 |---|---|---|
 | 依賴安全 | `npm install` | `found 0 vulnerabilities` |
-| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、invalid JSON diagnostics、bounded health/readiness/model diagnostics、partial readiness display when model listing needs auth、keyboard-accessible audio upload、drag/drop highlight stability、transcription-time audio replacement lock、recording cleanup、download object URL cleanup、TTS voice handler cleanup、clipboard copy denial、blocked localStorage handling、malformed settings/history/runtime-config recovery 與 App render 測試通過 |
+| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、invalid JSON diagnostics、bounded health/readiness/model diagnostics、partial readiness display when model listing needs auth、keyboard-accessible audio upload、drag/drop highlight stability、transcription-time audio replacement lock、stale transcription result suppression after cancel、recording cleanup、download object URL cleanup、TTS voice handler cleanup、clipboard copy denial、blocked localStorage handling、malformed settings/history/runtime-config recovery 與 App render 測試通過 |
 | Browser smoke | `npm run browser-smoke` | 真實瀏覽器完成 health/readiness、upload、transcribe workflow |
 | Production build | `npm run build` | Vite 輸出 `dist` |
 | 清理 | `npm run clean` | build/cache/test artifacts 被移除 |
@@ -185,7 +185,7 @@ npm run clean
 - Web Console 不修改上游 `start_client.py` 或桌面 client 行為。
 - STT 只透過 `POST /v1/audio/transcriptions` 呼叫 server。
 - HTTP error 會優先顯示 OpenAI-style `error.message`，並相容舊版 `detail` payload；非 JSON 錯誤 body 會壓成單行且限制長度，避免 proxy HTML 直接塞滿 UI。Health/readiness/model list 診斷有 10 秒前端 timeout；若只有模型列表失敗（例如缺 API key），已取得的 health/readiness diagnostics 仍會保留在畫面上。若 `/ready` 或 JSON 格式轉錄回應不是合法 JSON，錯誤訊息會包含 HTTP status 與 endpoint，方便定位 proxy 或舊版 server 問題。
-- 轉錄進行中會鎖定音訊替換入口；使用者需按「取消」或等待完成後再換檔，避免舊請求完成後覆蓋新音訊狀態。
+- 轉錄進行中會鎖定音訊替換入口；使用者需按「取消」或等待完成後再換檔。取消或更換音訊會讓舊請求結果失效，避免 server/proxy 延遲回應覆蓋目前 UI。
 - TTS 目前是 browser-local Web Speech API；不把音訊傳到雲端。
 - localStorage 只保存非敏感使用者設定與最近 20 筆轉錄歷史；手動輸入的 API key 只留在目前頁面記憶體中。若瀏覽器封鎖 storage 或 quota 用完，保存會 best-effort 失敗但不阻斷目前操作。
 - 若透過 `CAPSWRITER_WEB_API_KEY` 注入預設 token，該值會出現在公開的 `/config.js`。
