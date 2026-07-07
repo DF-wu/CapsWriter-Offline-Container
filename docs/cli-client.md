@@ -93,7 +93,7 @@ python client\cli\capswriter_cli.py health
 python client\cli\capswriter_cli.py ready
 ```
 
-Use `CAPSWRITER_HTTP_API_KEY_FILE` instead of `CAPSWRITER_HTTP_API_KEY` when a service manager or secret mount can provide a UTF-8 file containing the token.
+For the CLI, use `CAPSWRITER_HTTP_API_KEY_FILE` instead of `CAPSWRITER_HTTP_API_KEY` when a service manager or secret mount can provide a UTF-8 file containing the client token. The server also accepts the same variable for its Bearer token file; explicit `CAPSWRITER_HTTP_API_KEY` takes precedence on both sides.
 
 ## Server Diagnostics
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from ipaddress import ip_address
+from pathlib import Path
 from typing import Iterable, Mapping
 from urllib.parse import urlsplit
 
@@ -12,6 +13,8 @@ from urllib.parse import urlsplit
 TRUE_VALUES = {"1", "true", "yes", "on"}
 FALSE_VALUES = {"0", "false", "no", "off"}
 ALLOW_INSECURE_BIND_ENV = "CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND"
+API_KEY_ENV = "CAPSWRITER_HTTP_API_KEY"
+API_KEY_FILE_ENV = "CAPSWRITER_HTTP_API_KEY_FILE"
 
 
 class ConfigError(ValueError):
@@ -122,6 +125,26 @@ def normalize_cors_origins(value: str | Iterable[str] | None) -> tuple[str, ...]
     return tuple(origins)
 
 
+def read_secret_file(path: str, env_name: str) -> str:
+    try:
+        value = Path(path).read_text(encoding="utf-8").strip()
+    except OSError as exc:
+        raise ConfigError(f"{env_name} could not be read: {exc}") from exc
+    if not value:
+        raise ConfigError(f"{env_name} must not point to an empty file")
+    return value
+
+
+def parse_api_key(env: Mapping[str, str]) -> str:
+    explicit_key = _env(env, API_KEY_ENV)
+    if explicit_key is not None:
+        return explicit_key
+    key_file = _env(env, API_KEY_FILE_ENV)
+    if key_file is None:
+        return ""
+    return read_secret_file(key_file, API_KEY_FILE_ENV)
+
+
 def _normalize_bind_host(bind: str) -> str:
     host = bind.strip()
     if host.startswith("[") and host.endswith("]"):
@@ -147,7 +170,7 @@ def validate_http_api_settings(settings: HttpApiSettings) -> HttpApiSettings:
         and not settings.allow_insecure_bind
     ):
         raise ConfigError(
-            "CAPSWRITER_HTTP_API_KEY is required when "
+            f"{API_KEY_ENV} or {API_KEY_FILE_ENV} is required when "
             "CAPSWRITER_HTTP_API_ENABLE=true and CAPSWRITER_HTTP_API_BIND is "
             f"not loopback; set {ALLOW_INSECURE_BIND_ENV}=true only on a "
             "trusted network"
@@ -166,7 +189,7 @@ def parse_http_api_env(env: Mapping[str, str]) -> HttpApiSettings:
             minimum=1,
             maximum=65535,
         ),
-        api_key=_env(env, "CAPSWRITER_HTTP_API_KEY") or "",
+        api_key=parse_api_key(env),
         max_upload_mb=parse_int_range(
             env,
             "CAPSWRITER_HTTP_API_MAX_UPLOAD_MB",

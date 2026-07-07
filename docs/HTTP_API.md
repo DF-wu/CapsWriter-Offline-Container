@@ -16,6 +16,7 @@ CapsWriter-Offline 在 WebSocket 服務之外，可選擇性提供與 [OpenAI Wh
 | `CAPSWRITER_HTTP_API_BIND` | `127.0.0.1` | 監聽位址；對外請改 `0.0.0.0` 並一定要設 `KEY` |
 | `CAPSWRITER_HTTP_API_PORT` | `6017` | 監聽 port（與 WebSocket port 不同） |
 | `CAPSWRITER_HTTP_API_KEY` | _(空)_ | Bearer token；空字串視為不啟用認證 |
+| `CAPSWRITER_HTTP_API_KEY_FILE` | _(空)_ | 伺服器端 Bearer token 檔案；適合 Docker secrets / service manager，明確 `KEY` 優先 |
 | `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND` | `false` | 允許非 loopback bind 在無 KEY 下啟動；只適合受信任測試網路 |
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `100` | 單次上傳上限（MB） |
 | `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `600` | 單次轉錄超時（秒）；ffmpeg 解碼與等待識別共用 |
@@ -24,12 +25,13 @@ CapsWriter-Offline 在 WebSocket 服務之外，可選擇性提供與 [OpenAI Wh
 | `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS` | `false` | 預設不把 prompt/context 或轉錄文字寫入 server log/console；設 `true` 才保留全文診斷輸出 |
 
 HTTP API env 會在 server 啟動時驗證；明確設定的無效值會讓啟動失敗，而不是靜默退回預設值。
-當 `CAPSWRITER_HTTP_API_ENABLE=true` 且 `BIND` 不是 loopback（例如 `0.0.0.0`、`::`、LAN IP 或 hostname）時，必須設定 `CAPSWRITER_HTTP_API_KEY`；若確定只在受信任測試網路使用，才可設 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true` 明確覆寫。
+當 `CAPSWRITER_HTTP_API_ENABLE=true` 且 `BIND` 不是 loopback（例如 `0.0.0.0`、`::`、LAN IP 或 hostname）時，必須設定 `CAPSWRITER_HTTP_API_KEY` 或 `CAPSWRITER_HTTP_API_KEY_FILE`；若確定只在受信任測試網路使用，才可設 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true` 明確覆寫。
 
 | 變數 | 驗證規則 |
 |---|---|
 | `CAPSWRITER_HTTP_API_ENABLE` | `true/false`、`yes/no`、`on/off`、`1/0` |
 | `CAPSWRITER_HTTP_API_PORT` | `1..65535` |
+| `CAPSWRITER_HTTP_API_KEY_FILE` | UTF-8 檔案必須可讀且內容去除空白後不可為空 |
 | `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND` | `true/false`、`yes/no`、`on/off`、`1/0` |
 | `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS` | `true/false`、`yes/no`、`on/off`、`1/0` |
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `>= 1` |
@@ -47,6 +49,8 @@ environment:
   CAPSWRITER_HTTP_API_BIND: 0.0.0.0
   CAPSWRITER_HTTP_API_PORT: "6017"
   CAPSWRITER_HTTP_API_KEY: "sk-your-token"   # 對外時必填
+  # 或用 secret file:
+  # CAPSWRITER_HTTP_API_KEY_FILE: "/run/secrets/capswriter-http.key"
   CAPSWRITER_HTTP_API_CORS_ORIGINS: "http://127.0.0.1:5173"
 ports:
   - "6017:6017"
@@ -253,7 +257,7 @@ python check_http_api.py \
   --timeout 300
 ```
 
-If auth is enabled, pass `--key-file /run/secrets/capswriter-http.key` or set `CAPSWRITER_HTTP_API_KEY_FILE` so the token is read from a UTF-8 file instead of being placed directly in the shell command.
+If auth is enabled, the diagnostic client can pass `--key-file /run/secrets/capswriter-http.key` or set `CAPSWRITER_HTTP_API_KEY_FILE` so the client-side token is read from a UTF-8 file instead of being placed directly in the shell command.
 
 ### 3.3 Node / TypeScript
 
@@ -386,7 +390,8 @@ HTTP API 預設只記錄 task id、時延、音訊大小、格式、語言與文
 
 | Symptom | 原因 / 解法 |
 |---|---|
-| 啟動時 `CAPSWRITER_HTTP_API_KEY is required...BIND is not loopback` | HTTP API 啟用且 bind 到非 loopback；設定 `CAPSWRITER_HTTP_API_KEY`，或只在受信任測試網路設 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true` |
+| 啟動時 `CAPSWRITER_HTTP_API_KEY or CAPSWRITER_HTTP_API_KEY_FILE is required...BIND is not loopback` | HTTP API 啟用且 bind 到非 loopback；設定 `CAPSWRITER_HTTP_API_KEY` 或 `CAPSWRITER_HTTP_API_KEY_FILE`，或只在受信任測試網路設 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true` |
+| 啟動時 `CAPSWRITER_HTTP_API_KEY_FILE could not be read` | key file 路徑不存在或 container/service 沒有讀取權限；確認 secret mount 與檔案權限 |
 | 啟動時 `HTTP API 已啟用但系統找不到 ffmpeg` | Docker image 應已內建；裸機請 `apt install ffmpeg` |
 | `500 Server misconfigured: ffmpeg not found` | 同上 |
 | `400 Audio decode failed` | 不是音訊檔、編碼損壞，或 ffmpeg 解碼超過 `TASK_TIMEOUT`；錯誤內容會截斷避免巨大 response/log，本機可用 `ffmpeg -i <file>` 看完整細節 |

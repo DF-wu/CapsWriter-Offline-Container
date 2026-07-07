@@ -62,6 +62,7 @@ docker compose logs -f capswriter-server
 | `CAPSWRITER_HTTP_API_BIND` | `127.0.0.1` | 對外請改 `0.0.0.0` |
 | `CAPSWRITER_HTTP_API_PORT` | `6017` | HTTP API port |
 | `CAPSWRITER_HTTP_API_KEY` | _(空)_ | Bearer token；對外時必填 |
+| `CAPSWRITER_HTTP_API_KEY_FILE` | _(空)_ | Bearer token 檔案；適合 Docker secrets / service manager，明確 `KEY` 優先 |
 | `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND` | `false` | 允許非 loopback bind 無 KEY 啟動；只適合受信任測試網路 |
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `100` | 單次 HTTP 音訊上傳上限 |
 | `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `600` | 單次 HTTP 轉錄超時；ffmpeg 解碼與等待識別共用 |
@@ -70,7 +71,7 @@ docker compose logs -f capswriter-server
 | `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS` | `false` | 是否把 prompt/context 與轉錄全文寫入 server log/console；production 建議維持 `false` |
 
 Server、模型調校與 HTTP API env 會在啟動時做格式/範圍驗證。錯誤的 model type、port、log level、boolean、Qwen preset、數值調校、上傳大小、timeout 或 CORS origin 會讓 server 直接退出，避免 production 以意外預設值啟動。
-當 HTTP API 啟用且 `CAPSWRITER_HTTP_API_BIND` 不是 loopback 時，也會要求 `CAPSWRITER_HTTP_API_KEY`，除非明確設定 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true`。
+當 HTTP API 啟用且 `CAPSWRITER_HTTP_API_BIND` 不是 loopback 時，也會要求 `CAPSWRITER_HTTP_API_KEY` 或 `CAPSWRITER_HTTP_API_KEY_FILE`，除非明確設定 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true`。
 HTTP API 預設不把 prompt/context 或轉錄內容寫入 server log/console；只在受信任本機 debug 時才啟用 `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS=true`。
 
 ### 3.3 GPU/Vulkan 細部

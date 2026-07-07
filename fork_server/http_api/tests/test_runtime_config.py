@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
 
 from fork_server.http_api.runtime_config import (
     ConfigError,
@@ -91,7 +93,7 @@ class HttpRuntimeConfigTest(unittest.TestCase):
                 self.assertFalse(bind_requires_auth(bind))
 
     def test_rejects_enabled_non_loopback_bind_without_key(self) -> None:
-        with self.assertRaisesRegex(ConfigError, "CAPSWRITER_HTTP_API_KEY"):
+        with self.assertRaisesRegex(ConfigError, "CAPSWRITER_HTTP_API_KEY_FILE"):
             parse_http_api_env(
                 {
                     "CAPSWRITER_HTTP_API_ENABLE": "true",
@@ -110,6 +112,51 @@ class HttpRuntimeConfigTest(unittest.TestCase):
         self.assertEqual(settings.bind, "0.0.0.0")
         self.assertEqual(settings.api_key, "sk-local-dev")
         self.assertFalse(settings.allow_insecure_bind)
+
+    def test_reads_api_key_from_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            key_file = Path(temp_dir) / "capswriter-http.key"
+            key_file.write_text("sk-file-secret\n", encoding="utf-8")
+
+            settings = parse_http_api_env(
+                {
+                    "CAPSWRITER_HTTP_API_ENABLE": "true",
+                    "CAPSWRITER_HTTP_API_BIND": "0.0.0.0",
+                    "CAPSWRITER_HTTP_API_KEY_FILE": key_file.as_posix(),
+                }
+            )
+
+        self.assertEqual(settings.api_key, "sk-file-secret")
+
+    def test_explicit_api_key_takes_precedence_over_key_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            key_file = Path(temp_dir) / "capswriter-http.key"
+            key_file.write_text("sk-file-secret\n", encoding="utf-8")
+
+            settings = parse_http_api_env(
+                {
+                    "CAPSWRITER_HTTP_API_KEY": "sk-env-secret",
+                    "CAPSWRITER_HTTP_API_KEY_FILE": key_file.as_posix(),
+                }
+            )
+
+        self.assertEqual(settings.api_key, "sk-env-secret")
+
+    def test_rejects_missing_api_key_file(self) -> None:
+        with self.assertRaisesRegex(ConfigError, "CAPSWRITER_HTTP_API_KEY_FILE"):
+            parse_http_api_env(
+                {"CAPSWRITER_HTTP_API_KEY_FILE": "/missing/capswriter-http.key"}
+            )
+
+    def test_rejects_empty_api_key_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            key_file = Path(temp_dir) / "capswriter-http.key"
+            key_file.write_text("\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(ConfigError, "empty file"):
+                parse_http_api_env(
+                    {"CAPSWRITER_HTTP_API_KEY_FILE": key_file.as_posix()}
+                )
 
     def test_allows_explicit_insecure_non_loopback_bind(self) -> None:
         settings = parse_http_api_env(
