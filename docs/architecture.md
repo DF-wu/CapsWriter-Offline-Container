@@ -78,7 +78,7 @@ requirements-server-docker.txt          ← Linux GPU 版依賴
 start_server_docker.py                  ← Fork 入口 (與上游 start_server.py 並存)
 ```
 
-**刻意 diverge 的 upstream-tracked 檔案：9 個**。
+**刻意 diverge 的 upstream-tracked 檔案：12 個**。
 
 | 檔案 | 原因 |
 |---|---|
@@ -89,6 +89,9 @@ start_server_docker.py                  ← Fork 入口 (與上游 start_server.
 | `assets/BUILD_GUIDE.md` | 讓打包文件列出目前 server dependency set |
 | `zip_release.py` | legacy PyInstaller ZIP packaging 的 7-Zip subprocess timeout 與失敗後 temp file cleanup 需要 release-grade guard |
 | `core/client/hotword/hotword_standalone.py` | local Ollama chat helper 需 bounded request timeout，避免未回應的本機 LLM endpoint 卡住 demo/client 流程 |
+| `core/server/engines/qwen_asr_gguf/inference/audio.py` | direct engine file transcription 的 `ffmpeg` decode 需 bounded timeout/error preview |
+| `core/server/engines/force_aligner_gguf/inference/audio.py` | direct aligner file decode 的 `ffmpeg` subprocess 需 bounded timeout/error preview |
+| `core/server/engines/sensevoice_onnx/inference/audio.py` | SenseVoice direct file decode 的 `ffmpeg` subprocess 需 bounded timeout/error preview |
 | `core/server/worker/gpu_boost.py` | server GPU boost/unboost shell command 需 bounded timeout，避免自訂管理命令卡住 worker loop |
 | `core/tools/window_detector.py` | macOS/Linux foreground-window helper 需 bounded `osascript`/`wmctrl` subprocess，避免桌面 client output path 被卡住 |
 
@@ -196,4 +199,4 @@ ForkedCapsWriterServer().start()
 2. **第二選擇**：fork 內 monkey-patch（runtime 替換）
 3. **第三選擇**：直接修改上游檔。這時必須在本文件與 `upstream-sync-guide.md` 的 known divergent files 清單加一筆，說明原因與 merge 時的處理方式。
 
-目前 (2026-07-07) 為止：第三類只包含上方 9 個已知檔案；不要新增未記錄的 upstream divergence。
+目前 (2026-07-07) 為止：第三類只包含上方 12 個已知檔案；不要新增未記錄的 upstream divergence。

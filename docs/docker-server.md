@@ -110,6 +110,7 @@ HTTP API 預設不把 prompt/context 或轉錄內容寫入 server log/console；
 | `CAPSWRITER_LOG_LEVEL` | `INFO` | `DEBUG` / `INFO` / `WARNING` / `ERROR` |
 | `CAPSWRITER_NUM_THREADS` | `4` | CPU-bound 階段的 thread hint |
 | `CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT` | `60` | 模型與 llama.cpp archive 下載的 socket idle timeout（秒）；必須 > 0 |
+| `CAPSWRITER_ENGINE_FFMPEG_TIMEOUT` | `120` | direct engine file-decode `ffmpeg` timeout（秒）；HTTP API 上傳解碼仍使用 `CAPSWRITER_HTTP_API_TASK_TIMEOUT` |
 | `CAPSWRITER_GPU_BOOST_TIMEOUT` | `5` | upstream GPU boost/unboost shell command timeout（秒）；只在啟用該 upstream 功能時生效 |
 | `CAPSWRITER_REMOVE_MODEL_ARCHIVES` | `false` | `true` = 解壓後刪除壓縮包 |
 
