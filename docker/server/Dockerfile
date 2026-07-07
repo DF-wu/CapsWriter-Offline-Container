@@ -25,9 +25,9 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY requirements-server-docker.txt /app/requirements-server-docker.txt
+COPY requirements-server-docker.txt requirements-server-docker.lock /app/
 
-RUN python -m pip install -r /app/requirements-server-docker.txt
+RUN python -m pip install --no-build-isolation -r /app/requirements-server-docker.lock
 
 COPY . /app
 

@@ -72,7 +72,8 @@ docker-compose.fun-asr.yml              ← Fun-ASR override
 docker-compose.example.yml              ← 範例
 .env.example                            ← env 變數一覽
 .dockerignore
-requirements-server-docker.txt          ← Linux GPU 版依賴
+requirements-server-docker.txt          ← Linux GPU 版 top-level 依賴
+requirements-server-docker.lock         ← Docker image runtime transitive dependency lock
 .github/workflows/publish-server-image.yml  ← GHCR 自動發 image
 
 start_server_docker.py                  ← Fork 入口 (與上游 start_server.py 並存)

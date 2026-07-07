@@ -11,6 +11,7 @@
 | Base image | `nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04@sha256:85fb7ac694079fff1061a0140fd5b5a641997880e12112d92589c3bbb1e8b7ca` |
 | Python | 3.10 (venv at `/opt/venv`) |
 | Python bootstrap tooling | `packaging==26.2`, `pip==26.1.2`, `setuptools==83.0.0`, `wheel==0.47.0` |
+| Python runtime dependencies | [`requirements-server-docker.lock`](../requirements-server-docker.lock) pins the Docker image's transitive runtime set |
 | 入口 | [`docker/server/entrypoint.sh`](../docker/server/entrypoint.sh) → `start_server_docker.py` |
 | 模型策略 | 容器啟動時自動下載缺失模型；走 host bind-mount `./models:/app/models` |
 | GPU 策略 | `CAPSWRITER_INFERENCE_HARDWARE=auto`：先試 GPU，失敗回退 CPU |
@@ -212,7 +213,7 @@ docker build -t capswriter-server:local -f docker/server/Dockerfile .
 
 `.env` 設 `CAPSWRITER_SERVER_IMAGE=capswriter-server:local` 切換。
 
-CI 自動 build 走 [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml)：push 到 master 即觸發。該 workflow 會先跑 `python scripts/verify_all.py --skip-web`，通過後才 build/push GHCR server image，並附帶 provenance 與 SBOM attestations。Dockerfile 的 CUDA base image 與 Python bootstrap tooling 都固定版本，避免 build 時拉到浮動最新版本。
+CI 自動 build 走 [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml)：push 到 master 即觸發。該 workflow 會先跑 `python scripts/verify_all.py --skip-web`，通過後才 build/push GHCR server image，並附帶 provenance 與 SBOM attestations。Dockerfile 的 CUDA base image、Python bootstrap tooling 與 Docker runtime dependency lock 都固定版本，避免 build 時拉到浮動最新版本。
 
 Server image build context 由 [`.dockerignore`](../.dockerignore) 排除本機 `models/`、Web/CLI 產物、`.env*`、secret-like key/cert files 與下載中的 archive，避免把本機模型、token 或驗證輸出打進 image。
 
