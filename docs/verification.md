@@ -182,7 +182,7 @@ checkout -> fetch HaujetZhao upstream base -> setup Python 3.12 -> setup Node 24
 The explicit upstream fetch makes the low-drift guard fail CI when fork commits
 touch a new upstream-tracked file without documenting that divergence.
 
-The publish workflows remain separate. CI verifies source, tests, and local builds; [`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) builds the server image and [`publish-web-image.yml`](../.github/workflows/publish-web-image.yml) builds the static Web Console image when maintainers choose to publish.
+The publish workflows keep their own release gates before pushing GHCR images. [`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) first runs `CAPSWRITER_UPSTREAM_BASE=upstream/master python scripts/verify_all.py --skip-web`, then builds and pushes the server image. [`publish-web-image.yml`](../.github/workflows/publish-web-image.yml) first runs `CAPSWRITER_UPSTREAM_BASE=upstream/master python scripts/verify_all.py --docker-build-web`, including the production Nginx image smoke, then builds and pushes the static Web Console image. Both publish workflows serialize per Git ref so overlapping publishes do not race the `latest` tag.
 
 ## Evidence expected before release
 

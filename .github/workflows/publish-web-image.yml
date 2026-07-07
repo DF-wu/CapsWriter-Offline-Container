@@ -10,8 +10,42 @@ permissions:
   contents: read
   packages: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch upstream base
+        run: |
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream https://github.com/HaujetZhao/CapsWriter-Offline.git
+          git fetch --no-tags --depth=1 upstream master:refs/remotes/upstream/master
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: client/web/package-lock.json
+
+      - name: Verify web release gate
+        env:
+          CAPSWRITER_UPSTREAM_BASE: upstream/master
+        run: python scripts/verify_all.py --docker-build-web
+
   publish:
+    needs: verify
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

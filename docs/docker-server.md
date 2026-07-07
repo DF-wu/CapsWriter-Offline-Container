@@ -208,7 +208,7 @@ docker build -t capswriter-server:local -f docker/server/Dockerfile .
 
 `.env` 設 `CAPSWRITER_SERVER_IMAGE=capswriter-server:local` 切換。
 
-CI 自動 build 走 [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml)：push 到 master 即觸發。
+CI 自動 build 走 [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml)：push 到 master 即觸發。該 workflow 會先跑 `python scripts/verify_all.py --skip-web`，通過後才 build/push GHCR server image。
 
 ---
 
