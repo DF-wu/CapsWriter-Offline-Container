@@ -43,6 +43,20 @@ class GitHubWorkflowTest(unittest.TestCase):
 
                 self.assertIn("needs: verify", publish)
 
+    def test_package_write_permission_is_limited_to_publish_jobs(self) -> None:
+        for filename in ("publish-server-image.yml", "publish-web-image.yml"):
+            with self.subTest(filename=filename):
+                source = read_workflow(filename)
+                workflow_preamble = source.split("\njobs:", 1)[0]
+                verify = workflow_job(source, "verify")
+                publish = workflow_job(source, "publish")
+
+                self.assertNotIn("packages: write", workflow_preamble)
+                self.assertNotIn("packages: write", verify)
+                self.assertIn("permissions:", publish)
+                self.assertIn("contents: read", publish)
+                self.assertIn("packages: write", publish)
+
     def test_server_publish_runs_release_gate_before_push(self) -> None:
         source = read_workflow("publish-server-image.yml")
         verify = workflow_job(source, "verify")
