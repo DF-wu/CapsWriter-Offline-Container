@@ -10,6 +10,7 @@ upstream (HaujetZhao/CapsWriter-Offline)
         │  fork modifies: .gitignore, readme.md, requirements-server.txt,
         │                 LLM/default.py, assets/BUILD_GUIDE.md, zip_release.py,
         │                 core/client/hotword/hotword_standalone.py,
+        │                 core/server/worker/gpu_boost.py,
         │                 core/tools/window_detector.py
         │  fork adds:    fork_server/ docker/ client/cli/ client/web/
         │                docs/ scripts/ docker-compose*.yml .env.example
@@ -19,7 +20,7 @@ upstream (HaujetZhao/CapsWriter-Offline)
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 ```
 
-關鍵：fork 修改 upstream-tracked 檔案數 = **8**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
+關鍵：fork 修改 upstream-tracked 檔案數 = **9**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
 
 | Divergent file | Fork 保留原因 | Merge 處理 |
 |---|---|---|
@@ -30,6 +31,7 @@ fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 | `assets/BUILD_GUIDE.md` | 打包文件需反映 fork dependency set | 合併 dependency 說明 |
 | `zip_release.py` | legacy PyInstaller ZIP packaging 需要 bounded 7-Zip subprocess 與失敗 cleanup | 保留 timeout/cleanup guard；同步 upstream 其他 packaging 規則 |
 | `core/client/hotword/hotword_standalone.py` | standalone hotword Ollama chat helper 需要 bounded local HTTP request | 保留 `CAPSWRITER_OLLAMA_CHAT_TIMEOUT` guard；同步 upstream hotword/demo logic |
+| `core/server/worker/gpu_boost.py` | GPU boost/unboost shell commands 需要 bounded timeout，避免自訂管理命令卡住 worker loop | 保留 `CAPSWRITER_GPU_BOOST_TIMEOUT` guard；同步 upstream GPU boost state logic |
 | `core/tools/window_detector.py` | macOS/Linux window detection subprocess 要有 timeout，避免桌面 client output path hang | 保留 timeout guard；同步 upstream window/app detection 規則 |
 
 ## 2. 標準同步流程
@@ -48,7 +50,7 @@ git merge --ff-only origin/master   # 試 fast-forward
 git merge origin/master
 ```
 
-預期結果：低衝突。若衝突，通常只會落在上方 8 個已知 divergent files。
+預期結果：低衝突。若衝突，通常只會落在上方 9 個已知 divergent files。
 
 跑驗證：
 
@@ -143,6 +145,7 @@ python -m unittest fork_server.http_api.tests.test_ws_send_with_http -v
   LLM/default.py
   assets/BUILD_GUIDE.md
   core/client/hotword/hotword_standalone.py
+  core/server/worker/gpu_boost.py
   core/tools/window_detector.py
   readme.md
   requirements-server.txt

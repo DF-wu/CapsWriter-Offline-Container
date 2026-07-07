@@ -4,11 +4,53 @@ GPU 加速管理模块
 封装 GPU 显存频率锁定/解锁逻辑，用于减少冷启动延迟。
 """
 
+import math
+import os
 import subprocess
 import time
 import ctypes
 from config_server import ServerConfig as Config
 from . import logger
+
+
+GPU_BOOST_TIMEOUT_ENV = "CAPSWRITER_GPU_BOOST_TIMEOUT"
+DEFAULT_GPU_BOOST_TIMEOUT_SECONDS = 5.0
+
+
+def _gpu_boost_timeout_seconds() -> float:
+    raw_timeout = os.environ.get(GPU_BOOST_TIMEOUT_ENV)
+    if raw_timeout is None or raw_timeout == "":
+        return DEFAULT_GPU_BOOST_TIMEOUT_SECONDS
+    try:
+        timeout = float(raw_timeout)
+    except ValueError as exc:
+        raise ValueError(f"{GPU_BOOST_TIMEOUT_ENV} must be a number") from exc
+    if not math.isfinite(timeout):
+        raise ValueError(f"{GPU_BOOST_TIMEOUT_ENV} must be a finite number")
+    if timeout <= 0:
+        raise ValueError(f"{GPU_BOOST_TIMEOUT_ENV} must be > 0")
+    return timeout
+
+
+def _run_gpu_command(command: str) -> bool:
+    try:
+        timeout = _gpu_boost_timeout_seconds()
+    except ValueError as exc:
+        logger.warning(f"GPU 命令 timeout 配置无效: {exc}")
+        return False
+
+    try:
+        subprocess.run(
+            command,
+            shell=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        logger.warning(f"GPU 命令超时 ({timeout:g}s): {command}")
+        return False
+    return True
 
 
 class GpuBoostManager:
@@ -35,8 +77,8 @@ class GpuBoostManager:
             return
 
         logger.info(f"GPU 加速命令: {Config.gpu_boost_cmd}")
-        subprocess.run(Config.gpu_boost_cmd, shell=True,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if not _run_gpu_command(Config.gpu_boost_cmd):
+            return
         self.state.gpu_boosted = True
         self.state.gpu_last_active = 0  # 0 表示已加速但尚未有实际音频任务使用过
 
@@ -57,8 +99,8 @@ class GpuBoostManager:
             return
 
         logger.info(f"GPU 闲置 {idle_time:.0f}s，取消加速: {Config.gpu_unboost_cmd}")
-        subprocess.run(Config.gpu_unboost_cmd, shell=True,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        if not _run_gpu_command(Config.gpu_unboost_cmd):
+            return
         self.state.gpu_boosted = False
         self.state.gpu_last_active = 0.0
 

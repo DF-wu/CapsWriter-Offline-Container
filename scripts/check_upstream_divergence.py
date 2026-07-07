@@ -21,6 +21,7 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "LLM/default.py",
         "assets/BUILD_GUIDE.md",
         "core/client/hotword/hotword_standalone.py",
+        "core/server/worker/gpu_boost.py",
         "core/tools/window_detector.py",
         "readme.md",
         "requirements-server.txt",
