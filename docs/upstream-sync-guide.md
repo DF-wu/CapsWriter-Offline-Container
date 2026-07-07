@@ -64,7 +64,7 @@ python scripts/verify_all.py --skip-web --docker-build-web
 
 | 上游檔/符號 | 變動類型 | Fork 對應檔 | Fork 動作 |
 |---|---|---|---|
-| `core/server/connection/ws_send.py` | 函式邏輯、Result 欄位、訊息協議 | `fork_server/http_api/ws_send_with_http.py` | **手動 re-port** 上游修改 |
+| `core/server/connection/ws_send.py` | 函式邏輯、Result 欄位、訊息協議 | `fork_server/http_api/ws_send_with_http.py` | HTTP unit test 會偵測 drift；失敗時 **手動 re-port** 上游修改 |
 | `core/server/connection/server_manager.py` | 重命名 `ws_send` import 或 `SocketManager.start` 結構 | `fork_server/bootstrap.py::_install_ws_send_hook` | 確認 module attribute 名稱仍正確 |
 | `core/server/app.py` | `CapsWriterServer.start()` 流程 (signal/tray/process/socket 順序) | `fork_server/bootstrap.py::ForkedCapsWriterServer.start` | 比對覆寫版是否需同步調整 |
 | `core/server/schema.py` | `Task` 或 `Result` 新欄位 | `fork_server/http_api/{api.py,task_router.py,ws_send_with_http.py}` | 如新欄位影響 HTTP 路由 → 適配 |
@@ -128,12 +128,8 @@ git diff origin/master..HEAD --name-only \
 # (C) Container build
 docker build -t capswriter-server:merge-test -f docker/server/Dockerfile .
 
-# (D) ws_send_with_http 仍對齊上游 (簡單對比 loop 結構)
-echo "=== upstream ws_send loop ==="
-git show origin/master:core/server/connection/ws_send.py | sed -n '/while True:/,/except Exception/p' | head -30
-echo ""
-echo "=== fork ws_send_with_http loop ==="
-sed -n '/while True:/,/except Exception/p' fork_server/http_api/ws_send_with_http.py | head -30
+# (D) ws_send_with_http 仍對齊上游；失敗時再人工 diff/re-port
+python -m unittest fork_server.http_api.tests.test_ws_send_with_http -v
 
 # (E) 隔離 smoke test (見下節)
 ```
@@ -207,7 +203,7 @@ rm -rf /tmp/cw-merge-test
 
 1. **不要直接在 production container 上 `docker compose pull && up`**。先在隔離專案測過。
 2. **不要 `git merge origin/master` 進 master**。在 feature branch 上 merge 與測試，OK 後再 fast-forward master。
-3. **不要忽略 ws_send_with_http re-port**。上游若改 ws_send 邏輯而 fork 沒同步，HTTP 任務的 result 可能會被 ws 廣播（送錯地方）或漏掉。
+3. **不要忽略 ws_send_with_http re-port**。上游若改 ws_send 邏輯而 fork 沒同步，HTTP 任務的 result 可能會被 ws 廣播（送錯地方）或漏掉；HTTP unit test 的 source guard 失敗時先 re-port，再跑完整 gate。
 
 ## 6. Image 重 build & 發布
 

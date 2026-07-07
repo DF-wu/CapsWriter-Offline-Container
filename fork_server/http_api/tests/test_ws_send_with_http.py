@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import asyncio
 import importlib
 import json
@@ -9,6 +10,7 @@ import sys
 import types
 import unittest
 from dataclasses import asdict, dataclass, field
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
@@ -87,6 +89,75 @@ def load_ws_send_module():
         return importlib.import_module(module_name)
 
 
+def _load_async_function(path: Path, name: str) -> ast.AsyncFunctionDef:
+    module = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    for node in module.body:
+        if isinstance(node, ast.AsyncFunctionDef) and node.name == name:
+            return node
+    raise AssertionError(f"{name} not found in {path}")
+
+
+def _is_http_router_guard(node: ast.AST) -> bool:
+    if not isinstance(node, ast.If):
+        return False
+    test = node.test
+    return (
+        isinstance(test, ast.Call)
+        and isinstance(test.func, ast.Attribute)
+        and test.func.attr == "try_resolve"
+        and isinstance(test.func.value, ast.Name)
+        and test.func.value.id == "task_router"
+    )
+
+
+def _is_log_or_console_call(node: ast.AST) -> bool:
+    if not isinstance(node, ast.Call) or not isinstance(node.func, ast.Attribute):
+        return False
+    owner = node.func.value
+    return isinstance(owner, ast.Name) and owner.id in {"logger", "console"}
+
+
+class _LogTextNormalizer(ast.NodeTransformer):
+    def visit_Constant(self, node: ast.Constant) -> ast.AST:
+        if isinstance(node.value, str):
+            return ast.copy_location(ast.Constant(value="<log text>"), node)
+        return node
+
+
+class _WsSendCanonicalizer(ast.NodeTransformer):
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> ast.AST:
+        node = self.generic_visit(node)
+        node.name = "ws_send"
+        node.decorator_list = []
+        node.returns = None
+        return node
+
+    def visit_If(self, node: ast.If) -> ast.AST | None:
+        if _is_http_router_guard(node):
+            return None
+        return self.generic_visit(node)
+
+    def visit_Call(self, node: ast.Call) -> ast.AST:
+        node = self.generic_visit(node)
+        if _is_log_or_console_call(node):
+            node.args = [_LogTextNormalizer().visit(arg) for arg in node.args]
+            node.keywords = [
+                ast.keyword(
+                    arg=keyword.arg,
+                    value=_LogTextNormalizer().visit(keyword.value),
+                )
+                for keyword in node.keywords
+            ]
+        return node
+
+
+def _canonical_ws_send_ast(path: Path, name: str) -> str:
+    node = _load_async_function(path, name)
+    canonical = _WsSendCanonicalizer().visit(node)
+    ast.fix_missing_locations(canonical)
+    return ast.dump(canonical, include_attributes=False)
+
+
 class FakeQueue:
     def __init__(self, items) -> None:
         self._items = list(items)
@@ -107,6 +178,19 @@ class FakeWebSocket:
 class WsSendWithHttpTest(unittest.TestCase):
     def tearDown(self) -> None:
         sys.modules.pop("fork_server.http_api.ws_send_with_http", None)
+
+    def test_http_aware_ws_send_tracks_upstream_loop(self) -> None:
+        repo_root = Path(__file__).resolve().parents[3]
+        upstream = _canonical_ws_send_ast(
+            repo_root / "core/server/connection/ws_send.py",
+            "ws_send",
+        )
+        forked = _canonical_ws_send_ast(
+            repo_root / "fork_server/http_api/ws_send_with_http.py",
+            "ws_send_with_http",
+        )
+
+        self.assertEqual(upstream, forked)
 
     def test_websocket_result_uses_upstream_result_type_field(self) -> None:
         ws_send_with_http = load_ws_send_module()

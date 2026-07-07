@@ -30,7 +30,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 | 修改的 upstream-tracked 檔案 | **5**：`.gitignore`、`readme.md`、`requirements-server.txt`、`LLM/default.py`、`assets/BUILD_GUIDE.md` |
 | Fork 新增主要目錄 | `fork_server/`、`docker/`、`client/cli/`、`client/web/`、`docs/`、`.github/workflows/` |
 | Hook 策略 | `ForkedCapsWriterServer` 子類化 + `server_manager.ws_send` 單點 monkey-patch |
-| 唯一高漂移點 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 內嵌 upstream `ws_send` loop，merge upstream 後需比對 |
+| 唯一高漂移點 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 內嵌 upstream `ws_send` loop；HTTP unit test 會做 AST source guard，merge upstream 後若失敗需 re-port |
 | 預設相容性 | 不設 `CAPSWRITER_HTTP_API_ENABLE=true` 時，server 啟動路徑保持接近 upstream WebSocket 模式 |
 
 詳細架構見 [architecture.md](architecture.md)。上游同步 SOP 見 [upstream-sync-guide.md](upstream-sync-guide.md)。
@@ -106,7 +106,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 | `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 12 tests、Verifier/diagnostic 23 tests、Web 36 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 | `python scripts/verify_all.py --skip-web --http-base-url http://127.0.0.1:16017 --http-key ... --http-require-ready --http-audio benchmarks/audio/arctic_a0001.wav --http-expect "Author of"` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 15 tests、Verifier/diagnostic 23 tests、current-branch live `/health` v2.6、`/ready` ok、Qwen ASR model-backed STT (`Author of the Danger Trail, Philip Steels, etc.`) |
 | `python scripts/verify_all.py --skip-web` | 通過：CLI 24 tests、server compile、HTTP 57 tests（含 fail-fast server/model env validation）、Docker server 17 tests（含 entrypoint Qwen CPU preset guard）、Verifier/diagnostic 28 tests（含 Docker Compose HTTP/model tuning env guard）、cleanup |
-| `python scripts/verify_all.py` | 通過：CLI 24 tests、server compile、HTTP 61 tests（含 server key-file auth）、Docker server 17 tests、Verifier/diagnostic 28 tests、Web 40 tests/build（含 malformed history/runtime-config filtering）、cleanup |
+| `python scripts/verify_all.py` | 通過：CLI 24 tests、server compile、HTTP 62 tests（含 server key-file auth 與 ws_send drift guard）、Docker server 17 tests、Verifier/diagnostic 28 tests、Web 40 tests/build（含 malformed history/runtime-config filtering）、cleanup |
 
 `127.0.0.1:6017` 仍是既有外部服務；本分支驗證使用隔離容器掛載目前 checkout，對外映射 `127.0.0.1:16017`，並以 temporary API key 執行 `/ready` 與已知音檔 STT gate。共享 verifier log 會將 `--http-key` 顯示為 `<redacted>`。
 
@@ -127,7 +127,7 @@ python scripts/verify_all.py \
 |---|---|
 | CI 不下載模型 | 預期設計；CI 驗證協議、格式、build、Docker smoke。模型品質由 `--http-audio` release gate 補足 |
 | Browser TTS 可用性依賴瀏覽器 / OS voice | Web Console 文件已標明；不走雲端 TTS |
-| `ws_send_with_http.py` 需人工追 upstream | 已對齊 `origin/master @ 7d7fac3`；upstream merge checklist 已列入 |
+| `ws_send_with_http.py` 需人工追 upstream | 已對齊 `origin/master @ 7d7fac3`；HTTP unit test 會偵測未 re-port 的 upstream loop drift，失敗時仍需人工搬回上游修改 |
 | 公開 image 需 merge 到 master 後由 workflow 發布 | feature branch 只提供 workflow 與 local Docker smoke |
 
 ---
