@@ -21,6 +21,8 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "LLM/default.py",
         "assets/BUILD_GUIDE.md",
         "core/client/hotword/hotword_standalone.py",
+        "core/client/transcribe/file_transcriber.py",
+        "core/client/transcribe/media_tool.py",
         "core/server/worker/gpu_boost.py",
         "core/server/engines/force_aligner_gguf/inference/audio.py",
         "core/server/engines/fun_asr_gguf/inference/audio.py",

@@ -99,19 +99,32 @@ class FileTranscriber:
         # 2. 启动 FFmpeg 进程
         ffmpeg_cmd = MediaTool.build_ffmpeg_cmd(self.file)
         
+        process = None
         try:
+            timeout = MediaTool.timeout_seconds()
             process = await asyncio.create_subprocess_exec(
                 *ffmpeg_cmd,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.DEVNULL
             )
+            if process.stdout is None:
+                raise RuntimeError("ffmpeg stdout pipe unavailable")
             
             # 分块大小：1分钟音频 (16000 * 4 * 60 bytes)
             chunk_size = 16000 * 4 * 60
             bytes_sent = 0
+            progress = 0.0
             
             while True:
-                data = await process.stdout.read(chunk_size)
+                try:
+                    data = await asyncio.wait_for(
+                        process.stdout.read(chunk_size),
+                        timeout=timeout,
+                    )
+                except asyncio.TimeoutError:
+                    logger.error(f"ffmpeg 音频读取超时: {timeout:g}s, 文件: {self.file}")
+                    await MediaTool.kill_process(process)
+                    return
                 if not data:
                     break
                 
@@ -151,7 +164,12 @@ class FileTranscriber:
             )
             if not await self._ws_manager.send(final_message):
                 raise ConnectionError("结束标志发送失败")
-            await process.wait()
+            try:
+                await asyncio.wait_for(process.wait(), timeout=timeout)
+            except asyncio.TimeoutError:
+                logger.error(f"ffmpeg 进程等待超时: {timeout:g}s, 文件: {self.file}")
+                await MediaTool.kill_process(process)
+                return
             
             if self._audio_duration == 0:
                 self._audio_duration = progress 
@@ -161,13 +179,13 @@ class FileTranscriber:
             
         except ConnectionError as e:
             logger.error(f"发送数据失败: {e}, 文件: {self.file}")
-            if 'process' in locals() and process.returncode is None:
-                process.terminate()
+            if process is not None:
+                await MediaTool.kill_process(process)
             return
         except Exception as e:
             logger.error(f"转录发送异常: {e}", exc_info=True)
-            if 'process' in locals() and process.returncode is None:
-                process.terminate()
+            if process is not None:
+                await MediaTool.kill_process(process)
             return
     
     async def receive(self) -> None:

@@ -1,5 +1,7 @@
 # coding: utf-8
 import asyncio
+import math
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -8,8 +10,45 @@ from typing import List, Optional
 from core.client.state import console
 from . import logger
 
+CLIENT_MEDIA_TIMEOUT_ENV = "CAPSWRITER_CLIENT_MEDIA_TIMEOUT"
+DEFAULT_CLIENT_MEDIA_TIMEOUT_SECONDS = 120.0
+CLIENT_MEDIA_KILL_GRACE_SECONDS = 2.0
+
+
 class MediaTool:
     """媒体工具类：负责 FFmpeg 相关操作"""
+
+    @staticmethod
+    def timeout_seconds() -> float:
+        raw_timeout = os.environ.get(CLIENT_MEDIA_TIMEOUT_ENV)
+        if raw_timeout is None or raw_timeout == "":
+            return DEFAULT_CLIENT_MEDIA_TIMEOUT_SECONDS
+        try:
+            timeout = float(raw_timeout)
+        except ValueError as exc:
+            raise ValueError(f"{CLIENT_MEDIA_TIMEOUT_ENV} must be a number") from exc
+        if not math.isfinite(timeout):
+            raise ValueError(f"{CLIENT_MEDIA_TIMEOUT_ENV} must be a finite number")
+        if timeout <= 0:
+            raise ValueError(f"{CLIENT_MEDIA_TIMEOUT_ENV} must be > 0")
+        return timeout
+
+    @staticmethod
+    async def kill_process(process) -> bool:
+        if process.returncode is not None:
+            return True
+        try:
+            process.kill()
+        except ProcessLookupError:
+            return True
+        try:
+            await asyncio.wait_for(
+                process.wait(),
+                timeout=CLIENT_MEDIA_KILL_GRACE_SECONDS,
+            )
+        except asyncio.TimeoutError:
+            return False
+        return True
 
     @staticmethod
     def check_environment() -> bool:
@@ -43,14 +82,22 @@ class MediaTool:
             "-of", "default=noprint_wrappers=1:nokey=1", str(file)
         ]
         try:
+            timeout = MediaTool.timeout_seconds()
             process = await asyncio.create_subprocess_exec(
                 *cmd,
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
-            stdout, stderr = await process.communicate()
+            stdout, stderr = await asyncio.wait_for(
+                process.communicate(),
+                timeout=timeout,
+            )
             if process.returncode == 0:
                 return float(stdout.decode().strip())
+        except asyncio.TimeoutError:
+            logger.warning("ffprobe 获取时长超时")
+            if 'process' in locals():
+                await MediaTool.kill_process(process)
         except Exception as e:
             logger.warning(f"无法通过 ffprobe 获取时长: {e}")
         return 0.0
