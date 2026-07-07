@@ -7,6 +7,7 @@
 """
 
 import io
+import ipaddress
 import os, sys, json, shutil, argparse, urllib.request, urllib.error, urllib.parse
 from http import client as http_client
 
@@ -43,6 +44,43 @@ def positive_float(value):
     if parsed <= 0:
         raise argparse.ArgumentTypeError("must be > 0")
     return parsed
+
+
+def port_number(value):
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be an integer") from exc
+    if parsed < 1 or parsed > 65535:
+        raise argparse.ArgumentTypeError("must be 1..65535")
+    return parsed
+
+
+def host_name(value):
+    host = (value or "").strip()
+    if not host:
+        raise argparse.ArgumentTypeError("must not be empty")
+    if any(ch.isspace() for ch in host) or any(ch in host for ch in "/\\?#@"):
+        raise argparse.ArgumentTypeError("must be a host name or IP address, not a URL")
+    if host.startswith("[") or host.endswith("]"):
+        if not (host.startswith("[") and host.endswith("]")):
+            raise argparse.ArgumentTypeError("IPv6 hosts must use [addr] brackets")
+        inner = host[1:-1]
+        try:
+            parsed = ipaddress.ip_address(inner)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError("IPv6 host must be a valid address") from exc
+        if parsed.version != 6:
+            raise argparse.ArgumentTypeError("brackets are only valid for IPv6 hosts")
+        return host
+    if ":" in host:
+        try:
+            parsed = ipaddress.ip_address(host)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError("IPv6 host must be a valid address") from exc
+        if parsed.version == 6:
+            return f"[{host}]"
+    return host
 
 
 def check(label):
@@ -213,8 +251,8 @@ def _api_post(base, path, audio_path, fmt, api_key, timeout):
 
 def main():
     p = argparse.ArgumentParser(description="CapsWriter HTTP API 诊断工具")
-    p.add_argument("--host", default=DEFAULT_HOST)
-    p.add_argument("--port", type=int, default=DEFAULT_PORT)
+    p.add_argument("--host", type=host_name, default=DEFAULT_HOST)
+    p.add_argument("--port", type=port_number, default=DEFAULT_PORT)
     p.add_argument("--audio", help="测试用音频文件 (wav/mp3)")
     p.add_argument("--expect", help="转录结果中应包含的文字；未设置时只检查非空")
     p.add_argument(

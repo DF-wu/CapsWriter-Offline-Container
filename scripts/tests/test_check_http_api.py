@@ -257,6 +257,27 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
         with self.assertRaises(check_http_api.argparse.ArgumentTypeError):
             check_http_api.positive_float("0")
 
+    def test_port_number_rejects_out_of_range_values(self) -> None:
+        self.assertEqual(check_http_api.port_number("6017"), 6017)
+        with self.assertRaisesRegex(check_http_api.argparse.ArgumentTypeError, "1..65535"):
+            check_http_api.port_number("0")
+        with self.assertRaisesRegex(check_http_api.argparse.ArgumentTypeError, "1..65535"):
+            check_http_api.port_number("70000")
+
+    def test_host_name_rejects_urls_credentials_and_paths(self) -> None:
+        with self.assertRaisesRegex(check_http_api.argparse.ArgumentTypeError, "not a URL"):
+            check_http_api.host_name("http://127.0.0.1")
+        with self.assertRaisesRegex(check_http_api.argparse.ArgumentTypeError, "not a URL"):
+            check_http_api.host_name("user@127.0.0.1")
+        with self.assertRaisesRegex(check_http_api.argparse.ArgumentTypeError, "not a URL"):
+            check_http_api.host_name("127.0.0.1/v1")
+
+    def test_host_name_brackets_ipv6_literals(self) -> None:
+        self.assertEqual(check_http_api.host_name("::1"), "[::1]")
+        self.assertEqual(check_http_api.host_name("[::1]"), "[::1]")
+        with self.assertRaisesRegex(check_http_api.argparse.ArgumentTypeError, "valid address"):
+            check_http_api.host_name("[not-ipv6]")
+
 
 class CheckHttpApiMainTest(unittest.TestCase):
     def test_main_uses_server_aligned_default_transcription_timeout(self) -> None:
