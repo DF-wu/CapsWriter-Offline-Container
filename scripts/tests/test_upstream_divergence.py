@@ -54,7 +54,7 @@ class UpstreamDivergenceGuardTest(unittest.TestCase):
         self.assertEqual(paths, ["readme.md"])
 
     def test_unexpected_changes_reports_only_undocumented_divergence(self) -> None:
-        paths = ["README.en.md", "readme.md", "requirements-server.txt"]
+        paths = ["README.en.md", "readme.md", "requirements-server.txt", "zip_release.py"]
 
         self.assertEqual(
             guard.unexpected_changes(paths, guard.ALLOWED_UPSTREAM_DIVERGENCE),

@@ -22,6 +22,7 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "assets/BUILD_GUIDE.md",
         "readme.md",
         "requirements-server.txt",
+        "zip_release.py",
     }
 )
 

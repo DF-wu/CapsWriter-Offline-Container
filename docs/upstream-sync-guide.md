@@ -8,7 +8,7 @@
 upstream (HaujetZhao/CapsWriter-Offline)
         │
         │  fork modifies: .gitignore, readme.md, requirements-server.txt,
-        │                 LLM/default.py, assets/BUILD_GUIDE.md
+        │                 LLM/default.py, assets/BUILD_GUIDE.md, zip_release.py
         │  fork adds:    fork_server/ docker/ client/cli/ client/web/
         │                docs/ scripts/ docker-compose*.yml .env.example
         │                .github/workflows/ requirements-server-docker.txt
@@ -17,7 +17,7 @@ upstream (HaujetZhao/CapsWriter-Offline)
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 ```
 
-關鍵：fork 修改 upstream-tracked 檔案數 = **5**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
+關鍵：fork 修改 upstream-tracked 檔案數 = **6**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
 
 | Divergent file | Fork 保留原因 | Merge 處理 |
 |---|---|---|
@@ -26,6 +26,7 @@ fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 | `requirements-server.txt` | 裸機 server/HTTP API dependency set | 保留 fork HTTP dependencies，並手動納入 upstream 新 dependency |
 | `LLM/default.py` | 移除 API-key-like placeholder，降低 secret-scanning 與誤啟用風險 | 保留空 `api_key`；同步 upstream 其他 template 欄位 |
 | `assets/BUILD_GUIDE.md` | 打包文件需反映 fork dependency set | 合併 dependency 說明 |
+| `zip_release.py` | legacy PyInstaller ZIP packaging 需要 bounded 7-Zip subprocess 與失敗 cleanup | 保留 timeout/cleanup guard；同步 upstream 其他 packaging 規則 |
 
 ## 2. 標準同步流程
 
@@ -139,6 +140,7 @@ python -m unittest fork_server.http_api.tests.test_ws_send_with_http -v
   assets/BUILD_GUIDE.md
   readme.md
   requirements-server.txt
+  zip_release.py
 ```
 
 ## 4. 隔離 smoke test (建議流程)

@@ -78,7 +78,7 @@ requirements-server-docker.txt          ← Linux GPU 版依賴
 start_server_docker.py                  ← Fork 入口 (與上游 start_server.py 並存)
 ```
 
-**刻意 diverge 的 upstream-tracked 檔案：5 個**。
+**刻意 diverge 的 upstream-tracked 檔案：6 個**。
 
 | 檔案 | 原因 |
 |---|---|
@@ -87,6 +87,7 @@ start_server_docker.py                  ← Fork 入口 (與上游 start_server.
 | `requirements-server.txt` | 補上裸機 HTTP API runtime dependencies，讓 `start_server_docker.py` 與 diagnostic imports 可重現 |
 | `LLM/default.py` | 移除 upstream template 內的 API-key-like placeholder，避免 repository secret scanning / 使用者誤啟用 |
 | `assets/BUILD_GUIDE.md` | 讓打包文件列出目前 server dependency set |
+| `zip_release.py` | legacy PyInstaller ZIP packaging 的 7-Zip subprocess timeout 與失敗後 temp file cleanup 需要 release-grade guard |
 
 ## 4. Hook 策略
 
