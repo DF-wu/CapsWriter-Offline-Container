@@ -259,6 +259,8 @@ python check_http_api.py \
 
 If auth is enabled, the diagnostic client can pass `--key-file /run/secrets/capswriter-http.key` or set `CAPSWRITER_HTTP_API_KEY_FILE` so the client-side token is read from a non-empty UTF-8 file instead of being placed directly in the shell command.
 
+The diagnostic client streams multipart uploads and caps each live HTTP response body before JSON parsing or error preview output, so a misrouted proxy or broken server cannot make the release check consume unbounded memory.
+
 ### 3.3 Node / TypeScript
 
 ```ts

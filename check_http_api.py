@@ -14,6 +14,8 @@ from http import client as http_client
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 6017
 DEFAULT_TRANSCRIBE_TIMEOUT = 600.0
+MAX_RESPONSE_BODY_BYTES = 1024 * 1024
+MAX_ERROR_PREVIEW_CHARS = 100
 
 
 def green(s):
@@ -181,10 +183,31 @@ def _build_multipart_body(audio_path, fmt, boundary=None):
     return b"".join(body), boundary
 
 
+def _read_response_body(response, *, max_bytes=None):
+    limit = MAX_RESPONSE_BODY_BYTES if max_bytes is None else max_bytes
+    if limit <= 0:
+        raise ValueError("max_bytes must be positive")
+    body = response.read(limit + 1)
+    if len(body) > limit:
+        raise ValueError(f"HTTP response body exceeded {limit} bytes")
+    return body
+
+
+def _http_error_preview(error):
+    try:
+        try:
+            body = _read_response_body(error)
+        except ValueError as exc:
+            return str(exc)
+        return body.decode("utf-8", errors="replace")[:MAX_ERROR_PREVIEW_CHARS]
+    finally:
+        error.close()
+
+
 def _api_get(base, path, api_key):
     req = urllib.request.Request(f"{base}{path}", headers=_headers(api_key))
     with urllib.request.urlopen(req, timeout=5) as r:
-        return json.loads(r.read())
+        return json.loads(_read_response_body(r))
 
 
 def _raise_http_error(url, response, body):
@@ -228,7 +251,7 @@ def _http_post_stream(url, body, headers, timeout):
             if send_error is not None:
                 raise urllib.error.URLError(send_error) from exc
             raise
-        raw = response.read()
+        raw = _read_response_body(response)
         if response.status >= 400:
             _raise_http_error(url, response, raw)
         return response.getheader("Content-Type", ""), raw
@@ -342,8 +365,7 @@ def main():
             f"router={checks.get('task_router_bound', '?')}"
         )
     except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", errors="replace")
-        fail(f"HTTP {e.code}: {body[:100]}")
+        fail(f"HTTP {e.code}: {_http_error_preview(e)}")
         errors += 1
     except Exception as e:
         fail(str(e))
@@ -383,8 +405,8 @@ def main():
                     fail("返回空文字 — 音频可能无语音或模型未加载")
                     errors += 1
             except urllib.error.HTTPError as e:
-                body = e.read().decode("utf-8", errors="replace")
-                fail(f"HTTP {e.code}: {body[:100]}")
+                body = _http_error_preview(e)
+                fail(f"HTTP {e.code}: {body}")
                 if e.code == 401:
                     print("         → 需要 API key 或 key 不正确")
                 elif e.code == 500 and "ffmpeg" in body.lower():

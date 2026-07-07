@@ -56,6 +56,20 @@ class TranscriptionHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
+class OversizedTranscriptionResponseHandler(BaseHTTPRequestHandler):
+    def log_message(self, *_args):
+        return
+
+    def do_POST(self):
+        self.rfile.read(int(self.headers.get("Content-Length", "0")))
+        body = b"abcd"
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+
 class UnauthorizedTranscriptionHandler(BaseHTTPRequestHandler):
     def log_message(self, *_args):
         return
@@ -167,6 +181,45 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
         self.assertIn(b"FF", chunks)
         self.assertIn(b"\r\n\r\ntext\r\n", b"".join(chunks))
 
+    def test_api_get_rejects_oversized_response_body(self) -> None:
+        class FakeResponse:
+            def __init__(self) -> None:
+                self.requested_sizes = []
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, size=-1):
+                self.requested_sizes.append(size)
+                return b"xxxx"
+
+        response = FakeResponse()
+        with (
+            patch.object(check_http_api, "MAX_RESPONSE_BODY_BYTES", 3),
+            patch.object(check_http_api.urllib.request, "urlopen", return_value=response),
+        ):
+            with self.assertRaisesRegex(ValueError, "exceeded 3 bytes"):
+                check_http_api._api_get("http://127.0.0.1:6017", "/health", "")
+
+        self.assertEqual(response.requested_sizes, [4])
+
+    def test_http_error_preview_rejects_oversized_response_body(self) -> None:
+        error = check_http_api.urllib.error.HTTPError(
+            "http://127.0.0.1:6017/ready",
+            503,
+            "Service Unavailable",
+            {},
+            io.BytesIO(b"xxxx"),
+        )
+
+        with patch.object(check_http_api, "MAX_RESPONSE_BODY_BYTES", 3):
+            preview = check_http_api._http_error_preview(error)
+
+        self.assertEqual(preview, "HTTP response body exceeded 3 bytes")
+
     def test_api_post_uses_configured_timeout(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             audio = Path(tmp) / "sample.wav"
@@ -251,6 +304,29 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
             TranscriptionHandler.request_body,
         )
         self.assertIn(b"\r\n\r\ntext\r\n", TranscriptionHandler.request_body)
+
+    def test_api_post_rejects_oversized_response_body(self) -> None:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), OversizedTranscriptionResponseHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                audio = Path(tmp) / "sample.wav"
+                audio.write_bytes(b"RIFF")
+                with patch.object(check_http_api, "MAX_RESPONSE_BODY_BYTES", 3):
+                    with self.assertRaisesRegex(ValueError, "exceeded 3 bytes"):
+                        check_http_api._api_post(
+                            f"http://127.0.0.1:{server.server_port}",
+                            "/v1/audio/transcriptions",
+                            str(audio),
+                            "text",
+                            "",
+                            7.5,
+                        )
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
 
     def test_positive_float_rejects_non_positive_timeout(self) -> None:
         self.assertEqual(check_http_api.positive_float("2.5"), 2.5)
