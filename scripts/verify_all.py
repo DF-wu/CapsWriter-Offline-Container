@@ -220,6 +220,7 @@ def _compact_for_match(value: str) -> str:
 def verify_http_transcription(
     base_url: str,
     api_key: str,
+    api_key_file: str,
     audio_path: str,
     expected_text: str,
 ) -> int:
@@ -245,6 +246,8 @@ def verify_http_transcription(
     ]
     if api_key:
         args.extend(["--key", api_key])
+    elif api_key_file:
+        args.extend(["--key-file", api_key_file])
     args.append(str(audio))
     code, stdout = run_capture(args)
     if code != 0:
@@ -269,13 +272,20 @@ def verify_http_transcription(
 def verify_http(
     base_url: str,
     api_key: str,
+    api_key_file: str,
     audio_path: str,
     expected_text: str,
     require_ready: bool,
 ) -> int:
     if not base_url:
         print("HTTP live check skipped (set --http-base-url or CAPSWRITER_VERIFY_HTTP_BASE)")
-        return verify_http_transcription(base_url, api_key, audio_path, expected_text)
+        return verify_http_transcription(
+            base_url,
+            api_key,
+            api_key_file,
+            audio_path,
+            expected_text,
+        )
     args = [
         sys.executable,
         "client/cli/capswriter_cli.py",
@@ -287,6 +297,8 @@ def verify_http(
     ]
     if api_key:
         args.extend(["--key", api_key])
+    elif api_key_file:
+        args.extend(["--key-file", api_key_file])
     code = run_required(args)
     if code != 0:
         return code
@@ -302,10 +314,18 @@ def verify_http(
         ]
         if api_key:
             args.extend(["--key", api_key])
+        elif api_key_file:
+            args.extend(["--key-file", api_key_file])
         code = run_required(args)
         if code != 0:
             return code
-    return verify_http_transcription(base_url, api_key, audio_path, expected_text)
+    return verify_http_transcription(
+        base_url,
+        api_key,
+        api_key_file,
+        audio_path,
+        expected_text,
+    )
 
 
 def verify_web_docker() -> int:
@@ -406,6 +426,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional live HTTP API Bearer token",
     )
     parser.add_argument(
+        "--http-key-file",
+        default=os.environ.get("CAPSWRITER_HTTP_API_KEY_FILE", ""),
+        help="Optional UTF-8 file containing the live HTTP API Bearer token",
+    )
+    parser.add_argument(
         "--http-audio",
         default=os.environ.get("CAPSWRITER_VERIFY_HTTP_AUDIO", ""),
         help="Optional known audio file for a live transcription smoke test",
@@ -458,6 +483,7 @@ def main() -> int:
                 lambda: verify_http(
                     args.http_base_url,
                     args.http_key,
+                    args.http_key_file,
                     args.http_audio,
                     args.http_expect,
                     args.http_require_ready,

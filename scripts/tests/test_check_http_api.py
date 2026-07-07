@@ -91,6 +91,26 @@ class UnauthorizedTranscriptionHandler(BaseHTTPRequestHandler):
 
 
 class CheckHttpApiMultipartTest(unittest.TestCase):
+    def test_resolve_api_key_reads_key_file_when_key_missing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            key_file = Path(tmp) / "capswriter.key"
+            key_file.write_text("sk-from-file\n", encoding="utf-8")
+
+            self.assertEqual(
+                check_http_api.resolve_api_key("", str(key_file)),
+                "sk-from-file",
+            )
+
+    def test_resolve_api_key_prefers_explicit_key_over_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            key_file = Path(tmp) / "capswriter.key"
+            key_file.write_text("sk-from-file\n", encoding="utf-8")
+
+            self.assertEqual(
+                check_http_api.resolve_api_key("sk-explicit", str(key_file)),
+                "sk-explicit",
+            )
+
     def test_multipart_header_value_escapes_control_characters(self) -> None:
         value = 'sample"\\\r\nX-Injected: yes.wav'
 

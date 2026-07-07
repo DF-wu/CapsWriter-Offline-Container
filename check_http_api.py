@@ -3,7 +3,7 @@
 
 用法: python check_http_api.py [--host 127.0.0.1] [--port 6017]
                             [--audio test.wav] [--expect 你好] [--key sk-xxx]
-                            [--timeout 300]
+                            [--key-file /run/secrets/capswriter.key] [--timeout 300]
 """
 
 import io
@@ -63,6 +63,20 @@ def _headers(api_key):
     if api_key:
         h["Authorization"] = f"Bearer {api_key}"
     return h
+
+
+def read_api_key_file(path):
+    if not path:
+        return ""
+    with open(path, encoding="utf-8") as f:
+        return f.read().strip()
+
+
+def resolve_api_key(api_key, api_key_file):
+    explicit_key = (api_key or "").strip()
+    if explicit_key:
+        return explicit_key
+    return read_api_key_file(api_key_file)
 
 
 def multipart_header_value(value):
@@ -211,8 +225,17 @@ def main():
         default=os.environ.get("CAPSWRITER_HTTP_API_KEY", ""),
         help="API key (或设置环境变量 CAPSWRITER_HTTP_API_KEY)",
     )
+    p.add_argument(
+        "--key-file",
+        default=os.environ.get("CAPSWRITER_HTTP_API_KEY_FILE", ""),
+        help="包含 API key 的 UTF-8 文件 (或设置环境变量 CAPSWRITER_HTTP_API_KEY_FILE)",
+    )
     args = p.parse_args()
-    api_key = args.key or ""
+    try:
+        api_key = resolve_api_key(args.key, args.key_file)
+    except OSError as exc:
+        print(red(f"无法读取 API key 文件: {exc}"), file=sys.stderr)
+        return 1
     base = f"http://{args.host}:{args.port}"
     errors = 0
 

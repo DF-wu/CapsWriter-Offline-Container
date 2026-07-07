@@ -65,6 +65,16 @@ python client/cli/capswriter_cli.py ready --base-url http://127.0.0.1:6017 --key
 python client/cli/capswriter_cli.py models --base-url http://127.0.0.1:6017 --key sk-local-dev
 ```
 
+For production shells and process supervisors, prefer a key file so the token is not placed directly in command history or process arguments:
+
+```bash
+install -m 600 -D /dev/null /run/secrets/capswriter-http.key
+printf '%s\n' 'sk-local-dev' > /run/secrets/capswriter-http.key
+python client/cli/capswriter_cli.py ready \
+  --base-url http://127.0.0.1:6017 \
+  --key-file /run/secrets/capswriter-http.key
+```
+
 You can also use environment variables:
 
 ```bash
@@ -82,6 +92,8 @@ $env:CAPSWRITER_HTTP_API_KEY = "sk-local-dev"
 python client\cli\capswriter_cli.py health
 python client\cli\capswriter_cli.py ready
 ```
+
+Use `CAPSWRITER_HTTP_API_KEY_FILE` instead of `CAPSWRITER_HTTP_API_KEY` when a service manager or secret mount can provide a UTF-8 file containing the token.
 
 ## Server Diagnostics
 
@@ -180,6 +192,7 @@ python client/cli/scripts/clean.py
 
 - Multipart upload is implemented with `urllib.request` and a generated boundary; local filenames are escaped before writing the `Content-Disposition` header.
 - `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
+- `--key-file` and `CAPSWRITER_HTTP_API_KEY_FILE` read a UTF-8 Bearer token file; explicit `--key` still takes precedence for one-off local diagnostics.
 - `--output-dir` maps output extensions by response format: `.txt`, `.json`, `.srt`, `.vtt`.
 - `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.
 - HTTP errors normalize OpenAI-style `error.message`, legacy `detail` payloads, non-JSON HTTP error bodies, and invalid JSON responses from expected JSON endpoints.

@@ -253,6 +253,8 @@ python check_http_api.py \
   --timeout 300
 ```
 
+If auth is enabled, pass `--key-file /run/secrets/capswriter-http.key` or set `CAPSWRITER_HTTP_API_KEY_FILE` so the token is read from a UTF-8 file instead of being placed directly in the shell command.
+
 ### 3.3 Node / TypeScript
 
 ```ts

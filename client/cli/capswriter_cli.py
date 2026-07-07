@@ -95,6 +95,19 @@ def auth_headers(config: ApiConfig) -> dict[str, str]:
     )
 
 
+def read_api_key_file(path: str) -> str:
+    if not path:
+        return ""
+    return Path(path).read_text(encoding="utf-8").strip()
+
+
+def resolve_api_key(api_key: str, api_key_file: str) -> str:
+    explicit_key = api_key.strip()
+    if explicit_key:
+        return explicit_key
+    return read_api_key_file(api_key_file)
+
+
 def _read_response(response) -> HttpResult:
     return HttpResult(
         status=getattr(response, "status", response.getcode()),
@@ -452,6 +465,11 @@ def add_common_options(parser: argparse.ArgumentParser) -> None:
         default=os.environ.get("CAPSWRITER_HTTP_API_KEY", ""),
         help="Bearer token, or CAPSWRITER_HTTP_API_KEY",
     )
+    parser.add_argument(
+        "--key-file",
+        default=os.environ.get("CAPSWRITER_HTTP_API_KEY_FILE", ""),
+        help="UTF-8 file containing the Bearer token, or CAPSWRITER_HTTP_API_KEY_FILE",
+    )
     parser.add_argument("--timeout", type=float, default=120.0)
 
 
@@ -503,7 +521,7 @@ def build_parser() -> argparse.ArgumentParser:
 def _config(args) -> ApiConfig:
     return ApiConfig(
         base_url=normalize_base_url(args.base_url),
-        api_key=args.key,
+        api_key=resolve_api_key(args.key, args.key_file),
         timeout=args.timeout,
     )
 

@@ -14,9 +14,9 @@ The command runs:
 
 | Step | Command | Coverage |
 |---|---|---|
-| CLI | `python client/cli/scripts/verify.py` | CLI syntax, health/readiness/models calls, streamed multipart upload including filename escaping and early error responses, mock HTTP transcription, HTTP and invalid JSON diagnostics, output files, Linux/Windows TTS command selection, zipapp packaging |
+| CLI | `python client/cli/scripts/verify.py` | CLI syntax, health/readiness/models calls, key-file auth, streamed multipart upload including filename escaping and early error responses, mock HTTP transcription, HTTP and invalid JSON diagnostics, output files, Linux/Windows TTS command selection, zipapp packaging |
 | Server | `python -m compileall fork_server docker/server check_http_api.py start_server_docker.py` + HTTP and Docker server unit tests | HTTP sidecar, strict Bearer header parsing, Docker entrypoint/healthcheck syntax, readiness-gated container healthcheck, privacy-preserving transcript logging, SRT/VTT timestamp formatting, bounded ffmpeg decode diagnostics, model downloader diagnostics, dependency-light request limit and runtime config tests |
-| Verifier/diagnostic | `python -m unittest discover -s scripts/tests -v` | Root gate helper behavior, including redaction of live HTTP API keys from shared logs, plus diagnostic streamed multipart upload escaping, real HTTP body delivery, POST 401 handling, configurable live transcription timeout, HTTP API dependency guards, role-template secret/default guards, `/health` 401 API-key guidance, cleanup traversal pruning, and source guard for configured ffmpeg decode timeout |
+| Verifier/diagnostic | `python -m unittest discover -s scripts/tests -v` | Root gate helper behavior, including redaction of live HTTP API keys from shared logs and key-file pass-through, plus diagnostic streamed multipart upload escaping, real HTTP body delivery, POST 401 handling, configurable live transcription timeout, HTTP API dependency guards, role-template secret/default guards, `/health` 401 API-key guidance, cleanup traversal pruning, and source guard for configured ffmpeg decode timeout |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, bounded Web API and invalid JSON diagnostics, recording resource cleanup, deferred export URL cleanup, TTS voice handler cleanup, clipboard failure handling, best-effort localStorage persistence, malformed settings/history recovery, runtime `/config.js` escaping, TypeScript, production build, web clean script |
 | Optional Web browser smoke | temporary mock API + Vite + `agent-browser` | Real browser can check server health, upload audio, and transcribe through the UI |
 | Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
@@ -88,6 +88,14 @@ python scripts/verify_all.py \
   --http-key sk-local-dev
 ```
 
+Secret-file alternative:
+
+```bash
+python scripts/verify_all.py \
+  --http-base-url http://127.0.0.1:6017 \
+  --http-key-file /run/secrets/capswriter-http.key
+```
+
 Environment alternative:
 
 ```bash
@@ -95,7 +103,7 @@ CAPSWRITER_VERIFY_HTTP_BASE=http://127.0.0.1:6017 \
 CAPSWRITER_VERIFY_HTTP_REQUIRE_READY=true \
 CAPSWRITER_VERIFY_HTTP_AUDIO=/path/to/known-speech.wav \
 CAPSWRITER_VERIFY_HTTP_EXPECT="expected transcript text" \
-CAPSWRITER_HTTP_API_KEY=sk-local-dev \
+CAPSWRITER_HTTP_API_KEY_FILE=/run/secrets/capswriter-http.key \
 python scripts/verify_all.py
 ```
 

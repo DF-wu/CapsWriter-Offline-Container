@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import sys
 import tempfile
 import threading
@@ -128,6 +129,39 @@ class CapsWriterCliTest(unittest.TestCase):
             cli.normalize_base_url("http://localhost:6017/v1/"),
             "http://localhost:6017",
         )
+
+    def test_config_reads_api_key_file_when_key_missing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            key_file = Path(tmp) / "capswriter.key"
+            key_file.write_text("sk-from-file\n", encoding="utf-8")
+            args = cli.build_parser().parse_args(["health", "--key-file", str(key_file)])
+
+            self.assertEqual(cli._config(args).api_key, "sk-from-file")
+
+    def test_config_prefers_explicit_key_over_key_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            key_file = Path(tmp) / "capswriter.key"
+            key_file.write_text("sk-from-file\n", encoding="utf-8")
+            args = cli.build_parser().parse_args(
+                ["health", "--key", "sk-explicit", "--key-file", str(key_file)]
+            )
+
+        self.assertEqual(cli._config(args).api_key, "sk-explicit")
+
+    def test_config_uses_key_file_environment_variable(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            key_file = Path(tmp) / "capswriter.key"
+            key_file.write_text("sk-from-env-file\n", encoding="utf-8")
+            with patch.dict(
+                os.environ,
+                {
+                    "CAPSWRITER_HTTP_API_KEY": "",
+                    "CAPSWRITER_HTTP_API_KEY_FILE": str(key_file),
+                },
+            ):
+                args = cli.build_parser().parse_args(["health"])
+
+                self.assertEqual(cli._config(args).api_key, "sk-from-env-file")
 
     def test_build_multipart_contains_audio_and_fields(self):
         with tempfile.TemporaryDirectory() as tmp:
