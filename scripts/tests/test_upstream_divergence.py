@@ -57,6 +57,7 @@ class UpstreamDivergenceGuardTest(unittest.TestCase):
         paths = [
             "README.en.md",
             "core/client/audio/file_manager.py",
+            "core/client/hotword/hotword_standalone.ipynb",
             "core/client/hotword/hotword_standalone.py",
             "core/client/manager/tray_manager.py",
             "core/client/transcribe/file_transcriber.py",

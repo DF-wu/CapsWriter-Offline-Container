@@ -17,6 +17,9 @@ ROOT = Path(__file__).resolve().parents[2]
 HOTWORD_STANDALONE_PATH = (
     ROOT / "core" / "client" / "hotword" / "hotword_standalone.py"
 )
+HOTWORD_NOTEBOOK_PATH = (
+    ROOT / "core" / "client" / "hotword" / "hotword_standalone.ipynb"
+)
 
 
 class JsonResponse:
@@ -134,6 +137,29 @@ class HotwordStandaloneTest(unittest.TestCase):
 
         self.assertEqual(result, "")
         self.assertEqual(fake_requests.calls, [])
+
+    def test_notebook_ollama_example_uses_timeout_guard(self) -> None:
+        notebook = json.loads(HOTWORD_NOTEBOOK_PATH.read_text(encoding="utf-8"))
+        source_parts = []
+        for cell in notebook["cells"]:
+            source = cell.get("source", "")
+            if isinstance(source, list):
+                source_parts.append("".join(source))
+            else:
+                source_parts.append(source)
+        source_text = "\n".join(source_parts)
+
+        self.assertIn("import math", source_text)
+        self.assertIn(
+            'OLLAMA_CHAT_TIMEOUT_ENV = "CAPSWRITER_OLLAMA_CHAT_TIMEOUT"',
+            source_text,
+        )
+        self.assertIn("def _ollama_chat_timeout_seconds() -> float:", source_text)
+        self.assertIn("timeout=_ollama_chat_timeout_seconds()", source_text)
+        self.assertNotIn(
+            "requests.post(url, json=payload, stream=stream)",
+            source_text,
+        )
 
 
 if __name__ == "__main__":
