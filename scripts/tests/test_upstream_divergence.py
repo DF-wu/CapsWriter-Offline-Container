@@ -56,6 +56,7 @@ class UpstreamDivergenceGuardTest(unittest.TestCase):
     def test_unexpected_changes_reports_only_undocumented_divergence(self) -> None:
         paths = [
             "README.en.md",
+            "core/client/audio/file_manager.py",
             "core/client/hotword/hotword_standalone.py",
             "core/client/transcribe/file_transcriber.py",
             "core/client/transcribe/media_tool.py",

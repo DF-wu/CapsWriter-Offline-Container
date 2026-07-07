@@ -21,7 +21,7 @@ upstream (HaujetZhao/CapsWriter-Offline)
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 ```
 
-關鍵：fork 修改 upstream-tracked 檔案數 = **15**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
+關鍵：fork 修改 upstream-tracked 檔案數 = **16**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
 
 | Divergent file | Fork 保留原因 | Merge 處理 |
 |---|---|---|
@@ -31,6 +31,7 @@ fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 | `LLM/default.py` | 移除 API-key-like placeholder，降低 secret-scanning 與誤啟用風險 | 保留空 `api_key`；同步 upstream 其他 template 欄位 |
 | `assets/BUILD_GUIDE.md` | 打包文件需反映 fork dependency set | 合併 dependency 說明 |
 | `zip_release.py` | legacy PyInstaller ZIP packaging 需要 bounded 7-Zip subprocess 與失敗 cleanup | 保留 timeout/cleanup guard；同步 upstream 其他 packaging 規則 |
+| `core/client/audio/file_manager.py` | GUI recorder MP3 `ffmpeg` finalize 需要 bounded wait 與 kill cleanup | 保留 `CAPSWRITER_CLIENT_AUDIO_FINISH_TIMEOUT` guard；同步 upstream audio file lifecycle logic |
 | `core/client/hotword/hotword_standalone.py` | standalone hotword Ollama chat helper 需要 bounded local HTTP request | 保留 `CAPSWRITER_OLLAMA_CHAT_TIMEOUT` guard；同步 upstream hotword/demo logic |
 | `core/client/transcribe/media_tool.py` | GUI file transcription 的 `ffprobe` duration probe 需要 bounded timeout 與 kill cleanup | 保留 `CAPSWRITER_CLIENT_MEDIA_TIMEOUT` guard；同步 upstream media environment/probe logic |
 | `core/client/transcribe/file_transcriber.py` | GUI file transcription 的 `ffmpeg` streaming subprocess 需要 bounded stdout read、final wait 與 kill cleanup | 保留 `CAPSWRITER_CLIENT_MEDIA_TIMEOUT` guard；同步 upstream file transcription flow |
@@ -54,7 +55,7 @@ git merge --ff-only origin/master   # 試 fast-forward
 git merge origin/master
 ```
 
-預期結果：低衝突。若衝突，通常只會落在上方 15 個已知 divergent files。
+預期結果：低衝突。若衝突，通常只會落在上方 16 個已知 divergent files。
 
 跑驗證：
 

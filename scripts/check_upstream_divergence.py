@@ -20,6 +20,7 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         ".gitignore",
         "LLM/default.py",
         "assets/BUILD_GUIDE.md",
+        "core/client/audio/file_manager.py",
         "core/client/hotword/hotword_standalone.py",
         "core/client/transcribe/file_transcriber.py",
         "core/client/transcribe/media_tool.py",
