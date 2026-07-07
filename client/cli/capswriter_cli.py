@@ -379,8 +379,6 @@ def render_transcription(result: HttpResult, response_format: str) -> str:
     if response_format in {"text", "srt", "vtt"}:
         return result.text
     payload = _json_or_raise(result, "/v1/audio/transcriptions")
-    if response_format == "json":
-        return payload.get("text", "")
     return json.dumps(payload, ensure_ascii=False, indent=2)
 
 

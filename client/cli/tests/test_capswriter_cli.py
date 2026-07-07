@@ -288,6 +288,17 @@ class CapsWriterCliTest(unittest.TestCase):
             r"<html>x+.*\.\.\.$",
         )
 
+    def test_render_transcription_preserves_json_response(self):
+        result = cli.HttpResult(
+            status=200,
+            content_type="application/json",
+            body=json.dumps({"text": "mock cli transcript"}).encode("utf-8"),
+        )
+
+        rendered = cli.render_transcription(result, "json")
+
+        self.assertEqual(json.loads(rendered), {"text": "mock cli transcript"})
+
     def test_main_writes_transcription_output(self):
         with tempfile.TemporaryDirectory() as tmp:
             audio = Path(tmp) / "sample.wav"
@@ -309,6 +320,32 @@ class CapsWriterCliTest(unittest.TestCase):
             )
             self.assertEqual(code, 0)
             self.assertEqual(output.read_text(encoding="utf-8"), "mock cli transcript")
+
+    def test_main_writes_valid_json_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "sample.wav"
+            output = Path(tmp) / "out.json"
+            audio.write_bytes(b"RIFF")
+            code = cli.main(
+                [
+                    "transcribe",
+                    "--base-url",
+                    self.base_url,
+                    "--timeout",
+                    "5",
+                    "--format",
+                    "json",
+                    "--output",
+                    str(output),
+                    str(audio),
+                ]
+            )
+
+            self.assertEqual(code, 0)
+            self.assertEqual(
+                json.loads(output.read_text(encoding="utf-8")),
+                {"text": "mock cli transcript"},
+            )
 
     def test_main_ready_prints_diagnostics(self):
         stdout = io.StringIO()

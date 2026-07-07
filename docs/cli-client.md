@@ -115,6 +115,8 @@ python client/cli/capswriter_cli.py transcribe meeting.wav \
   --output meeting.transcript.json
 ```
 
+`json` and `verbose_json` outputs are written as valid JSON, not plain transcript text.
+
 Batch mode:
 
 ```bash
