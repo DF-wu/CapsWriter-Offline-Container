@@ -10,6 +10,7 @@ dependencies.
 from __future__ import annotations
 
 import argparse
+from http import client as http_client
 import json
 import os
 import platform
@@ -19,8 +20,8 @@ import sys
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, Optional
-from urllib import error, request
+from typing import Callable, Iterable, Iterator, Optional
+from urllib import error, parse, request
 
 
 DEFAULT_BASE_URL = "http://127.0.0.1:6017"
@@ -55,6 +56,28 @@ class ApiError(RuntimeError):
         self.status = status
         self.message = message
         super().__init__(f"HTTP {status}: {message}")
+
+
+@dataclass(frozen=True)
+class MultipartBody:
+    file_path: Path
+    fields: tuple[tuple[str, str], ...]
+    boundary: str
+    content_length: int
+    chunk_size: int
+
+    def __iter__(self) -> Iterator[bytes]:
+        yield _multipart_file_header(self.file_path, self.boundary)
+        with self.file_path.open("rb") as audio:
+            while True:
+                chunk = audio.read(self.chunk_size)
+                if not chunk:
+                    break
+                yield chunk
+        yield b"\r\n"
+        for name, value in self.fields:
+            yield _multipart_field(name, value, self.boundary)
+        yield _multipart_closing_boundary(self.boundary)
 
 
 def normalize_base_url(value: str) -> str:
@@ -139,7 +162,11 @@ def _json_or_raise(
 
 def _raise_api_error(exc: error.HTTPError) -> None:
     result = _result_from_http_error(exc)
-    message = error_message_from_body(result.body) or exc.reason or "Request failed"
+    _raise_result_api_error(result, exc.reason)
+
+
+def _raise_result_api_error(result: HttpResult, reason: str = "Request failed") -> None:
+    message = error_message_from_body(result.body) or reason or "Request failed"
     raise ApiError(result.status, message) from None
 
 
@@ -177,6 +204,52 @@ def http_get_json_status(
     )
 
 
+def http_post_stream(
+    config: ApiConfig,
+    path: str,
+    body: Iterable[bytes],
+    headers: dict[str, str],
+) -> HttpResult:
+    url = parse.urlsplit(f"{normalize_base_url(config.base_url)}{path}")
+    if url.scheme not in {"http", "https"} or not url.hostname:
+        raise ValueError(f"Unsupported URL: {url.geturl()}")
+    target = parse.urlunsplit(("", "", url.path or "/", url.query, ""))
+    connection_class = (
+        http_client.HTTPSConnection if url.scheme == "https" else http_client.HTTPConnection
+    )
+    connection = connection_class(url.hostname, url.port, timeout=config.timeout)
+    send_error: OSError | None = None
+    try:
+        connection.putrequest("POST", target)
+        for name, value in headers.items():
+            connection.putheader(name, value)
+        connection.endheaders()
+        for chunk in body:
+            if not chunk:
+                continue
+            try:
+                connection.send(chunk)
+            except (BrokenPipeError, ConnectionResetError) as exc:
+                send_error = exc
+                break
+        try:
+            response = connection.getresponse()
+        except OSError as exc:
+            if send_error is not None:
+                raise error.URLError(send_error) from exc
+            raise
+        result = HttpResult(
+            status=response.status,
+            content_type=response.getheader("Content-Type", ""),
+            body=response.read(),
+        )
+        if result.status >= 400:
+            _raise_result_api_error(result, response.reason)
+        return result
+    finally:
+        connection.close()
+
+
 def multipart_header_value(value: str) -> str:
     return (
         value.replace("\\", "\\\\")
@@ -186,39 +259,62 @@ def multipart_header_value(value: str) -> str:
     )
 
 
+def _multipart_file_header(file_path: Path, boundary: str) -> bytes:
+    return (
+        f"--{boundary}\r\n"
+        'Content-Disposition: form-data; name="file"; '
+        f'filename="{multipart_header_value(file_path.name)}"\r\n'
+        f"Content-Type: application/octet-stream\r\n\r\n"
+    ).encode("utf-8")
+
+
+def _multipart_field(name: str, value: str, boundary: str) -> bytes:
+    return (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="{name}"\r\n\r\n'
+        f"{value}\r\n"
+    ).encode("utf-8")
+
+
+def _multipart_closing_boundary(boundary: str) -> bytes:
+    return f"--{boundary}--\r\n".encode("utf-8")
+
+
+def build_multipart_stream(
+    file_path: Path,
+    fields: dict[str, str],
+    boundary: Optional[str] = None,
+    *,
+    chunk_size: int = 1024 * 1024,
+) -> tuple[Iterable[bytes], str, int]:
+    if chunk_size <= 0:
+        raise ValueError("chunk_size must be positive")
+    boundary = boundary or f"----CapsWriterBoundary{uuid.uuid4().hex}"
+    active_fields = tuple((name, value) for name, value in fields.items() if value != "")
+    file_header = _multipart_file_header(file_path, boundary)
+    field_chunks = [_multipart_field(name, value, boundary) for name, value in active_fields]
+    closing = _multipart_closing_boundary(boundary)
+    content_length = (
+        len(file_header)
+        + file_path.stat().st_size
+        + len(b"\r\n")
+        + sum(len(chunk) for chunk in field_chunks)
+        + len(closing)
+    )
+    return (
+        MultipartBody(file_path, active_fields, boundary, content_length, chunk_size),
+        boundary,
+        content_length,
+    )
+
+
 def build_multipart(
     file_path: Path,
     fields: dict[str, str],
     boundary: Optional[str] = None,
 ) -> tuple[bytes, str]:
-    boundary = boundary or f"----CapsWriterBoundary{uuid.uuid4().hex}"
-    chunks: list[bytes] = []
-    audio_data = file_path.read_bytes()
-
-    chunks.append(
-        (
-            f"--{boundary}\r\n"
-            'Content-Disposition: form-data; name="file"; '
-            f'filename="{multipart_header_value(file_path.name)}"\r\n'
-            f"Content-Type: application/octet-stream\r\n\r\n"
-        ).encode("utf-8")
-    )
-    chunks.append(audio_data)
-    chunks.append(b"\r\n")
-
-    for name, value in fields.items():
-        if value == "":
-            continue
-        chunks.append(
-            (
-                f"--{boundary}\r\n"
-                f'Content-Disposition: form-data; name="{name}"\r\n\r\n'
-                f"{value}\r\n"
-            ).encode("utf-8")
-        )
-
-    chunks.append(f"--{boundary}--\r\n".encode("utf-8"))
-    return b"".join(chunks), boundary
+    body, boundary, _content_length = build_multipart_stream(file_path, fields, boundary)
+    return b"".join(body), boundary
 
 
 def transcribe_file(
@@ -234,7 +330,7 @@ def transcribe_file(
         raise ValueError(f"Unsupported response_format: {response_format}")
     if not file_path.exists():
         raise FileNotFoundError(file_path)
-    body, boundary = build_multipart(
+    body, boundary, content_length = build_multipart_stream(
         file_path,
         {
             "model": model,
@@ -245,19 +341,15 @@ def transcribe_file(
     )
     headers = {
         "Content-Type": f"multipart/form-data; boundary={boundary}",
+        "Content-Length": str(content_length),
         **auth_headers(config),
     }
-    req = request.Request(
-        f"{normalize_base_url(config.base_url)}/v1/audio/transcriptions",
-        data=body,
-        headers=headers,
-        method="POST",
+    return http_post_stream(
+        config,
+        "/v1/audio/transcriptions",
+        body,
+        headers,
     )
-    try:
-        with request.urlopen(req, timeout=config.timeout) as response:
-            return _read_response(response)
-    except error.HTTPError as exc:
-        _raise_api_error(exc)
 
 
 def render_transcription(result: HttpResult, response_format: str) -> str:

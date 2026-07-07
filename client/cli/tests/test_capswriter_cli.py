@@ -7,6 +7,7 @@ import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
@@ -142,6 +143,24 @@ class CapsWriterCliTest(unittest.TestCase):
             self.assertIn(b"whisper-1", body)
             self.assertIn(b"RIFF", body)
 
+    def test_build_multipart_stream_reports_content_length(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "sample.wav"
+            audio.write_bytes(b"RIFF")
+            body, boundary, content_length = cli.build_multipart_stream(
+                audio,
+                {"model": "whisper-1", "response_format": "text", "prompt": ""},
+                boundary="test-boundary",
+                chunk_size=2,
+            )
+            chunks = list(body)
+
+            self.assertEqual(boundary, "test-boundary")
+            self.assertEqual(content_length, sum(len(chunk) for chunk in chunks))
+            self.assertIn(b"RI", chunks)
+            self.assertIn(b"FF", chunks)
+            self.assertIn(b"whisper-1", b"".join(chunks))
+
     def test_build_multipart_escapes_filename_header_value(self):
         with tempfile.TemporaryDirectory() as tmp:
             audio = Path(tmp) / 'sample"\r\nX-Injected: yes.wav'
@@ -166,6 +185,16 @@ class CapsWriterCliTest(unittest.TestCase):
             audio.write_bytes(b"RIFF")
             result = cli.transcribe_file(config, audio, response_format="text")
             self.assertEqual(cli.render_transcription(result, "text"), "mock cli transcript")
+
+    def test_transcribe_file_streams_audio_without_reading_whole_file(self):
+        config = cli.ApiConfig(base_url=self.base_url, timeout=5)
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "sample.wav"
+            audio.write_bytes(b"RIFF")
+            with patch.object(Path, "read_bytes", side_effect=AssertionError("read_bytes called")):
+                result = cli.transcribe_file(config, audio, response_format="text")
+
+        self.assertEqual(cli.render_transcription(result, "text"), "mock cli transcript")
 
     def test_http_get_json_reports_invalid_json_success_response(self):
         class InvalidHealthHandler(MockCapsWriterHandler):
