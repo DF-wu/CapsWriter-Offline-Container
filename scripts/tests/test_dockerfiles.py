@@ -49,6 +49,12 @@ class DockerfileTest(unittest.TestCase):
             with self.subTest(package=package):
                 self.assertIn(f"{package}=={version}", source)
 
+    def test_web_docker_build_uses_locked_dependency_install(self) -> None:
+        source = (ROOT / "client/web/Dockerfile").read_text(encoding="utf-8")
+        self.assertIn("COPY package.json package-lock.json ./", source)
+        self.assertIn("RUN npm ci --no-audit --no-fund", source)
+        self.assertNotIn("npm install", source)
+
 
 if __name__ == "__main__":
     unittest.main()
