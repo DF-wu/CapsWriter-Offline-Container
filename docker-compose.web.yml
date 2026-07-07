@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     image: ${CAPSWRITER_WEB_IMAGE:-capswriter-web-console:local}
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     environment:
       CAPSWRITER_WEB_API_BASE: ${CAPSWRITER_WEB_API_BASE:-http://localhost:6017}
       CAPSWRITER_WEB_API_KEY: ${CAPSWRITER_WEB_API_KEY:-}

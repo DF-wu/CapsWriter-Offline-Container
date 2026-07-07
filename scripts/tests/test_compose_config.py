@@ -132,6 +132,22 @@ class ComposeConfigTest(unittest.TestCase):
                 for expected in expected_lines:
                     self.assertIn(expected, source)
 
+    def test_compose_services_enable_no_new_privileges(self) -> None:
+        for filename in (
+            "docker-compose.yml",
+            "docker-compose.example.yml",
+            "docker-compose.web.yml",
+        ):
+            with self.subTest(filename=filename):
+                source = (ROOT / filename).read_text(encoding="utf-8")
+                self.assertIn("security_opt:\n      - no-new-privileges:true", source)
+
+    def test_server_compose_services_drop_linux_capabilities(self) -> None:
+        for filename in ("docker-compose.yml", "docker-compose.example.yml"):
+            with self.subTest(filename=filename):
+                source = (ROOT / filename).read_text(encoding="utf-8")
+                self.assertIn("cap_drop:\n      - ALL", source)
+
     def test_user_facing_env_templates_avoid_backend_internal_keys(self) -> None:
         for filename in (
             ".env.example",

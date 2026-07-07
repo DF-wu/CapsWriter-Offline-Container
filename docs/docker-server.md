@@ -14,6 +14,7 @@
 | 模型策略 | 容器啟動時自動下載缺失模型；走 host bind-mount `./models:/app/models` |
 | GPU 策略 | `CAPSWRITER_INFERENCE_HARDWARE=auto`：先試 GPU，失敗回退 CPU |
 | Healthcheck | WebSocket port probe；若 `CAPSWRITER_HTTP_API_ENABLE=true`，再要求 `/ready` 回 `status=ok` |
+| Runtime hardening | Image 內以 `appuser` 執行；Compose 預設 `no-new-privileges` 並 drop Linux capabilities |
 | 公開 image | `ghcr.io/df-wu/capswriter-offline-server:latest`（[`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 自動發布） |
 
 ---
