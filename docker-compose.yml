@@ -46,6 +46,8 @@ services:
 
       # shared thread hint for CPU-bound stages
       CAPSWRITER_NUM_THREADS: ${CAPSWRITER_NUM_THREADS:-4}
+      CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT: ${CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT:-60}
+      CAPSWRITER_GPU_BOOST_TIMEOUT: ${CAPSWRITER_GPU_BOOST_TIMEOUT:-5}
 
       # model tuning; backend CUDA/Vulkan flags are derived by entrypoint.sh
       CAPSWRITER_QWEN_CHUNK_SIZE: ${CAPSWRITER_QWEN_CHUNK_SIZE:-}

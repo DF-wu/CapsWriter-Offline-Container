@@ -39,6 +39,13 @@ MODEL_TUNING_ENV_KEYS = {
     "CAPSWRITER_FUNASR_SIMILAR_THRESHOLD",
 }
 
+RESOURCE_ENV_KEYS = {
+    "CAPSWRITER_NUM_THREADS",
+    "CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT",
+    "CAPSWRITER_GPU_BOOST_TIMEOUT",
+    "CAPSWRITER_REMOVE_MODEL_ARCHIVES",
+}
+
 ENTRYPOINT_DERIVED_OR_UNSUPPORTED_KEYS = {
     "CAPSWRITER_FUNASR_DML_ENABLE",
     "CAPSWRITER_FUNASR_USE_CUDA",
@@ -85,6 +92,14 @@ class ComposeConfigTest(unittest.TestCase):
             with self.subTest(filename=filename):
                 keys = active_yaml_keys(ROOT / filename)
                 self.assertTrue(MODEL_TUNING_ENV_KEYS <= keys)
+
+    def test_compose_and_env_template_pass_resource_environment(self) -> None:
+        env_keys = active_env_keys(ROOT / ".env.example")
+        self.assertTrue(RESOURCE_ENV_KEYS <= env_keys)
+        for filename in ("docker-compose.yml", "docker-compose.example.yml"):
+            with self.subTest(filename=filename):
+                keys = active_yaml_keys(ROOT / filename)
+                self.assertTrue(RESOURCE_ENV_KEYS <= keys)
 
     def test_user_facing_env_templates_avoid_backend_internal_keys(self) -> None:
         for filename in (
