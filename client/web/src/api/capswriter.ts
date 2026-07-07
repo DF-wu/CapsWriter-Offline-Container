@@ -11,6 +11,7 @@ import type {
 const MAX_ERROR_BODY_CHARS = 500;
 export const MAX_RESPONSE_BODY_BYTES = 16 * 1024 * 1024;
 const DIAGNOSTIC_TIMEOUT_MS = 10_000;
+export const TRANSCRIPTION_TIMEOUT_MS = 600_000;
 const DEFAULT_API_ROOT = "http://localhost:6017";
 
 function stripOpenAiVersionPath(pathname: string): string {
@@ -286,11 +287,15 @@ export async function transcribeAudio(
     body.append("prompt", settings.prompt.trim());
   }
 
-  const response = await checkedFetch(`${root}/v1/audio/transcriptions`, {
-    method: "POST",
-    headers: requestHeaders(settings),
-    body,
-    signal,
-  });
+  const response = await checkedFetch(
+    `${root}/v1/audio/transcriptions`,
+    {
+      method: "POST",
+      headers: requestHeaders(settings),
+      body,
+      signal,
+    },
+    TRANSCRIPTION_TIMEOUT_MS,
+  );
   return parseTranscriptionResponse(response, settings.responseFormat);
 }

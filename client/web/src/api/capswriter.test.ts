@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   MAX_RESPONSE_BODY_BYTES,
+  TRANSCRIPTION_TIMEOUT_MS,
   apiErrorMessage,
   fetchHealth,
   fetchReadiness,
@@ -310,5 +311,47 @@ describe("transcribeAudio", () => {
     ).rejects.toThrow(
       `HTTP 502: HTTP response body exceeded ${MAX_RESPONSE_BODY_BYTES} bytes`,
     );
+  });
+
+  it("times out transcription requests that never resolve", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(new DOMException("aborted", "AbortError"));
+          });
+        }),
+      ),
+    );
+
+    const transcription = expect(
+      transcribeAudio(new Blob(["RIFF"]), "sample.wav", settings),
+    ).rejects.toThrow("Request timed out after 600s");
+    await vi.advanceTimersByTimeAsync(TRANSCRIPTION_TIMEOUT_MS);
+
+    await transcription;
+  });
+
+  it("aborts transcription requests with the caller signal", async () => {
+    const controller = new AbortController();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(new DOMException("aborted", "AbortError"));
+          });
+        }),
+      ),
+    );
+
+    const transcription = expect(
+      transcribeAudio(new Blob(["RIFF"]), "sample.wav", settings, controller.signal),
+    ).rejects.toThrow("aborted");
+    controller.abort();
+
+    await transcription;
   });
 });
