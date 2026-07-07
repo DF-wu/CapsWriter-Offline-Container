@@ -310,9 +310,19 @@ export default function App() {
 
   const copyTranscript = async () => {
     if (!transcript) return;
-    await navigator.clipboard.writeText(transcript.text);
-    setStatusKind("ok");
-    setStatusText("已複製");
+    if (!navigator.clipboard?.writeText) {
+      setStatusKind("error");
+      setStatusText("此瀏覽器不支援剪貼簿");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(transcript.text);
+      setStatusKind("ok");
+      setStatusText("已複製");
+    } catch (error) {
+      setStatusKind("error");
+      setStatusText(error instanceof Error ? error.message : "複製失敗");
+    }
   };
 
   const downloadTranscript = () => {

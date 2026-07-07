@@ -5,6 +5,7 @@ import App from "./App";
 
 describe("App", () => {
   const originalMediaDevices = Object.getOwnPropertyDescriptor(navigator, "mediaDevices");
+  const originalClipboard = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
   beforeEach(() => {
     localStorage.clear();
@@ -15,6 +16,11 @@ describe("App", () => {
       Object.defineProperty(navigator, "mediaDevices", originalMediaDevices);
     } else {
       delete (navigator as unknown as { mediaDevices?: MediaDevices }).mediaDevices;
+    }
+    if (originalClipboard) {
+      Object.defineProperty(navigator, "clipboard", originalClipboard);
+    } else {
+      delete (navigator as unknown as { clipboard?: Clipboard }).clipboard;
     }
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
@@ -144,5 +150,25 @@ describe("App", () => {
 
     expect(await screen.findByText("recorder unavailable")).toBeTruthy();
     expect(track.stop).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows an error when transcript copy is denied", async () => {
+    const writeText = vi.fn(async () => {
+      throw new Error("clipboard denied");
+    });
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    const { container } = render(<App />);
+    const output = container.querySelector(".transcript-output");
+    expect(output).toBeInstanceOf(HTMLTextAreaElement);
+
+    await userEvent.type(output as HTMLTextAreaElement, "hello");
+    await userEvent.click(screen.getByRole("button", { name: "複製" }));
+
+    expect(writeText).toHaveBeenCalledWith("hello");
+    expect(await screen.findByText("clipboard denied")).toBeTruthy();
   });
 });

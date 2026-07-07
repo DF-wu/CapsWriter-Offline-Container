@@ -172,7 +172,7 @@ npm run clean
 | 項目 | 命令或動作 | 預期 |
 |---|---|---|
 | 依賴安全 | `npm install` | `found 0 vulnerabilities` |
-| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、invalid JSON diagnostics、readiness diagnostics、recording cleanup、download object URL cleanup、TTS voice handler cleanup、blocked localStorage handling、malformed history recovery 與 App render 測試通過 |
+| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、invalid JSON diagnostics、readiness diagnostics、recording cleanup、download object URL cleanup、TTS voice handler cleanup、clipboard copy denial、blocked localStorage handling、malformed history recovery 與 App render 測試通過 |
 | Browser smoke | `npm run browser-smoke` | 真實瀏覽器完成 health/readiness、upload、transcribe workflow |
 | Production build | `npm run build` | Vite 輸出 `dist` |
 | 清理 | `npm run clean` | build/cache/test artifacts 被移除 |
