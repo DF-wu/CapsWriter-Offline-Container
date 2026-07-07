@@ -21,7 +21,7 @@ upstream (HaujetZhao/CapsWriter-Offline)
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 ```
 
-關鍵：fork 修改 upstream-tracked 檔案數 = **17**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
+關鍵：fork 修改 upstream-tracked 檔案數 = **20**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
 
 | Divergent file | Fork 保留原因 | Merge 處理 |
 |---|---|---|
@@ -35,6 +35,7 @@ fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 | `core/client/hotword/hotword_standalone.py` | standalone hotword Ollama chat helper 需要 bounded local HTTP request | 保留 `CAPSWRITER_OLLAMA_CHAT_TIMEOUT` guard；同步 upstream hotword/demo logic |
 | `core/client/transcribe/media_tool.py` | GUI file transcription 的 `ffprobe` duration probe 需要 bounded timeout 與 kill cleanup | 保留 `CAPSWRITER_CLIENT_MEDIA_TIMEOUT` guard；同步 upstream media environment/probe logic |
 | `core/client/transcribe/file_transcriber.py` | GUI file transcription 的 `ffmpeg` streaming subprocess 需要 bounded stdout read、final wait 與 kill cleanup | 保留 `CAPSWRITER_CLIENT_MEDIA_TIMEOUT` guard；同步 upstream file transcription flow |
+| `core/server/engines/{qwen_asr_gguf,force_aligner_gguf,fun_asr_gguf}/export/gguf/utility.py` | GGUF export remote safetensor `GET`/`HEAD` 需要 bounded timeout | 保留 `CAPSWRITER_GGUF_EXPORT_HTTP_TIMEOUT` guard；同步 upstream GGUF export utility logic |
 | `core/server/engines/{qwen_asr_gguf,force_aligner_gguf,sensevoice_onnx,fun_asr_gguf}/inference/audio.py` | direct engine file-decode `ffmpeg` subprocess 需要 bounded timeout、kill cleanup 與 bounded stderr preview | 保留 `CAPSWRITER_ENGINE_FFMPEG_TIMEOUT` guard；同步 upstream audio loading logic |
 | `core/server/worker/gpu_boost.py` | GPU boost/unboost shell commands 需要 bounded timeout，避免自訂管理命令卡住 worker loop | 保留 `CAPSWRITER_GPU_BOOST_TIMEOUT` guard；同步 upstream GPU boost state logic |
 | `core/server/worker/process_manager.py` | recognizer worker shutdown 需要 bounded graceful join、terminate wait 與 kill fallback | 保留 `CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT` guard；同步 upstream worker lifecycle logic |
@@ -56,7 +57,7 @@ git merge --ff-only origin/master   # 試 fast-forward
 git merge origin/master
 ```
 
-預期結果：低衝突。若衝突，通常只會落在上方 17 個已知 divergent files。
+預期結果：低衝突。若衝突，通常只會落在上方 20 個已知 divergent files。
 
 跑驗證：
 

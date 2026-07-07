@@ -78,7 +78,7 @@ requirements-server-docker.txt          ← Linux GPU 版依賴
 start_server_docker.py                  ← Fork 入口 (與上游 start_server.py 並存)
 ```
 
-**刻意 diverge 的 upstream-tracked 檔案：17 個**。
+**刻意 diverge 的 upstream-tracked 檔案：20 個**。
 
 | 檔案 | 原因 |
 |---|---|
@@ -92,6 +92,9 @@ start_server_docker.py                  ← Fork 入口 (與上游 start_server.
 | `core/client/hotword/hotword_standalone.py` | local Ollama chat helper 需 bounded request timeout，避免未回應的本機 LLM endpoint 卡住 demo/client 流程 |
 | `core/client/transcribe/media_tool.py` | GUI file transcription 的 `ffprobe` duration probe 需 bounded timeout/kill cleanup |
 | `core/client/transcribe/file_transcriber.py` | GUI file transcription 的 `ffmpeg` streaming subprocess 需 bounded stdout read/final wait/kill cleanup |
+| `core/server/engines/qwen_asr_gguf/export/gguf/utility.py` | GGUF export remote safetensor `GET`/`HEAD` 需 bounded timeout，避免轉檔工具卡住 |
+| `core/server/engines/force_aligner_gguf/export/gguf/utility.py` | GGUF export remote safetensor `GET`/`HEAD` 需 bounded timeout，避免轉檔工具卡住 |
+| `core/server/engines/fun_asr_gguf/export/gguf/utility.py` | GGUF export remote safetensor `GET`/`HEAD` 需 bounded timeout，避免轉檔工具卡住 |
 | `core/server/engines/qwen_asr_gguf/inference/audio.py` | direct engine file transcription 的 `ffmpeg` decode 需 bounded timeout/error preview |
 | `core/server/engines/force_aligner_gguf/inference/audio.py` | direct aligner file decode 的 `ffmpeg` subprocess 需 bounded timeout/error preview |
 | `core/server/engines/sensevoice_onnx/inference/audio.py` | SenseVoice direct file decode 的 `ffmpeg` subprocess 需 bounded timeout/error preview |
@@ -204,4 +207,4 @@ ForkedCapsWriterServer().start()
 2. **第二選擇**：fork 內 monkey-patch（runtime 替換）
 3. **第三選擇**：直接修改上游檔。這時必須在本文件與 `upstream-sync-guide.md` 的 known divergent files 清單加一筆，說明原因與 merge 時的處理方式。
 
-目前 (2026-07-07) 為止：第三類只包含上方 17 個已知檔案；不要新增未記錄的 upstream divergence。
+目前 (2026-07-07) 為止：第三類只包含上方 20 個已知檔案；不要新增未記錄的 upstream divergence。

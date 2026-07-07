@@ -25,7 +25,7 @@
 | 🤖 **OpenAI SDK 直接相容** | `POST /v1/audio/transcriptions`，5 種 response_format |
 | ⚡ **GPU 加速** | NVIDIA CUDA + Vulkan + iGPU 補丁；自動偵測 GPU 並 graceful fallback 到 CPU |
 | 🎯 **支援兩種模型** | `qwen_asr` (高精度，長段) + `fun_asr_nano` (低延遲，互動) |
-| 🔄 **易跟進上游** | 主要加值都在新增目錄；目前只有 17 個 upstream-tracked 檔案有刻意差異，並已在同步 SOP 中列明。詳見 [docs/architecture.md](docs/architecture.md) |
+| 🔄 **易跟進上游** | 主要加值都在新增目錄；目前只有 20 個 upstream-tracked 檔案有刻意差異，並已在同步 SOP 中列明。詳見 [docs/architecture.md](docs/architecture.md) |
 | 🔒 **完全離線** | 模型本地推論，不向任何雲端傳音訊 |
 
 ---
@@ -146,7 +146,7 @@ GGML_VK_DISABLE_F16=1       # iGPU 解碼錯誤時
 
 ## 架構速覽
 
-本 fork 的 server / Web / CLI 加值都住在獨立目錄；目前刻意 diverge 的 upstream-tracked 檔案只有 `.gitignore`、`readme.md`、`requirements-server.txt`、`LLM/default.py`、`assets/BUILD_GUIDE.md`、`zip_release.py`、`core/client/audio/file_manager.py`、`core/client/hotword/hotword_standalone.py`、GUI file transcription 的 `media_tool.py` / `file_transcriber.py`、四個 direct engine audio helper、`core/server/worker/gpu_boost.py`、`core/server/worker/process_manager.py`、`core/tools/window_detector.py`：
+本 fork 的 server / Web / CLI 加值都住在獨立目錄；目前刻意 diverge 的 upstream-tracked 檔案只有 `.gitignore`、`readme.md`、`requirements-server.txt`、`LLM/default.py`、`assets/BUILD_GUIDE.md`、`zip_release.py`、`core/client/audio/file_manager.py`、`core/client/hotword/hotword_standalone.py`、GUI file transcription 的 `media_tool.py` / `file_transcriber.py`、三個 GGUF export utility helper、四個 direct engine audio helper、`core/server/worker/gpu_boost.py`、`core/server/worker/process_manager.py`、`core/tools/window_detector.py`：
 
 ```
 fork_server/              ← Sidecar 套件 (上游無此目錄)
