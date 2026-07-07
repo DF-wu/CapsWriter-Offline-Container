@@ -13,6 +13,7 @@ import argparse
 import hashlib
 from http import client as http_client
 import json
+import math
 import os
 import platform
 import shutil
@@ -30,6 +31,7 @@ DEFAULT_BASE_URL = "http://127.0.0.1:6017"
 DEFAULT_MODEL = "whisper-1"
 DEFAULT_TIMEOUT_SECONDS = 600.0
 DEFAULT_TTS_TIMEOUT_SECONDS = 120.0
+DEFAULT_MAX_RESPONSE_MB = 16.0
 RESPONSE_FORMATS = ("json", "text", "verbose_json", "srt", "vtt")
 MAX_ERROR_BODY_CHARS = 500
 SUPPORTED_BASE_URL_SCHEMES = {"http", "https"}
@@ -53,6 +55,7 @@ class ApiConfig:
     base_url: str
     api_key: str = ""
     timeout: float = DEFAULT_TIMEOUT_SECONDS
+    max_response_bytes: int = int(DEFAULT_MAX_RESPONSE_MB * 1024 * 1024)
 
 
 @dataclass(frozen=True)
@@ -126,9 +129,19 @@ def positive_float(value: str) -> float:
         parsed = float(value)
     except ValueError as exc:
         raise argparse.ArgumentTypeError("must be a number") from exc
+    if not math.isfinite(parsed):
+        raise argparse.ArgumentTypeError("must be finite")
     if parsed <= 0:
         raise argparse.ArgumentTypeError("must be > 0")
     return parsed
+
+
+def response_limit_bytes(value: float) -> int:
+    if not math.isfinite(value):
+        raise ValueError("HTTP response limit must be finite")
+    if value <= 0:
+        raise ValueError("HTTP response limit must be > 0")
+    return max(1, math.ceil(value * 1024 * 1024))
 
 
 def auth_headers(config: ApiConfig) -> dict[str, str]:
@@ -155,17 +168,36 @@ def resolve_api_key(api_key: str, api_key_file: str) -> str:
     return read_api_key_file(api_key_file)
 
 
-def _read_response(response) -> HttpResult:
+def _read_response_body(response, max_bytes: int) -> bytes:
+    if max_bytes <= 0:
+        raise ValueError("HTTP response limit must be > 0")
+    body = response.read(max_bytes + 1)
+    if len(body) > max_bytes:
+        raise ValueError(f"HTTP response body exceeded {max_bytes} bytes")
+    return body
+
+
+def _response_status(response) -> int:
+    status = getattr(response, "status", None)
+    if status is not None:
+        return status
+    return response.getcode()
+
+
+def _read_response(response, max_response_bytes: int) -> HttpResult:
     return HttpResult(
-        status=getattr(response, "status", response.getcode()),
+        status=_response_status(response),
         content_type=response.headers.get("Content-Type", ""),
-        body=response.read(),
+        body=_read_response_body(response, max_response_bytes),
     )
 
 
-def _result_from_http_error(exc: error.HTTPError) -> HttpResult:
+def _result_from_http_error(
+    exc: error.HTTPError,
+    max_response_bytes: int,
+) -> HttpResult:
     try:
-        body = exc.read()
+        body = _read_response_body(exc, max_response_bytes)
     finally:
         exc.close()
     return HttpResult(
@@ -220,8 +252,8 @@ def _json_or_raise(
         raise ApiError(result.status, message or _expected_json_message(result, path)) from None
 
 
-def _raise_api_error(exc: error.HTTPError) -> None:
-    result = _result_from_http_error(exc)
+def _raise_api_error(exc: error.HTTPError, max_response_bytes: int) -> None:
+    result = _result_from_http_error(exc, max_response_bytes)
     _raise_result_api_error(result, exc.reason)
 
 
@@ -237,9 +269,9 @@ def http_get_json(config: ApiConfig, path: str):
     )
     try:
         with request.urlopen(req, timeout=config.timeout) as response:
-            return _json_or_raise(_read_response(response), path)
+            return _json_or_raise(_read_response(response, config.max_response_bytes), path)
     except error.HTTPError as exc:
-        _raise_api_error(exc)
+        _raise_api_error(exc, config.max_response_bytes)
 
 
 def http_get_json_status(
@@ -254,9 +286,9 @@ def http_get_json_status(
     )
     try:
         with request.urlopen(req, timeout=config.timeout) as response:
-            result = _read_response(response)
+            result = _read_response(response, config.max_response_bytes)
     except error.HTTPError as exc:
-        result = _result_from_http_error(exc)
+        result = _result_from_http_error(exc, config.max_response_bytes)
     return result.status, _json_or_raise(
         result,
         path,
@@ -301,7 +333,7 @@ def http_post_stream(
         result = HttpResult(
             status=response.status,
             content_type=response.getheader("Content-Type", ""),
-            body=response.read(),
+            body=_read_response_body(response, config.max_response_bytes),
         )
         if result.status >= 400:
             _raise_result_api_error(result, response.reason)
@@ -592,6 +624,18 @@ def add_common_options(parser: argparse.ArgumentParser) -> None:
             f"(default: {DEFAULT_TIMEOUT_SECONDS:g}; matches server task timeout)"
         ),
     )
+    parser.add_argument(
+        "--max-response-mb",
+        type=positive_float,
+        default=os.environ.get(
+            "CAPSWRITER_CLI_MAX_RESPONSE_MB",
+            str(DEFAULT_MAX_RESPONSE_MB),
+        ),
+        help=(
+            "Maximum HTTP response body size in MiB "
+            f"(default: {DEFAULT_MAX_RESPONSE_MB:g}, or CAPSWRITER_CLI_MAX_RESPONSE_MB)"
+        ),
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -652,6 +696,7 @@ def _config(args) -> ApiConfig:
         base_url=normalize_base_url(args.base_url),
         api_key=resolve_api_key(args.key, args.key_file),
         timeout=args.timeout,
+        max_response_bytes=response_limit_bytes(args.max_response_mb),
     )
 
 

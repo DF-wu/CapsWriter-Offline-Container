@@ -110,6 +110,14 @@ class ErrorCapsWriterHandler(MockCapsWriterHandler):
         super().do_POST()
 
 
+class OversizedTranscriptionHandler(MockCapsWriterHandler):
+    def do_POST(self):
+        if self.path == "/v1/audio/transcriptions":
+            self._text(200, "abcd")
+            return
+        super().do_POST()
+
+
 class CapsWriterCliTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -161,6 +169,8 @@ class CapsWriterCliTest(unittest.TestCase):
         self.assertEqual(cli.positive_float("2.5"), 2.5)
         with self.assertRaises(cli.argparse.ArgumentTypeError):
             cli.positive_float("0")
+        with self.assertRaises(cli.argparse.ArgumentTypeError):
+            cli.positive_float("inf")
 
     def test_parser_rejects_non_positive_timeout(self):
         with redirect_stderr(io.StringIO()) as stderr, self.assertRaises(SystemExit) as ctx:
@@ -173,6 +183,15 @@ class CapsWriterCliTest(unittest.TestCase):
         args = cli.build_parser().parse_args(["health"])
 
         self.assertEqual(cli._config(args).timeout, 600.0)
+        self.assertEqual(
+            cli._config(args).max_response_bytes,
+            int(cli.DEFAULT_MAX_RESPONSE_MB * 1024 * 1024),
+        )
+
+    def test_config_sets_response_limit_from_argument(self):
+        args = cli.build_parser().parse_args(["health", "--max-response-mb", "0.5"])
+
+        self.assertEqual(cli._config(args).max_response_bytes, 512 * 1024)
 
     def test_config_reads_api_key_file_when_key_missing(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -282,6 +301,57 @@ class CapsWriterCliTest(unittest.TestCase):
                 result = cli.transcribe_file(config, audio, response_format="text")
 
         self.assertEqual(cli.render_transcription(result, "text"), "mock cli transcript")
+
+    def test_read_response_rejects_oversized_body(self):
+        class FakeResponse:
+            status = 200
+            headers = {"Content-Type": "text/plain"}
+
+            def __init__(self):
+                self.requested_sizes = []
+
+            def read(self, size=-1):
+                self.requested_sizes.append(size)
+                return b"abcd"
+
+        response = FakeResponse()
+
+        with self.assertRaisesRegex(ValueError, "exceeded 3 bytes"):
+            cli._read_response(response, 3)
+
+        self.assertEqual(response.requested_sizes, [4])
+
+    def test_http_error_result_rejects_oversized_body(self):
+        exc = cli.error.HTTPError(
+            "http://127.0.0.1:6017/health",
+            502,
+            "Bad Gateway",
+            {},
+            io.BytesIO(b"abcd"),
+        )
+
+        with self.assertRaisesRegex(ValueError, "exceeded 3 bytes"):
+            cli._result_from_http_error(exc, 3)
+
+    def test_transcribe_file_rejects_oversized_response_body(self):
+        server = ThreadingHTTPServer(("127.0.0.1", 0), OversizedTranscriptionHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            config = cli.ApiConfig(
+                base_url=f"http://127.0.0.1:{server.server_port}",
+                timeout=5,
+                max_response_bytes=3,
+            )
+            with tempfile.TemporaryDirectory() as tmp:
+                audio = Path(tmp) / "sample.wav"
+                audio.write_bytes(b"RIFF")
+                with self.assertRaisesRegex(ValueError, "exceeded 3 bytes"):
+                    cli.transcribe_file(config, audio, response_format="text")
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
 
     def test_http_get_json_reports_invalid_json_success_response(self):
         class InvalidHealthHandler(MockCapsWriterHandler):

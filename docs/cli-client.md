@@ -177,7 +177,7 @@ The `speak` command does not call the CapsWriter server and does not send text t
 | `0` | Success |
 | `1` | HTTP failure, unsupported format, missing file/text input, invalid TTS input combination, unavailable local TTS engine, or local TTS timeout |
 
-When the server returns OpenAI-style `{"error": ...}` JSON, the CLI prints the contained `error.message` instead of dumping raw JSON. Legacy FastAPI `{"detail": ...}` payloads are also normalized for compatibility with older servers. If a proxy or old server returns a non-JSON HTTP error body, the CLI prints the HTTP status with a bounded one-line body preview. If a health/readiness/models call or JSON transcription response is malformed, the error includes the HTTP status and endpoint.
+When the server returns OpenAI-style `{"error": ...}` JSON, the CLI prints the contained `error.message` instead of dumping raw JSON. Legacy FastAPI `{"detail": ...}` payloads are also normalized for compatibility with older servers. If a proxy or old server returns a non-JSON HTTP error body, the CLI prints the HTTP status with a bounded one-line body preview. If a health/readiness/models call or JSON transcription response is malformed, the error includes the HTTP status and endpoint. The CLI also caps each HTTP response body before parsing or rendering it; `--max-response-mb` defaults to `16` MiB and can be raised for unusually large verbose JSON transcripts.
 
 `--timeout` defaults to `600` seconds to match `CAPSWRITER_HTTP_API_TASK_TIMEOUT`. It must be a positive number; invalid values are rejected by argument parsing before any HTTP request is attempted.
 
@@ -217,7 +217,8 @@ python client/cli/scripts/clean.py
 - Multipart upload is implemented with `urllib.request` and a generated boundary; local filenames are escaped before writing the `Content-Disposition` header.
 - `--base-url` accepts absolute `http://` or `https://` roots, with or without trailing `/v1`. Path prefixes such as `https://host/capswriter/v1` are preserved. URL credentials, query strings, fragments, and non-HTTP schemes are rejected before any request is sent.
 - `--key-file` and `CAPSWRITER_HTTP_API_KEY_FILE` read a non-empty UTF-8 Bearer token file; explicit `--key` still takes precedence for one-off local diagnostics.
-- `--timeout` defaults to the server task timeout (`600` seconds), is validated as a positive float, and is then passed consistently to health/readiness/models and transcription requests.
+- `--timeout` defaults to the server task timeout (`600` seconds), is validated as a positive finite float, and is then passed consistently to health/readiness/models and transcription requests.
+- `--max-response-mb` defaults to `16` MiB, is validated as a positive finite float, and bounds each HTTP response body before JSON parsing or transcript rendering. It can also be set with `CAPSWRITER_CLI_MAX_RESPONSE_MB`.
 - `--output` and `--output-dir` write transcript files through same-directory temporary files and atomic replace; `--output-dir` writes each successful batch item immediately.
 - `--output-dir` maps output extensions by response format (`.txt`, `.json`, `.srt`, `.vtt`), sanitizes generated stems for portable Linux/Windows filenames, and rejects duplicate generated target paths before transcription starts.
 - `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.
