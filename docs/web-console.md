@@ -73,6 +73,7 @@ npm run browser-smoke
 ```
 
 This starts a temporary mock API and Vite server on free local ports, opens the app with `agent-browser`, sets the API root, checks health/readiness diagnostics, uploads a generated WAV, runs transcription, and asserts the transcript textarea. It does not need a model server.
+Each `agent-browser` subprocess is bounded by `CAPSWRITER_WEB_BROWSER_AGENT_TIMEOUT_MS`, default `30000` ms. Temporary mock API/Vite child processes are first asked to stop, then force-stopped if they do not exit within `CAPSWRITER_WEB_BROWSER_CHILD_SHUTDOWN_TIMEOUT_MS`, default `5000` ms.
 
 ## Production build
 
@@ -177,9 +178,9 @@ npm run clean
 |---|---|---|
 | 依賴安全 | `npm install` | `found 0 vulnerabilities` |
 | API root validation | `npm run test -- capswriter.test.ts` | Rejects non-HTTP schemes, URL credentials, query strings, and fragments before fetch |
-| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、bounded response body reads、invalid JSON diagnostics、bounded/abortable health/readiness/model diagnostics、partial readiness display when model listing needs auth、keyboard-accessible audio upload、drag/drop highlight stability、transcription-time audio replacement lock、stale result suppression after cancel/unmount、stale/late diagnostic result suppression、recording cleanup including delayed `getUserMedia` success/failure、download object URL cleanup、download filename sanitization（含 Windows reserved device name）、TTS voice handler/lifecycle cleanup and late callback guards、clipboard copy denial and late result cleanup、blocked localStorage handling、bounded settings controls、bounded/malformed settings/history/runtime-config recovery 與 App render 測試通過 |
+| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、bounded response body reads、invalid JSON diagnostics、bounded/abortable health/readiness/model diagnostics、partial readiness display when model listing needs auth、StrictMode-safe diagnostics mounted guard、keyboard-accessible audio upload、drag/drop highlight stability、transcription-time audio replacement lock、stale result suppression after cancel/unmount、stale/late diagnostic result suppression、recording cleanup including delayed `getUserMedia` success/failure、download object URL cleanup、download filename sanitization（含 Windows reserved device name）、TTS voice handler/lifecycle cleanup and late callback guards、clipboard copy denial and late result cleanup、blocked localStorage handling、bounded settings controls、bounded/malformed settings/history/runtime-config recovery 與 App render 測試通過 |
 | Web verifier timeout | `python -m unittest discover -s scripts/tests -v` | fake npm 測試覆蓋 hung internal npm step 會回 `124`，且仍會嘗試執行 clean |
-| Browser smoke | `npm run browser-smoke` | 真實瀏覽器完成 health/readiness、upload、transcribe workflow |
+| Browser smoke | `npm run browser-smoke` | 真實瀏覽器完成 health/readiness、upload、transcribe workflow；`agent-browser` 與臨時 child cleanup 都有 timeout |
 | Production build | `npm run build` | Vite 輸出 `dist` |
 | 清理 | `npm run clean` | build/cache/test artifacts 被移除 |
 | Server 語法 | `python -m compileall fork_server check_http_api.py start_server_docker.py` | 無 syntax error |

@@ -9,6 +9,25 @@ const expectedText = "mock transcript from CapsWriter Web Console";
 const npx = process.platform === "win32" ? "npx.cmd" : "npx";
 const session = `capswriter-web-smoke-${process.pid}`;
 const children = [];
+const AGENT_BROWSER_TIMEOUT_ENV = "CAPSWRITER_WEB_BROWSER_AGENT_TIMEOUT_MS";
+const CHILD_SHUTDOWN_TIMEOUT_ENV = "CAPSWRITER_WEB_BROWSER_CHILD_SHUTDOWN_TIMEOUT_MS";
+const AGENT_BROWSER_TIMEOUT_MS = readPositiveMilliseconds(AGENT_BROWSER_TIMEOUT_ENV, 30000);
+const CHILD_SHUTDOWN_TIMEOUT_MS = readPositiveMilliseconds(CHILD_SHUTDOWN_TIMEOUT_ENV, 5000);
+const CHILD_KILL_TIMEOUT_MS = 1000;
+
+function readPositiveMilliseconds(name, defaultValue) {
+  const raw = (process.env[name] ?? "").trim();
+  if (!raw) return defaultValue;
+
+  const value = Number(raw);
+  if (!Number.isFinite(value)) {
+    throw new Error(`${name} must be a number`);
+  }
+  if (value <= 0) {
+    throw new Error(`${name} must be > 0`);
+  }
+  return Math.max(1, Math.ceil(value));
+}
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -45,13 +64,31 @@ function runAgent(args, { allowFailure = false } = {}) {
     cwd: root,
     encoding: "utf8",
     stdio: ["ignore", "pipe", "pipe"],
+    timeout: AGENT_BROWSER_TIMEOUT_MS,
   });
+  const output = `${result.stdout ?? ""}${result.stderr ?? ""}`;
+  if (result.error?.code === "ETIMEDOUT") {
+    if (!allowFailure) {
+      throw new Error(
+        `agent-browser ${args.join(" ")} timed out after ${AGENT_BROWSER_TIMEOUT_MS}ms\n${output}`,
+      );
+    }
+    return output;
+  }
+  if (result.error) {
+    if (!allowFailure) {
+      throw new Error(
+        `agent-browser ${args.join(" ")} failed to start: ${result.error.message}\n${output}`,
+      );
+    }
+    return output;
+  }
   if (result.status !== 0 && !allowFailure) {
     throw new Error(
-      `agent-browser ${args.join(" ")} failed\n${result.stdout}${result.stderr}`,
+      `agent-browser ${args.join(" ")} failed\n${output}`,
     );
   }
-  return `${result.stdout}${result.stderr}`;
+  return output;
 }
 
 async function writeSmokeWav(path) {
@@ -93,6 +130,62 @@ function startChild(command, args, options = {}) {
   child.stdout.on("data", (chunk) => process.stdout.write(chunk));
   child.stderr.on("data", (chunk) => process.stderr.write(chunk));
   return child;
+}
+
+function childHasExited(child) {
+  return child.exitCode !== null || child.signalCode !== null;
+}
+
+function waitForChildExit(child, timeoutMs) {
+  return new Promise((resolve) => {
+    let settled = false;
+    let timer;
+    const finish = (exited) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      child.off("exit", onExit);
+      resolve(exited);
+    };
+    const onExit = () => finish(true);
+    timer = setTimeout(() => finish(false), timeoutMs);
+    child.once("exit", onExit);
+    if (childHasExited(child)) {
+      finish(true);
+    }
+  });
+}
+
+async function stopChild(child) {
+  if (childHasExited(child)) {
+    return;
+  }
+
+  const label = child.spawnargs?.join(" ") || `pid ${child.pid ?? "unknown"}`;
+  try {
+    child.kill();
+  } catch (error) {
+    console.warn(`Failed to stop ${label}: ${error.message}`);
+    return;
+  }
+
+  if (await waitForChildExit(child, CHILD_SHUTDOWN_TIMEOUT_MS)) {
+    return;
+  }
+
+  console.warn(
+    `Timed out after ${CHILD_SHUTDOWN_TIMEOUT_MS}ms waiting for ${label}; sending SIGKILL`,
+  );
+  try {
+    child.kill("SIGKILL");
+  } catch (error) {
+    console.warn(`Failed to force-stop ${label}: ${error.message}`);
+    return;
+  }
+
+  if (!(await waitForChildExit(child, CHILD_KILL_TIMEOUT_MS))) {
+    console.warn(`Timed out after ${CHILD_KILL_TIMEOUT_MS}ms waiting for ${label} after SIGKILL`);
+  }
 }
 
 async function pollTranscript() {
@@ -143,17 +236,5 @@ try {
 } finally {
   runAgent(["close"], { allowFailure: true });
   await rm(join(root, ".tmp"), { recursive: true, force: true });
-  await Promise.all(
-    children.map(
-      (child) =>
-        new Promise((resolve) => {
-          if (child.exitCode !== null) {
-            resolve();
-            return;
-          }
-          child.once("exit", resolve);
-          child.kill();
-        }),
-    ),
-  );
+  await Promise.all(children.map(stopChild));
 }

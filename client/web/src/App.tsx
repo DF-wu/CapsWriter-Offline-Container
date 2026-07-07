@@ -138,6 +138,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    mountedRef.current = true;
     return () => {
       mountedRef.current = false;
       if (timerRef.current !== null) {
