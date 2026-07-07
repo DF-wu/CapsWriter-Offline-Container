@@ -111,10 +111,12 @@ export default function App() {
   const timerRef = useRef<number | null>(null);
   const startedAtRef = useRef<number>(0);
   const abortRef = useRef<AbortController | null>(null);
+  const diagnosticAbortRef = useRef<AbortController | null>(null);
   const currentAudioRef = useRef<BrowserAudio | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dragDepthRef = useRef(0);
   const transcriptionRunRef = useRef(0);
+  const diagnosticRunRef = useRef(0);
   const mountedRef = useRef(true);
 
   useEffect(() => saveSettings(settings), [settings]);
@@ -153,6 +155,7 @@ export default function App() {
       streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
       abortRef.current?.abort();
+      diagnosticAbortRef.current?.abort();
       if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
@@ -175,14 +178,19 @@ export default function App() {
   };
 
   const checkServer = async () => {
+    diagnosticAbortRef.current?.abort();
+    const aborter = new AbortController();
+    diagnosticAbortRef.current = aborter;
+    const runId = diagnosticRunRef.current + 1;
+    diagnosticRunRef.current = runId;
     setStatusKind("working");
     setStatusText("檢查服務");
     const [healthResult, readinessResult, modelsResult] = await Promise.allSettled([
-      fetchHealth(settings),
-      fetchReadiness(settings),
-      fetchModels(settings),
+      fetchHealth(settings, aborter.signal),
+      fetchReadiness(settings, aborter.signal),
+      fetchModels(settings, aborter.signal),
     ]);
-    if (!mountedRef.current) return;
+    if (!mountedRef.current || runId !== diagnosticRunRef.current || aborter.signal.aborted) return;
 
     const failures: string[] = [];
     const nextHealth = healthResult.status === "fulfilled" ? healthResult.value : null;
@@ -222,6 +230,9 @@ export default function App() {
     } else {
       setStatusKind("error");
       setStatusText("服務檢查失敗");
+    }
+    if (runId === diagnosticRunRef.current) {
+      diagnosticAbortRef.current = null;
     }
   };
 

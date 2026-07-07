@@ -225,6 +225,25 @@ describe("diagnostic fetches", () => {
 
     await health;
   });
+
+  it("aborts diagnostic requests with the caller signal", async () => {
+    const controller = new AbortController();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(new DOMException("aborted", "AbortError"));
+          });
+        }),
+      ),
+    );
+
+    const health = expect(fetchHealth(settings, controller.signal)).rejects.toThrow("aborted");
+    controller.abort();
+
+    await health;
+  });
 });
 
 describe("transcribeAudio", () => {

@@ -99,16 +99,28 @@ async function fetchWithTimeout(
   timeoutMs: number,
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  const upstreamSignal = init.signal;
+  let timedOut = false;
+  const abortFromUpstream = () => controller.abort();
+  if (upstreamSignal?.aborted) {
+    controller.abort();
+  } else {
+    upstreamSignal?.addEventListener("abort", abortFromUpstream, { once: true });
+  }
+  const timeout = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, timeoutMs);
   try {
     return await fetch(input, { ...init, signal: controller.signal });
   } catch (error) {
-    if (controller.signal.aborted) {
+    if (timedOut) {
       throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`);
     }
     throw error;
   } finally {
     window.clearTimeout(timeout);
+    upstreamSignal?.removeEventListener("abort", abortFromUpstream);
   }
 }
 
@@ -128,24 +140,26 @@ async function checkedFetch(
   return response;
 }
 
-export async function fetchHealth(settings: ApiSettings): Promise<HealthResponse> {
+export async function fetchHealth(settings: ApiSettings, signal?: AbortSignal): Promise<HealthResponse> {
   const root = normalizeApiRoot(settings.baseUrl);
   const response = await checkedFetch(
     `${root}/health`,
     {
       headers: requestHeaders(settings),
+      signal,
     },
     DIAGNOSTIC_TIMEOUT_MS,
   );
   return readJsonResponse<HealthResponse>(response, "/health");
 }
 
-export async function fetchReadiness(settings: ApiSettings): Promise<ReadinessResponse> {
+export async function fetchReadiness(settings: ApiSettings, signal?: AbortSignal): Promise<ReadinessResponse> {
   const root = normalizeApiRoot(settings.baseUrl);
   const response = await fetchWithTimeout(
     `${root}/ready`,
     {
       headers: requestHeaders(settings),
+      signal,
     },
     DIAGNOSTIC_TIMEOUT_MS,
   );
@@ -157,12 +171,13 @@ export async function fetchReadiness(settings: ApiSettings): Promise<ReadinessRe
   throw new Error(`HTTP ${response.status}${message ? `: ${message}` : ""}`);
 }
 
-export async function fetchModels(settings: ApiSettings): Promise<ModelListResponse> {
+export async function fetchModels(settings: ApiSettings, signal?: AbortSignal): Promise<ModelListResponse> {
   const root = normalizeApiRoot(settings.baseUrl);
   const response = await checkedFetch(
     `${root}/v1/models`,
     {
       headers: requestHeaders(settings),
+      signal,
     },
     DIAGNOSTIC_TIMEOUT_MS,
   );

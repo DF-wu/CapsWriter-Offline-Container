@@ -6,10 +6,12 @@ import { WEB_SETTING_LIMITS } from "./lib/storage";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((done) => {
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((done, fail) => {
     resolve = done;
+    reject = fail;
   });
-  return { promise, resolve };
+  return { promise, resolve, reject };
 }
 
 describe("App", () => {
@@ -265,6 +267,74 @@ describe("App", () => {
     expect(await screen.findByText("服務檢查部分失敗：Models: HTTP 401: Missing API key")).toBeTruthy();
     expect(screen.getByText("100 MB / 2 slots")).toBeTruthy();
     expect(screen.getByText("enabled")).toBeTruthy();
+  });
+
+  it("aborts stale server diagnostics when a newer check starts", async () => {
+    const requests: Array<{
+      pending: ReturnType<typeof deferred<Response>>;
+      signal?: AbortSignal | null;
+      url: string;
+    }> = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+        const pending = deferred<Response>();
+        init?.signal?.addEventListener("abort", () => {
+          pending.reject(new DOMException("aborted", "AbortError"));
+        });
+        requests.push({ pending, signal: init?.signal, url: String(input) });
+        return pending.promise;
+      }),
+    );
+
+    render(<App />);
+    await userEvent.click(screen.getByRole("button", { name: "檢查服務" }));
+    expect(requests).toHaveLength(3);
+
+    await userEvent.click(screen.getByRole("button", { name: "檢查服務" }));
+    expect(requests).toHaveLength(6);
+    expect(requests.slice(0, 3).every((request) => request.signal?.aborted)).toBe(true);
+    expect(requests.slice(3).every((request) => request.signal?.aborted)).toBe(false);
+
+    for (const request of requests.slice(3)) {
+      if (request.url.endsWith("/health")) {
+        request.pending.resolve(new Response(JSON.stringify({ status: "ok", model: "new_asr", version: "dev" })));
+      } else if (request.url.endsWith("/ready")) {
+        request.pending.resolve(
+          new Response(
+            JSON.stringify({
+              status: "ok",
+              model: "new_asr",
+              version: "dev",
+              checks: {
+                task_router_bound: true,
+                ffmpeg_available: true,
+              },
+              config: {
+                auth_enabled: false,
+                max_upload_mb: 100,
+                task_timeout: 600,
+                max_concurrent_requests: 2,
+                cors_enabled: true,
+                cors_origins_count: 1,
+              },
+            }),
+          ),
+        );
+      } else if (request.url.endsWith("/v1/models")) {
+        request.pending.resolve(
+          new Response(
+            JSON.stringify({
+              object: "list",
+              data: [{ id: "new_asr", object: "model", owned_by: "capswriter-offline", created: 0 }],
+            }),
+          ),
+        );
+      }
+    }
+
+    expect(await screen.findByText("服務正常：new_asr vdev")).toBeTruthy();
+    expect(screen.getAllByText("new_asr").length).toBeGreaterThan(0);
   });
 
   it("stops active recording resources on unmount", async () => {
