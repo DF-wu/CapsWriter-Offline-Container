@@ -7,7 +7,7 @@ import os
 import sys
 import tempfile
 import unittest
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
@@ -15,6 +15,29 @@ SERVER_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(SERVER_DIR))
 
 import download_models  # noqa: E402
+
+
+class FakeDownloadResponse:
+    def __init__(self, *chunks: bytes, fail_after_chunks: int | None = None):
+        self._chunks = list(chunks)
+        self._index = 0
+        self._fail_after_chunks = fail_after_chunks
+        self.headers = {"Content-Length": str(sum(len(chunk) for chunk in chunks))}
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_exc_info):
+        return False
+
+    def read(self, _size: int) -> bytes:
+        if self._fail_after_chunks is not None and self._index >= self._fail_after_chunks:
+            raise TimeoutError("timed out")
+        if self._index >= len(self._chunks):
+            return b""
+        chunk = self._chunks[self._index]
+        self._index += 1
+        return chunk
 
 
 class DownloadModelsTest(unittest.TestCase):
@@ -41,6 +64,79 @@ class DownloadModelsTest(unittest.TestCase):
         self.assertIn("CAPSWRITER_MODEL_TYPE='sensevoice'", message)
         self.assertIn("qwen_asr", message)
         self.assertIn("fun_asr_nano", message)
+
+    def test_download_timeout_defaults_to_bounded_value(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(
+                download_models._download_timeout_seconds(),
+                download_models.DEFAULT_DOWNLOAD_TIMEOUT_SECONDS,
+            )
+
+    def test_download_timeout_rejects_non_positive_value(self) -> None:
+        with patch.dict(os.environ, {"CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT": "0"}):
+            with self.assertRaisesRegex(ValueError, "must be > 0"):
+                download_models._download_timeout_seconds()
+
+    def test_download_streams_with_configured_timeout_and_atomic_replace(self) -> None:
+        observed = {}
+
+        def fake_urlopen(url, *, timeout):
+            observed["url"] = url
+            observed["timeout"] = timeout
+            return FakeDownloadResponse(b"abc", b"def")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            destination = Path(tmp) / "models" / ".downloads" / "asset.zip"
+            with (
+                patch.object(download_models.urllib.request, "urlopen", side_effect=fake_urlopen),
+                patch.dict(os.environ, {"CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT": "7.5"}),
+                redirect_stdout(io.StringIO()),
+            ):
+                download_models._download("https://example.test/asset.zip", destination)
+
+            self.assertEqual(observed, {"url": "https://example.test/asset.zip", "timeout": 7.5})
+            self.assertEqual(destination.read_bytes(), b"abcdef")
+            self.assertFalse(destination.with_name("asset.zip.part").exists())
+
+    def test_download_removes_partial_file_on_failure(self) -> None:
+        def fake_urlopen(_url, *, timeout):
+            self.assertEqual(timeout, download_models.DEFAULT_DOWNLOAD_TIMEOUT_SECONDS)
+            return FakeDownloadResponse(b"partial", fail_after_chunks=1)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            destination = Path(tmp) / "asset.zip"
+            with (
+                patch.object(download_models.urllib.request, "urlopen", side_effect=fake_urlopen),
+                patch.dict(os.environ, {}, clear=True),
+                redirect_stdout(io.StringIO()),
+                self.assertRaisesRegex(TimeoutError, "timed out"),
+            ):
+                download_models._download("https://example.test/asset.zip", destination)
+
+            self.assertFalse(destination.exists())
+            self.assertFalse(destination.with_name("asset.zip.part").exists())
+
+    def test_llama_download_failure_returns_clean_error(self) -> None:
+        fake_asset = download_models.Asset(
+            name="unit-test-llama.tar.gz",
+            url="https://example.test/llama.tar.gz",
+            sha256="",
+            target_dir=Path("unused"),
+            required_files=[],
+        )
+        stderr = io.StringIO()
+        with (
+            patch.object(download_models, "LLAMA_CPP_ASSETS", {"cpu": fake_asset}),
+            patch.object(download_models, "_llama_binaries_ready", return_value=False),
+            patch.object(download_models, "_download", side_effect=TimeoutError("timed out")),
+            patch.dict(os.environ, {"CAPSWRITER_LLAMA_BACKEND": "cpu"}),
+            redirect_stdout(io.StringIO()),
+            redirect_stderr(stderr),
+        ):
+            code = download_models._prepare_llama_binaries()
+
+        self.assertEqual(code, 1)
+        self.assertIn("下载 llama.cpp 压缩包失败: unit-test-llama.tar.gz: timed out", stderr.getvalue())
 
     def test_llama_binaries_ready_rejects_unversioned_only_libraries(self) -> None:
         previous_required = [

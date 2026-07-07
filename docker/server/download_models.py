@@ -15,6 +15,9 @@ if ROOT_DIR.as_posix() not in sys.path:
 
 from config_server import ModelPaths, ServerConfig
 
+DEFAULT_DOWNLOAD_TIMEOUT_SECONDS = 60.0
+DOWNLOAD_BLOCK_SIZE = 1024 * 1024
+
 
 class Asset:
     def __init__(
@@ -119,17 +122,50 @@ LLAMA_REQUIRED_VULKAN_LIBRARIES = [
 ]
 
 
-def _download(url: str, destination: Path) -> None:
-    destination.parent.mkdir(parents=True, exist_ok=True)
+def _download_timeout_seconds() -> float:
+    value = os.getenv("CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT", "").strip()
+    if not value:
+        return DEFAULT_DOWNLOAD_TIMEOUT_SECONDS
+    try:
+        timeout = float(value)
+    except ValueError as exc:
+        raise ValueError("CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT must be a number") from exc
+    if timeout <= 0:
+        raise ValueError("CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT must be > 0")
+    return timeout
 
-    def _report(blocks: int, block_size: int, total_size: int) -> None:
+
+def _download(url: str, destination: Path, *, timeout: float | None = None) -> None:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    partial_path = destination.with_name(f"{destination.name}.part")
+    if partial_path.exists():
+        partial_path.unlink()
+
+    def _report(downloaded: int, total_size: int) -> None:
         if total_size <= 0:
             return
-        downloaded = min(blocks * block_size, total_size)
-        percent = downloaded * 100 / total_size
+        percent = min(downloaded, total_size) * 100 / total_size
         print(f"\r下载中 {destination.name}: {percent:5.1f}%", end="", flush=True)
 
-    urllib.request.urlretrieve(url, destination, _report)
+    effective_timeout = _download_timeout_seconds() if timeout is None else timeout
+    try:
+        with urllib.request.urlopen(url, timeout=effective_timeout) as response:
+            total_header = response.headers.get("Content-Length", "")
+            total_size = int(total_header) if total_header.isdigit() else 0
+            downloaded = 0
+            with partial_path.open("wb") as output:
+                while True:
+                    chunk = response.read(DOWNLOAD_BLOCK_SIZE)
+                    if not chunk:
+                        break
+                    output.write(chunk)
+                    downloaded += len(chunk)
+                    _report(downloaded, total_size)
+        partial_path.replace(destination)
+    except Exception:
+        if partial_path.exists():
+            partial_path.unlink()
+        raise
     print()
 
 
@@ -216,7 +252,11 @@ def _prepare_llama_binaries() -> int:
         print(f"发现已下载 llama.cpp 压缩包，直接解压: {archive_path}")
     else:
         print(f"开始下载 {asset.name}")
-        _download(asset.url, archive_path)
+        try:
+            _download(asset.url, archive_path)
+        except Exception as error:
+            print(f"下载 llama.cpp 压缩包失败: {asset.name}: {error}", file=sys.stderr)
+            return 1
 
     if not _verify_sha256(archive_path, asset.sha256):
         print(f"llama.cpp 压缩包校验失败: {asset.name}", file=sys.stderr)
@@ -274,7 +314,11 @@ def main() -> int:
             print(f"发现已下载压缩包，直接解压: {asset.archive_path}")
         else:
             print(f"开始下载 {asset.name}")
-            _download(asset.url, asset.archive_path)
+            try:
+                _download(asset.url, asset.archive_path)
+            except Exception as error:
+                print(f"模型压缩包下载失败: {asset.name}: {error}", file=sys.stderr)
+                return 1
 
         if not _verify_sha256(asset.archive_path, asset.sha256):
             print(f"模型压缩包校验失败: {asset.name}", file=sys.stderr)

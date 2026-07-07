@@ -109,6 +109,7 @@ HTTP API 預設不把 prompt/context 或轉錄內容寫入 server log/console；
 |---|---|---|
 | `CAPSWRITER_LOG_LEVEL` | `INFO` | `DEBUG` / `INFO` / `WARNING` / `ERROR` |
 | `CAPSWRITER_NUM_THREADS` | `4` | CPU-bound 階段的 thread hint |
+| `CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT` | `60` | 模型與 llama.cpp archive 下載的 socket idle timeout（秒）；必須 > 0 |
 | `CAPSWRITER_REMOVE_MODEL_ARCHIVES` | `false` | `true` = 解壓後刪除壓縮包 |
 
 ---
@@ -119,12 +120,14 @@ HTTP API 預設不把 prompt/context 或轉錄內容寫入 server log/console；
 
 1. 根據 `CAPSWRITER_MODEL_TYPE` 找出對應 ASSETS
 2. 檢查 `is_ready()`：required_files 全在 → 跳過下載
-3. 否則下載 zip 到 `models/.downloads/`，校驗 sha256，解壓到 target_dir
+3. 否則以 bounded streaming download 寫入 `models/.downloads/*.part`，完成後才 atomic replace 到 archive path，校驗 sha256，解壓到 target_dir
 4. 對 GGUF backend（qwen_asr / fun_asr_nano），下載對應 llama.cpp Linux `.so` 到三個 inference/bin 目錄，並檢查 `libggml.so.0` / `libggml-base.so.0` 等 runtime-linked SONAME 檔案：
    - `core/server/engines/qwen_asr_gguf/inference/bin/`
    - `core/server/engines/fun_asr_gguf/inference/bin/`
    - `core/server/engines/force_aligner_gguf/inference/bin/`
 5. 對 `CAPSWRITER_LLAMA_BACKEND=vulkan`，會拉 `libggml-vulkan.so`；CPU 則只拉 cpu 版
+
+下載使用 `CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT` 作為每次 socket connect/read 的 idle timeout；這不是整體下載時間上限，慢速但持續有資料的模型下載不會因為總耗時超過 60 秒而被中斷。失敗或 timeout 時只會留下已存在且完整的舊 archive，不會把半截檔案放在正式 cache path。
 
 容器自動下載與 production gate 目前支援的模型（對應 upstream v2.6 的 GGUF 路徑）：
 
@@ -244,6 +247,7 @@ Container healthcheck 行為：
 | Symptom | 解法 |
 |---|---|
 | 容器啟動 20 分鐘後 healthcheck 還沒過 | 模型尚未載入或 HTTP `/ready` 還是 degraded；`docker logs` 看進度，`curl :6017/ready` 看 checks。冷啟動可能 30+ 分鐘 |
+| 模型下載卡住或反覆 timeout | 檢查容器到 GitHub release 的網路；慢速網路可調高 `CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT`。中斷下載只會留下 `.part` 暫存檔，重啟會重新下載 |
 | `ONNXRuntimeError: NO_SUCHFILE` | 模型檔不在預期路徑。檢查 `./models/Qwen3-ASR/Qwen3-ASR-1.7B/` 內檔名是否對齊 [`config_server.py:ModelPaths`](../config_server.py) |
 | `libggml-base.so.0: cannot open shared object file` | llama.cpp runtime libraries 不完整；重新跑 `python docker/server/download_models.py` 或重建/重啟容器讓 entrypoint 補齊 versioned `.so` |
 | AMD iGPU 模型載入失敗 | `.env` 設 `GGML_VK_DISABLE_COOPMAT=1` |
