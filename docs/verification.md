@@ -17,12 +17,12 @@ The command runs:
 | Upstream divergence | `python scripts/check_upstream_divergence.py` | Confirms fork commits only modify the documented upstream-tracked files when the configured base ref is available; skips cleanly in shallow checkouts without that ref |
 | CLI | `python client/cli/scripts/verify.py` | CLI syntax, health/readiness/models calls, key-file auth including empty-file rejection, positive timeout validation, streamed multipart upload including filename escaping and early error responses, mock HTTP transcription, valid JSON output files, HTTP and invalid JSON diagnostics, output files, Linux/Windows TTS command selection, zipapp packaging |
 | Server | `python -m compileall fork_server docker/server check_http_api.py start_server_docker.py` + HTTP and Docker server unit tests | HTTP sidecar, strict Bearer header parsing, server/client key-file auth support, HTTP-aware `ws_send` upstream drift guard, Docker entrypoint/healthcheck syntax, readiness-gated container healthcheck, privacy-preserving transcript logging, SRT/VTT timestamp formatting, bounded ffmpeg decode diagnostics, model downloader diagnostics including runtime-linked llama libraries, dependency-light request limit, runtime config tests, and fail-fast server/model env validation |
-| Verifier/diagnostic | `python -m unittest discover -s scripts/tests -v` | Root gate helper behavior, including upstream divergence guard parsing/filtering, redaction of live HTTP API keys from shared logs, key-file pass-through, empty key-file rejection, plus diagnostic streamed multipart upload escaping, real HTTP body delivery, POST 401 handling, configurable live transcription timeout, Docker Compose HTTP/model tuning env guards, HTTP API dependency guards, role-template secret/default guards, `/health` 401 API-key guidance, cleanup traversal pruning, and source guard for configured ffmpeg decode timeout |
+| Verifier/diagnostic | `python -m unittest discover -s scripts/tests -v` | Root gate helper behavior, including upstream divergence guard parsing/filtering, redaction of live HTTP API keys from shared logs, key-file pass-through, empty key-file rejection, cleanup residue detection, plus diagnostic streamed multipart upload escaping, real HTTP body delivery, POST 401 handling, configurable live transcription timeout, Docker Compose HTTP/model tuning env guards, HTTP API dependency guards, role-template secret/default guards, `/health` 401 API-key guidance, cleanup traversal pruning, and source guard for configured ffmpeg decode timeout |
 | Web | `npm ci --no-audit --no-fund` then `npm run verify` in `client/web` | React/Vite tests, bounded Web API error/invalid JSON/diagnostic request timeout handling, partial readiness diagnostics when model listing fails, recording resource cleanup, deferred export URL cleanup, TTS voice handler cleanup, clipboard failure handling, best-effort localStorage persistence, malformed settings/history/runtime-config recovery, runtime `/config.js` escaping, TypeScript, production build, web clean script |
 | Optional Web browser smoke | temporary mock API + Vite + `agent-browser` | Real browser can check server health, upload audio, and transcribe through the UI |
 | Optional Web image | `docker build` + temporary `docker run` smoke check | Production Nginx/static image can build and serve `/health` + runtime `/config.js` |
 | Optional live HTTP | `client/cli/capswriter_cli.py health` + optional readiness and known-audio transcription | Real server health, deployment readiness, and model-backed STT when configured |
-| Cleanup | `python scripts/clean.py` | Removes build/cache/pycache artifacts |
+| Cleanup | `python scripts/clean.py` then `python scripts/clean.py --check` | Removes build/cache/pycache artifacts and fails if known generated residue remains |
 
 The web dependency install is scoped to `client/web/node_modules`. Nothing is installed globally.
 
@@ -112,6 +112,7 @@ python scripts/verify_all.py
 
 ```bash
 python scripts/clean.py
+python scripts/clean.py --check
 ```
 
 Cleanup removes:
@@ -127,6 +128,10 @@ Cleanup removes:
 | TypeScript emitted config artifacts | Guard against accidental `tsc -b` output |
 
 `client/web/node_modules` and `models` are not removed by default. They are isolated dependency/model directories and are ignored by Git; removing or walking them on every verification would force unnecessary downloads or slow cleanup on large model installs. Delete them manually if a completely fresh dependency or model install is required.
+
+`scripts/verify_all.py` runs cleanup in a `finally` block, then runs
+`scripts/clean.py --check`. A successful root gate therefore proves the known
+verification residue was removed, not just that cleanup was attempted.
 
 ## CI
 
@@ -156,6 +161,6 @@ For a release candidate, keep these artifacts or logs:
 | CLI valid | `client/cli/scripts/verify.py` logs from inside the root gate |
 | Real HTTP server reachable and ready | `--http-base-url --http-require-ready` gate output or `check_http_api.py` output |
 | Model-backed STT sample works | `--http-audio` + `--http-expect` gate output or `check_http_api.py --audio ... --expect ... --timeout ...` |
-| No generated trash committed | `git status --short` plus cleanup scan |
+| No generated trash committed | `git status --short` plus `python scripts/clean.py --check` |
 
 Default CI does not download models or commit binary audio fixtures. Use `--http-audio` for release-candidate evidence when a real server and known sample are available.

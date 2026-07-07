@@ -87,7 +87,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 ### 3.5 CI / Release
 
 - [`scripts/verify_all.py`](../scripts/verify_all.py) 是 repo-level gate。
-- [`scripts/clean.py`](../scripts/clean.py) 清 Python/Web/Docker 驗證輸出。
+- [`scripts/clean.py`](../scripts/clean.py) 清 Python/Web/Docker 驗證輸出，並提供 `--check` residue gate。
 - [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) 跑 root gate。
 - [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 發 server image。
 - [`.github/workflows/publish-web-image.yml`](../.github/workflows/publish-web-image.yml) 發 Web Console image。
@@ -102,11 +102,11 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 |---|---|
 | `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 25 tests，含 `/ready` ok/degraded diagnostic command、key-file auth/empty-file rejection、positive timeout validation、valid JSON output files、OpenAI-style error parsing、non-JSON/invalid JSON diagnostics、streamed multipart upload 與 multipart filename escaping |
 | `python -m unittest discover -s docker/server/tests -v` | 通過：Docker server 17 tests，含 HTTP `/ready` healthcheck、healthcheck env parsing、model downloader env diagnostics、llama.cpp runtime library readiness 與 entrypoint Qwen CPU preset guard |
-| `python -m unittest discover -s scripts/tests -v` | 通過：Verifier/diagnostic 32 tests，含 upstream divergence guard、live HTTP API key log redaction/key-file pass-through/empty-file rejection、diagnostic streamed multipart/configurable timeout/real HTTP body delivery/POST 401 handling、Docker Compose HTTP/model tuning env guard、HTTP API dependency guard、role template secret/default guard、`/health` 401 API-key guidance、cleanup traversal pruning 與 HTTP decode timeout source guard |
+| `python -m unittest discover -s scripts/tests -v` | 通過：Verifier/diagnostic 35 tests，含 upstream divergence guard、live HTTP API key log redaction/key-file pass-through/empty-file rejection、diagnostic streamed multipart/configurable timeout/real HTTP body delivery/POST 401 handling、Docker Compose HTTP/model tuning env guard、HTTP API dependency guard、role template secret/default guard、`/health` 401 API-key guidance、cleanup traversal/residue gate 與 HTTP decode timeout source guard |
 | `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 12 tests、Verifier/diagnostic 23 tests、Web 36 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 | `python scripts/verify_all.py --skip-web --http-base-url http://127.0.0.1:16017 --http-key ... --http-require-ready --http-audio benchmarks/audio/arctic_a0001.wav --http-expect "Author of"` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 15 tests、Verifier/diagnostic 23 tests、current-branch live `/health` v2.6、`/ready` ok、Qwen ASR model-backed STT (`Author of the Danger Trail, Philip Steels, etc.`) |
 | `python scripts/verify_all.py --skip-web` | 通過：CLI 24 tests、server compile、HTTP 57 tests（含 fail-fast server/model env validation）、Docker server 17 tests（含 entrypoint Qwen CPU preset guard）、Verifier/diagnostic 28 tests（含 Docker Compose HTTP/model tuning env guard）、cleanup |
-| `python scripts/verify_all.py` | 通過：upstream divergence guard、CLI 25 tests、server compile、HTTP 62 tests（含 server key-file auth 與 ws_send drift guard）、Docker server 17 tests、Verifier/diagnostic 32 tests、Web 40 tests/build（含 malformed history/runtime-config filtering）、cleanup |
+| `python scripts/verify_all.py` | 通過：upstream divergence guard、CLI 25 tests、server compile、HTTP 62 tests（含 server key-file auth 與 ws_send drift guard）、Docker server 17 tests、Verifier/diagnostic 35 tests、Web 40 tests/build（含 malformed history/runtime-config filtering）、cleanup + residue check |
 
 `127.0.0.1:6017` 仍是既有外部服務；本分支驗證使用隔離容器掛載目前 checkout，對外映射 `127.0.0.1:16017`，並以 temporary API key 執行 `/ready` 與已知音檔 STT gate。共享 verifier log 會將 `--http-key` 顯示為 `<redacted>`。
 

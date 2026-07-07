@@ -404,7 +404,10 @@ def clean_web_docker() -> int:
 
 
 def clean() -> int:
-    return run([sys.executable, "scripts/clean.py"])
+    code = run([sys.executable, "scripts/clean.py"])
+    if code != 0:
+        return code
+    return run([sys.executable, "scripts/clean.py", "--check"])
 
 
 def build_parser() -> argparse.ArgumentParser:

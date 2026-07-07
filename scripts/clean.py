@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 import shutil
 import subprocess
@@ -18,6 +19,37 @@ PRESERVED_DIRS = {
     ROOT / "client" / "web" / "node_modules",
     ROOT / "models",
 }
+GENERATED_DIRS = (
+    ".pytest_cache",
+    ".ruff_cache",
+    "htmlcov",
+    "coverage",
+    "playwright-report",
+    "test-results",
+    ".drawio-tmp",
+    "client/web/dist",
+    "client/cli/dist",
+    "client/web/coverage",
+    "client/web/.vite",
+    "client/web/node_modules/.vite",
+    "client/web/playwright-report",
+    "client/web/test-results",
+    "client/web/.tmp",
+)
+GENERATED_FILES = (
+    "client/web/tsconfig.tsbuildinfo",
+    "client/web/tsconfig.node.tsbuildinfo",
+    "client/web/vite.config.js",
+    "client/web/vite.config.d.ts",
+)
+
+
+def preserved_dirs_for(root: Path) -> set[Path]:
+    return {
+        root / ".git",
+        root / "client" / "web" / "node_modules",
+        root / "models",
+    }
 
 
 def remove_tree(path: Path) -> None:
@@ -79,7 +111,43 @@ def iter_python_cache_artifacts(
                 yield current / name
 
 
-def main() -> int:
+def iter_cleanup_residue(
+    root: Path = ROOT,
+    preserved_dirs: set[Path] | None = None,
+):
+    yield from iter_python_cache_artifacts(
+        root,
+        preserved_dirs or preserved_dirs_for(root),
+    )
+    for relative in GENERATED_DIRS:
+        path = root / relative
+        if path.exists():
+            yield path
+    for relative in GENERATED_FILES:
+        path = root / relative
+        if path.exists():
+            yield path
+
+
+def check_clean(root: Path = ROOT) -> int:
+    residue = sorted(
+        {path.resolve() for path in iter_cleanup_residue(root)},
+        key=lambda path: path.as_posix(),
+    )
+    if not residue:
+        print("Cleanup check passed: no generated verification artifacts found")
+        return 0
+    print("Cleanup residue found:", file=sys.stderr)
+    for path in residue:
+        try:
+            display = path.relative_to(root.resolve())
+        except ValueError:
+            display = path
+        print(f"  {display}", file=sys.stderr)
+    return 1
+
+
+def clean_generated_artifacts() -> int:
     run_web_clean()
 
     for path in iter_python_cache_artifacts():
@@ -88,34 +156,32 @@ def main() -> int:
         else:
             remove_file(path)
 
-    for relative in [
-        ".pytest_cache",
-        ".ruff_cache",
-        "htmlcov",
-        "coverage",
-        "playwright-report",
-        "test-results",
-        ".drawio-tmp",
-        "client/web/dist",
-        "client/cli/dist",
-        "client/web/coverage",
-        "client/web/.vite",
-        "client/web/node_modules/.vite",
-        "client/web/playwright-report",
-        "client/web/test-results",
-        "client/web/.tmp",
-    ]:
+    for relative in GENERATED_DIRS:
         remove_tree(ROOT / relative)
 
-    for relative in [
-        "client/web/tsconfig.tsbuildinfo",
-        "client/web/tsconfig.node.tsbuildinfo",
-        "client/web/vite.config.js",
-        "client/web/vite.config.d.ts",
-    ]:
+    for relative in GENERATED_FILES:
         remove_file(ROOT / relative)
 
     return 0
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Clean generated CapsWriter verification artifacts",
+    )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Only check for cleanup residue; do not remove files",
+    )
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    if args.check:
+        return check_clean()
+    return clean_generated_artifacts()
 
 
 if __name__ == "__main__":
