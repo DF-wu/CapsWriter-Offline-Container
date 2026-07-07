@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import io
+import subprocess
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 from scripts import clean
 
@@ -111,6 +114,76 @@ class CleanTraversalTest(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(stdout.getvalue(), "")
         self.assertIn("client/web/dist", stderr.getvalue())
+
+    def test_run_web_clean_passes_configured_timeout(self) -> None:
+        completed = SimpleNamespace(returncode=0)
+        with (
+            patch.object(clean, "WEB_ROOT", Path("/tmp/capswriter-web")),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(clean.shutil, "which", return_value="/usr/bin/npm"),
+            patch.dict(clean.os.environ, {clean.CLEAN_WEB_TIMEOUT_ENV: "2.5"}),
+            patch.object(clean.subprocess, "run", return_value=completed) as run,
+        ):
+            code = clean.run_web_clean()
+
+        self.assertEqual(code, 0)
+        self.assertEqual(run.call_args.kwargs["timeout"], 2.5)
+
+    def test_run_web_clean_rejects_invalid_timeout_before_spawning(self) -> None:
+        stderr = io.StringIO()
+        with (
+            patch.object(clean, "WEB_ROOT", Path("/tmp/capswriter-web")),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(clean.shutil, "which", return_value="/usr/bin/npm"),
+            patch.dict(clean.os.environ, {clean.CLEAN_WEB_TIMEOUT_ENV: "0"}),
+            patch.object(clean.subprocess, "run") as run,
+            redirect_stderr(stderr),
+        ):
+            code = clean.run_web_clean()
+
+        self.assertEqual(code, 1)
+        run.assert_not_called()
+        self.assertIn("CAPSWRITER_CLEAN_WEB_TIMEOUT must be > 0", stderr.getvalue())
+
+    def test_run_web_clean_timeout_returns_timeout_exit_code(self) -> None:
+        stderr = io.StringIO()
+        with (
+            patch.object(clean, "WEB_ROOT", Path("/tmp/capswriter-web")),
+            patch.object(Path, "exists", return_value=True),
+            patch.object(clean.shutil, "which", return_value="/usr/bin/npm"),
+            patch.dict(clean.os.environ, {clean.CLEAN_WEB_TIMEOUT_ENV: "1"}),
+            patch.object(
+                clean.subprocess,
+                "run",
+                side_effect=subprocess.TimeoutExpired(["npm"], timeout=1),
+            ),
+            redirect_stderr(stderr),
+        ):
+            code = clean.run_web_clean()
+
+        self.assertEqual(code, clean.TIMEOUT_EXIT_CODE)
+        self.assertIn("npm run clean timed out after 1s", stderr.getvalue())
+
+    def test_clean_generated_artifacts_continues_after_web_clean_failure(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            dist = root / "client/web/dist"
+            dist.mkdir(parents=True)
+            pycache = root / "src/__pycache__"
+            pycache.mkdir(parents=True)
+            tsbuild = root / "client/web/tsconfig.tsbuildinfo"
+            tsbuild.write_text("ts", encoding="utf-8")
+
+            with (
+                patch.object(clean, "ROOT", root),
+                patch.object(clean, "run_web_clean", return_value=clean.TIMEOUT_EXIT_CODE),
+            ):
+                code = clean.clean_generated_artifacts()
+
+            self.assertEqual(code, clean.TIMEOUT_EXIT_CODE)
+            self.assertFalse(dist.exists())
+            self.assertFalse(pycache.exists())
+            self.assertFalse(tsbuild.exists())
 
 
 if __name__ == "__main__":

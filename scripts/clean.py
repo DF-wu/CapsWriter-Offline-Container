@@ -42,6 +42,9 @@ GENERATED_FILES = (
     "client/web/vite.config.js",
     "client/web/vite.config.d.ts",
 )
+CLEAN_WEB_TIMEOUT_ENV = "CAPSWRITER_CLEAN_WEB_TIMEOUT"
+DEFAULT_CLEAN_WEB_TIMEOUT_SECONDS = 120.0
+TIMEOUT_EXIT_CODE = 124
 
 
 def preserved_dirs_for(root: Path) -> set[Path]:
@@ -63,17 +66,40 @@ def remove_file(path: Path) -> None:
         pass
 
 
-def run_web_clean() -> None:
+def clean_web_timeout_seconds() -> float:
+    value = os.environ.get(CLEAN_WEB_TIMEOUT_ENV, "").strip()
+    if not value:
+        return DEFAULT_CLEAN_WEB_TIMEOUT_SECONDS
+    try:
+        timeout = float(value)
+    except ValueError as exc:
+        raise ValueError(f"{CLEAN_WEB_TIMEOUT_ENV} must be a number") from exc
+    if timeout <= 0:
+        raise ValueError(f"{CLEAN_WEB_TIMEOUT_ENV} must be > 0")
+    return timeout
+
+
+def run_web_clean() -> int:
     package_json = WEB_ROOT / "package.json"
     if not package_json.exists() or shutil.which("npm") is None:
-        return
-    subprocess.run(
-        ["npm", "run", "clean"],
-        cwd=WEB_ROOT,
-        check=False,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
+        return 0
+    try:
+        timeout = clean_web_timeout_seconds()
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return 1
+    try:
+        return subprocess.run(
+            ["npm", "run", "clean"],
+            cwd=WEB_ROOT,
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout,
+        ).returncode
+    except subprocess.TimeoutExpired:
+        print(f"npm run clean timed out after {timeout:g}s", file=sys.stderr)
+        return TIMEOUT_EXIT_CODE
 
 
 def _is_relative_to(path: Path, parent: Path) -> bool:
@@ -148,9 +174,9 @@ def check_clean(root: Path = ROOT) -> int:
 
 
 def clean_generated_artifacts() -> int:
-    run_web_clean()
+    status = run_web_clean()
 
-    for path in iter_python_cache_artifacts():
+    for path in iter_python_cache_artifacts(ROOT, preserved_dirs_for(ROOT)):
         if path.name == "__pycache__":
             remove_tree(path)
         else:
@@ -162,7 +188,7 @@ def clean_generated_artifacts() -> int:
     for relative in GENERATED_FILES:
         remove_file(ROOT / relative)
 
-    return 0
+    return status
 
 
 def build_parser() -> argparse.ArgumentParser:
