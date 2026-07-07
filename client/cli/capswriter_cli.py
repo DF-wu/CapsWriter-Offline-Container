@@ -27,6 +27,7 @@ from urllib import error, parse, request
 DEFAULT_BASE_URL = "http://127.0.0.1:6017"
 DEFAULT_MODEL = "whisper-1"
 DEFAULT_TIMEOUT_SECONDS = 600.0
+DEFAULT_TTS_TIMEOUT_SECONDS = 120.0
 RESPONSE_FORMATS = ("json", "text", "verbose_json", "srt", "vtt")
 MAX_ERROR_BODY_CHARS = 500
 SUPPORTED_BASE_URL_SCHEMES = {"http", "https"}
@@ -490,12 +491,22 @@ def select_tts_command(
     )
 
 
-def speak_text(text: str, *, voice: str = "", rate: Optional[int] = None, dry_run: bool = False) -> int:
+def speak_text(
+    text: str,
+    *,
+    voice: str = "",
+    rate: Optional[int] = None,
+    dry_run: bool = False,
+    timeout: float = DEFAULT_TTS_TIMEOUT_SECONDS,
+) -> int:
     cmd = select_tts_command(text, voice=voice, rate=rate)
     if dry_run:
         print(" ".join(cmd))
         return 0
-    return subprocess.run(cmd, check=False).returncode
+    try:
+        return subprocess.run(cmd, check=False, timeout=timeout).returncode
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError(f"TTS engine timed out after {timeout:g}s") from exc
 
 
 def read_text_argument(
@@ -586,6 +597,12 @@ def build_parser() -> argparse.ArgumentParser:
     speak_source.add_argument("--stdin", action="store_true", help="Read text from standard input")
     speak.add_argument("--voice", default="")
     speak.add_argument("--rate", type=int)
+    speak.add_argument(
+        "--tts-timeout",
+        type=positive_float,
+        default=DEFAULT_TTS_TIMEOUT_SECONDS,
+        help=f"Local TTS engine timeout in seconds (default: {DEFAULT_TTS_TIMEOUT_SECONDS:g})",
+    )
     speak.add_argument("--dry-run", action="store_true", help="Print the command only")
 
     return parser
@@ -664,7 +681,13 @@ def command_transcribe(args) -> int:
 
 def command_speak(args) -> int:
     text = read_text_argument(args.text, from_file=args.file, from_stdin=args.stdin)
-    return speak_text(text, voice=args.voice, rate=args.rate, dry_run=args.dry_run)
+    return speak_text(
+        text,
+        voice=args.voice,
+        rate=args.rate,
+        dry_run=args.dry_run,
+        timeout=args.tts_timeout,
+    )
 
 
 def main(argv: Optional[Iterable[str]] = None) -> int:

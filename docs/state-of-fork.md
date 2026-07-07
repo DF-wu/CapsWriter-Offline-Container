@@ -72,7 +72,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 - [`client/cli/capswriter_cli.py`](../client/cli/capswriter_cli.py) 無第三方 Python dependency。
 - 支援 `health`、`ready`、`models`、`transcribe`、`speak`。
 - CLI 與診斷工具預設 timeout 對齊 server `CAPSWRITER_HTTP_API_TASK_TIMEOUT=600`，長音訊可用 `--timeout` 覆寫。
-- `speak` 支援直接文字、UTF-8 檔案與 stdin，可串接 `transcribe --format text | speak --stdin`。
+- `speak` 支援直接文字、UTF-8 檔案與 stdin，可串接 `transcribe --format text | speak --stdin`，local TTS 子程序預設以 `--tts-timeout 120` 設上限。
 - `transcribe --output-dir` 會在送出 HTTP 前拒絕重複生成的輸出路徑，避免 batch 檔案被靜默覆寫。
 - `--base-url` 僅接受 absolute `http://` / `https://` root（可帶 path prefix 與尾端 `/v1`）；URL credentials、query、fragment 與非 HTTP scheme 會在送 request 前被拒絕。
 - HTTP error 會解析 OpenAI-style `error.message`、舊版 `detail`、bounded non-JSON body previews，並把 expected JSON endpoint 的 invalid JSON response 轉成帶 endpoint/status 的診斷。
@@ -108,7 +108,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 | Gate | 結果 |
 |---|---|
-| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 39 tests，含 `/ready` ok/degraded diagnostic command、key-file auth/empty-file rejection、base URL validation before requests、server-aligned default timeout/positive timeout validation、valid JSON output files、duplicate `--output-dir` target rejection、OpenAI-style error parsing、non-JSON/invalid JSON diagnostics、streamed multipart upload、multipart filename escaping 與 `speak --stdin` pipeline input |
+| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 43 tests，含 `/ready` ok/degraded diagnostic command、key-file auth/empty-file rejection、base URL validation before requests、server-aligned default timeout/positive timeout validation、valid JSON output files、duplicate `--output-dir` target rejection、OpenAI-style error parsing、non-JSON/invalid JSON diagnostics、streamed multipart upload、multipart filename escaping、`speak --stdin` pipeline input 與 bounded local TTS timeout handling |
 | `python -m unittest discover -s docker/server/tests -v` | 通過：Docker server 17 tests，含 HTTP `/ready` healthcheck、healthcheck env parsing、model downloader env diagnostics、llama.cpp runtime library readiness 與 entrypoint Qwen CPU preset guard |
 | `python -m unittest discover -s scripts/tests -v` | 通過：Verifier/diagnostic 39 tests，含 upstream divergence guard、live HTTP API key log redaction/key-file pass-through/empty-file rejection、diagnostic host/port validation、diagnostic streamed multipart/server-aligned default timeout/configurable timeout/real HTTP body delivery/POST 401 handling、Docker Compose HTTP/model tuning env guard、HTTP API dependency guard、role template secret/default guard、`/health` 401 API-key guidance、cleanup traversal/residue gate 與 HTTP decode timeout source guard |
 | `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 12 tests、Verifier/diagnostic 23 tests、Web 36 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |

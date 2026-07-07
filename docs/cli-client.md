@@ -12,7 +12,7 @@ The no-GUI client lives in [`client/cli`](../client/cli). It is a standard-libra
 | STT | `transcribe` one or more audio files through `POST /v1/audio/transcriptions` |
 | Formats | `text`, `json`, `verbose_json`, `srt`, `vtt` |
 | Batch output | stdout, one explicit `--output`, or generated files in `--output-dir` |
-| TTS | `speak` direct text, UTF-8 files, or stdin through local OS engines |
+| TTS | `speak` direct text, UTF-8 files, or stdin through bounded local OS engines |
 | Packaging | single-file Python zipapp (`capswriter-cli.pyz`) |
 | Isolation | No third-party Python dependency; tests use an in-process mock HTTP server |
 
@@ -166,14 +166,14 @@ python client/cli/capswriter_cli.py speak "test" --dry-run
 
 `--file` and `--stdin` are mutually exclusive. `--stdin` also rejects a positional text argument so scripts do not accidentally ignore input.
 
-The `speak` command does not call the CapsWriter server and does not send text to a cloud service. It shells out to the local operating system TTS engine.
+The `speak` command does not call the CapsWriter server and does not send text to a cloud service. It shells out to the local operating system TTS engine. Local TTS execution is bounded by `--tts-timeout`, which defaults to `120` seconds and must be a positive number.
 
 ## Exit codes
 
 | Code | Meaning |
 |---|---|
 | `0` | Success |
-| `1` | HTTP failure, unsupported format, missing file/text input, invalid TTS input combination, or unavailable local TTS engine |
+| `1` | HTTP failure, unsupported format, missing file/text input, invalid TTS input combination, unavailable local TTS engine, or local TTS timeout |
 
 When the server returns OpenAI-style `{"error": ...}` JSON, the CLI prints the contained `error.message` instead of dumping raw JSON. Legacy FastAPI `{"detail": ...}` payloads are also normalized for compatibility with older servers. If a proxy or old server returns a non-JSON HTTP error body, the CLI prints the HTTP status with a bounded one-line body preview. If a health/readiness/models call or JSON transcription response is malformed, the error includes the HTTP status and endpoint.
 
@@ -214,5 +214,6 @@ python client/cli/scripts/clean.py
 - `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.
 - HTTP errors normalize OpenAI-style `error.message`, legacy `detail` payloads, non-JSON HTTP error bodies, and invalid JSON responses from expected JSON endpoints.
 - `speak` accepts direct text, a UTF-8 file via `--file`, or standard input via `--stdin`; stdin mode is intended for transcription-to-speech shell pipelines.
+- `--tts-timeout` defaults to `120` seconds, is validated as a positive float, and is passed to local TTS subprocess execution. `--dry-run` prints the selected command without executing it.
 - Windows TTS uses PowerShell `System.Speech`.
 - Linux TTS prefers `spd-say`, then `espeak-ng`, then `espeak`.

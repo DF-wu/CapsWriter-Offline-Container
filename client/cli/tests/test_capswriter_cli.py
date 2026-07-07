@@ -634,6 +634,57 @@ class CapsWriterCliTest(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 2)
         self.assertIn("not allowed with argument", stderr.getvalue())
 
+    def test_parser_rejects_non_positive_tts_timeout(self):
+        with redirect_stderr(io.StringIO()) as stderr, self.assertRaises(SystemExit) as ctx:
+            cli.build_parser().parse_args(["speak", "--tts-timeout", "0", "hello"])
+
+        self.assertEqual(ctx.exception.code, 2)
+        self.assertIn("must be > 0", stderr.getvalue())
+
+    def test_speak_text_passes_timeout_to_tts_process(self):
+        with (
+            patch.object(cli, "select_tts_command", return_value=["tts", "hello"]) as select,
+            patch.object(
+                cli.subprocess,
+                "run",
+                return_value=cli.subprocess.CompletedProcess(["tts", "hello"], 7),
+            ) as run,
+        ):
+            code = cli.speak_text("hello", timeout=3.25)
+
+        self.assertEqual(code, 7)
+        select.assert_called_once_with("hello", voice="", rate=None)
+        run.assert_called_once_with(["tts", "hello"], check=False, timeout=3.25)
+
+    def test_speak_text_dry_run_does_not_execute_tts_process(self):
+        stdout = io.StringIO()
+        with (
+            patch.object(cli, "select_tts_command", return_value=["tts", "hello"]),
+            patch.object(cli.subprocess, "run") as run,
+            redirect_stdout(stdout),
+        ):
+            code = cli.speak_text("hello", dry_run=True, timeout=0.01)
+
+        self.assertEqual(code, 0)
+        self.assertEqual(stdout.getvalue(), "tts hello\n")
+        run.assert_not_called()
+
+    def test_main_speak_reports_tts_timeout(self):
+        stderr = io.StringIO()
+        with (
+            patch.object(cli, "select_tts_command", return_value=["tts", "hello"]),
+            patch.object(
+                cli.subprocess,
+                "run",
+                side_effect=cli.subprocess.TimeoutExpired(["tts", "hello"], timeout=2.5),
+            ),
+            redirect_stderr(stderr),
+        ):
+            code = cli.main(["speak", "--tts-timeout", "2.5", "hello"])
+
+        self.assertEqual(code, 1)
+        self.assertIn("capswriter-cli: TTS engine timed out after 2.5s", stderr.getvalue())
+
     def test_tts_command_selection_linux(self):
         command = cli.select_tts_command(
             "hello",
