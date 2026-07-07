@@ -98,7 +98,7 @@ CAPSWRITER_WEB_VERIFY_STEP_TIMEOUT=1200 npm run verify
 ## Production Docker
 
 Web Console can be served as a static Nginx container. Runtime configuration is written to `/config.js` when the container starts, so the same image can point to different CapsWriter HTTP API hosts.
-Runtime values are escaped before writing `config.js`, so quotes, backslashes, newlines, and carriage returns in deploy-time strings do not break the JavaScript file.
+Runtime values are escaped before writing `config.js`, so quotes, backslashes, newlines, and carriage returns in deploy-time strings do not break the JavaScript file. The container also sets baseline browser security headers, including `Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy`.
 
 Build and run only the web service:
 

@@ -462,7 +462,14 @@ def verify_web_docker() -> int:
                     "wget -qO- http://127.0.0.1:8080/config.js "
                     "| grep 'baseUrl: \"http://127.0.0.1:6017\"' "
                     "&& wget -qO- http://127.0.0.1:8080/config.js "
-                    "| grep 'responseFormat: \"text\"'"
+                    "| grep 'responseFormat: \"text\"' "
+                    "&& headers=\"$(wget -S -O /dev/null http://127.0.0.1:8080/ 2>&1)\" "
+                    "&& printf '%s\\n' \"$headers\" "
+                    "| grep -qi 'X-Content-Type-Options: nosniff' "
+                    "&& printf '%s\\n' \"$headers\" "
+                    "| grep -qi 'X-Frame-Options: DENY' "
+                    "&& printf '%s\\n' \"$headers\" "
+                    "| grep -qi 'Content-Security-Policy:'"
                 ),
             ]
         )

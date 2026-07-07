@@ -8,6 +8,8 @@ RUN npm run build
 
 FROM nginx:1.27-alpine
 
+RUN mkdir -p /etc/nginx/snippets
+COPY deploy/security-headers.conf /etc/nginx/snippets/capswriter-security-headers.conf
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY deploy/write-config.sh /docker-entrypoint.d/40-write-capswriter-config.sh
 RUN chmod +x /docker-entrypoint.d/40-write-capswriter-config.sh
