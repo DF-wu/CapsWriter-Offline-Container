@@ -4,6 +4,7 @@ import {
   clearHistory,
   loadHistory,
   loadSettings,
+  saveHistory,
   saveSettings,
   settingsWithRuntimeDefaults,
 } from "./storage";
@@ -160,6 +161,49 @@ describe("settingsWithRuntimeDefaults", () => {
 
     expect(loadHistory()).toEqual([]);
     expect(addHistory(record)).toEqual([record]);
+  });
+
+  it("filters malformed persisted history records", () => {
+    const valid: TranscriptRecord = {
+      id: "record-1",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      sourceName: "sample.wav",
+      durationSeconds: null,
+      format: "verbose_json",
+      text: "hello",
+      raw: { text: "hello" },
+    };
+    localStorage.setItem(
+      HISTORY_KEY,
+      JSON.stringify([
+        valid,
+        { ...valid, id: "" },
+        { ...valid, createdAt: "not-a-date" },
+        { ...valid, sourceName: "" },
+        { ...valid, durationSeconds: -1 },
+        { ...valid, format: "xml" },
+        { ...valid, text: 123 },
+        { ...valid, raw: ["bad"] },
+      ]),
+    );
+
+    expect(loadHistory()).toEqual([valid]);
+  });
+
+  it("filters malformed history before saving", () => {
+    const valid: TranscriptRecord = {
+      id: "record-1",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      sourceName: "sample.wav",
+      durationSeconds: 1,
+      format: "text",
+      text: "hello",
+      raw: "hello",
+    };
+
+    saveHistory([valid, { ...valid, raw: ["bad"] } as never]);
+
+    expect(JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]")).toEqual([valid]);
   });
 
   it("ignores blocked storage when clearing history", () => {

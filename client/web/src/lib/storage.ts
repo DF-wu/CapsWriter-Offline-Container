@@ -41,6 +41,47 @@ function stringSetting(value: unknown, fallback: string): string {
   return typeof value === "string" ? value : fallback;
 }
 
+function isFiniteNonNegativeNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value) && value >= 0;
+}
+
+function isTranscriptRaw(value: unknown): value is TranscriptRecord["raw"] {
+  return typeof value === "string" || isRecord(value);
+}
+
+function normalizeHistoryRecord(value: unknown): TranscriptRecord | null {
+  if (!isRecord(value)) return null;
+  if (typeof value.id !== "string" || !value.id.trim()) return null;
+  if (typeof value.createdAt !== "string" || Number.isNaN(Date.parse(value.createdAt))) {
+    return null;
+  }
+  if (typeof value.sourceName !== "string" || !value.sourceName.trim()) return null;
+  if (!isResponseFormat(value.format)) return null;
+  if (typeof value.text !== "string") return null;
+  if (value.durationSeconds !== null && !isFiniteNonNegativeNumber(value.durationSeconds)) {
+    return null;
+  }
+  if (!isTranscriptRaw(value.raw)) return null;
+
+  return {
+    id: value.id,
+    createdAt: value.createdAt,
+    sourceName: value.sourceName,
+    durationSeconds: value.durationSeconds,
+    format: value.format,
+    text: value.text,
+    raw: value.raw,
+  };
+}
+
+function normalizeHistory(value: unknown): TranscriptRecord[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    const record = normalizeHistoryRecord(item);
+    return record ? [record] : [];
+  });
+}
+
 function readJsonRecord(key: string): Record<string, unknown> {
   try {
     const raw = localStorage.getItem(key);
@@ -97,14 +138,14 @@ export function loadHistory(): TranscriptRecord[] {
     const raw = localStorage.getItem(HISTORY_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
-    return Array.isArray(parsed) ? (parsed as TranscriptRecord[]) : [];
+    return normalizeHistory(parsed).slice(0, HISTORY_LIMIT);
   } catch {
     return [];
   }
 }
 
 export function saveHistory(history: TranscriptRecord[]): void {
-  writeJson(HISTORY_KEY, history.slice(0, HISTORY_LIMIT));
+  writeJson(HISTORY_KEY, normalizeHistory(history).slice(0, HISTORY_LIMIT));
 }
 
 export function addHistory(record: TranscriptRecord): TranscriptRecord[] {
