@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="470" viewBox="0 0 1120 470" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="520" viewBox="0 0 1120 520" role="img" aria-labelledby="title desc">
   <title id="title">CapsWriter verification pipeline</title>
-  <desc id="desc">Repository verification runs CLI tests, server compile and healthcheck tests, web console tests and builds, optional live HTTP health checks, then cleanup.</desc>
+  <desc id="desc">Repository verification checks upstream divergence, then runs CLI tests, server compile and healthcheck tests, web console tests and builds, optional live HTTP health checks, then cleanup.</desc>
   <defs>
     <marker id="arrow-verify" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L0,6 L9,3 z" fill="#1E3A5F"/>
@@ -17,46 +17,52 @@
       .edge-soft { fill: none; stroke: #64748b; stroke-width: 1.6; stroke-dasharray: 5 5; marker-end: url(#arrow-verify); }
     </style>
   </defs>
-  <rect x="0" y="0" width="1120" height="470" class="bg"/>
+  <rect x="0" y="0" width="1120" height="520" class="bg"/>
 
-  <rect x="40" y="195" width="160" height="72" class="node-blue"/>
-  <text x="76" y="224" class="label">Entry point</text>
-  <text x="58" y="245" class="small">scripts/verify_all.py</text>
+  <rect x="40" y="224" width="160" height="72" class="node-blue"/>
+  <text x="76" y="253" class="label">Entry point</text>
+  <text x="58" y="274" class="small">scripts/verify_all.py</text>
 
-  <rect x="260" y="64" width="190" height="74" class="node"/>
-  <text x="304" y="94" class="label">CLI verify</text>
-  <text x="282" y="115" class="small">compileall + unittest + clean</text>
+  <rect x="260" y="36" width="190" height="74" class="node-muted"/>
+  <text x="300" y="66" class="label">Upstream guard</text>
+  <text x="284" y="87" class="small">known divergence only</text>
 
-  <rect x="260" y="195" width="190" height="74" class="node"/>
-  <text x="300" y="225" class="label">Server verify</text>
-  <text x="275" y="246" class="small">HTTP + Docker healthcheck</text>
+  <rect x="260" y="136" width="190" height="74" class="node"/>
+  <text x="304" y="166" class="label">CLI verify</text>
+  <text x="282" y="187" class="small">compileall + unittest + clean</text>
 
-  <rect x="260" y="326" width="190" height="74" class="node"/>
-  <text x="304" y="356" class="label">Web verify</text>
-  <text x="286" y="377" class="small">npm ci + tests + build</text>
+  <rect x="260" y="236" width="190" height="74" class="node"/>
+  <text x="300" y="266" class="label">Server verify</text>
+  <text x="275" y="287" class="small">HTTP + Docker healthcheck</text>
 
-  <rect x="530" y="130" width="205" height="74" class="node-muted"/>
-  <text x="572" y="160" class="label">Optional live HTTP</text>
-  <text x="555" y="181" class="small">CLI health against real API</text>
+  <rect x="260" y="336" width="190" height="74" class="node"/>
+  <text x="304" y="366" class="label">Web verify</text>
+  <text x="286" y="387" class="small">npm ci + tests + build</text>
 
-  <rect x="530" y="276" width="205" height="74" class="node-green"/>
-  <text x="589" y="306" class="label">Cleanup</text>
-  <text x="557" y="327" class="small">dist/cache/pycache removed</text>
+  <rect x="530" y="154" width="205" height="74" class="node-muted"/>
+  <text x="572" y="184" class="label">Optional live HTTP</text>
+  <text x="555" y="205" class="small">CLI health against real API</text>
 
-  <rect x="815" y="130" width="240" height="74" class="node"/>
-  <text x="872" y="160" class="label">GitHub Actions</text>
-  <text x="844" y="181" class="small">.github/workflows/ci.yml</text>
+  <rect x="530" y="310" width="205" height="74" class="node-green"/>
+  <text x="589" y="340" class="label">Cleanup</text>
+  <text x="557" y="361" class="small">dist/cache/pycache removed</text>
 
-  <rect x="815" y="276" width="240" height="74" class="node-green"/>
-  <text x="866" y="306" class="label">Clean worktree gate</text>
-  <text x="842" y="327" class="small">no committed generated artifacts</text>
+  <rect x="815" y="154" width="240" height="74" class="node"/>
+  <text x="872" y="184" class="label">GitHub Actions</text>
+  <text x="844" y="205" class="small">fetch upstream + root gate</text>
 
-  <path d="M200 231 L260 101" class="edge"/>
-  <path d="M200 231 L260 232" class="edge"/>
-  <path d="M200 231 L260 363" class="edge"/>
-  <path d="M450 101 C492 101 492 167 530 167" class="edge-soft"/>
-  <path d="M450 232 C494 232 492 313 530 313" class="edge"/>
-  <path d="M450 363 C498 363 492 313 530 313" class="edge"/>
-  <path d="M735 167 L815 167" class="edge-soft"/>
-  <path d="M735 313 L815 313" class="edge"/>
+  <rect x="815" y="310" width="240" height="74" class="node-green"/>
+  <text x="866" y="340" class="label">Clean worktree gate</text>
+  <text x="842" y="361" class="small">no committed generated artifacts</text>
+
+  <path d="M200 260 L260 73" class="edge"/>
+  <path d="M200 260 L260 173" class="edge"/>
+  <path d="M200 260 L260 273" class="edge"/>
+  <path d="M200 260 L260 373" class="edge"/>
+  <path d="M450 73 C500 73 492 191 530 191" class="edge-soft"/>
+  <path d="M450 173 C492 173 492 191 530 191" class="edge-soft"/>
+  <path d="M450 273 C494 273 492 347 530 347" class="edge"/>
+  <path d="M450 373 C498 373 492 347 530 347" class="edge"/>
+  <path d="M735 191 L815 191" class="edge-soft"/>
+  <path d="M735 347 L815 347" class="edge"/>
 </svg>
