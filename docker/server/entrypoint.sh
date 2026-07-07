@@ -42,7 +42,8 @@ configure_backend() {
       export CAPSWRITER_QWEN_VULKAN_ENABLE="false"
       export CAPSWRITER_QWEN_USE_CUDA="false"
       echo "[capswriter] qwen preset cpu_only enabled: ONNX on CPU, llama on CPU"
-    elif [ "$qwen_preset" = "low_vram_gpu" ]; then
+    elif [ "$model_type" = "qwen_asr" ] && [ "$qwen_preset" = "low_vram_gpu" ]; then
+      export CAPSWRITER_LLAMA_BACKEND="cpu"
       export CAPSWRITER_QWEN_VULKAN_ENABLE="false"
       export CAPSWRITER_QWEN_USE_CUDA="true"
       echo "[capswriter] qwen preset low_vram_gpu enabled: ONNX on GPU, llama on CPU"
