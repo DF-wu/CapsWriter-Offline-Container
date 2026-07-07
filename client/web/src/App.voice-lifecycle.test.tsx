@@ -46,10 +46,12 @@ import App from "./App";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((done) => {
+  let reject!: (reason?: unknown) => void;
+  const promise = new Promise<T>((done, fail) => {
     resolve = done;
+    reject = fail;
   });
-  return { promise, resolve };
+  return { promise, resolve, reject };
 }
 
 describe("App voice loading lifecycle", () => {
@@ -145,6 +147,27 @@ describe("App voice loading lifecycle", () => {
 
     expect(track.stop).toHaveBeenCalledOnce();
     expect(recorders).toHaveLength(0);
+    expect(stateProbe.lateSetState).not.toHaveBeenCalled();
+  });
+
+  it("ignores media startup errors after unmount", async () => {
+    const pendingStream = deferred<MediaStream>();
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: vi.fn(() => pendingStream.promise) },
+    });
+    speechMock.loadVoices.mockResolvedValueOnce([]);
+
+    const { unmount } = render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "錄音" }));
+
+    stateProbe.unmounted = true;
+    unmount();
+    pendingStream.promise.catch(() => undefined);
+    pendingStream.reject(new Error("permission denied"));
+    await Promise.resolve();
+    await Promise.resolve();
+
     expect(stateProbe.lateSetState).not.toHaveBeenCalled();
   });
 

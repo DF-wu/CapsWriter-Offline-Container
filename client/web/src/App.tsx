@@ -282,6 +282,15 @@ export default function App() {
         setRecordingSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
       }, 250);
     } catch (error) {
+      if (!mountedRef.current) {
+        if (stream) {
+          stream.getTracks().forEach((track) => track.stop());
+        }
+        if (streamRef.current === stream) {
+          streamRef.current = null;
+        }
+        return;
+      }
       if (timerRef.current !== null) {
         window.clearInterval(timerRef.current);
         timerRef.current = null;
