@@ -32,8 +32,35 @@ describe("normalizeApiRoot", () => {
     expect(normalizeApiRoot("http://localhost:6017/v1/")).toBe("http://localhost:6017");
   });
 
+  it("keeps a path prefix while stripping OpenAI-style /v1", () => {
+    expect(normalizeApiRoot("https://asr.example.test/capswriter/v1/")).toBe(
+      "https://asr.example.test/capswriter",
+    );
+  });
+
   it("falls back to the local HTTP API", () => {
     expect(normalizeApiRoot(" ")).toBe("http://localhost:6017");
+  });
+
+  it("rejects unsupported URL schemes", () => {
+    expect(() => normalizeApiRoot("ftp://asr.example.test")).toThrow(
+      "API root must use http:// or https://",
+    );
+  });
+
+  it("rejects URL credentials", () => {
+    expect(() => normalizeApiRoot("https://user:secret@asr.example.test")).toThrow(
+      "API root must not include username or password",
+    );
+  });
+
+  it("rejects query strings and fragments", () => {
+    expect(() => normalizeApiRoot("https://asr.example.test/v1?token=secret")).toThrow(
+      "API root must not include query or fragment",
+    );
+    expect(() => normalizeApiRoot("https://asr.example.test/v1#ready")).toThrow(
+      "API root must not include query or fragment",
+    );
   });
 });
 
@@ -168,6 +195,16 @@ describe("fetchReadiness", () => {
 });
 
 describe("diagnostic fetches", () => {
+  it("rejects invalid API roots before sending diagnostics", async () => {
+    const fetch = vi.fn();
+    vi.stubGlobal("fetch", fetch);
+
+    await expect(
+      fetchHealth({ ...settings, baseUrl: "ftp://asr.example.test" }),
+    ).rejects.toThrow("API root must use http:// or https://");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("times out health checks that never resolve", async () => {
     vi.useFakeTimers();
     vi.stubGlobal(

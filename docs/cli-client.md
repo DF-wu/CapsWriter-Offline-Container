@@ -207,7 +207,7 @@ python client/cli/scripts/clean.py
 ## Implementation notes
 
 - Multipart upload is implemented with `urllib.request` and a generated boundary; local filenames are escaped before writing the `Content-Disposition` header.
-- `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
+- `--base-url` accepts absolute `http://` or `https://` roots, with or without trailing `/v1`. Path prefixes such as `https://host/capswriter/v1` are preserved. URL credentials, query strings, fragments, and non-HTTP schemes are rejected before any request is sent.
 - `--key-file` and `CAPSWRITER_HTTP_API_KEY_FILE` read a non-empty UTF-8 Bearer token file; explicit `--key` still takes precedence for one-off local diagnostics.
 - `--timeout` defaults to the server task timeout (`600` seconds), is validated as a positive float, and is then passed consistently to health/readiness/models and transcription requests.
 - `--output-dir` maps output extensions by response format (`.txt`, `.json`, `.srt`, `.vtt`) and rejects duplicate generated target paths before transcription starts.

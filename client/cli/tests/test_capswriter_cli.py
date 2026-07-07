@@ -130,6 +130,33 @@ class CapsWriterCliTest(unittest.TestCase):
             "http://localhost:6017",
         )
 
+    def test_normalize_base_url_accepts_path_prefix_with_v1(self):
+        self.assertEqual(
+            cli.normalize_base_url("https://asr.example.test/capswriter/v1/"),
+            "https://asr.example.test/capswriter",
+        )
+
+    def test_normalize_base_url_rejects_unsupported_scheme(self):
+        with self.assertRaisesRegex(ValueError, "http:// or https://"):
+            cli.normalize_base_url("ftp://asr.example.test")
+
+    def test_normalize_base_url_rejects_url_credentials(self):
+        with self.assertRaisesRegex(ValueError, "username or password"):
+            cli.normalize_base_url("https://user:secret@asr.example.test")
+
+    def test_normalize_base_url_rejects_query_or_fragment(self):
+        with self.assertRaisesRegex(ValueError, "query or fragment"):
+            cli.normalize_base_url("https://asr.example.test/v1?token=secret")
+        with self.assertRaisesRegex(ValueError, "query or fragment"):
+            cli.normalize_base_url("https://asr.example.test/v1#ready")
+
+    def test_main_rejects_invalid_base_url_before_request(self):
+        with redirect_stderr(io.StringIO()) as stderr:
+            status = cli.main(["health", "--base-url", "ftp://asr.example.test"])
+
+        self.assertEqual(status, 1)
+        self.assertIn("API base URL must be an absolute http:// or https:// URL", stderr.getvalue())
+
     def test_positive_float_rejects_non_positive_timeout(self):
         self.assertEqual(cli.positive_float("2.5"), 2.5)
         with self.assertRaises(cli.argparse.ArgumentTypeError):

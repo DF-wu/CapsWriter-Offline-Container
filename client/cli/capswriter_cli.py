@@ -29,6 +29,7 @@ DEFAULT_MODEL = "whisper-1"
 DEFAULT_TIMEOUT_SECONDS = 600.0
 RESPONSE_FORMATS = ("json", "text", "verbose_json", "srt", "vtt")
 MAX_ERROR_BODY_CHARS = 500
+SUPPORTED_BASE_URL_SCHEMES = {"http", "https"}
 
 
 @dataclass(frozen=True)
@@ -83,9 +84,25 @@ class MultipartBody:
 
 def normalize_base_url(value: str) -> str:
     base = (value or DEFAULT_BASE_URL).strip().rstrip("/")
-    if base.endswith("/v1"):
-        base = base[:-3].rstrip("/")
-    return base or DEFAULT_BASE_URL
+    if not base:
+        return DEFAULT_BASE_URL
+    parts = parse.urlsplit(base)
+    if parts.scheme not in SUPPORTED_BASE_URL_SCHEMES or not parts.hostname:
+        raise ValueError("API base URL must be an absolute http:// or https:// URL")
+    if parts.username or parts.password:
+        raise ValueError("API base URL must not include username or password")
+    if parts.query or parts.fragment:
+        raise ValueError("API base URL must not include query or fragment")
+    try:
+        parts.port
+    except ValueError as exc:
+        raise ValueError("API base URL has an invalid port") from exc
+    path = parts.path.rstrip("/")
+    if path == "/v1":
+        path = ""
+    elif path.endswith("/v1"):
+        path = path[:-3].rstrip("/")
+    return parse.urlunsplit(parts._replace(path=path, query="", fragment=""))
 
 
 def positive_float(value: str) -> float:

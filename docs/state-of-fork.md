@@ -74,6 +74,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 - CLI 與診斷工具預設 timeout 對齊 server `CAPSWRITER_HTTP_API_TASK_TIMEOUT=600`，長音訊可用 `--timeout` 覆寫。
 - `speak` 支援直接文字、UTF-8 檔案與 stdin，可串接 `transcribe --format text | speak --stdin`。
 - `transcribe --output-dir` 會在送出 HTTP 前拒絕重複生成的輸出路徑，避免 batch 檔案被靜默覆寫。
+- `--base-url` 僅接受 absolute `http://` / `https://` root（可帶 path prefix 與尾端 `/v1`）；URL credentials、query、fragment 與非 HTTP scheme 會在送 request 前被拒絕。
 - HTTP error 會解析 OpenAI-style `error.message`、舊版 `detail`、bounded non-JSON body previews，並把 expected JSON endpoint 的 invalid JSON response 轉成帶 endpoint/status 的診斷。
 - Linux TTS：`spd-say` / `espeak-ng` / `espeak`；Windows TTS：PowerShell `System.Speech`。
 - 測試使用 in-process mock HTTP server，不需要模型。
@@ -83,6 +84,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 - [`client/web`](../client/web/) 是 React/Vite app。
 - 支援錄音、鍵盤可操作的檔案選擇、拖放上傳、播放、STT、五種輸出格式、HTTP readiness diagnostics、歷史紀錄、下載、browser Web Speech TTS；轉錄中會鎖定音訊替換，取消或換檔後會忽略 stale result。
 - API client 會解析 OpenAI-style `error.message`、舊版 `detail`、bounded non-JSON HTTP error previews，並把 invalid JSON response 轉成帶 endpoint/status 的診斷。
+- API root 會在 health/readiness/model/transcription request 前驗證，只允許 absolute HTTP(S) root，並拒絕 URL credentials、query、fragment 與非 HTTP scheme。
 - 下載檔名會 sanitize path separator、控制字元、OS 保留字元與 Windows reserved device name；歷史資料即使被手動污染也不會直接成為原始 download filename。
 - Web settings controls 與 persisted settings/history 會做型別、格式與字串長度邊界檢查；手動污染或過大的 localStorage record 不會直接餵回 UI。
 - `npm run browser-smoke` 以 `agent-browser` 驗證真實瀏覽器 health/readiness、upload、transcribe workflow。
@@ -106,13 +108,13 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 | Gate | 結果 |
 |---|---|
-| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 34 tests，含 `/ready` ok/degraded diagnostic command、key-file auth/empty-file rejection、server-aligned default timeout/positive timeout validation、valid JSON output files、duplicate `--output-dir` target rejection、OpenAI-style error parsing、non-JSON/invalid JSON diagnostics、streamed multipart upload、multipart filename escaping 與 `speak --stdin` pipeline input |
+| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 39 tests，含 `/ready` ok/degraded diagnostic command、key-file auth/empty-file rejection、base URL validation before requests、server-aligned default timeout/positive timeout validation、valid JSON output files、duplicate `--output-dir` target rejection、OpenAI-style error parsing、non-JSON/invalid JSON diagnostics、streamed multipart upload、multipart filename escaping 與 `speak --stdin` pipeline input |
 | `python -m unittest discover -s docker/server/tests -v` | 通過：Docker server 17 tests，含 HTTP `/ready` healthcheck、healthcheck env parsing、model downloader env diagnostics、llama.cpp runtime library readiness 與 entrypoint Qwen CPU preset guard |
 | `python -m unittest discover -s scripts/tests -v` | 通過：Verifier/diagnostic 36 tests，含 upstream divergence guard、live HTTP API key log redaction/key-file pass-through/empty-file rejection、diagnostic streamed multipart/server-aligned default timeout/configurable timeout/real HTTP body delivery/POST 401 handling、Docker Compose HTTP/model tuning env guard、HTTP API dependency guard、role template secret/default guard、`/health` 401 API-key guidance、cleanup traversal/residue gate 與 HTTP decode timeout source guard |
 | `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 12 tests、Verifier/diagnostic 23 tests、Web 36 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 | `python scripts/verify_all.py --skip-web --http-base-url http://127.0.0.1:16017 --http-key ... --http-require-ready --http-audio benchmarks/audio/arctic_a0001.wav --http-expect "Author of"` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 15 tests、Verifier/diagnostic 23 tests、current-branch live `/health` v2.6、`/ready` ok、Qwen ASR model-backed STT (`Author of the Danger Trail, Philip Steels, etc.`) |
 | `python scripts/verify_all.py --skip-web` | 通過：CLI 24 tests、server compile、HTTP 57 tests（含 fail-fast server/model env validation）、Docker server 17 tests（含 entrypoint Qwen CPU preset guard）、Verifier/diagnostic 28 tests（含 Docker Compose HTTP/model tuning env guard）、cleanup |
-| `python scripts/verify_all.py` | 通過：upstream divergence guard、CLI 34 tests + packaged stdin smoke、server compile、HTTP 69 tests（含 server key-file auth、translations endpoint auth consistency、late canceled HTTP result absorption 與 ws_send drift guard）、Docker server 17 tests、Verifier/diagnostic 36 tests、Web 54 tests/build（含 keyboard-accessible upload、drag/drop highlight stability、transcription-time audio replacement lock、stale result suppression、download filename sanitization、bounded settings controls/storage、malformed history/runtime-config filtering）、cleanup + residue check |
+| `python scripts/verify_all.py` | 通過：upstream divergence guard、CLI 39 tests + packaged stdin smoke、server compile、HTTP 69 tests（含 server key-file auth、translations endpoint auth consistency、late canceled HTTP result absorption 與 ws_send drift guard）、Docker server 17 tests、Verifier/diagnostic 36 tests、Web 59 tests/build（含 API root validation before requests、keyboard-accessible upload、drag/drop highlight stability、transcription-time audio replacement lock、stale result suppression、download filename sanitization、bounded settings controls/storage、malformed history/runtime-config filtering）、cleanup + residue check |
 
 `127.0.0.1:6017` 仍是既有外部服務；本分支驗證使用隔離容器掛載目前 checkout，對外映射 `127.0.0.1:16017`，並以 temporary API key 執行 `/ready` 與已知音檔 STT gate。共享 verifier log 會將 `--http-key` 顯示為 `<redacted>`。
 

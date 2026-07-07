@@ -10,13 +10,38 @@ import type {
 
 const MAX_ERROR_BODY_CHARS = 500;
 const DIAGNOSTIC_TIMEOUT_MS = 10_000;
+const DEFAULT_API_ROOT = "http://localhost:6017";
+
+function stripOpenAiVersionPath(pathname: string): string {
+  const trimmed = pathname.replace(/\/+$/g, "");
+  if (!trimmed || trimmed === "/") return "";
+  if (trimmed === "/v1") return "";
+  if (trimmed.endsWith("/v1")) return trimmed.slice(0, -3).replace(/\/+$/g, "");
+  return trimmed;
+}
 
 export function normalizeApiRoot(baseUrl: string): string {
-  const trimmed = baseUrl.trim().replace(/\/+$/, "");
+  const trimmed = baseUrl.trim();
   if (!trimmed) {
-    return "http://localhost:6017";
+    return DEFAULT_API_ROOT;
   }
-  return trimmed.endsWith("/v1") ? trimmed.slice(0, -3) : trimmed;
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    throw new Error("API root must be an absolute http:// or https:// URL");
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error("API root must use http:// or https://");
+  }
+  if (url.username || url.password) {
+    throw new Error("API root must not include username or password");
+  }
+  if (url.search || url.hash) {
+    throw new Error("API root must not include query or fragment");
+  }
+  url.pathname = stripOpenAiVersionPath(url.pathname);
+  return url.toString().replace(/\/$/, "");
 }
 
 function requestHeaders(settings: Pick<ApiSettings, "apiKey">): HeadersInit {
