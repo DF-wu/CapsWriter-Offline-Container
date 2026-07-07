@@ -27,7 +27,16 @@ import {
   type BrowserAudio,
 } from "./lib/audio";
 import { downloadText, extensionForFormat, serialiseResult, timestampSlug } from "./lib/export";
-import { DEFAULT_SETTINGS, addHistory, clearHistory, loadHistory, loadSettings, saveHistory, saveSettings } from "./lib/storage";
+import {
+  DEFAULT_SETTINGS,
+  WEB_SETTING_LIMITS,
+  addHistory,
+  clearHistory,
+  loadHistory,
+  loadSettings,
+  saveHistory,
+  saveSettings,
+} from "./lib/storage";
 import { loadVoices, speakText } from "./lib/speech";
 import type { ApiSettings, HealthResponse, ReadinessResponse, ResponseFormat, TranscriptRecord, TranscriptionResult } from "./types";
 
@@ -489,6 +498,7 @@ export default function App() {
               onChange={(event) => updateSettings("baseUrl", event.target.value)}
               placeholder={DEFAULT_SETTINGS.baseUrl}
               inputMode="url"
+              maxLength={WEB_SETTING_LIMITS.baseUrl}
             />
           </label>
           <label className="field">
@@ -498,6 +508,7 @@ export default function App() {
               onChange={(event) => updateSettings("apiKey", event.target.value)}
               type="password"
               autoComplete="off"
+              maxLength={WEB_SETTING_LIMITS.apiKey}
             />
           </label>
           <div className="field-row">
@@ -520,6 +531,7 @@ export default function App() {
                 value={settings.language}
                 onChange={(event) => updateSettings("language", event.target.value)}
                 placeholder="auto"
+                maxLength={WEB_SETTING_LIMITS.language}
               />
             </label>
           </div>
@@ -529,6 +541,7 @@ export default function App() {
               value={settings.model}
               onChange={(event) => updateSettings("model", event.target.value)}
               placeholder="whisper-1"
+              maxLength={WEB_SETTING_LIMITS.model}
             />
           </label>
           <label className="field">
@@ -537,6 +550,7 @@ export default function App() {
               value={settings.prompt}
               onChange={(event) => updateSettings("prompt", event.target.value)}
               rows={3}
+              maxLength={WEB_SETTING_LIMITS.prompt}
             />
           </label>
           <button className="secondary-action" type="button" onClick={checkServer}>

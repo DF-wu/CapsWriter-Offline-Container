@@ -172,7 +172,7 @@ npm run clean
 | 項目 | 命令或動作 | 預期 |
 |---|---|---|
 | 依賴安全 | `npm install` | `found 0 vulnerabilities` |
-| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、invalid JSON diagnostics、bounded health/readiness/model diagnostics、partial readiness display when model listing needs auth、keyboard-accessible audio upload、drag/drop highlight stability、transcription-time audio replacement lock、stale transcription result suppression after cancel、recording cleanup、download object URL cleanup、download filename sanitization（含 Windows reserved device name）、TTS voice handler cleanup、clipboard copy denial、blocked localStorage handling、bounded/malformed settings/history/runtime-config recovery 與 App render 測試通過 |
+| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、invalid JSON diagnostics、bounded health/readiness/model diagnostics、partial readiness display when model listing needs auth、keyboard-accessible audio upload、drag/drop highlight stability、transcription-time audio replacement lock、stale transcription result suppression after cancel、recording cleanup、download object URL cleanup、download filename sanitization（含 Windows reserved device name）、TTS voice handler cleanup、clipboard copy denial、blocked localStorage handling、bounded settings controls、bounded/malformed settings/history/runtime-config recovery 與 App render 測試通過 |
 | Browser smoke | `npm run browser-smoke` | 真實瀏覽器完成 health/readiness、upload、transcribe workflow |
 | Production build | `npm run build` | Vite 輸出 `dist` |
 | 清理 | `npm run clean` | build/cache/test artifacts 被移除 |
@@ -188,7 +188,7 @@ npm run clean
 - 轉錄進行中會鎖定音訊替換入口；使用者需按「取消」或等待完成後再換檔。取消或更換音訊會讓舊請求結果失效，避免 server/proxy 延遲回應覆蓋目前 UI。
 - 下載檔名會移除 path separator、控制字元與常見 OS 保留字元，並避開 Windows reserved device name，避免瀏覽器或作業系統把歷史資料中的異常檔名當作路徑或非法名稱處理。
 - TTS 目前是 browser-local Web Speech API；不把音訊傳到雲端。
-- localStorage 只保存非敏感使用者設定與最近 20 筆轉錄歷史；手動輸入的 API key 只留在目前頁面記憶體中。讀回時會檢查型別、格式與字串長度，過大或 malformed record 會被忽略。若瀏覽器封鎖 storage 或 quota 用完，保存會 best-effort 失敗但不阻斷目前操作。
+- localStorage 只保存非敏感使用者設定與最近 20 筆轉錄歷史；settings controls 會套用同一組字串長度上限。手動輸入的 API key 只留在目前頁面記憶體中。讀回時會檢查型別、格式與字串長度，過大或 malformed record 會被忽略。若瀏覽器封鎖 storage 或 quota 用完，保存會 best-effort 失敗但不阻斷目前操作。
 - 若透過 `CAPSWRITER_WEB_API_KEY` 注入預設 token，該值會出現在公開的 `/config.js`。
 - 若 server 有設定 API key，前端只使用 Bearer token header，不使用 cookie。
 

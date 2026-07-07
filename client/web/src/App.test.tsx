@@ -2,6 +2,7 @@ import userEvent from "@testing-library/user-event";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
+import { WEB_SETTING_LIMITS } from "./lib/storage";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -42,6 +43,16 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: "音訊" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "轉錄" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "TTS" })).toBeTruthy();
+  });
+
+  it("renders settings controls with bounded input lengths", () => {
+    render(<App />);
+
+    expect((screen.getByLabelText("API root") as HTMLInputElement).maxLength).toBe(WEB_SETTING_LIMITS.baseUrl);
+    expect((screen.getByLabelText("API key") as HTMLInputElement).maxLength).toBe(WEB_SETTING_LIMITS.apiKey);
+    expect((screen.getByLabelText("語言") as HTMLInputElement).maxLength).toBe(WEB_SETTING_LIMITS.language);
+    expect((screen.getByLabelText("模型") as HTMLInputElement).maxLength).toBe(WEB_SETTING_LIMITS.model);
+    expect((screen.getByLabelText("Prompt") as HTMLTextAreaElement).maxLength).toBe(WEB_SETTING_LIMITS.prompt);
   });
 
   it("opens the audio file picker from the keyboard", async () => {

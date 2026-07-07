@@ -4,13 +4,13 @@ const SETTINGS_KEY = "capswriter.web.settings.v1";
 const HISTORY_KEY = "capswriter.web.history.v1";
 const HISTORY_LIMIT = 20;
 const RESPONSE_FORMATS = new Set(["json", "text", "srt", "verbose_json", "vtt"]);
-const SETTING_LIMITS = {
+export const WEB_SETTING_LIMITS = {
   baseUrl: 2048,
   apiKey: 4096,
   model: 128,
   language: 32,
   prompt: 16_384,
-};
+} as const;
 const HISTORY_FIELD_LIMITS = {
   id: 128,
   sourceName: 512,
@@ -32,11 +32,11 @@ export function settingsWithRuntimeDefaults(
 ): ApiSettings {
   const runtimeConfig = isRecord(runtime) ? runtime : {};
   return {
-    baseUrl: stringSetting(runtimeConfig.baseUrl, BUILTIN_SETTINGS.baseUrl, SETTING_LIMITS.baseUrl),
-    apiKey: stringSetting(runtimeConfig.apiKey, BUILTIN_SETTINGS.apiKey, SETTING_LIMITS.apiKey),
-    model: stringSetting(runtimeConfig.model, BUILTIN_SETTINGS.model, SETTING_LIMITS.model),
-    language: stringSetting(runtimeConfig.language, BUILTIN_SETTINGS.language, SETTING_LIMITS.language),
-    prompt: stringSetting(runtimeConfig.prompt, BUILTIN_SETTINGS.prompt, SETTING_LIMITS.prompt),
+    baseUrl: stringSetting(runtimeConfig.baseUrl, BUILTIN_SETTINGS.baseUrl, WEB_SETTING_LIMITS.baseUrl),
+    apiKey: stringSetting(runtimeConfig.apiKey, BUILTIN_SETTINGS.apiKey, WEB_SETTING_LIMITS.apiKey),
+    model: stringSetting(runtimeConfig.model, BUILTIN_SETTINGS.model, WEB_SETTING_LIMITS.model),
+    language: stringSetting(runtimeConfig.language, BUILTIN_SETTINGS.language, WEB_SETTING_LIMITS.language),
+    prompt: stringSetting(runtimeConfig.prompt, BUILTIN_SETTINGS.prompt, WEB_SETTING_LIMITS.prompt),
     responseFormat: isResponseFormat(runtimeConfig.responseFormat)
       ? runtimeConfig.responseFormat
       : BUILTIN_SETTINGS.responseFormat,
@@ -126,10 +126,10 @@ function readJsonRecord(key: string): Record<string, unknown> {
 
 function settingsForPersistence(settings: ApiSettings): Omit<ApiSettings, "apiKey"> {
   return {
-    baseUrl: stringSetting(settings.baseUrl, DEFAULT_SETTINGS.baseUrl, SETTING_LIMITS.baseUrl),
-    model: stringSetting(settings.model, DEFAULT_SETTINGS.model, SETTING_LIMITS.model),
-    language: stringSetting(settings.language, DEFAULT_SETTINGS.language, SETTING_LIMITS.language),
-    prompt: stringSetting(settings.prompt, DEFAULT_SETTINGS.prompt, SETTING_LIMITS.prompt),
+    baseUrl: stringSetting(settings.baseUrl, DEFAULT_SETTINGS.baseUrl, WEB_SETTING_LIMITS.baseUrl),
+    model: stringSetting(settings.model, DEFAULT_SETTINGS.model, WEB_SETTING_LIMITS.model),
+    language: stringSetting(settings.language, DEFAULT_SETTINGS.language, WEB_SETTING_LIMITS.language),
+    prompt: stringSetting(settings.prompt, DEFAULT_SETTINGS.prompt, WEB_SETTING_LIMITS.prompt),
     responseFormat: isResponseFormat(settings.responseFormat)
       ? settings.responseFormat
       : DEFAULT_SETTINGS.responseFormat,
@@ -157,10 +157,10 @@ export function loadSettings(): ApiSettings {
   return {
     ...DEFAULT_SETTINGS,
     apiKey: "",
-    baseUrl: stringSetting(persisted.baseUrl, DEFAULT_SETTINGS.baseUrl, SETTING_LIMITS.baseUrl),
-    model: stringSetting(persisted.model, DEFAULT_SETTINGS.model, SETTING_LIMITS.model),
-    language: stringSetting(persisted.language, DEFAULT_SETTINGS.language, SETTING_LIMITS.language),
-    prompt: stringSetting(persisted.prompt, DEFAULT_SETTINGS.prompt, SETTING_LIMITS.prompt),
+    baseUrl: stringSetting(persisted.baseUrl, DEFAULT_SETTINGS.baseUrl, WEB_SETTING_LIMITS.baseUrl),
+    model: stringSetting(persisted.model, DEFAULT_SETTINGS.model, WEB_SETTING_LIMITS.model),
+    language: stringSetting(persisted.language, DEFAULT_SETTINGS.language, WEB_SETTING_LIMITS.language),
+    prompt: stringSetting(persisted.prompt, DEFAULT_SETTINGS.prompt, WEB_SETTING_LIMITS.prompt),
     responseFormat: isResponseFormat(persisted.responseFormat)
       ? persisted.responseFormat
       : DEFAULT_SETTINGS.responseFormat,
