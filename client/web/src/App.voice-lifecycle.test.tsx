@@ -178,4 +178,58 @@ describe("App voice loading lifecycle", () => {
 
     expect(stateProbe.lateSetState).not.toHaveBeenCalled();
   });
+
+  it("ignores diagnostic results that resolve after unmount", async () => {
+    const healthResponse = deferred<Response>();
+    const readinessResponse = deferred<Response>();
+    const modelsResponse = deferred<Response>();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith("/health")) return healthResponse.promise;
+        if (url.endsWith("/ready")) return readinessResponse.promise;
+        if (url.endsWith("/v1/models")) return modelsResponse.promise;
+        return Promise.resolve(new Response("not found", { status: 404 }));
+      }),
+    );
+    speechMock.loadVoices.mockResolvedValueOnce([]);
+
+    const { unmount } = render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "檢查服務" }));
+    expect(screen.getAllByText("檢查服務").length).toBeGreaterThan(0);
+
+    stateProbe.unmounted = true;
+    unmount();
+    healthResponse.resolve(new Response(JSON.stringify({ status: "ok", model: "mock_asr", version: "dev" })));
+    readinessResponse.resolve(
+      new Response(
+        JSON.stringify({
+          status: "ok",
+          checks: { task_router_bound: true, ffmpeg_available: true },
+          config: {
+            auth_enabled: false,
+            max_upload_mb: 100,
+            task_timeout: 600,
+            max_concurrent_requests: 2,
+            cors_enabled: true,
+            cors_origins_count: 1,
+          },
+        }),
+      ),
+    );
+    modelsResponse.resolve(
+      new Response(
+        JSON.stringify({
+          object: "list",
+          data: [{ id: "mock_asr", object: "model", owned_by: "capswriter-offline", created: 0 }],
+        }),
+      ),
+    );
+    await Promise.all([healthResponse.promise, readinessResponse.promise, modelsResponse.promise]);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(stateProbe.lateSetState).not.toHaveBeenCalled();
+  });
 });

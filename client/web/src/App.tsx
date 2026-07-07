@@ -182,6 +182,7 @@ export default function App() {
       fetchReadiness(settings),
       fetchModels(settings),
     ]);
+    if (!mountedRef.current) return;
 
     const failures: string[] = [];
     const nextHealth = healthResult.status === "fulfilled" ? healthResult.value : null;
