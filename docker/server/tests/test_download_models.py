@@ -5,8 +5,10 @@ from __future__ import annotations
 import io
 import os
 import sys
+import tarfile
 import tempfile
 import unittest
+import zipfile
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
@@ -115,6 +117,46 @@ class DownloadModelsTest(unittest.TestCase):
 
             self.assertFalse(destination.exists())
             self.assertFalse(destination.with_name("asset.zip.part").exists())
+
+    def test_extract_rejects_zip_path_traversal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "model.zip"
+            target_dir = root / "target"
+            with zipfile.ZipFile(archive, "w") as zip_file:
+                zip_file.writestr("../escaped.bin", b"bad")
+
+            with self.assertRaisesRegex(ValueError, "不安全"):
+                download_models._extract(archive, target_dir)
+
+            self.assertFalse((root / "escaped.bin").exists())
+
+    def test_extract_llama_rejects_tar_path_traversal(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            archive = root / "llama.tar.gz"
+            data = b"bad"
+            with tarfile.open(archive, "w:gz") as tar_file:
+                info = tarfile.TarInfo("../escaped.so")
+                info.size = len(data)
+                tar_file.addfile(info, io.BytesIO(data))
+
+            with self.assertRaisesRegex(ValueError, "不安全"):
+                download_models._extract_llama_binaries(archive)
+
+            self.assertFalse((root / "escaped.so").exists())
+
+    def test_extract_llama_rejects_link_members(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            archive = Path(tmp) / "llama.tar.gz"
+            with tarfile.open(archive, "w:gz") as tar_file:
+                info = tarfile.TarInfo("libllama.so")
+                info.type = tarfile.SYMTYPE
+                info.linkname = "/etc/passwd"
+                tar_file.addfile(info)
+
+            with self.assertRaisesRegex(ValueError, "类型不安全"):
+                download_models._extract_llama_binaries(archive)
 
     def test_llama_download_failure_returns_clean_error(self) -> None:
         fake_asset = download_models.Asset(

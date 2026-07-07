@@ -120,14 +120,14 @@ HTTP API 預設不把 prompt/context 或轉錄內容寫入 server log/console；
 
 1. 根據 `CAPSWRITER_MODEL_TYPE` 找出對應 ASSETS
 2. 檢查 `is_ready()`：required_files 全在 → 跳過下載
-3. 否則以 bounded streaming download 寫入 `models/.downloads/*.part`，完成後才 atomic replace 到 archive path，校驗 sha256，解壓到 target_dir
+3. 否則以 bounded streaming download 寫入 `models/.downloads/*.part`，完成後才 atomic replace 到 archive path，校驗 sha256，安全解壓到 target_dir（拒絕 traversal / link / special-file archive members）
 4. 對 GGUF backend（qwen_asr / fun_asr_nano），下載對應 llama.cpp Linux `.so` 到三個 inference/bin 目錄，並檢查 `libggml.so.0` / `libggml-base.so.0` 等 runtime-linked SONAME 檔案：
    - `core/server/engines/qwen_asr_gguf/inference/bin/`
    - `core/server/engines/fun_asr_gguf/inference/bin/`
    - `core/server/engines/force_aligner_gguf/inference/bin/`
 5. 對 `CAPSWRITER_LLAMA_BACKEND=vulkan`，會拉 `libggml-vulkan.so`；CPU 則只拉 cpu 版
 
-下載使用 `CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT` 作為每次 socket connect/read 的 idle timeout；這不是整體下載時間上限，慢速但持續有資料的模型下載不會因為總耗時超過 60 秒而被中斷。失敗或 timeout 時只會留下已存在且完整的舊 archive，不會把半截檔案放在正式 cache path。
+下載使用 `CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT` 作為每次 socket connect/read 的 idle timeout；這不是整體下載時間上限，慢速但持續有資料的模型下載不會因為總耗時超過 60 秒而被中斷。失敗或 timeout 時只會留下已存在且完整的舊 archive，不會把半截檔案放在正式 cache path。解壓會先檢查 archive member path 與類型，避免惡意或損壞 archive 寫出目標目錄。
 
 容器自動下載與 production gate 目前支援的模型（對應 upstream v2.6 的 GGUF 路徑）：
 

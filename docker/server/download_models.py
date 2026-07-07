@@ -6,7 +6,7 @@ import tarfile
 import tempfile
 import urllib.request
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import List
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
@@ -169,9 +169,26 @@ def _download(url: str, destination: Path, *, timeout: float | None = None) -> N
     print()
 
 
+def _safe_archive_path(root: Path, member_name: str) -> Path:
+    if not member_name.strip():
+        raise ValueError("压缩包成员路径不安全: empty name")
+    if "\\" in member_name:
+        raise ValueError(f"压缩包成员路径不安全: {member_name!r}")
+    member_path = PurePosixPath(member_name)
+    if member_path.is_absolute() or any(part in {"", ".", ".."} for part in member_path.parts):
+        raise ValueError(f"压缩包成员路径不安全: {member_name!r}")
+    target = (root / Path(*member_path.parts)).resolve()
+    root_resolved = root.resolve()
+    if target != root_resolved and root_resolved not in target.parents:
+        raise ValueError(f"压缩包成员路径越界: {member_name!r}")
+    return target
+
+
 def _extract(archive: Path, target_dir: Path) -> None:
     target_dir.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(archive) as zip_file:
+        for member in zip_file.infolist():
+            _safe_archive_path(target_dir, member.filename)
         zip_file.extractall(target_dir)
 
 
@@ -192,7 +209,12 @@ def _extract_llama_binaries(archive: Path) -> None:
     with tempfile.TemporaryDirectory() as temp_dir_str:
         temp_dir = Path(temp_dir_str)
         with tarfile.open(archive, "r:gz") as tar_file:
-            tar_file.extractall(temp_dir)
+            members = tar_file.getmembers()
+            for member in members:
+                _safe_archive_path(temp_dir, member.name)
+                if not (member.isfile() or member.isdir()):
+                    raise ValueError(f"压缩包成员类型不安全: {member.name!r}")
+            tar_file.extractall(temp_dir, members=members)
 
         shared_libraries = [
             file_path
