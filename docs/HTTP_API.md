@@ -394,7 +394,7 @@ HTTP API 預設只記錄 task id、時延、音訊大小、格式、語言與文
 | 啟動時 `CAPSWRITER_HTTP_API_KEY_FILE could not be read` | key file 路徑不存在或 container/service 沒有讀取權限；確認 secret mount 與檔案權限 |
 | 啟動時 `HTTP API 已啟用但系統找不到 ffmpeg` | Docker image 應已內建；裸機請 `apt install ffmpeg` |
 | `500 Server misconfigured: ffmpeg not found` | 同上 |
-| `400 Audio decode failed` | 不是音訊檔、編碼損壞，或 ffmpeg 解碼超過 `TASK_TIMEOUT`；錯誤內容會截斷避免巨大 response/log，本機可用 `ffmpeg -i <file>` 看完整細節 |
+| `400 Audio decode failed` | 不是音訊檔、編碼損壞，或 ffmpeg 解碼超過 `TASK_TIMEOUT`；timeout 會 kill ffmpeg 並以 bounded cleanup 等待退出，錯誤內容會截斷避免巨大 response/log，本機可用 `ffmpeg -i <file>` 看完整細節 |
 | `503 /ready degraded` | `ffmpeg` 不在 PATH 或 HTTP router 尚未綁定；看 `checks` 欄位 |
 | `504 Recognition timeout` | 已完成解碼但 recognizer 等待超過 `TASK_TIMEOUT`；對長音訊調高 timeout，對 CPU 部署考慮 `fun_asr_nano` 或啟用 GPU |
 | `413 File too large` | 調高 `MAX_UPLOAD_MB` 或客戶端側分片 |

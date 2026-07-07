@@ -8,7 +8,7 @@ import sys
 import types
 import unittest
 from types import SimpleNamespace
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 
 
 def load_audio_decoder_module():
@@ -64,6 +64,13 @@ class HangingProcess:
         return -9
 
 
+class StubbornProcess(HangingProcess):
+    async def wait(self):
+        self.waited = True
+        await asyncio.sleep(10)
+        return -9
+
+
 class AudioDecoderTest(unittest.TestCase):
     def tearDown(self) -> None:
         sys.modules.pop("fork_server.http_api.audio_decoder", None)
@@ -113,6 +120,53 @@ class AudioDecoderTest(unittest.TestCase):
             ),
         ):
             with self.assertRaises(audio_decoder.AudioDecodeError):
+                asyncio.run(audio_decoder.decode_to_pcm(b"audio", timeout=0.01))
+
+        self.assertTrue(proc.killed)
+        self.assertTrue(proc.waited)
+
+    def test_invalid_timeout_is_rejected_before_spawning_ffmpeg(self) -> None:
+        audio_decoder = load_audio_decoder_module()
+        spawn = AsyncMock()
+
+        with (
+            patch.object(audio_decoder.shutil, "which") as which,
+            patch.object(
+                audio_decoder.asyncio,
+                "create_subprocess_exec",
+                new=spawn,
+            ),
+        ):
+            with self.assertRaisesRegex(
+                audio_decoder.AudioDecodeError,
+                "positive finite",
+            ):
+                asyncio.run(audio_decoder.decode_to_pcm(b"audio", timeout=0))
+
+        which.assert_not_called()
+        spawn.assert_not_awaited()
+
+    def test_timeout_cleanup_wait_is_bounded(self) -> None:
+        audio_decoder = load_audio_decoder_module()
+        proc = StubbornProcess()
+
+        async def fake_exec(*args, **kwargs):
+            del args, kwargs
+            return proc
+
+        with (
+            patch.object(audio_decoder.shutil, "which", return_value="/usr/bin/ffmpeg"),
+            patch.object(
+                audio_decoder.asyncio,
+                "create_subprocess_exec",
+                new=fake_exec,
+            ),
+            patch.object(audio_decoder, "FFMPEG_KILL_GRACE_SECONDS", 0.01),
+        ):
+            with self.assertRaisesRegex(
+                audio_decoder.AudioDecodeError,
+                "did not exit after kill",
+            ):
                 asyncio.run(audio_decoder.decode_to_pcm(b"audio", timeout=0.01))
 
         self.assertTrue(proc.killed)

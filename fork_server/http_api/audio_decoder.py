@@ -8,6 +8,7 @@ HTTP API 專用的音訊解碼器
 
 from __future__ import annotations
 import asyncio
+import math
 import shutil
 
 from core.constants import AudioFormat
@@ -15,6 +16,7 @@ from core.server import logger
 
 
 MAX_FFMPEG_ERROR_CHARS = 1000
+FFMPEG_KILL_GRACE_SECONDS = 2.0
 
 
 class AudioDecodeError(Exception):
@@ -35,6 +37,28 @@ def _stderr_preview(stderr: bytes) -> str:
     return preview
 
 
+def _positive_timeout_seconds(value: float) -> float:
+    try:
+        timeout = float(value)
+    except (TypeError, ValueError) as exc:
+        raise AudioDecodeError("ffmpeg timeout must be a positive finite number") from exc
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise AudioDecodeError("ffmpeg timeout must be a positive finite number")
+    return timeout
+
+
+async def _kill_timed_out_process(proc) -> bool:
+    try:
+        proc.kill()
+    except ProcessLookupError:
+        return True
+    try:
+        await asyncio.wait_for(proc.wait(), timeout=FFMPEG_KILL_GRACE_SECONDS)
+    except asyncio.TimeoutError:
+        return False
+    return True
+
+
 async def decode_to_pcm(audio_bytes: bytes, timeout: float = 120.0) -> bytes:
     """
     把任意格式音訊轉為 16 kHz / float32 / mono PCM。
@@ -45,6 +69,7 @@ async def decode_to_pcm(audio_bytes: bytes, timeout: float = 120.0) -> bytes:
     Raises:
         FFmpegNotFoundError / AudioDecodeError
     """
+    timeout_seconds = _positive_timeout_seconds(timeout)
     if shutil.which("ffmpeg") is None:
         raise FFmpegNotFoundError("ffmpeg not found in PATH")
 
@@ -69,12 +94,14 @@ async def decode_to_pcm(audio_bytes: bytes, timeout: float = 120.0) -> bytes:
     try:
         stdout, stderr = await asyncio.wait_for(
             proc.communicate(input=audio_bytes),
-            timeout=timeout,
+            timeout=timeout_seconds,
         )
     except asyncio.TimeoutError:
-        proc.kill()
-        await proc.wait()
-        raise AudioDecodeError(f"ffmpeg timeout after {timeout:.0f}s")
+        killed = await _kill_timed_out_process(proc)
+        detail = f"ffmpeg timeout after {timeout_seconds:g}s"
+        if not killed:
+            detail += "; process did not exit after kill"
+        raise AudioDecodeError(detail)
 
     if proc.returncode != 0:
         err = _stderr_preview(stderr)
