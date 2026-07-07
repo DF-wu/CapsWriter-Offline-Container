@@ -56,6 +56,40 @@ class TranscriptionHandler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
 
+class UnauthorizedTranscriptionHandler(BaseHTTPRequestHandler):
+    def log_message(self, *_args):
+        return
+
+    def _json(self, status, payload):
+        body = payload.encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_GET(self):
+        if self.path == "/health":
+            self._json(200, '{"status":"ok","model":"mock_asr","version":"dev"}')
+            return
+        if self.path == "/v1/models":
+            self._json(200, '{"data":[{"id":"mock_asr"}]}')
+            return
+        if self.path == "/ready":
+            self._json(
+                200,
+                '{"status":"ok","checks":{"ffmpeg_available":true,"task_router_bound":true}}',
+            )
+            return
+        self._json(404, '{"error":"not found"}')
+
+    def do_POST(self):
+        if self.path == "/v1/audio/transcriptions":
+            self._json(401, '{"error":{"message":"Invalid API key"}}')
+            return
+        self._json(404, '{"error":"not found"}')
+
+
 class CheckHttpApiMultipartTest(unittest.TestCase):
     def test_multipart_header_value_escapes_control_characters(self) -> None:
         value = 'sample"\\\r\nX-Injected: yes.wav'
@@ -106,24 +140,12 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
         self.assertIn(b"\r\n\r\ntext\r\n", b"".join(chunks))
 
     def test_api_post_uses_configured_timeout(self) -> None:
-        class Response:
-            headers = {"Content-Type": "text/plain; charset=utf-8"}
-
-            def __enter__(self):
-                return self
-
-            def __exit__(self, *_args):
-                return False
-
-            def read(self):
-                return b"ok"
-
         with tempfile.TemporaryDirectory() as tmp:
             audio = Path(tmp) / "sample.wav"
             audio.write_bytes(b"RIFF")
-            urlopen = Mock(return_value=Response())
+            transport = Mock(return_value=("text/plain; charset=utf-8", b"ok"))
 
-            with patch.object(check_http_api.urllib.request, "urlopen", urlopen):
+            with patch.object(check_http_api, "_http_post_stream", transport):
                 result = check_http_api._api_post(
                     "http://127.0.0.1:6017",
                     "/v1/audio/transcriptions",
@@ -134,28 +156,16 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
                 )
 
         self.assertEqual(result["_raw_text"], "ok")
-        self.assertEqual(urlopen.call_args.kwargs["timeout"], 7.5)
+        self.assertEqual(transport.call_args.args[3], 7.5)
 
     def test_api_post_uses_streaming_multipart(self) -> None:
-        class Response:
-            headers = {"Content-Type": "text/plain; charset=utf-8"}
-
-            def __enter__(self):
-                return self
-
-            def __exit__(self, *_args):
-                return False
-
-            def read(self):
-                return b"ok"
-
         with tempfile.TemporaryDirectory() as tmp:
             audio = Path(tmp) / "sample.wav"
             audio.write_bytes(b"RIFF")
-            urlopen = Mock(return_value=Response())
+            transport = Mock(return_value=("text/plain; charset=utf-8", b"ok"))
 
             with (
-                patch.object(check_http_api.urllib.request, "urlopen", urlopen),
+                patch.object(check_http_api, "_http_post_stream", transport),
                 patch.object(
                     check_http_api,
                     "_build_multipart_body",
@@ -171,12 +181,12 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
                     7.5,
                 )
 
-            request = urlopen.call_args.args[0]
+            _url, body, headers, _timeout = transport.call_args.args
             self.assertEqual(result["_raw_text"], "ok")
-            self.assertNotIsInstance(request.data, bytes)
+            self.assertNotIsInstance(body, bytes)
             self.assertEqual(
-                int(request.get_header("Content-length")),
-                sum(len(chunk) for chunk in request.data),
+                int(headers["Content-Length"]),
+                sum(len(chunk) for chunk in body),
             )
 
     def test_api_post_streaming_body_reaches_http_server(self) -> None:
@@ -255,6 +265,47 @@ class CheckHttpApiMainTest(unittest.TestCase):
         self.assertIn("HTTP 401", output)
         self.assertIn("需要 API key", output)
         self.assertNotIn("无法连接", output)
+
+    def test_transcription_401_reports_api_key_hint_not_broken_pipe(self) -> None:
+        server = ThreadingHTTPServer(("127.0.0.1", 0), UnauthorizedTranscriptionHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                audio = Path(tmp) / "sample.wav"
+                audio.write_bytes(b"RIFF")
+                stdout = io.StringIO()
+                stderr = io.StringIO()
+                with (
+                    patch.object(check_http_api.shutil, "which", return_value="/usr/bin/ffmpeg"),
+                    patch.object(
+                        sys,
+                        "argv",
+                        [
+                            "check_http_api.py",
+                            "--host",
+                            "127.0.0.1",
+                            "--port",
+                            str(server.server_port),
+                            "--audio",
+                            str(audio),
+                        ],
+                    ),
+                    redirect_stdout(stdout),
+                    redirect_stderr(stderr),
+                ):
+                    code = check_http_api.main()
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+        output = stdout.getvalue() + stderr.getvalue()
+        self.assertEqual(code, 1)
+        self.assertIn("HTTP 401", output)
+        self.assertIn("需要 API key", output)
+        self.assertNotIn("Broken pipe", output)
+        self.assertNotIn("Connection reset", output)
 
 
 if __name__ == "__main__":

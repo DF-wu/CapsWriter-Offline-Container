@@ -6,7 +6,9 @@
                             [--timeout 300]
 """
 
-import os, sys, json, shutil, argparse, urllib.request, urllib.error
+import io
+import os, sys, json, shutil, argparse, urllib.request, urllib.error, urllib.parse
+from http import client as http_client
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 6017
@@ -130,6 +132,55 @@ def _api_get(base, path, api_key):
         return json.loads(r.read())
 
 
+def _raise_http_error(url, response, body):
+    raise urllib.error.HTTPError(
+        url,
+        response.status,
+        response.reason,
+        response.headers,
+        io.BytesIO(body),
+    )
+
+
+def _http_post_stream(url, body, headers, timeout):
+    parsed = urllib.parse.urlsplit(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise ValueError(f"Unsupported URL: {url}")
+    target = urllib.parse.urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
+    connection_class = (
+        http_client.HTTPSConnection
+        if parsed.scheme == "https"
+        else http_client.HTTPConnection
+    )
+    connection = connection_class(parsed.hostname, parsed.port, timeout=timeout)
+    send_error = None
+    try:
+        connection.putrequest("POST", target)
+        for name, value in headers.items():
+            connection.putheader(name, value)
+        connection.endheaders()
+        for chunk in body:
+            if not chunk:
+                continue
+            try:
+                connection.send(chunk)
+            except (BrokenPipeError, ConnectionResetError) as exc:
+                send_error = exc
+                break
+        try:
+            response = connection.getresponse()
+        except OSError as exc:
+            if send_error is not None:
+                raise urllib.error.URLError(send_error) from exc
+            raise
+        raw = response.read()
+        if response.status >= 400:
+            _raise_http_error(url, response, raw)
+        return response.getheader("Content-Type", ""), raw
+    finally:
+        connection.close()
+
+
 def _api_post(base, path, audio_path, fmt, api_key, timeout):
     body, boundary, content_length = _build_multipart_stream(audio_path, fmt)
     h = {
@@ -137,13 +188,10 @@ def _api_post(base, path, audio_path, fmt, api_key, timeout):
         "Content-Length": str(content_length),
     }
     h.update(_headers(api_key))
-    req = urllib.request.Request(f"{base}{path}", data=body, headers=h)
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        ct = r.headers.get("Content-Type", "")
-        raw = r.read()
-        if "application/json" in ct:
-            return json.loads(raw)
-        return {"_raw_text": raw.decode("utf-8"), "_content_type": ct}
+    ct, raw = _http_post_stream(f"{base}{path}", body, h, timeout)
+    if "application/json" in ct:
+        return json.loads(raw)
+    return {"_raw_text": raw.decode("utf-8"), "_content_type": ct}
 
 
 def main():
