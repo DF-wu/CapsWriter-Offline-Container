@@ -54,7 +54,7 @@ docker compose up -d capswriter-server
 docker compose logs -f capswriter-server
 ```
 
-第一次啟動會自動下載 Qwen3-ASR 模型 + llama.cpp Vulkan 二進位（總計 ~5 GB），需要幾分鐘。
+第一次啟動會自動下載 Qwen3-ASR 模型 + llama.cpp 二進位（總計 ~5 GB），需要幾分鐘。
 
 ### 3. 驗證
 
@@ -75,7 +75,7 @@ CAPSWRITER_HTTP_API_KEY=sk-your-token       # 對外時務必設定
 CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:5173  # 使用 Web Console 時設定
 ```
 
-打開 [`docker-compose.yml`](docker-compose.yml) 的 port mapping（取消 `# - "6017:6017"` 那行的註解），然後：
+打開 [`docker-compose.yml`](docker-compose.yml) 的 HTTP API port mapping（取消 `CAPSWRITER_HTTP_API_PORT` 那行的註解），然後：
 
 ```bash
 docker compose up -d --force-recreate capswriter-server
