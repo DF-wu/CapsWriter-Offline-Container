@@ -257,7 +257,7 @@ python check_http_api.py \
   --timeout 300
 ```
 
-If auth is enabled, the diagnostic client can pass `--key-file /run/secrets/capswriter-http.key` or set `CAPSWRITER_HTTP_API_KEY_FILE` so the client-side token is read from a UTF-8 file instead of being placed directly in the shell command.
+If auth is enabled, the diagnostic client can pass `--key-file /run/secrets/capswriter-http.key` or set `CAPSWRITER_HTTP_API_KEY_FILE` so the client-side token is read from a non-empty UTF-8 file instead of being placed directly in the shell command.
 
 ### 3.3 Node / TypeScript
 

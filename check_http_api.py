@@ -69,7 +69,10 @@ def read_api_key_file(path):
     if not path:
         return ""
     with open(path, encoding="utf-8") as f:
-        return f.read().strip()
+        value = f.read().strip()
+    if not value:
+        raise ValueError(f"API key file must not be empty: {path}")
+    return value
 
 
 def resolve_api_key(api_key, api_key_file):
@@ -233,7 +236,7 @@ def main():
     args = p.parse_args()
     try:
         api_key = resolve_api_key(args.key, args.key_file)
-    except OSError as exc:
+    except (OSError, ValueError) as exc:
         print(red(f"无法读取 API key 文件: {exc}"), file=sys.stderr)
         return 1
     base = f"http://{args.host}:{args.port}"

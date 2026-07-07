@@ -93,7 +93,7 @@ python client\cli\capswriter_cli.py health
 python client\cli\capswriter_cli.py ready
 ```
 
-For the CLI, use `CAPSWRITER_HTTP_API_KEY_FILE` instead of `CAPSWRITER_HTTP_API_KEY` when a service manager or secret mount can provide a UTF-8 file containing the client token. The server also accepts the same variable for its Bearer token file; explicit `CAPSWRITER_HTTP_API_KEY` takes precedence on both sides.
+For the CLI, use `CAPSWRITER_HTTP_API_KEY_FILE` instead of `CAPSWRITER_HTTP_API_KEY` when a service manager or secret mount can provide a UTF-8 file containing the client token. The file must contain a non-empty token after whitespace is trimmed. The server also accepts the same variable for its Bearer token file; explicit `CAPSWRITER_HTTP_API_KEY` takes precedence on both sides.
 
 ## Server Diagnostics
 
@@ -196,7 +196,7 @@ python client/cli/scripts/clean.py
 
 - Multipart upload is implemented with `urllib.request` and a generated boundary; local filenames are escaped before writing the `Content-Disposition` header.
 - `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
-- `--key-file` and `CAPSWRITER_HTTP_API_KEY_FILE` read a UTF-8 Bearer token file; explicit `--key` still takes precedence for one-off local diagnostics.
+- `--key-file` and `CAPSWRITER_HTTP_API_KEY_FILE` read a non-empty UTF-8 Bearer token file; explicit `--key` still takes precedence for one-off local diagnostics.
 - `--timeout` is validated as a positive float and then passed consistently to health/readiness/models and transcription requests.
 - `--output-dir` maps output extensions by response format: `.txt`, `.json`, `.srt`, `.vtt`.
 - `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.

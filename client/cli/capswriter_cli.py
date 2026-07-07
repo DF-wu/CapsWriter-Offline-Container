@@ -108,7 +108,10 @@ def auth_headers(config: ApiConfig) -> dict[str, str]:
 def read_api_key_file(path: str) -> str:
     if not path:
         return ""
-    return Path(path).read_text(encoding="utf-8").strip()
+    value = Path(path).read_text(encoding="utf-8").strip()
+    if not value:
+        raise ValueError(f"API key file must not be empty: {path}")
+    return value
 
 
 def resolve_api_key(api_key: str, api_key_file: str) -> str:

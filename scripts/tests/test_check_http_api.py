@@ -111,6 +111,14 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
                 "sk-explicit",
             )
 
+    def test_resolve_api_key_rejects_empty_key_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            key_file = Path(tmp) / "capswriter.key"
+            key_file.write_text("\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(ValueError, "must not be empty"):
+                check_http_api.resolve_api_key("", str(key_file))
+
     def test_multipart_header_value_escapes_control_characters(self) -> None:
         value = 'sample"\\\r\nX-Injected: yes.wav'
 

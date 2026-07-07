@@ -175,6 +175,15 @@ class CapsWriterCliTest(unittest.TestCase):
 
                 self.assertEqual(cli._config(args).api_key, "sk-from-env-file")
 
+    def test_config_rejects_empty_api_key_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            key_file = Path(tmp) / "capswriter.key"
+            key_file.write_text("\n", encoding="utf-8")
+            args = cli.build_parser().parse_args(["health", "--key-file", str(key_file)])
+
+            with self.assertRaisesRegex(ValueError, "must not be empty"):
+                cli._config(args)
+
     def test_build_multipart_contains_audio_and_fields(self):
         with tempfile.TemporaryDirectory() as tmp:
             audio = Path(tmp) / "sample.wav"
