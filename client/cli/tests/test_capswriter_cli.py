@@ -388,6 +388,30 @@ class CapsWriterCliTest(unittest.TestCase):
                 {"text": "mock cli transcript"},
             )
 
+    def test_write_output_replaces_existing_file_without_temp_residue(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "out.txt"
+            output.write_text("old transcript", encoding="utf-8")
+
+            cli._write_output(output, "new transcript")
+
+            self.assertEqual(output.read_text(encoding="utf-8"), "new transcript")
+            self.assertEqual(list(output.parent.glob(f".{output.name}.*.tmp")), [])
+
+    def test_write_output_cleans_temp_file_when_replace_fails(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output = Path(tmp) / "out.txt"
+            output.write_text("old transcript", encoding="utf-8")
+
+            with (
+                patch.object(cli.Path, "replace", side_effect=OSError("replace failed")),
+                self.assertRaisesRegex(OSError, "replace failed"),
+            ):
+                cli._write_output(output, "new transcript")
+
+            self.assertEqual(output.read_text(encoding="utf-8"), "old transcript")
+            self.assertEqual(list(output.parent.glob(f".{output.name}.*.tmp")), [])
+
     def test_output_dir_rejects_duplicate_generated_paths(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

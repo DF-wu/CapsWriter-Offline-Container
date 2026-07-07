@@ -127,6 +127,8 @@ python client/cli/capswriter_cli.py transcribe audio/*.wav \
 
 `--output-dir` derives filenames from each audio stem and response format. Generated stems are sanitized for portable Linux/Windows filenames: control characters and Windows-invalid filename characters become `_`, leading/trailing spaces and dots are removed, Windows reserved device names are suffixed, and very long stems are bounded with a short hash. If two inputs would generate the same target path after sanitization or case folding, the CLI fails before sending any HTTP request so a batch run cannot silently overwrite an earlier transcript.
 
+Transcript files are written through a same-directory temporary file and atomic replace. If the final replace fails, the previous transcript stays intact and the temporary file is removed.
+
 Language and prompt hints are passed to the HTTP API for compatibility:
 
 ```bash
@@ -216,6 +218,7 @@ python client/cli/scripts/clean.py
 - `--base-url` accepts absolute `http://` or `https://` roots, with or without trailing `/v1`. Path prefixes such as `https://host/capswriter/v1` are preserved. URL credentials, query strings, fragments, and non-HTTP schemes are rejected before any request is sent.
 - `--key-file` and `CAPSWRITER_HTTP_API_KEY_FILE` read a non-empty UTF-8 Bearer token file; explicit `--key` still takes precedence for one-off local diagnostics.
 - `--timeout` defaults to the server task timeout (`600` seconds), is validated as a positive float, and is then passed consistently to health/readiness/models and transcription requests.
+- `--output` and `--output-dir` write transcript files through same-directory temporary files and atomic replace.
 - `--output-dir` maps output extensions by response format (`.txt`, `.json`, `.srt`, `.vtt`), sanitizes generated stems for portable Linux/Windows filenames, and rejects duplicate generated target paths before transcription starts.
 - `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.
 - HTTP errors normalize OpenAI-style `error.message`, legacy `detail` payloads, non-JSON HTTP error bodies, and invalid JSON responses from expected JSON endpoints.
