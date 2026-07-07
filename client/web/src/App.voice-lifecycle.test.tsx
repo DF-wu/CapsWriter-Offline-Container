@@ -147,4 +147,35 @@ describe("App voice loading lifecycle", () => {
     expect(recorders).toHaveLength(0);
     expect(stateProbe.lateSetState).not.toHaveBeenCalled();
   });
+
+  it("ignores transcription results that resolve after unmount", async () => {
+    const pendingResponse = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn(() => pendingResponse.promise));
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:meeting");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    speechMock.loadVoices.mockResolvedValueOnce([]);
+
+    const { container, unmount } = render(<App />);
+    const input = container.querySelector(".file-input");
+    expect(input).toBeInstanceOf(HTMLInputElement);
+    fireEvent.change(input as HTMLInputElement, {
+      target: { files: [new File(["RIFF"], "meeting.wav", { type: "audio/wav" })] },
+    });
+    await screen.findByText("已載入 meeting.wav");
+    fireEvent.click(screen.getByRole("button", { name: "轉錄" }));
+    await screen.findByText("轉錄中");
+
+    stateProbe.unmounted = true;
+    unmount();
+    pendingResponse.resolve(
+      new Response(JSON.stringify({ text: "done" }), {
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    await pendingResponse.promise;
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(stateProbe.lateSetState).not.toHaveBeenCalled();
+  });
 });

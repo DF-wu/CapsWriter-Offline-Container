@@ -377,14 +377,14 @@ export default function App() {
         settings,
         aborter.signal,
       );
-      if (runId !== transcriptionRunRef.current) return;
+      if (!mountedRef.current || runId !== transcriptionRunRef.current) return;
       setTranscript(result);
       setTtsText(result.text);
       setHistory(addHistory(makeRecord(result, audio)));
       setStatusKind("ok");
       setStatusText(`完成：${result.text.length} 字`);
     } catch (error) {
-      if (runId !== transcriptionRunRef.current) return;
+      if (!mountedRef.current || runId !== transcriptionRunRef.current) return;
       if (error instanceof DOMException && error.name === "AbortError") {
         setStatusKind("idle");
         setStatusText("已取消");
@@ -393,7 +393,7 @@ export default function App() {
         setStatusText(error instanceof Error ? error.message : "轉錄失敗");
       }
     } finally {
-      if (runId === transcriptionRunRef.current) {
+      if (mountedRef.current && runId === transcriptionRunRef.current) {
         abortRef.current = null;
         setIsTranscribing(false);
       }
