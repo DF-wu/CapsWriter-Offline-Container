@@ -27,6 +27,7 @@ describe("write-config.sh", () => {
         CAPSWRITER_WEB_CONFIG_PATH: configPath,
         CAPSWRITER_WEB_API_BASE: "https://asr.example.test",
         CAPSWRITER_WEB_API_KEY: 'sk-"quoted"',
+        CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY: "true",
         CAPSWRITER_WEB_MODEL: "whisper-1",
         CAPSWRITER_WEB_LANGUAGE: "zh",
         CAPSWRITER_WEB_PROMPT: prompt,
@@ -47,5 +48,42 @@ describe("write-config.sh", () => {
       prompt,
       responseFormat: "text",
     });
+  });
+
+  it("rejects deploy-time API keys unless public config exposure is explicit", () => {
+    const dir = mkdtempSync(join(tmpdir(), "capswriter-web-config-"));
+    tempDirs.push(dir);
+    const configPath = join(dir, "config.js");
+
+    const result = spawnSync("sh", [scriptPath], {
+      env: {
+        ...process.env,
+        CAPSWRITER_WEB_CONFIG_PATH: configPath,
+        CAPSWRITER_WEB_API_BASE: "https://asr.example.test",
+        CAPSWRITER_WEB_API_KEY: "sk-public-by-default",
+      },
+      encoding: "utf8",
+    });
+
+    expect(result.status).toBe(64);
+    expect(result.stderr).toContain("CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY=true");
+  });
+
+  it("rejects malformed public API key opt-in values", () => {
+    const dir = mkdtempSync(join(tmpdir(), "capswriter-web-config-"));
+    tempDirs.push(dir);
+    const configPath = join(dir, "config.js");
+
+    const result = spawnSync("sh", [scriptPath], {
+      env: {
+        ...process.env,
+        CAPSWRITER_WEB_CONFIG_PATH: configPath,
+        CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY: "sometimes",
+      },
+      encoding: "utf8",
+    });
+
+    expect(result.status).toBe(64);
+    expect(result.stderr).toContain("CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY must be true or false");
   });
 });

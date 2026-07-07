@@ -20,10 +20,29 @@ js_escape() {
 config_path="${CAPSWRITER_WEB_CONFIG_PATH:-/usr/share/nginx/html/config.js}"
 api_base="$(js_escape "${CAPSWRITER_WEB_API_BASE:-http://localhost:6017}")"
 api_key="$(js_escape "${CAPSWRITER_WEB_API_KEY:-}")"
+allow_public_api_key="${CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY:-false}"
 model="$(js_escape "${CAPSWRITER_WEB_MODEL:-whisper-1}")"
 language="$(js_escape "${CAPSWRITER_WEB_LANGUAGE:-}")"
 prompt="$(js_escape "${CAPSWRITER_WEB_PROMPT:-}")"
 response_format="$(js_escape "${CAPSWRITER_WEB_RESPONSE_FORMAT:-verbose_json}")"
+
+case "$allow_public_api_key" in
+  true|TRUE|True|1|yes|YES|Yes|on|ON|On)
+    allow_public_api_key=true
+    ;;
+  false|FALSE|False|0|no|NO|No|off|OFF|Off|"")
+    allow_public_api_key=false
+    ;;
+  *)
+    echo "CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY must be true or false" >&2
+    exit 64
+    ;;
+esac
+
+if [ -n "${CAPSWRITER_WEB_API_KEY:-}" ] && [ "$allow_public_api_key" != "true" ]; then
+  echo "CAPSWRITER_WEB_API_KEY is written to public /config.js; set CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY=true to opt in" >&2
+  exit 64
+fi
 
 mkdir -p "$(dirname "$config_path")"
 cat > "$config_path" <<EOF

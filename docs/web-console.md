@@ -101,6 +101,7 @@ CAPSWRITER_WEB_VERIFY_STEP_TIMEOUT=1200 npm run verify
 
 Web Console can be served as a static Nginx container. Runtime configuration is written to `/config.js` when the container starts, so the same image can point to different CapsWriter HTTP API hosts.
 Runtime values are escaped before writing `config.js`, so quotes, backslashes, newlines, and carriage returns in deploy-time strings do not break the JavaScript file. The container also sets baseline browser security headers, including `Content-Security-Policy`, `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, and `Permissions-Policy`. The Compose entry point enables `no-new-privileges` for the static web service.
+`CAPSWRITER_WEB_API_KEY` is deliberately guarded because `/config.js` is public static JavaScript. Prefer leaving it empty and entering the token in the UI; trusted private deployments must also set `CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY=true` before the container will publish a default token.
 
 Build and run only the web service:
 
@@ -124,11 +125,10 @@ CAPSWRITER_HTTP_API_ENABLE=true \
 CAPSWRITER_HTTP_API_BIND=0.0.0.0 \
 CAPSWRITER_HTTP_API_KEY=sk-local-dev \
 CAPSWRITER_HTTP_API_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080 \
-CAPSWRITER_WEB_API_KEY=sk-local-dev \
 docker compose -f docker-compose.yml -f docker-compose.web.yml up -d --build
 ```
 
-Open `http://localhost:8080`. The browser calls `CAPSWRITER_WEB_API_BASE`, which defaults to `http://localhost:6017`.
+Open `http://localhost:8080`. The browser calls `CAPSWRITER_WEB_API_BASE`, which defaults to `http://localhost:6017`; enter `sk-local-dev` in the API key field.
 
 Runtime variables:
 
@@ -137,7 +137,8 @@ Runtime variables:
 | `CAPSWRITER_WEB_PUBLISH_HOST` | `127.0.0.1` | Docker Compose host interface for the static web service; use `0.0.0.0` only for deliberate LAN sharing |
 | `CAPSWRITER_WEB_PORT` | `8080` | Host port for the static web service |
 | `CAPSWRITER_WEB_API_BASE` | `http://localhost:6017` | Default API root shown in the UI; must be absolute `http://` or `https://` |
-| `CAPSWRITER_WEB_API_KEY` | _(empty)_ | Optional default token; written to public `/config.js`, so only use for trusted private deployments |
+| `CAPSWRITER_WEB_API_KEY` | _(empty)_ | Optional default token; written to public `/config.js`, so prefer entering tokens in the UI |
+| `CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY` | `false` | Must be `true` before the container will publish `CAPSWRITER_WEB_API_KEY` into `/config.js` |
 | `CAPSWRITER_WEB_MODEL` | `whisper-1` | OpenAI-compatible model field |
 | `CAPSWRITER_WEB_LANGUAGE` | _(empty)_ | Optional language hint; server accepts aliases such as `zh`, `en`, `ja`, `ko`, `yue` |
 | `CAPSWRITER_WEB_PROMPT` | _(empty)_ | Optional recognizer context, normalized and capped server-side |
@@ -183,7 +184,7 @@ npm run clean
 |---|---|---|
 | 依賴重現 | `npm ci --no-audit --no-fund` | 依 `package-lock.json` 安裝，不改寫 lockfile |
 | API root validation | `npm run test -- capswriter.test.ts` | Rejects non-HTTP schemes, URL credentials, query strings, and fragments before fetch |
-| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、bounded response body reads、invalid JSON diagnostics、bounded/abortable health/readiness/model diagnostics、bounded/abortable transcription request handling、partial readiness display when model listing needs auth、StrictMode-safe diagnostics mounted guard、keyboard-accessible audio upload、readiness upload-size preflight、drag/drop highlight stability、transcription-time audio replacement lock、stale result suppression after cancel/unmount、stale/late diagnostic result suppression、recording cleanup including delayed `getUserMedia` success/failure、download object URL cleanup、download filename sanitization（含 Windows reserved device name）、TTS voice handler/lifecycle cleanup and late callback guards、clipboard copy denial and late result cleanup、blocked localStorage handling、bounded settings controls、bounded/malformed settings/history/runtime-config recovery 與 App render 測試通過 |
+| 單元測試 | `npm run test` | API parsing、OpenAI-style / legacy / bounded non-JSON error parsing、bounded response body reads、invalid JSON diagnostics、bounded/abortable health/readiness/model diagnostics、bounded/abortable transcription request handling、partial readiness display when model listing needs auth、StrictMode-safe diagnostics mounted guard、keyboard-accessible audio upload、readiness upload-size preflight、drag/drop highlight stability、transcription-time audio replacement lock、stale result suppression after cancel/unmount、stale/late diagnostic result suppression、recording cleanup including delayed `getUserMedia` success/failure、download object URL cleanup、download filename sanitization（含 Windows reserved device name）、TTS voice handler/lifecycle cleanup and late callback guards、clipboard copy denial and late result cleanup、blocked localStorage handling、bounded settings controls、bounded/malformed settings/history/runtime-config recovery、runtime config public API-key opt-in 與 App render 測試通過 |
 | Web verifier timeout | `python -m unittest discover -s scripts/tests -v` | fake npm 測試覆蓋 hung internal npm step 會回 `124`，且仍會嘗試執行 clean |
 | Browser smoke | `npm run browser-smoke` | 真實瀏覽器完成 health/readiness、upload、transcribe workflow；`agent-browser` 與臨時 child cleanup 都有 timeout |
 | Production build | `npm run build` | Vite 輸出 `dist` |
@@ -203,7 +204,7 @@ npm run clean
 - 下載檔名會移除 path separator、控制字元與常見 OS 保留字元，並避開 Windows reserved device name，避免瀏覽器或作業系統把歷史資料中的異常檔名當作路徑或非法名稱處理。
 - TTS 目前是 browser-local Web Speech API；不把音訊傳到雲端。
 - localStorage 只保存非敏感使用者設定與最近 20 筆轉錄歷史；settings controls 會套用同一組字串長度上限。手動輸入的 API key 只留在目前頁面記憶體中。讀回時會檢查型別、格式與字串長度，過大或 malformed record 會被忽略。若瀏覽器封鎖 storage 或 quota 用完，保存會 best-effort 失敗但不阻斷目前操作。
-- 若透過 `CAPSWRITER_WEB_API_KEY` 注入預設 token，該值會出現在公開的 `/config.js`。
+- 若透過 `CAPSWRITER_WEB_API_KEY` 注入預設 token，該值會出現在公開的 `/config.js`；container 會要求同時設定 `CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY=true` 才啟動，避免誤把 token 發布給所有能載入 Web Console 的瀏覽器。
 - 若 server 有設定 API key，前端只使用 Bearer token header，不使用 cookie。
 
 localStorage 字串邊界：

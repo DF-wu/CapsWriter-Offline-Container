@@ -54,6 +54,16 @@ PUBLISH_ENV_KEYS = {
     "CAPSWRITER_WEB_PUBLISH_HOST",
 }
 
+WEB_ENV_KEYS = {
+    "CAPSWRITER_WEB_API_BASE",
+    "CAPSWRITER_WEB_API_KEY",
+    "CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY",
+    "CAPSWRITER_WEB_MODEL",
+    "CAPSWRITER_WEB_LANGUAGE",
+    "CAPSWRITER_WEB_PROMPT",
+    "CAPSWRITER_WEB_RESPONSE_FORMAT",
+}
+
 ENTRYPOINT_DERIVED_OR_UNSUPPORTED_KEYS = {
     "CAPSWRITER_FUNASR_DML_ENABLE",
     "CAPSWRITER_FUNASR_USE_CUDA",
@@ -131,6 +141,16 @@ class ComposeConfigTest(unittest.TestCase):
                 source = (ROOT / filename).read_text(encoding="utf-8")
                 for expected in expected_lines:
                     self.assertIn(expected, source)
+
+    def test_web_compose_requires_explicit_public_api_key_opt_in(self) -> None:
+        env_keys = active_env_keys(ROOT / ".env.example")
+        self.assertTrue(WEB_ENV_KEYS <= env_keys)
+
+        source = (ROOT / "docker-compose.web.yml").read_text(encoding="utf-8")
+        for key in WEB_ENV_KEYS:
+            with self.subTest(key=key):
+                self.assertIn(f"{key}:", source)
+        self.assertIn("CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY: ${CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY:-false}", source)
 
     def test_compose_services_enable_no_new_privileges(self) -> None:
         for filename in (
