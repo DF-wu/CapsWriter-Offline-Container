@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  MAX_RESPONSE_BODY_BYTES,
   apiErrorMessage,
   fetchHealth,
   fetchReadiness,
   normalizeApiRoot,
   parseTranscriptionResponse,
+  readResponseText,
   transcribeAudio,
 } from "./capswriter";
 import type { ApiSettings } from "../types";
@@ -65,6 +67,14 @@ describe("normalizeApiRoot", () => {
 });
 
 describe("parseTranscriptionResponse", () => {
+  it("rejects oversized response bodies while reading", async () => {
+    const response = new Response("abcd");
+
+    await expect(readResponseText(response, 3)).rejects.toThrow(
+      "HTTP response body exceeded 3 bytes",
+    );
+  });
+
   it("parses plain text responses", async () => {
     const response = new Response("hello world", {
       headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -94,6 +104,20 @@ describe("parseTranscriptionResponse", () => {
 
     await expect(parseTranscriptionResponse(response, "json")).rejects.toThrow(
       /^HTTP 200: Expected JSON response from \/v1\/audio\/transcriptions: <html>x+.*\.\.\.$/,
+    );
+  });
+
+  it("rejects oversized json transcription responses before parsing", async () => {
+    const response = new Response("{}", {
+      status: 200,
+      headers: {
+        "Content-Length": String(MAX_RESPONSE_BODY_BYTES + 1),
+        "Content-Type": "application/json",
+      },
+    });
+
+    await expect(parseTranscriptionResponse(response, "json")).rejects.toThrow(
+      `HTTP 200: HTTP response body exceeded ${MAX_RESPONSE_BODY_BYTES} bytes`,
     );
   });
 
@@ -268,5 +292,23 @@ describe("transcribeAudio", () => {
     await expect(
       transcribeAudio(new Blob(["RIFF"]), "sample.wav", settings),
     ).rejects.toThrow("HTTP 413: File too large (>100 MB)");
+  });
+
+  it("throws bounded diagnostics for oversized server error bodies", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response("error", {
+          status: 502,
+          headers: { "Content-Length": String(MAX_RESPONSE_BODY_BYTES + 1) },
+        }),
+      ),
+    );
+
+    await expect(
+      transcribeAudio(new Blob(["RIFF"]), "sample.wav", settings),
+    ).rejects.toThrow(
+      `HTTP 502: HTTP response body exceeded ${MAX_RESPONSE_BODY_BYTES} bytes`,
+    );
   });
 });

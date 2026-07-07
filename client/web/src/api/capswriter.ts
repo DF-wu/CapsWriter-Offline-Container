@@ -9,6 +9,7 @@ import type {
 } from "../types";
 
 const MAX_ERROR_BODY_CHARS = 500;
+export const MAX_RESPONSE_BODY_BYTES = 16 * 1024 * 1024;
 const DIAGNOSTIC_TIMEOUT_MS = 10_000;
 const DEFAULT_API_ROOT = "http://localhost:6017";
 
@@ -89,8 +90,67 @@ function parseJsonBody<T>(body: string, path: string, status: number): T {
   }
 }
 
+export async function readResponseText(
+  response: Response,
+  maxBytes = MAX_RESPONSE_BODY_BYTES,
+): Promise<string> {
+  if (!Number.isFinite(maxBytes) || maxBytes <= 0) {
+    throw new Error("HTTP response body limit must be > 0");
+  }
+
+  const contentLength = response.headers.get("Content-Length");
+  if (contentLength) {
+    const parsedLength = Number(contentLength);
+    if (Number.isFinite(parsedLength) && parsedLength > maxBytes) {
+      throw new Error(`HTTP response body exceeded ${maxBytes} bytes`);
+    }
+  }
+
+  if (!response.body) {
+    const text = await response.text();
+    if (new TextEncoder().encode(text).byteLength > maxBytes) {
+      throw new Error(`HTTP response body exceeded ${maxBytes} bytes`);
+    }
+    return text;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let received = 0;
+  let text = "";
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      received += value.byteLength;
+      if (received > maxBytes) {
+        await reader.cancel().catch(() => undefined);
+        throw new Error(`HTTP response body exceeded ${maxBytes} bytes`);
+      }
+      text += decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode();
+    return text;
+  } finally {
+    reader.releaseLock();
+  }
+}
+
+async function readResponseTextWithStatus(response: Response): Promise<string> {
+  try {
+    return await readResponseText(response);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to read response body";
+    throw new Error(`HTTP ${response.status}: ${message}`);
+  }
+}
+
 async function readJsonResponse<T>(response: Response, path: string): Promise<T> {
-  return parseJsonBody<T>(await response.text(), path, response.status);
+  return parseJsonBody<T>(
+    await readResponseTextWithStatus(response),
+    path,
+    response.status,
+  );
 }
 
 async function fetchWithTimeout(
@@ -133,8 +193,9 @@ async function checkedFetch(
     ? await fetchWithTimeout(input, init ?? {}, timeoutMs)
     : await fetch(input, init);
   if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    const message = apiErrorMessage(detail);
+    const message = await readResponseText(response)
+      .then((detail) => apiErrorMessage(detail))
+      .catch((error: unknown) => (error instanceof Error ? error.message : ""));
     throw new Error(`HTTP ${response.status}${message ? `: ${message}` : ""}`);
   }
   return response;
@@ -163,7 +224,7 @@ export async function fetchReadiness(settings: ApiSettings, signal?: AbortSignal
     },
     DIAGNOSTIC_TIMEOUT_MS,
   );
-  const body = await response.text();
+  const body = await readResponseTextWithStatus(response);
   if (response.ok || response.status === 503) {
     return parseJsonBody<ReadinessResponse>(body, "/ready", response.status);
   }
@@ -190,12 +251,12 @@ export async function parseTranscriptionResponse(
 ): Promise<TranscriptionResult> {
   const contentType = response.headers.get("Content-Type") ?? "";
   if (format === "text" || format === "srt" || format === "vtt") {
-    const text = await response.text();
+    const text = await readResponseTextWithStatus(response);
     return { text, format, raw: text, contentType };
   }
 
   const payload = parseJsonBody<VerboseTranscription | { text?: string }>(
-    await response.text(),
+    await readResponseTextWithStatus(response),
     "/v1/audio/transcriptions",
     response.status,
   );
