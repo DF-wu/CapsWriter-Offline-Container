@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   apiErrorMessage,
+  fetchHealth,
   fetchReadiness,
   normalizeApiRoot,
   parseTranscriptionResponse,
@@ -19,6 +20,7 @@ const settings: ApiSettings = {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 describe("normalizeApiRoot", () => {
@@ -162,6 +164,29 @@ describe("fetchReadiness", () => {
     await expect(fetchReadiness(settings)).rejects.toThrow(
       /^HTTP 503: Expected JSON response from \/ready: <html>x+.*\.\.\.$/,
     );
+  });
+});
+
+describe("diagnostic fetches", () => {
+  it("times out health checks that never resolve", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => {
+            reject(new DOMException("aborted", "AbortError"));
+          });
+        }),
+      ),
+    );
+
+    const health = expect(fetchHealth(settings)).rejects.toThrow(
+      "Request timed out after 10s",
+    );
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    await health;
   });
 });
 

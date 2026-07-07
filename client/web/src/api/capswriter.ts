@@ -9,6 +9,7 @@ import type {
 } from "../types";
 
 const MAX_ERROR_BODY_CHARS = 500;
+const DIAGNOSTIC_TIMEOUT_MS = 10_000;
 
 export function normalizeApiRoot(baseUrl: string): string {
   const trimmed = baseUrl.trim().replace(/\/+$/, "");
@@ -67,8 +68,33 @@ async function readJsonResponse<T>(response: Response, path: string): Promise<T>
   return parseJsonBody<T>(await response.text(), path, response.status);
 }
 
-async function checkedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-  const response = await fetch(input, init);
+async function fetchWithTimeout(
+  input: RequestInfo | URL,
+  init: RequestInit,
+  timeoutMs: number,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s`);
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+async function checkedFetch(
+  input: RequestInfo | URL,
+  init?: RequestInit,
+  timeoutMs?: number,
+): Promise<Response> {
+  const response = timeoutMs
+    ? await fetchWithTimeout(input, init ?? {}, timeoutMs)
+    : await fetch(input, init);
   if (!response.ok) {
     const detail = await response.text().catch(() => "");
     const message = apiErrorMessage(detail);
@@ -79,17 +105,25 @@ async function checkedFetch(input: RequestInfo | URL, init?: RequestInit): Promi
 
 export async function fetchHealth(settings: ApiSettings): Promise<HealthResponse> {
   const root = normalizeApiRoot(settings.baseUrl);
-  const response = await checkedFetch(`${root}/health`, {
-    headers: requestHeaders(settings),
-  });
+  const response = await checkedFetch(
+    `${root}/health`,
+    {
+      headers: requestHeaders(settings),
+    },
+    DIAGNOSTIC_TIMEOUT_MS,
+  );
   return readJsonResponse<HealthResponse>(response, "/health");
 }
 
 export async function fetchReadiness(settings: ApiSettings): Promise<ReadinessResponse> {
   const root = normalizeApiRoot(settings.baseUrl);
-  const response = await fetch(`${root}/ready`, {
-    headers: requestHeaders(settings),
-  });
+  const response = await fetchWithTimeout(
+    `${root}/ready`,
+    {
+      headers: requestHeaders(settings),
+    },
+    DIAGNOSTIC_TIMEOUT_MS,
+  );
   const body = await response.text();
   if (response.ok || response.status === 503) {
     return parseJsonBody<ReadinessResponse>(body, "/ready", response.status);
@@ -100,9 +134,13 @@ export async function fetchReadiness(settings: ApiSettings): Promise<ReadinessRe
 
 export async function fetchModels(settings: ApiSettings): Promise<ModelListResponse> {
   const root = normalizeApiRoot(settings.baseUrl);
-  const response = await checkedFetch(`${root}/v1/models`, {
-    headers: requestHeaders(settings),
-  });
+  const response = await checkedFetch(
+    `${root}/v1/models`,
+    {
+      headers: requestHeaders(settings),
+    },
+    DIAGNOSTIC_TIMEOUT_MS,
+  );
   return readJsonResponse<ModelListResponse>(response, "/v1/models");
 }
 
