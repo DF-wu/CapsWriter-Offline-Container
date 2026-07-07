@@ -210,6 +210,8 @@ docker build -t capswriter-server:local -f docker/server/Dockerfile .
 
 CI 自動 build 走 [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml)：push 到 master 即觸發。該 workflow 會先跑 `python scripts/verify_all.py --skip-web`，通過後才 build/push GHCR server image。
 
+Server image build context 由 [`.dockerignore`](../.dockerignore) 排除本機 `models/`、Web/CLI 產物、`.env*`、secret-like key/cert files 與下載中的 archive，避免把本機模型、token 或驗證輸出打進 image。
+
 ---
 
 ## 9. 健康檢查與 ops
