@@ -361,6 +361,52 @@ class CapsWriterCliTest(unittest.TestCase):
                 {"text": "mock cli transcript"},
             )
 
+    def test_output_dir_rejects_duplicate_generated_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = root / "one" / "sample.wav"
+            second = root / "two" / "sample.wav"
+            output_dir = root / "out"
+            first.parent.mkdir()
+            second.parent.mkdir()
+            first.write_bytes(b"RIFF")
+            second.write_bytes(b"RIFF")
+
+            with self.assertRaisesRegex(ValueError, "multiple inputs"):
+                cli.output_targets_for([first, second], "text", output_dir)
+
+    def test_main_rejects_duplicate_output_dir_targets_before_transcribing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = root / "one" / "sample.wav"
+            second = root / "two" / "sample.wav"
+            output_dir = root / "out"
+            first.parent.mkdir()
+            second.parent.mkdir()
+            first.write_bytes(b"RIFF")
+            second.write_bytes(b"RIFF")
+            stderr = io.StringIO()
+
+            with (
+                patch.object(cli, "transcribe_file") as transcribe_file,
+                redirect_stderr(stderr),
+            ):
+                code = cli.main(
+                    [
+                        "transcribe",
+                        "--base-url",
+                        self.base_url,
+                        "--output-dir",
+                        str(output_dir),
+                        str(first),
+                        str(second),
+                    ]
+                )
+
+        self.assertEqual(code, 1)
+        transcribe_file.assert_not_called()
+        self.assertIn("--output-dir would write multiple inputs", stderr.getvalue())
+
     def test_main_ready_prints_diagnostics(self):
         stdout = io.StringIO()
         with redirect_stdout(stdout):

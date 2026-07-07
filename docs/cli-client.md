@@ -125,6 +125,8 @@ python client/cli/capswriter_cli.py transcribe audio/*.wav \
   --output-dir transcripts/
 ```
 
+`--output-dir` derives filenames from each audio stem and response format. If two inputs would generate the same target path, the CLI fails before sending any HTTP request so a batch run cannot silently overwrite an earlier transcript.
+
 Language and prompt hints are passed to the HTTP API for compatibility:
 
 ```bash
@@ -208,7 +210,7 @@ python client/cli/scripts/clean.py
 - `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
 - `--key-file` and `CAPSWRITER_HTTP_API_KEY_FILE` read a non-empty UTF-8 Bearer token file; explicit `--key` still takes precedence for one-off local diagnostics.
 - `--timeout` defaults to the server task timeout (`600` seconds), is validated as a positive float, and is then passed consistently to health/readiness/models and transcription requests.
-- `--output-dir` maps output extensions by response format: `.txt`, `.json`, `.srt`, `.vtt`.
+- `--output-dir` maps output extensions by response format (`.txt`, `.json`, `.srt`, `.vtt`) and rejects duplicate generated target paths before transcription starts.
 - `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.
 - HTTP errors normalize OpenAI-style `error.message`, legacy `detail` payloads, non-JSON HTTP error bodies, and invalid JSON responses from expected JSON endpoints.
 - `speak` accepts direct text, a UTF-8 file via `--file`, or standard input via `--stdin`; stdin mode is intended for transcription-to-speech shell pipelines.

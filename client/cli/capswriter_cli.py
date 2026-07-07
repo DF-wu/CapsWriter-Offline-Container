@@ -397,6 +397,27 @@ def output_path_for(audio_path: Path, response_format: str, output_dir: Path) ->
     return output_dir / f"{audio_path.stem}{ext}"
 
 
+def output_targets_for(
+    audio_paths: Iterable[Path],
+    response_format: str,
+    output_dir: Path,
+) -> dict[Path, Path]:
+    targets: dict[Path, Path] = {}
+    seen: dict[str, tuple[Path, Path]] = {}
+    for audio_path in audio_paths:
+        target = output_path_for(audio_path, response_format, output_dir)
+        key = os.path.normcase(str(target))
+        if key in seen:
+            first_audio, first_target = seen[key]
+            raise ValueError(
+                "--output-dir would write multiple inputs to "
+                f"{target}: {first_audio} and {audio_path}"
+            )
+        seen[key] = (audio_path, target)
+        targets[audio_path] = target
+    return targets
+
+
 def select_tts_command(
     text: str,
     *,
@@ -591,6 +612,11 @@ def command_transcribe(args) -> int:
         raise SystemExit("--output can only be used with one audio file")
 
     config = _config(args)
+    output_targets = (
+        output_targets_for(args.audio, args.response_format, args.output_dir)
+        if args.output_dir
+        else {}
+    )
     outputs: list[tuple[Path, str]] = []
     for audio_path in args.audio:
         result = transcribe_file(
@@ -605,9 +631,7 @@ def command_transcribe(args) -> int:
         if args.output:
             outputs.append((args.output, rendered))
         elif args.output_dir:
-            outputs.append(
-                (output_path_for(audio_path, args.response_format, args.output_dir), rendered)
-            )
+            outputs.append((output_targets[audio_path], rendered))
         else:
             if len(args.audio) > 1:
                 print(f"==> {audio_path}")
