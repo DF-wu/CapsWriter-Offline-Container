@@ -142,6 +142,11 @@ class CapsWriterCliTest(unittest.TestCase):
         self.assertEqual(ctx.exception.code, 2)
         self.assertIn("must be > 0", stderr.getvalue())
 
+    def test_config_default_timeout_matches_server_task_timeout(self):
+        args = cli.build_parser().parse_args(["health"])
+
+        self.assertEqual(cli._config(args).timeout, 600.0)
+
     def test_config_reads_api_key_file_when_key_missing(self):
         with tempfile.TemporaryDirectory() as tmp:
             key_file = Path(tmp) / "capswriter.key"

@@ -259,6 +259,54 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
 
 
 class CheckHttpApiMainTest(unittest.TestCase):
+    def test_main_uses_server_aligned_default_transcription_timeout(self) -> None:
+        observed_timeouts = []
+
+        def fake_get(_base, path, _api_key):
+            if path == "/health":
+                return {"status": "ok", "model": "mock_asr", "version": "dev"}
+            if path == "/v1/models":
+                return {"data": [{"id": "mock_asr"}]}
+            if path == "/ready":
+                return {
+                    "status": "ok",
+                    "checks": {
+                        "ffmpeg_available": True,
+                        "task_router_bound": True,
+                    },
+                }
+            raise AssertionError(path)
+
+        def fake_post(_base, _path, _audio, _fmt, _api_key, timeout):
+            observed_timeouts.append(timeout)
+            return {"text": "mock transcript"}
+
+        with tempfile.TemporaryDirectory() as tmp:
+            audio = Path(tmp) / "sample.wav"
+            audio.write_bytes(b"RIFF")
+            stdout = io.StringIO()
+            stderr = io.StringIO()
+            with (
+                patch.object(check_http_api.shutil, "which", return_value="/usr/bin/ffmpeg"),
+                patch.object(check_http_api, "_api_get", side_effect=fake_get),
+                patch.object(check_http_api, "_api_post", side_effect=fake_post),
+                patch.object(
+                    sys,
+                    "argv",
+                    [
+                        "check_http_api.py",
+                        "--audio",
+                        str(audio),
+                    ],
+                ),
+                redirect_stdout(stdout),
+                redirect_stderr(stderr),
+            ):
+                code = check_http_api.main()
+
+        self.assertEqual(code, 0)
+        self.assertEqual(observed_timeouts, [600.0, 600.0, 600.0])
+
     def test_health_401_reports_api_key_hint_not_connection_failure(self) -> None:
         server = ThreadingHTTPServer(("127.0.0.1", 0), UnauthorizedHealthHandler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)

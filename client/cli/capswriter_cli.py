@@ -26,6 +26,7 @@ from urllib import error, parse, request
 
 DEFAULT_BASE_URL = "http://127.0.0.1:6017"
 DEFAULT_MODEL = "whisper-1"
+DEFAULT_TIMEOUT_SECONDS = 600.0
 RESPONSE_FORMATS = ("json", "text", "verbose_json", "srt", "vtt")
 MAX_ERROR_BODY_CHARS = 500
 
@@ -34,7 +35,7 @@ MAX_ERROR_BODY_CHARS = 500
 class ApiConfig:
     base_url: str
     api_key: str = ""
-    timeout: float = 120.0
+    timeout: float = DEFAULT_TIMEOUT_SECONDS
 
 
 @dataclass(frozen=True)
@@ -494,7 +495,15 @@ def add_common_options(parser: argparse.ArgumentParser) -> None:
         default=os.environ.get("CAPSWRITER_HTTP_API_KEY_FILE", ""),
         help="UTF-8 file containing the Bearer token, or CAPSWRITER_HTTP_API_KEY_FILE",
     )
-    parser.add_argument("--timeout", type=positive_float, default=120.0)
+    parser.add_argument(
+        "--timeout",
+        type=positive_float,
+        default=DEFAULT_TIMEOUT_SECONDS,
+        help=(
+            "HTTP request timeout in seconds "
+            f"(default: {DEFAULT_TIMEOUT_SECONDS:g}; matches server task timeout)"
+        ),
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:

@@ -3,7 +3,7 @@
 
 用法: python check_http_api.py [--host 127.0.0.1] [--port 6017]
                             [--audio test.wav] [--expect 你好] [--key sk-xxx]
-                            [--key-file /run/secrets/capswriter.key] [--timeout 300]
+                            [--key-file /run/secrets/capswriter.key] [--timeout 600]
 """
 
 import io
@@ -12,7 +12,7 @@ from http import client as http_client
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 6017
-DEFAULT_TRANSCRIBE_TIMEOUT = 120.0
+DEFAULT_TRANSCRIBE_TIMEOUT = 600.0
 
 
 def green(s):
@@ -221,7 +221,10 @@ def main():
         "--timeout",
         type=positive_float,
         default=DEFAULT_TRANSCRIBE_TIMEOUT,
-        help="转录 POST 请求超时秒数",
+        help=(
+            "转录 POST 请求超时秒数 "
+            f"(default: {DEFAULT_TRANSCRIBE_TIMEOUT:g}; 与 server task timeout 一致)"
+        ),
     )
     p.add_argument(
         "--key",
