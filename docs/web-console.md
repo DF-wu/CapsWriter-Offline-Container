@@ -33,9 +33,11 @@ Docker Compose 需要同時開 port：
 
 ```yaml
 ports:
-  - "6016:6016"
-  - "6017:6017"
+  - "127.0.0.1:6016:6016"
+  - "127.0.0.1:6017:6017"
 ```
+
+Compose 的 host publish 預設是 `127.0.0.1`。若要讓 LAN 上其他裝置連到 WebSocket、HTTP API 或 Web Console，才把對應的 `CAPSWRITER_*_PUBLISH_HOST` 改成 `0.0.0.0`，並為 HTTP API 設定 token。
 
 啟動：
 
@@ -110,7 +112,7 @@ Published image:
 
 ```bash
 docker run -d --name capswriter-web --restart unless-stopped \
-  -p 8080:8080 \
+  -p 127.0.0.1:8080:8080 \
   -e CAPSWRITER_WEB_API_BASE=http://localhost:6017 \
   ghcr.io/df-wu/capswriter-offline-web:latest
 ```
@@ -120,7 +122,9 @@ Run it beside the server:
 ```bash
 CAPSWRITER_HTTP_API_ENABLE=true \
 CAPSWRITER_HTTP_API_BIND=0.0.0.0 \
+CAPSWRITER_HTTP_API_KEY=sk-local-dev \
 CAPSWRITER_HTTP_API_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080 \
+CAPSWRITER_WEB_API_KEY=sk-local-dev \
 docker compose -f docker-compose.yml -f docker-compose.web.yml up -d --build
 ```
 
@@ -130,6 +134,7 @@ Runtime variables:
 
 | Variable | Default | Description |
 |---|---|---|
+| `CAPSWRITER_WEB_PUBLISH_HOST` | `127.0.0.1` | Docker Compose host interface for the static web service; use `0.0.0.0` only for deliberate LAN sharing |
 | `CAPSWRITER_WEB_PORT` | `8080` | Host port for the static web service |
 | `CAPSWRITER_WEB_API_BASE` | `http://localhost:6017` | Default API root shown in the UI; must be absolute `http://` or `https://` |
 | `CAPSWRITER_WEB_API_KEY` | _(empty)_ | Optional default token; written to public `/config.js`, so only use for trusted private deployments |

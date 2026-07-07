@@ -189,12 +189,13 @@ services:
       CAPSWRITER_MODEL_TYPE: qwen_asr
       CAPSWRITER_HTTP_API_ENABLE: "true"
       CAPSWRITER_HTTP_API_BIND: 0.0.0.0
+      CAPSWRITER_HTTP_API_KEY: merge-test-key
       CAPSWRITER_HTTP_API_PORT: 16017
       CAPSWRITER_SERVER_PORT: 16016
       CAPSWRITER_LOG_LEVEL: INFO
     ports:
-      - "16016:16016"
-      - "16017:16017"
+      - "127.0.0.1:16016:16016"
+      - "127.0.0.1:16017:16017"
     volumes:
       - /home/df/workspace/CapsWriter-Offline/models:/app/models
       - /home/df/workspace/CapsWriter-Offline/hot-server.txt:/app/hot-server.txt:ro
@@ -204,11 +205,12 @@ docker compose -p cwmerge -f /tmp/cw-merge-test/docker-compose.yml up -d
 sleep 90   # 模型載入
 
 curl http://localhost:16017/health
-curl http://localhost:16017/v1/models
+curl -H "Authorization: Bearer merge-test-key" http://localhost:16017/v1/models
 
 # 用任意音檔測 5 種 format
 for fmt in json text srt vtt verbose_json; do
   curl -X POST http://localhost:16017/v1/audio/transcriptions \
+    -H "Authorization: Bearer merge-test-key" \
     -F file=@some_audio.wav -F response_format=$fmt -w "[$fmt %{http_code}]\n"
 done
 

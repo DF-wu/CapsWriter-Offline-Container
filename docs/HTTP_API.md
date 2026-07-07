@@ -48,13 +48,15 @@ environment:
   CAPSWRITER_HTTP_API_ENABLE: "true"
   CAPSWRITER_HTTP_API_BIND: 0.0.0.0
   CAPSWRITER_HTTP_API_PORT: "6017"
-  CAPSWRITER_HTTP_API_KEY: "sk-your-token"   # 對外時必填
+  CAPSWRITER_HTTP_API_KEY: "sk-your-token"   # Docker BIND=0.0.0.0 時必填
   # 或用 secret file:
   # CAPSWRITER_HTTP_API_KEY_FILE: "/run/secrets/capswriter-http.key"
   CAPSWRITER_HTTP_API_CORS_ORIGINS: "http://127.0.0.1:5173"
 ports:
-  - "6017:6017"
+  - "127.0.0.1:6017:6017"
 ```
+
+Docker 內的 HTTP API 可維持 `CAPSWRITER_HTTP_API_BIND=0.0.0.0`，讓 Docker port publishing 連得到容器服務；host 端是否對 LAN 開放由 `ports` 的 host IP 控制。本 repo 的 Compose 預設使用 `CAPSWRITER_HTTP_API_PUBLISH_HOST=127.0.0.1`。只有要 LAN 共享時才把 publish host 改成 `0.0.0.0`，並同時設定 KEY 與防火牆。
 
 ```bash
 docker compose up -d --force-recreate capswriter-server
@@ -363,8 +365,8 @@ docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml \
 
 | 場景 | 建議 |
 |---|---|
-| 僅本機用 | 預設即可（`BIND=127.0.0.1`、無 KEY） |
-| 同 LAN 共享 | 設 `KEY`、`BIND=0.0.0.0`、防火牆限制來源 IP |
+| 僅本機用 | 裸機預設 `BIND=127.0.0.1` 可無 KEY；Docker Compose 預設 publish host 是 `127.0.0.1`，但若 HTTP API 以容器內 `BIND=0.0.0.0` 啟用仍需設 KEY |
+| 同 LAN 共享 | 設 `KEY`、`BIND=0.0.0.0`、publish host `0.0.0.0`、防火牆限制來源 IP |
 | 對外公網 | 設 `KEY`、reverse proxy 加 TLS、限制 IP、設低 `MAX_UPLOAD_MB` 與 `TASK_TIMEOUT` |
 
 KEY 為純 Bearer token，比對時使用 constant-time compare；header 必須剛好是 `Bearer <token>` 兩段，`Bearer` scheme 大小寫不敏感。建議使用 ≥ 32 字元隨機字串：

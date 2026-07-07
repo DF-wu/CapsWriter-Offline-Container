@@ -48,6 +48,12 @@ RESOURCE_ENV_KEYS = {
     "CAPSWRITER_REMOVE_MODEL_ARCHIVES",
 }
 
+PUBLISH_ENV_KEYS = {
+    "CAPSWRITER_SERVER_PUBLISH_HOST",
+    "CAPSWRITER_HTTP_API_PUBLISH_HOST",
+    "CAPSWRITER_WEB_PUBLISH_HOST",
+}
+
 ENTRYPOINT_DERIVED_OR_UNSUPPORTED_KEYS = {
     "CAPSWRITER_FUNASR_DML_ENABLE",
     "CAPSWRITER_FUNASR_USE_CUDA",
@@ -102,6 +108,29 @@ class ComposeConfigTest(unittest.TestCase):
             with self.subTest(filename=filename):
                 keys = active_yaml_keys(ROOT / filename)
                 self.assertTrue(RESOURCE_ENV_KEYS <= keys)
+
+    def test_compose_publishes_ports_on_loopback_by_default(self) -> None:
+        env_keys = active_env_keys(ROOT / ".env.example")
+        self.assertTrue(PUBLISH_ENV_KEYS <= env_keys)
+
+        expectations = {
+            "docker-compose.yml": (
+                "${CAPSWRITER_SERVER_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}",
+                "${CAPSWRITER_HTTP_API_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}",
+            ),
+            "docker-compose.example.yml": (
+                "${CAPSWRITER_SERVER_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}",
+                "${CAPSWRITER_HTTP_API_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}",
+            ),
+            "docker-compose.web.yml": (
+                "${CAPSWRITER_WEB_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_WEB_PORT:-8080}:8080",
+            ),
+        }
+        for filename, expected_lines in expectations.items():
+            with self.subTest(filename=filename):
+                source = (ROOT / filename).read_text(encoding="utf-8")
+                for expected in expected_lines:
+                    self.assertIn(expected, source)
 
     def test_user_facing_env_templates_avoid_backend_internal_keys(self) -> None:
         for filename in (

@@ -76,9 +76,9 @@ services:
       # GGML_VK_DISABLE_COOPMAT: ${GGML_VK_DISABLE_COOPMAT:-}
       # GGML_VK_DISABLE_F16:     ${GGML_VK_DISABLE_F16:-}
     ports:
-      - "${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}"
+      - "${CAPSWRITER_SERVER_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}"
       # Uncomment to also expose the OpenAI-compatible HTTP API:
-      # - "${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}"
+      # - "${CAPSWRITER_HTTP_API_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}"
     volumes:
       - ./models:/app/models
       - ./hot-server.txt:/app/hot-server.txt

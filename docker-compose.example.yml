@@ -59,7 +59,9 @@ services:
       CAPSWRITER_INTERACTIVE_ERRORS: "false"
       NVIDIA_DRIVER_CAPABILITIES: compute,utility,graphics
     ports:
-      - "${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}"
+      - "${CAPSWRITER_SERVER_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}"
+      # Optional HTTP API host access:
+      # - "${CAPSWRITER_HTTP_API_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}"
     volumes:
       - ./models:/app/models
       - ./hot-server.txt:/app/hot-server.txt

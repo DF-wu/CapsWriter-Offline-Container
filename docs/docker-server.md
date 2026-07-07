@@ -33,7 +33,7 @@ docker compose logs -f capswriter-server
 3. 下載模型到 `./models/Qwen3-ASR/`（~1.8 GB）
 4. 下載 llama.cpp Linux .so 到 `core/server/engines/*/inference/bin/`
 5. 啟動識別子進程載入模型（30-60s）
-6. 開 WebSocket 服務於 `0.0.0.0:6016`
+6. 容器內開 WebSocket 服務於 `0.0.0.0:6016`，Docker Compose 預設只發布到 host `127.0.0.1:6016`
 
 `docker compose ps` 顯示 `Up (healthy)` 即成功。
 
@@ -57,11 +57,13 @@ docker compose logs -f capswriter-server
 
 | 變數 | 預設 | 說明 |
 |---|---|---|
+| `CAPSWRITER_SERVER_PUBLISH_HOST` | `127.0.0.1` | Docker Compose 發布 WebSocket port 的 host interface；LAN 共享才改 `0.0.0.0` |
 | `CAPSWRITER_SERVER_PORT` | `6016` | WebSocket port |
 | `CAPSWRITER_HTTP_API_ENABLE` | `false` | 啟用 OpenAI HTTP API |
-| `CAPSWRITER_HTTP_API_BIND` | `127.0.0.1` | 對外請改 `0.0.0.0` |
+| `CAPSWRITER_HTTP_API_BIND` | `0.0.0.0` | Docker 容器內監聽位址；host 是否對外由 `CAPSWRITER_HTTP_API_PUBLISH_HOST` 控制 |
+| `CAPSWRITER_HTTP_API_PUBLISH_HOST` | `127.0.0.1` | Docker Compose 發布 HTTP API port 的 host interface；LAN 共享才改 `0.0.0.0` |
 | `CAPSWRITER_HTTP_API_PORT` | `6017` | HTTP API port |
-| `CAPSWRITER_HTTP_API_KEY` | _(空)_ | Bearer token；對外時必填 |
+| `CAPSWRITER_HTTP_API_KEY` | _(空)_ | Bearer token；Docker 預設 `CAPSWRITER_HTTP_API_BIND=0.0.0.0`，啟用 HTTP API 時需設定 |
 | `CAPSWRITER_HTTP_API_KEY_FILE` | _(空)_ | Bearer token 檔案；適合 Docker secrets / service manager，明確 `KEY` 優先 |
 | `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND` | `false` | 允許非 loopback bind 無 KEY 啟動；只適合受信任測試網路 |
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `100` | 單次 HTTP 音訊上傳上限 |
