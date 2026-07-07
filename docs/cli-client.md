@@ -191,7 +191,8 @@ It performs:
 2. `python -m unittest discover -s client/cli/tests -v`
 3. `python client/cli/scripts/build_zipapp.py`
 4. `python client/cli/dist/capswriter-cli.pyz --help`
-5. `python client/cli/scripts/clean.py`
+5. packaged `speak --stdin --dry-run` smoke with stdin input
+6. `python client/cli/scripts/clean.py`
 
 The tests start an in-process mock HTTP API, so they do not need a real model server. The clean step removes `__pycache__` and `.pyc` files even when a previous step fails.
 
