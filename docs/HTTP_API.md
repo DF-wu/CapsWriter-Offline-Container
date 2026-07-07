@@ -320,14 +320,14 @@ console.log(r);
 
 [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 從 `state.queue_out` 拉結果時：
 
-1. 先讓 `task_router.try_resolve(result)` 攔截 HTTP 任務（中間/最終結果都會被吸收）。
+1. 先讓 `task_router.try_resolve(result)` 攔截 HTTP 任務（pending 任務的中間/最終結果都會被吸收；已取消或 timeout 的 HTTP 任務會用 bounded tombstone 吸收晚到結果）。
 2. 若不是 HTTP 任務，走原本的 WebSocket 派發路徑（與上游 `core/server/connection/ws_send.py` 邏輯相同）。
 
 ### 4.3 合成 socket_id
 
 HTTP 任務使用合成 `socket_id="http:<task_id>"` 並加入 `state.sockets_id`（跨進程 `Manager().list()`）。recognizer 子進程的 TaskHandler 檢查 `task.socket_id not in sockets_id` 來判定上游是否還在；合成的 socket_id 滿足這個檢查，讓 HTTP 任務不會被丟棄。
 
-HTTP request 成功、timeout、server error 或客戶端取消時，都會清理 pending future 與合成 socket id，避免中斷請求留下不可回收的路由狀態。
+HTTP request 成功、timeout、server error 或客戶端取消時，都會清理 pending future 與合成 socket id，避免中斷請求留下不可回收的路由狀態。timeout 或取消後，recognizer 可能仍會把已取出的 Task 跑完並送出 `Result`；`TaskRouter` 會為真正 pending 過的 HTTP task_id 保留有 TTL 與最大容量限制的 tombstone，讓這類晚到的 HTTP result 被吸收，而不是落到 WebSocket broadcast 路徑產生誤導性 warning。
 
 ### 4.4 並發
 

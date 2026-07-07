@@ -53,6 +53,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 - HTTP API 預設不把 prompt/context 或轉錄文字寫入 server log/console；需明確設定 `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS=true` 才輸出全文。
 - Server、模型調校與 HTTP API env 在啟動時 fail fast；錯誤 boolean、port、Qwen preset、數值範圍或 CORS origin 不會靜默退回預設值。
 - `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` 對 HTTP 轉錄請求做 request-slot backpressure。
+- HTTP timeout/client cancel 會清除 pending future 與合成 socket id，並以 bounded tombstone 吸收晚到 recognizer result，避免被誤派到 WebSocket 路徑。
 - HTTP API 啟用且 bind 到非 loopback 時會要求 Bearer key；server/client 皆支援 UTF-8 key file，無 KEY 只允許 loopback 或明確 insecure opt-out。
 - HTTP error 使用 OpenAI-style `{"error": ...}` JSON envelope，保留原 HTTP status。
 - `language` 會正規化 OpenAI-style alias（如 `zh`/`en`）並傳入 recognizer；`prompt` 會正規化後作為 upstream `Task.context`。
@@ -107,7 +108,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 | `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 12 tests、Verifier/diagnostic 23 tests、Web 36 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 | `python scripts/verify_all.py --skip-web --http-base-url http://127.0.0.1:16017 --http-key ... --http-require-ready --http-audio benchmarks/audio/arctic_a0001.wav --http-expect "Author of"` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 15 tests、Verifier/diagnostic 23 tests、current-branch live `/health` v2.6、`/ready` ok、Qwen ASR model-backed STT (`Author of the Danger Trail, Philip Steels, etc.`) |
 | `python scripts/verify_all.py --skip-web` | 通過：CLI 24 tests、server compile、HTTP 57 tests（含 fail-fast server/model env validation）、Docker server 17 tests（含 entrypoint Qwen CPU preset guard）、Verifier/diagnostic 28 tests（含 Docker Compose HTTP/model tuning env guard）、cleanup |
-| `python scripts/verify_all.py` | 通過：upstream divergence guard、CLI 31 tests + packaged stdin smoke、server compile、HTTP 62 tests（含 server key-file auth 與 ws_send drift guard）、Docker server 17 tests、Verifier/diagnostic 35 tests、Web 45 tests/build（含 keyboard-accessible upload、drag/drop highlight stability、transcription-time audio replacement lock、stale result suppression、malformed history/runtime-config filtering）、cleanup + residue check |
+| `python scripts/verify_all.py` | 通過：upstream divergence guard、CLI 31 tests + packaged stdin smoke、server compile、HTTP 68 tests（含 server key-file auth、late canceled HTTP result absorption 與 ws_send drift guard）、Docker server 17 tests、Verifier/diagnostic 35 tests、Web 45 tests/build（含 keyboard-accessible upload、drag/drop highlight stability、transcription-time audio replacement lock、stale result suppression、malformed history/runtime-config filtering）、cleanup + residue check |
 
 `127.0.0.1:6017` 仍是既有外部服務；本分支驗證使用隔離容器掛載目前 checkout，對外映射 `127.0.0.1:16017`，並以 temporary API key 執行 `/ready` 與已知音檔 STT gate。共享 verifier log 會將 `--http-key` 顯示為 `<redacted>`。
 

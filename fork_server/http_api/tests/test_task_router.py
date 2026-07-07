@@ -26,6 +26,94 @@ class TaskRouterTest(unittest.TestCase):
 
         asyncio.run(scenario())
 
+    def test_late_final_result_after_cancel_is_absorbed(self) -> None:
+        async def scenario() -> None:
+            state = SimpleNamespace(sockets_id=[], queue_in=object())
+            router = TaskRouter()
+            router.bind(state, asyncio.get_running_loop())
+            fut = router.register("abc")
+
+            router.cancel("abc")
+            handled = router.try_resolve(
+                SimpleNamespace(
+                    task_id="abc",
+                    socket_id="http:abc",
+                    is_final=True,
+                )
+            )
+
+            self.assertTrue(handled)
+            self.assertTrue(fut.cancelled())
+            self.assertEqual(state.sockets_id, [])
+
+        asyncio.run(scenario())
+
+    def test_late_intermediate_result_after_cancel_keeps_tombstone(self) -> None:
+        async def scenario() -> None:
+            state = SimpleNamespace(sockets_id=[], queue_in=object())
+            router = TaskRouter()
+            router.bind(state, asyncio.get_running_loop())
+            fut = router.register("abc")
+
+            router.cancel("abc")
+            intermediate_handled = router.try_resolve(
+                SimpleNamespace(
+                    task_id="abc",
+                    socket_id="http:abc",
+                    is_final=False,
+                )
+            )
+            final_handled = router.try_resolve(
+                SimpleNamespace(
+                    task_id="abc",
+                    socket_id="http:abc",
+                    is_final=True,
+                )
+            )
+
+            self.assertTrue(intermediate_handled)
+            self.assertTrue(final_handled)
+            self.assertTrue(fut.cancelled())
+            self.assertEqual(state.sockets_id, [])
+
+        asyncio.run(scenario())
+
+    def test_cancel_without_pending_task_does_not_absorb_unknown_result(self) -> None:
+        router = TaskRouter()
+
+        router.cancel("abc")
+
+        self.assertFalse(
+            router.try_resolve(
+                SimpleNamespace(
+                    task_id="abc",
+                    socket_id="http:abc",
+                    is_final=True,
+                )
+            )
+        )
+
+    def test_cancelled_task_does_not_absorb_non_http_socket_result(self) -> None:
+        async def scenario() -> None:
+            state = SimpleNamespace(sockets_id=[], queue_in=object())
+            router = TaskRouter()
+            router.bind(state, asyncio.get_running_loop())
+            router.register("abc")
+
+            router.cancel("abc")
+
+            self.assertFalse(
+                router.try_resolve(
+                    SimpleNamespace(
+                        task_id="abc",
+                        socket_id="websocket-1",
+                        is_final=True,
+                    )
+                )
+            )
+
+        asyncio.run(scenario())
+
     def test_try_resolve_ignores_non_http_results(self) -> None:
         router = TaskRouter()
         result = SimpleNamespace(task_id="missing", is_final=True)
@@ -61,6 +149,83 @@ class TaskRouterTest(unittest.TestCase):
             self.assertTrue(handled)
             self.assertIs(fut.result(), result)
             self.assertEqual(state.sockets_id, [])
+
+        asyncio.run(scenario())
+
+    def test_cancelled_tombstones_expire(self) -> None:
+        now = {"value": 100.0}
+
+        async def scenario() -> None:
+            def monotonic() -> float:
+                return now["value"]
+
+            state = SimpleNamespace(sockets_id=[], queue_in=object())
+            router = TaskRouter(
+                cancelled_tombstone_ttl_seconds=10.0,
+                monotonic=monotonic,
+            )
+            router.bind(state, asyncio.get_running_loop())
+            router.register("abc")
+            router.cancel("abc")
+            now["value"] = 111.0
+
+            self.assertFalse(
+                router.try_resolve(
+                    SimpleNamespace(
+                        task_id="abc",
+                        socket_id="http:abc",
+                        is_final=True,
+                    )
+                )
+            )
+
+        asyncio.run(scenario())
+
+    def test_cancelled_tombstones_are_size_bounded(self) -> None:
+        async def scenario() -> None:
+            now = {"value": 100.0}
+
+            def monotonic() -> float:
+                return now["value"]
+
+            state = SimpleNamespace(sockets_id=[], queue_in=object())
+            router = TaskRouter(
+                max_cancelled_tombstones=2,
+                monotonic=monotonic,
+            )
+            router.bind(state, asyncio.get_running_loop())
+            for task_id in ("a", "b", "c"):
+                router.register(task_id)
+                router.cancel(task_id)
+                now["value"] += 1.0
+
+            self.assertFalse(
+                router.try_resolve(
+                    SimpleNamespace(
+                        task_id="a",
+                        socket_id="http:a",
+                        is_final=True,
+                    )
+                )
+            )
+            self.assertTrue(
+                router.try_resolve(
+                    SimpleNamespace(
+                        task_id="b",
+                        socket_id="http:b",
+                        is_final=True,
+                    )
+                )
+            )
+            self.assertTrue(
+                router.try_resolve(
+                    SimpleNamespace(
+                        task_id="c",
+                        socket_id="http:c",
+                        is_final=True,
+                    )
+                )
+            )
 
         asyncio.run(scenario())
 

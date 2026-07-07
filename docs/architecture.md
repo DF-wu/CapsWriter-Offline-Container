@@ -118,20 +118,22 @@ start_server_docker.py                  ← Fork 入口 (與上游 start_server.
                 ┌────────────────────┴────────────────────┐
                 │  task_router.try_resolve(result)?       │
                 │                                          │
-                │  task_id ∈ pending HTTP futures?         │
+                │  task_id ∈ pending HTTP futures          │
+                │  or canceled HTTP tombstones?            │
                 └─────────┬───────────────────┬───────────┘
                    YES    │                   │  NO
                           ▼                   ▼
               ┌──────────────────┐   ┌──────────────────┐
               │ HTTP Future      │   │ ws_send 廣播     │
-              │ .set_result()    │   │ (與上游同)       │
+              │ .set_result() or │   │ (與上游同)       │
+              │ absorb late HTTP │   │                  │
               └──────────────────┘   └──────────────────┘
                        │                       │
                        ▼                       ▼
               uvicorn 回應 HTTP        WebSocket client
 ```
 
-關鍵：兩條路徑共用同一個 `queue_out` 與同一個識別子進程。HTTP 任務的 `socket_id = "http:<task_id>"`，永遠不會與真實 WebSocket 的 socket id 碰撞。
+關鍵：兩條路徑共用同一個 `queue_out` 與同一個識別子進程。HTTP 任務的 `socket_id = "http:<task_id>"`，永遠不會與真實 WebSocket 的 socket id 碰撞。timeout 或 client cancel 會移除 pending future 與合成 socket id；若 recognizer 之後才送回該 HTTP task 的結果，`TaskRouter` 會用 bounded tombstone 吸收，避免落入 WebSocket 派發。
 
 ## 6. 啟動流程
 
