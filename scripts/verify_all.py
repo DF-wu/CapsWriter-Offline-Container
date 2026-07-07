@@ -20,6 +20,9 @@ ROOT = Path(__file__).resolve().parents[1]
 WEB_ROOT = ROOT / "client" / "web"
 LIVE_CHECK_TIMEOUT_SECONDS = 10
 LIVE_TRANSCRIPTION_TIMEOUT_SECONDS = 600
+VERIFY_STEP_TIMEOUT_ENV = "CAPSWRITER_VERIFY_STEP_TIMEOUT"
+DEFAULT_VERIFY_STEP_TIMEOUT_SECONDS = 1800.0
+TIMEOUT_EXIT_CODE = 124
 WEB_VERIFY_IMAGE = "capswriter-web-console:verify"
 WEB_VERIFY_CONTAINER = "capswriter-web-console-verify"
 REDACTED = "<redacted>"
@@ -72,6 +75,34 @@ def format_command(args: list[str]) -> str:
     return " ".join(redact_command_args(args))
 
 
+def verify_step_timeout_seconds() -> float:
+    value = os.environ.get(VERIFY_STEP_TIMEOUT_ENV, "").strip()
+    if not value:
+        return DEFAULT_VERIFY_STEP_TIMEOUT_SECONDS
+    try:
+        timeout = float(value)
+    except ValueError as exc:
+        raise ValueError(f"{VERIFY_STEP_TIMEOUT_ENV} must be a number") from exc
+    if timeout <= 0:
+        raise ValueError(f"{VERIFY_STEP_TIMEOUT_ENV} must be > 0")
+    return timeout
+
+
+def _timeout_error(args: list[str], timeout: float) -> None:
+    print(
+        f"Command timed out after {timeout:g}s: {format_command(args)}",
+        file=sys.stderr,
+    )
+
+
+def _timeout_output_text(value: str | bytes | None) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return value
+
+
 def run(
     args: list[str],
     *,
@@ -79,7 +110,22 @@ def run(
     env: dict[str, str] | None = None,
 ) -> int:
     print(f"$ {format_command(args)}", flush=True)
-    return subprocess.run(args, cwd=cwd, env=env, check=False).returncode
+    try:
+        timeout = verify_step_timeout_seconds()
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return 1
+    try:
+        return subprocess.run(
+            args,
+            cwd=cwd,
+            env=env,
+            check=False,
+            timeout=timeout,
+        ).returncode
+    except subprocess.TimeoutExpired:
+        _timeout_error(args, timeout)
+        return TIMEOUT_EXIT_CODE
 
 
 def run_required(args: list[str], *, cwd: Path = ROOT) -> int:
@@ -94,14 +140,30 @@ def run_required(args: list[str], *, cwd: Path = ROOT) -> int:
 
 def run_capture(args: list[str], *, cwd: Path = ROOT) -> tuple[int, str]:
     print(f"$ {format_command(args)}", flush=True)
-    completed = subprocess.run(
-        args,
-        cwd=cwd,
-        check=False,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
+    try:
+        timeout = verify_step_timeout_seconds()
+    except ValueError as error:
+        print(error, file=sys.stderr)
+        return 1, ""
+    try:
+        completed = subprocess.run(
+            args,
+            cwd=cwd,
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired as error:
+        stdout = _timeout_output_text(error.stdout)
+        stderr = _timeout_output_text(error.stderr)
+        if stdout:
+            print(stdout, end="")
+        if stderr:
+            print(stderr, end="", file=sys.stderr)
+        _timeout_error(args, timeout)
+        return TIMEOUT_EXIT_CODE, stdout
     if completed.stdout:
         print(completed.stdout, end="")
     if completed.stderr:
@@ -116,13 +178,21 @@ def run_capture(args: list[str], *, cwd: Path = ROOT) -> tuple[int, str]:
 
 
 def run_cleanup(args: list[str], *, cwd: Path = ROOT) -> int:
-    return subprocess.run(
-        args,
-        cwd=cwd,
-        check=False,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    ).returncode
+    try:
+        timeout = verify_step_timeout_seconds()
+    except ValueError:
+        return 1
+    try:
+        return subprocess.run(
+            args,
+            cwd=cwd,
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout,
+        ).returncode
+    except subprocess.TimeoutExpired:
+        return TIMEOUT_EXIT_CODE
 
 
 def verify_cli() -> int:

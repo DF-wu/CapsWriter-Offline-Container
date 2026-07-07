@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import io
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -85,6 +86,90 @@ class VerifyAllLoggingTest(unittest.TestCase):
         combined = stdout.getvalue() + stderr.getvalue()
         self.assertIn("--key <redacted>", combined)
         self.assertNotIn("sk-secret", combined)
+
+    def test_run_passes_configured_step_timeout(self) -> None:
+        completed = SimpleNamespace(returncode=0)
+        with (
+            patch.dict(
+                verify_all.os.environ,
+                {verify_all.VERIFY_STEP_TIMEOUT_ENV: "2.5"},
+            ),
+            patch.object(verify_all.subprocess, "run", return_value=completed) as run,
+            redirect_stdout(io.StringIO()),
+        ):
+            code = verify_all.run(["cmd"])
+
+        self.assertEqual(code, 0)
+        self.assertEqual(run.call_args.kwargs["timeout"], 2.5)
+
+    def test_run_rejects_invalid_step_timeout_before_spawning(self) -> None:
+        stderr = io.StringIO()
+        with (
+            patch.dict(
+                verify_all.os.environ,
+                {verify_all.VERIFY_STEP_TIMEOUT_ENV: "0"},
+            ),
+            patch.object(verify_all.subprocess, "run") as run,
+            redirect_stdout(io.StringIO()),
+            redirect_stderr(stderr),
+        ):
+            code = verify_all.run(["cmd"])
+
+        self.assertEqual(code, 1)
+        run.assert_not_called()
+        self.assertIn("CAPSWRITER_VERIFY_STEP_TIMEOUT must be > 0", stderr.getvalue())
+
+    def test_run_timeout_uses_redacted_command(self) -> None:
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with (
+            patch.dict(
+                verify_all.os.environ,
+                {verify_all.VERIFY_STEP_TIMEOUT_ENV: "1"},
+            ),
+            patch.object(
+                verify_all.subprocess,
+                "run",
+                side_effect=subprocess.TimeoutExpired(["cmd"], timeout=1),
+            ),
+            redirect_stdout(stdout),
+            redirect_stderr(stderr),
+        ):
+            code = verify_all.run(["cmd", "--key", "sk-secret"])
+
+        self.assertEqual(code, verify_all.TIMEOUT_EXIT_CODE)
+        combined = stdout.getvalue() + stderr.getvalue()
+        self.assertIn("Command timed out after 1s: cmd --key <redacted>", combined)
+        self.assertNotIn("sk-secret", combined)
+
+    def test_run_capture_timeout_returns_partial_stdout(self) -> None:
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with (
+            patch.dict(
+                verify_all.os.environ,
+                {verify_all.VERIFY_STEP_TIMEOUT_ENV: "1"},
+            ),
+            patch.object(
+                verify_all.subprocess,
+                "run",
+                side_effect=subprocess.TimeoutExpired(
+                    ["cmd"],
+                    timeout=1,
+                    output=b"partial\n",
+                    stderr=b"warning\n",
+                ),
+            ),
+            redirect_stdout(stdout),
+            redirect_stderr(stderr),
+        ):
+            code, output = verify_all.run_capture(["cmd"])
+
+        self.assertEqual(code, verify_all.TIMEOUT_EXIT_CODE)
+        self.assertEqual(output, "partial\n")
+        self.assertIn("partial\n", stdout.getvalue())
+        self.assertIn("warning\n", stderr.getvalue())
+        self.assertIn("Command timed out after 1s: cmd", stderr.getvalue())
 
     def test_verify_http_uses_key_file_for_live_checks(self) -> None:
         commands: list[list[str]] = []
