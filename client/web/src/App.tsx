@@ -428,9 +428,11 @@ export default function App() {
     }
     try {
       await navigator.clipboard.writeText(transcript.text);
+      if (!mountedRef.current) return;
       setStatusKind("ok");
       setStatusText("已複製");
     } catch (error) {
+      if (!mountedRef.current) return;
       setStatusKind("error");
       setStatusText(error instanceof Error ? error.message : "複製失敗");
     }

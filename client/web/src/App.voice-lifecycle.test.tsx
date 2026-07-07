@@ -56,12 +56,18 @@ function deferred<T>() {
 
 describe("App voice loading lifecycle", () => {
   const originalMediaDevices = Object.getOwnPropertyDescriptor(navigator, "mediaDevices");
+  const originalClipboard = Object.getOwnPropertyDescriptor(navigator, "clipboard");
 
   afterEach(() => {
     if (originalMediaDevices) {
       Object.defineProperty(navigator, "mediaDevices", originalMediaDevices);
     } else {
       delete (navigator as unknown as { mediaDevices?: MediaDevices }).mediaDevices;
+    }
+    if (originalClipboard) {
+      Object.defineProperty(navigator, "clipboard", originalClipboard);
+    } else {
+      delete (navigator as unknown as { clipboard?: Clipboard }).clipboard;
     }
     stateProbe.unmounted = false;
     stateProbe.lateSetState.mockClear();
@@ -250,6 +256,53 @@ describe("App voice loading lifecycle", () => {
       ),
     );
     await Promise.all([healthResponse.promise, readinessResponse.promise, modelsResponse.promise]);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(stateProbe.lateSetState).not.toHaveBeenCalled();
+  });
+
+  it("ignores clipboard copy results after unmount", async () => {
+    const pendingCopy = deferred<void>();
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: vi.fn(() => pendingCopy.promise) },
+    });
+    speechMock.loadVoices.mockResolvedValueOnce([]);
+
+    const { container, unmount } = render(<App />);
+    const output = container.querySelector(".transcript-output");
+    expect(output).toBeInstanceOf(HTMLTextAreaElement);
+    fireEvent.change(output as HTMLTextAreaElement, { target: { value: "hello" } });
+    fireEvent.click(screen.getByRole("button", { name: "複製" }));
+
+    stateProbe.unmounted = true;
+    unmount();
+    pendingCopy.resolve(undefined);
+    await pendingCopy.promise;
+    await Promise.resolve();
+
+    expect(stateProbe.lateSetState).not.toHaveBeenCalled();
+  });
+
+  it("ignores clipboard copy errors after unmount", async () => {
+    const pendingCopy = deferred<void>();
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { writeText: vi.fn(() => pendingCopy.promise) },
+    });
+    speechMock.loadVoices.mockResolvedValueOnce([]);
+
+    const { container, unmount } = render(<App />);
+    const output = container.querySelector(".transcript-output");
+    expect(output).toBeInstanceOf(HTMLTextAreaElement);
+    fireEvent.change(output as HTMLTextAreaElement, { target: { value: "hello" } });
+    fireEvent.click(screen.getByRole("button", { name: "複製" }));
+
+    stateProbe.unmounted = true;
+    unmount();
+    pendingCopy.promise.catch(() => undefined);
+    pendingCopy.reject(new Error("clipboard denied"));
     await Promise.resolve();
     await Promise.resolve();
 
