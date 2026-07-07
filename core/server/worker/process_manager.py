@@ -7,6 +7,7 @@
 from __future__ import annotations
 import sys
 import os
+import math
 import queue
 from multiprocessing import Process, Manager
 from typing import TYPE_CHECKING
@@ -16,6 +17,26 @@ from .check_model import check_model
 from . import logger
 if TYPE_CHECKING:
     from ..app import CapsWriterServer
+
+
+SERVER_WORKER_STOP_TIMEOUT_ENV = "CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT"
+DEFAULT_SERVER_WORKER_STOP_TIMEOUT_SECONDS = 2.0
+SERVER_WORKER_KILL_GRACE_SECONDS = 2.0
+
+
+def _worker_stop_timeout_seconds() -> float:
+    raw_timeout = os.environ.get(SERVER_WORKER_STOP_TIMEOUT_ENV)
+    if raw_timeout is None or raw_timeout == "":
+        return DEFAULT_SERVER_WORKER_STOP_TIMEOUT_SECONDS
+    try:
+        timeout = float(raw_timeout)
+    except ValueError as exc:
+        raise ValueError(f"{SERVER_WORKER_STOP_TIMEOUT_ENV} must be a number") from exc
+    if not math.isfinite(timeout):
+        raise ValueError(f"{SERVER_WORKER_STOP_TIMEOUT_ENV} must be a finite number")
+    if timeout <= 0:
+        raise ValueError(f"{SERVER_WORKER_STOP_TIMEOUT_ENV} must be > 0")
+    return timeout
 
 
 class ProcessManager:
@@ -113,12 +134,30 @@ class ProcessManager:
         if self._process and self._process.is_alive():
             logger.info(f"正在终止识别子进程 (PID: {self._process.pid})...")
             # 发送 None 任务通知优雅退出 (作为兜底)
+            try:
+                timeout = _worker_stop_timeout_seconds()
+            except ValueError as e:
+                logger.error(f"识别子进程停止 timeout 配置无效: {e}")
+                timeout = DEFAULT_SERVER_WORKER_STOP_TIMEOUT_SECONDS
 
-            self.app.state.queue_in.put(None)
-            
-            # 如果 2 秒内没退，则强制 kill
-            self._process.join(timeout=2)
+            try:
+                self.app.state.queue_in.put(None)
+            except Exception as e:
+                logger.warning(f"发送识别子进程停止信号失败: {e}")
+
+            # 如果配置时间内没退，则逐级强制结束并等待回收。
+            self._process.join(timeout=timeout)
             if self._process.is_alive():
                 logger.debug("子进程未响应优雅退出，执行强制终止")
                 self._process.terminate()
-            
+                self._process.join(timeout=SERVER_WORKER_KILL_GRACE_SECONDS)
+
+            if self._process.is_alive():
+                kill = getattr(self._process, "kill", None)
+                if kill is not None:
+                    logger.error("子进程 terminate 后仍未退出，执行 kill")
+                    kill()
+                    self._process.join(timeout=SERVER_WORKER_KILL_GRACE_SECONDS)
+
+            if self._process.is_alive():
+                logger.error(f"识别子进程仍未退出 (PID: {self._process.pid})")

@@ -25,6 +25,7 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "core/client/transcribe/file_transcriber.py",
         "core/client/transcribe/media_tool.py",
         "core/server/worker/gpu_boost.py",
+        "core/server/worker/process_manager.py",
         "core/server/engines/force_aligner_gguf/inference/audio.py",
         "core/server/engines/fun_asr_gguf/inference/audio.py",
         "core/server/engines/qwen_asr_gguf/inference/audio.py",
