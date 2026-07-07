@@ -54,6 +54,11 @@ function readinessClass(value: boolean | undefined): string {
   return "meta-state";
 }
 
+function diagnosticError(label: string, reason: unknown): string {
+  const message = reason instanceof Error ? reason.message : "failed";
+  return `${label}: ${message}`;
+}
+
 function makeRecord(
   result: TranscriptionResult,
   audio: BrowserAudio,
@@ -152,25 +157,50 @@ export default function App() {
   const checkServer = async () => {
     setStatusKind("working");
     setStatusText("檢查服務");
-    try {
-      const [nextHealth, nextReadiness, nextModelList] = await Promise.all([
-        fetchHealth(settings),
-        fetchReadiness(settings),
-        fetchModels(settings),
-      ]);
-      setHealth(nextHealth);
-      setReadiness(nextReadiness);
-      setModels(nextModelList.data.map((item) => item.id));
-      if (nextReadiness.status === "ok") {
-        setStatusKind("ok");
-        setStatusText(`服務正常：${nextHealth.model} v${nextHealth.version}`);
-      } else {
-        setStatusKind("degraded");
-        setStatusText(`服務降級：${nextReadiness.status}`);
-      }
-    } catch (error) {
+    const [healthResult, readinessResult, modelsResult] = await Promise.allSettled([
+      fetchHealth(settings),
+      fetchReadiness(settings),
+      fetchModels(settings),
+    ]);
+
+    const failures: string[] = [];
+    const nextHealth = healthResult.status === "fulfilled" ? healthResult.value : null;
+    const nextReadiness = readinessResult.status === "fulfilled" ? readinessResult.value : null;
+
+    if (healthResult.status === "fulfilled") {
+      setHealth(healthResult.value);
+    } else {
+      setHealth(null);
+      failures.push(diagnosticError("Health", healthResult.reason));
+    }
+
+    if (readinessResult.status === "fulfilled") {
+      setReadiness(readinessResult.value);
+    } else {
+      setReadiness(null);
+      failures.push(diagnosticError("Ready", readinessResult.reason));
+    }
+
+    if (modelsResult.status === "fulfilled") {
+      setModels(modelsResult.value.data.map((item) => item.id));
+    } else {
+      setModels([]);
+      failures.push(diagnosticError("Models", modelsResult.reason));
+    }
+
+    if (failures.length > 0) {
+      const hasPartialDiagnostics = Boolean(nextHealth || nextReadiness);
+      setStatusKind(hasPartialDiagnostics ? "degraded" : "error");
+      setStatusText(`服務檢查部分失敗：${failures[0]}`);
+    } else if (nextReadiness?.status === "ok") {
+      setStatusKind("ok");
+      setStatusText(`服務正常：${nextHealth?.model ?? "unknown"} v${nextHealth?.version ?? "unknown"}`);
+    } else if (nextReadiness) {
+      setStatusKind("degraded");
+      setStatusText(`服務降級：${nextReadiness.status}`);
+    } else {
       setStatusKind("error");
-      setStatusText(error instanceof Error ? error.message : "服務檢查失敗");
+      setStatusText("服務檢查失敗");
     }
   };
 

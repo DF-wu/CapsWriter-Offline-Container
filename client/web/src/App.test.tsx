@@ -85,6 +85,50 @@ describe("App", () => {
     expect(screen.getByText("off")).toBeTruthy();
   });
 
+  it("keeps partial readiness diagnostics when model listing fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith("/health")) {
+          return new Response(JSON.stringify({ status: "ok", model: "mock_asr", version: "dev" }));
+        }
+        if (url.endsWith("/ready")) {
+          return new Response(
+            JSON.stringify({
+              status: "ok",
+              model: "mock_asr",
+              version: "dev",
+              checks: {
+                task_router_bound: true,
+                ffmpeg_available: true,
+              },
+              config: {
+                auth_enabled: true,
+                max_upload_mb: 100,
+                task_timeout: 600,
+                max_concurrent_requests: 2,
+                cors_enabled: true,
+                cors_origins_count: 1,
+              },
+            }),
+          );
+        }
+        if (url.endsWith("/v1/models")) {
+          return new Response(JSON.stringify({ detail: "Missing API key" }), { status: 401 });
+        }
+        return new Response("not found", { status: 404 });
+      }),
+    );
+
+    render(<App />);
+    await userEvent.click(screen.getByRole("button", { name: "檢查服務" }));
+
+    expect(await screen.findByText("服務檢查部分失敗：Models: HTTP 401: Missing API key")).toBeTruthy();
+    expect(screen.getByText("100 MB / 2 slots")).toBeTruthy();
+    expect(screen.getByText("enabled")).toBeTruthy();
+  });
+
   it("stops active recording resources on unmount", async () => {
     const track = { stop: vi.fn() } as unknown as MediaStreamTrack;
     const stream = { getTracks: vi.fn(() => [track]) } as unknown as MediaStream;
