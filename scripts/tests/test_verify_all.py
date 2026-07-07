@@ -138,6 +138,11 @@ class VerifyAllLoggingTest(unittest.TestCase):
         self.assertIn("--key-file", command)
         self.assertIn("/run/secrets/capswriter.key", command)
         self.assertNotIn("--key", command)
+        self.assertIn("--timeout", command)
+        self.assertEqual(
+            command[command.index("--timeout") + 1],
+            "600",
+        )
 
 
 if __name__ == "__main__":

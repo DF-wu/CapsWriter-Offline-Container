@@ -18,6 +18,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB_ROOT = ROOT / "client" / "web"
+LIVE_CHECK_TIMEOUT_SECONDS = 10
+LIVE_TRANSCRIPTION_TIMEOUT_SECONDS = 600
 WEB_VERIFY_IMAGE = "capswriter-web-console:verify"
 WEB_VERIFY_CONTAINER = "capswriter-web-console-verify"
 REDACTED = "<redacted>"
@@ -244,7 +246,7 @@ def verify_http_transcription(
         "--base-url",
         base_url,
         "--timeout",
-        "300",
+        str(LIVE_TRANSCRIPTION_TIMEOUT_SECONDS),
         "--format",
         "text",
     ]
@@ -297,7 +299,7 @@ def verify_http(
         "--base-url",
         base_url,
         "--timeout",
-        "10",
+        str(LIVE_CHECK_TIMEOUT_SECONDS),
     ]
     if api_key:
         args.extend(["--key", api_key])
@@ -314,7 +316,7 @@ def verify_http(
             "--base-url",
             base_url,
             "--timeout",
-            "10",
+            str(LIVE_CHECK_TIMEOUT_SECONDS),
         ]
         if api_key:
             args.extend(["--key", api_key])
