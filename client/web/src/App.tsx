@@ -123,10 +123,15 @@ export default function App() {
   }, [currentAudio]);
 
   useEffect(() => {
+    let active = true;
     loadVoices().then((items) => {
+      if (!active) return;
       setVoices(items);
       setVoiceURI((current) => current || items[0]?.voiceURI || "");
     });
+    return () => {
+      active = false;
+    };
   }, []);
 
   useEffect(() => {
