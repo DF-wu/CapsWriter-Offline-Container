@@ -9,6 +9,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOWS = ROOT / ".github" / "workflows"
+PINNED_ACTIONS = {
+    "actions/checkout": "34e114876b0b11c390a56381ad16ebd13914f8d5",
+    "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
+    "actions/setup-node": "49933ea5288caeca8642d1e84afbd3f7d6820020",
+    "docker/setup-buildx-action": "8d2750c68a42422c14e847fe6c8ac0403b4cbd6f",
+    "docker/login-action": "c94ce9fb468520275223c153574b00df6fe4bcc9",
+    "docker/metadata-action": "c299e40c65443455700f0fdfc63efafe5b349051",
+    "docker/build-push-action": "10e90e3645eae34f1e60eeb005ba3a3d33f178e8",
+}
 
 
 def read_workflow(filename: str) -> str:
@@ -26,6 +35,20 @@ def workflow_job(source: str, job_name: str) -> str:
 
 
 class GitHubWorkflowTest(unittest.TestCase):
+    def test_workflows_pin_third_party_actions_to_full_shas(self) -> None:
+        for path in sorted(WORKFLOWS.glob("*.yml")):
+            with self.subTest(filename=path.name):
+                source = path.read_text(encoding="utf-8")
+                self.assertIsNone(re.search(r"uses:\s+[^@\s]+@v\d+(?:\s|$)", source))
+
+        for filename in ("ci.yml", "publish-server-image.yml", "publish-web-image.yml"):
+            source = read_workflow(filename)
+            for action, sha in PINNED_ACTIONS.items():
+                if action.startswith("docker/") and filename == "ci.yml":
+                    continue
+                with self.subTest(filename=filename, action=action):
+                    self.assertIn(f"uses: {action}@{sha}", source)
+
     def test_publish_workflows_serialize_per_ref(self) -> None:
         for filename in ("publish-server-image.yml", "publish-web-image.yml"):
             with self.subTest(filename=filename):
@@ -63,7 +86,10 @@ class GitHubWorkflowTest(unittest.TestCase):
                 source = read_workflow(filename)
                 publish = workflow_job(source, "publish")
 
-                self.assertIn("uses: docker/build-push-action@v6", publish)
+                self.assertIn(
+                    f"uses: docker/build-push-action@{PINNED_ACTIONS['docker/build-push-action']}",
+                    publish,
+                )
                 self.assertIn("provenance: true", publish)
                 self.assertIn("sbom: true", publish)
 
@@ -75,7 +101,7 @@ class GitHubWorkflowTest(unittest.TestCase):
             "git fetch --no-tags --depth=1 upstream master:refs/remotes/upstream/master",
             verify,
         )
-        self.assertIn("uses: actions/setup-node@v4", verify)
+        self.assertIn(f"uses: actions/setup-node@{PINNED_ACTIONS['actions/setup-node']}", verify)
         self.assertIn('node-version: "24"', verify)
         self.assertIn("CAPSWRITER_UPSTREAM_BASE: upstream/master", verify)
         self.assertIn("python scripts/verify_all.py --skip-web", verify)
@@ -88,7 +114,7 @@ class GitHubWorkflowTest(unittest.TestCase):
             "git fetch --no-tags --depth=1 upstream master:refs/remotes/upstream/master",
             verify,
         )
-        self.assertIn("uses: actions/setup-node@v4", verify)
+        self.assertIn(f"uses: actions/setup-node@{PINNED_ACTIONS['actions/setup-node']}", verify)
         self.assertIn('node-version: "24"', verify)
         self.assertIn("CAPSWRITER_UPSTREAM_BASE: upstream/master", verify)
         self.assertIn("python scripts/verify_all.py --docker-build-web", verify)
