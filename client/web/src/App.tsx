@@ -239,6 +239,10 @@ export default function App() {
           autoGainControl: true,
         },
       });
+      if (!mountedRef.current) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       const mimeType = chooseRecorderMimeType();
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       const recordingStream = stream;

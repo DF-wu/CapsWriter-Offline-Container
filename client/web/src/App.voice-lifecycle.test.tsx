@@ -53,11 +53,19 @@ function deferred<T>() {
 }
 
 describe("App voice loading lifecycle", () => {
+  const originalMediaDevices = Object.getOwnPropertyDescriptor(navigator, "mediaDevices");
+
   afterEach(() => {
+    if (originalMediaDevices) {
+      Object.defineProperty(navigator, "mediaDevices", originalMediaDevices);
+    } else {
+      delete (navigator as unknown as { mediaDevices?: MediaDevices }).mediaDevices;
+    }
     stateProbe.unmounted = false;
     stateProbe.lateSetState.mockClear();
     speechMock.loadVoices.mockReset();
     speechMock.speakText.mockReset();
+    vi.unstubAllGlobals();
   });
 
   it("ignores voice loading that resolves after unmount", async () => {
@@ -103,6 +111,40 @@ describe("App voice loading lifecycle", () => {
     options.onEnd();
     options.onError("late speech error");
 
+    expect(stateProbe.lateSetState).not.toHaveBeenCalled();
+  });
+
+  it("stops media streams that resolve after unmount", async () => {
+    const pendingStream = deferred<MediaStream>();
+    const track = { stop: vi.fn() } as unknown as MediaStreamTrack;
+    const stream = { getTracks: vi.fn(() => [track]) } as unknown as MediaStream;
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: vi.fn(() => pendingStream.promise) },
+    });
+
+    const recorders: unknown[] = [];
+    class MockRecorder {
+      static isTypeSupported = vi.fn(() => true);
+
+      constructor() {
+        recorders.push(this);
+      }
+    }
+    vi.stubGlobal("MediaRecorder", MockRecorder);
+    speechMock.loadVoices.mockResolvedValueOnce([]);
+
+    const { unmount } = render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "錄音" }));
+
+    stateProbe.unmounted = true;
+    unmount();
+    pendingStream.resolve(stream);
+    await pendingStream.promise;
+    await Promise.resolve();
+
+    expect(track.stop).toHaveBeenCalledOnce();
+    expect(recorders).toHaveLength(0);
     expect(stateProbe.lateSetState).not.toHaveBeenCalled();
   });
 });
