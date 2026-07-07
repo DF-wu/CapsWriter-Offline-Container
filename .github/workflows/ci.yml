@@ -15,6 +15,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Fetch upstream base
+        run: |
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream https://github.com/HaujetZhao/CapsWriter-Offline.git
+          git fetch --no-tags --depth=1 upstream master:refs/remotes/upstream/master
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -28,4 +34,6 @@ jobs:
           cache-dependency-path: client/web/package-lock.json
 
       - name: Verify
+        env:
+          CAPSWRITER_UPSTREAM_BASE: upstream/master
         run: python scripts/verify_all.py

@@ -133,8 +133,12 @@ Cleanup removes:
 [`ci.yml`](../.github/workflows/ci.yml) runs on push, pull request, and manual dispatch:
 
 ```text
-checkout -> setup Python 3.12 -> setup Node 24 -> python scripts/verify_all.py
+checkout -> fetch HaujetZhao upstream base -> setup Python 3.12 -> setup Node 24
+  -> CAPSWRITER_UPSTREAM_BASE=upstream/master python scripts/verify_all.py
 ```
+
+The explicit upstream fetch makes the low-drift guard fail CI when fork commits
+touch a new upstream-tracked file without documenting that divergence.
 
 The publish workflows remain separate. CI verifies source, tests, and local builds; [`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) builds the server image and [`publish-web-image.yml`](../.github/workflows/publish-web-image.yml) builds the static Web Console image when maintainers choose to publish.
 
