@@ -87,6 +87,16 @@ def normalize_base_url(value: str) -> str:
     return base or DEFAULT_BASE_URL
 
 
+def positive_float(value: str) -> float:
+    try:
+        parsed = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a number") from exc
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be > 0")
+    return parsed
+
+
 def auth_headers(config: ApiConfig) -> dict[str, str]:
     return (
         {"Authorization": f"Bearer {config.api_key.strip()}"}
@@ -470,7 +480,7 @@ def add_common_options(parser: argparse.ArgumentParser) -> None:
         default=os.environ.get("CAPSWRITER_HTTP_API_KEY_FILE", ""),
         help="UTF-8 file containing the Bearer token, or CAPSWRITER_HTTP_API_KEY_FILE",
     )
-    parser.add_argument("--timeout", type=float, default=120.0)
+    parser.add_argument("--timeout", type=positive_float, default=120.0)
 
 
 def build_parser() -> argparse.ArgumentParser:

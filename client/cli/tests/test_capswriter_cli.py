@@ -130,6 +130,18 @@ class CapsWriterCliTest(unittest.TestCase):
             "http://localhost:6017",
         )
 
+    def test_positive_float_rejects_non_positive_timeout(self):
+        self.assertEqual(cli.positive_float("2.5"), 2.5)
+        with self.assertRaises(cli.argparse.ArgumentTypeError):
+            cli.positive_float("0")
+
+    def test_parser_rejects_non_positive_timeout(self):
+        with redirect_stderr(io.StringIO()) as stderr, self.assertRaises(SystemExit) as ctx:
+            cli.build_parser().parse_args(["health", "--timeout", "0"])
+
+        self.assertEqual(ctx.exception.code, 2)
+        self.assertIn("must be > 0", stderr.getvalue())
+
     def test_config_reads_api_key_file_when_key_missing(self):
         with tempfile.TemporaryDirectory() as tmp:
             key_file = Path(tmp) / "capswriter.key"

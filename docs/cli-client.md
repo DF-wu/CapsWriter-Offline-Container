@@ -164,6 +164,8 @@ The `speak` command does not call the CapsWriter server and does not send text t
 
 When the server returns OpenAI-style `{"error": ...}` JSON, the CLI prints the contained `error.message` instead of dumping raw JSON. Legacy FastAPI `{"detail": ...}` payloads are also normalized for compatibility with older servers. If a proxy or old server returns a non-JSON HTTP error body, the CLI prints the HTTP status with a bounded one-line body preview. If a health/readiness/models call or JSON transcription response is malformed, the error includes the HTTP status and endpoint.
 
+`--timeout` must be a positive number. Invalid values are rejected by argument parsing before any HTTP request is attempted.
+
 ## Verification
 
 Run the isolated verification script:
@@ -193,6 +195,7 @@ python client/cli/scripts/clean.py
 - Multipart upload is implemented with `urllib.request` and a generated boundary; local filenames are escaped before writing the `Content-Disposition` header.
 - `--base-url` accepts either `http://host:6017` or `http://host:6017/v1`.
 - `--key-file` and `CAPSWRITER_HTTP_API_KEY_FILE` read a UTF-8 Bearer token file; explicit `--key` still takes precedence for one-off local diagnostics.
+- `--timeout` is validated as a positive float and then passed consistently to health/readiness/models and transcription requests.
 - `--output-dir` maps output extensions by response format: `.txt`, `.json`, `.srt`, `.vtt`.
 - `--language` and `--prompt` are sent to the HTTP API; backend support still depends on the selected model.
 - HTTP errors normalize OpenAI-style `error.message`, legacy `detail` payloads, non-JSON HTTP error bodies, and invalid JSON responses from expected JSON endpoints.
