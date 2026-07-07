@@ -134,20 +134,29 @@ pip install -r requirements-client.txt
 
 **服务端依赖** ([`requirements-server.txt`](../requirements-server.txt)):
 ```text
-# ASR 核心
--f https://k2-fsa.github.io/sherpa/onnx/cuda-cn.html
-sherpa-onnx==1.12.20+cuda12.cudnn9
-kaldi-native-fbank==1.17
+# ASR core
+sherpa-onnx
 numpy
-typeguard==2.13.3
+gguf
+onnxruntime-directml
 
-# 基础
+# basic
 rich
 websockets
+watchdog
+pypinyin
 
-# 托盘与图像
+# fork HTTP API
+fastapi
+uvicorn[standard]
+python-multipart
+
+# tray and image
 pystray
 Pillow
+
+markdown
+tkhtmlview
 ```
 
 **客户端依赖** ([`requirements-client.txt`](../requirements-client.txt)):

@@ -10,6 +10,11 @@ websockets
 watchdog
 pypinyin
 
+# fork HTTP API
+fastapi
+uvicorn[standard]
+python-multipart
+
 # tray and image
 pystray
 Pillow
