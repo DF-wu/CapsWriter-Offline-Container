@@ -7,7 +7,8 @@
 ```
 upstream (HaujetZhao/CapsWriter-Offline)
         │
-        │  fork modifies: .gitignore, readme.md
+        │  fork modifies: .gitignore, readme.md, requirements-server.txt,
+        │                 LLM/default.py, assets/BUILD_GUIDE.md
         │  fork adds:    fork_server/ docker/ client/cli/ client/web/
         │                docs/ scripts/ docker-compose*.yml .env.example
         │                .github/workflows/ requirements-server-docker.txt
@@ -16,7 +17,15 @@ upstream (HaujetZhao/CapsWriter-Offline)
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 ```
 
-關鍵：fork 修改上游檔案數 = **2**（`.gitignore`、`readme.md`）。其他主要功能都在新增路徑，正常情況不會與上游衝突。
+關鍵：fork 修改 upstream-tracked 檔案數 = **5**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
+
+| Divergent file | Fork 保留原因 | Merge 處理 |
+|---|---|---|
+| `.gitignore` | 排除 Web/verification cache、model download cache、versioned `.so` 與本地工具狀態 | 合併雙方新增規則 |
+| `readme.md` | 中文首頁是 fork 視角 | 通常保留 fork 版本，再手動引用 upstream 重要新內容 |
+| `requirements-server.txt` | 裸機 server/HTTP API dependency set | 保留 fork HTTP dependencies，並手動納入 upstream 新 dependency |
+| `LLM/default.py` | 移除 API-key-like placeholder，降低 secret-scanning 與誤啟用風險 | 保留空 `api_key`；同步 upstream 其他 template 欄位 |
+| `assets/BUILD_GUIDE.md` | 打包文件需反映 fork dependency set | 合併 dependency 說明 |
 
 ## 2. 標準同步流程
 
@@ -34,7 +43,7 @@ git merge --ff-only origin/master   # 試 fast-forward
 git merge origin/master
 ```
 
-預期結果：**zero conflicts**。`.gitignore` 可能會被 auto-merge（兩邊各加自己的行）。
+預期結果：低衝突。若衝突，通常只會落在上方 5 個已知 divergent files。
 
 跑驗證：
 
@@ -80,6 +89,15 @@ git add readme.md
 
 如果上游 readme 有重要新內容（例如新模型支援），手動把那段引用到 fork readme 對應段落。
 
+#### 衝突在 `requirements-server.txt`
+保留 fork 需要的 HTTP API runtime dependencies（`fastapi`、`uvicorn[standard]`、`python-multipart`），再手動加入 upstream 新增的 server dependency。
+
+#### 衝突在 `LLM/default.py`
+保留 `api_key = ''`。如果 upstream 更新 prompt、模型名稱或欄位，手動搬回 fork 版本，但不要恢復 API-key-like placeholder。
+
+#### 衝突在 `assets/BUILD_GUIDE.md`
+合併 dependency 說明；確保文件仍列出 fork HTTP API dependencies。
+
 #### 衝突在 `core/server/connection/ws_send.py`
 **這不應該衝突** — fork 沒改這檔。如果衝突，代表 fork 之前曾經被「污染」修改過。檢查：
 
@@ -101,11 +119,11 @@ git log --oneline origin/master..HEAD -- core/server/connection/ws_send.py
 python3 -m py_compile $(find fork_server start_server_docker.py -name "*.py")
 python3 -c "from fork_server.bootstrap import apply_env_config, create_server"
 
-# (B) 上游檔修改數應為 2 (.gitignore + readme.md)
+# (B) 上游檔修改數應為 5 (known divergent files)
 echo "Modified upstream files:"
 git diff origin/master..HEAD --name-only \
   | xargs -I {} sh -c 'git ls-tree origin/master --name-only -- {} 2>/dev/null | grep -q . && echo "  {}"' \
-  || echo "  (none beyond .gitignore)"
+  || true
 
 # (C) Container build
 docker build -t capswriter-server:merge-test -f docker/server/Dockerfile .
@@ -118,6 +136,16 @@ echo "=== fork ws_send_with_http loop ==="
 sed -n '/while True:/,/except Exception/p' fork_server/http_api/ws_send_with_http.py | head -30
 
 # (E) 隔離 smoke test (見下節)
+```
+
+步驟 (B) 預期只會看到：
+
+```text
+  .gitignore
+  LLM/default.py
+  assets/BUILD_GUIDE.md
+  readme.md
+  requirements-server.txt
 ```
 
 ## 4. 隔離 smoke test (建議流程)

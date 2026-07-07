@@ -25,7 +25,7 @@
 | 🤖 **OpenAI SDK 直接相容** | `POST /v1/audio/transcriptions`，5 種 response_format |
 | ⚡ **GPU 加速** | NVIDIA CUDA + Vulkan + iGPU 補丁；自動偵測 GPU 並 graceful fallback 到 CPU |
 | 🎯 **支援兩種模型** | `qwen_asr` (高精度，長段) + `fun_asr_nano` (低延遲，互動) |
-| 🔄 **易跟進上游** | 架構刻意設計成 **修改 0 個 upstream 檔案**，未來 `git merge origin/master` 幾乎零衝突。詳見 [docs/architecture.md](docs/architecture.md) |
+| 🔄 **易跟進上游** | 主要加值都在新增目錄；目前只有 5 個 upstream-tracked 檔案有刻意差異，並已在同步 SOP 中列明。詳見 [docs/architecture.md](docs/architecture.md) |
 | 🔒 **完全離線** | 模型本地推論，不向任何雲端傳音訊 |
 
 ---
@@ -146,7 +146,7 @@ GGML_VK_DISABLE_F16=1       # iGPU 解碼錯誤時
 
 ## 架構速覽
 
-本 fork 修改 **0 個** 上游檔案，所有加值都住在獨立目錄：
+本 fork 的 server / Web / CLI 加值都住在獨立目錄；目前刻意 diverge 的 upstream-tracked 檔案只有 `.gitignore`、`readme.md`、`requirements-server.txt`、`LLM/default.py`、`assets/BUILD_GUIDE.md`：
 
 ```
 fork_server/              ← Sidecar 套件 (上游無此目錄)
@@ -170,7 +170,7 @@ start_server_docker.py    ← Fork entrypoint (與上游 start_server.py 並存)
 
 | 文件 | 內容 |
 |---|---|
-| [docs/architecture.md](docs/architecture.md) | Sidecar 設計、hook 策略、為什麼修改 0 個上游檔 |
+| [docs/architecture.md](docs/architecture.md) | Sidecar 設計、hook 策略、已知 upstream divergence |
 | [docs/upstream-sync-guide.md](docs/upstream-sync-guide.md) | 未來如何 `git merge origin/master`、衝突處理 SOP |
 | [docs/HTTP_API.md](docs/HTTP_API.md) | OpenAI Whisper API 規格、5 種 response_format、認證、SDK 範例 |
 | [docs/web-console.md](docs/web-console.md) | Web Console STT/TTS 工作台、CORS、隔離開發、清理與驗證流程 |

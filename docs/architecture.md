@@ -1,6 +1,6 @@
 # Fork 架構：Sidecar 設計
 
-> 本文件解釋 fork 如何在「修改 0 個上游檔案」的前提下，加上 Linux container 部署 + OpenAI HTTP API。
+> 本文件解釋 fork 如何把 Linux container 部署、OpenAI HTTP API、Web Console 與 no-GUI CLI 放在低漂移架構中，同時清楚列出少數刻意 diverge 的 upstream-tracked 檔案。
 
 ## 1. 設計原則
 
@@ -8,7 +8,7 @@
 
 | 目標 | 怎麼做到 |
 |---|---|
-| 未來 `git merge origin/master` 零衝突 | 所有 fork 加值在獨立目錄 `fork_server/` / `docker/` / 獨立檔名 |
+| 未來 `git merge origin/master` 低衝突 | 主要 fork 加值在獨立目錄 `fork_server/` / `docker/` / `client/cli/` / `client/web/`；少數 upstream-tracked divergence 由同步 SOP 管理 |
 | 上游更新識別引擎時自動受惠 | 不修改 `core/server/engines/`，直接用 `EngineFactory` |
 | 易理解、易維護 | 每個 hook 點都是「子類化」或「module attribute 替換」，零侵入 |
 | 容器啟動可預測 | env 驅動的設定 + 自動模型下載 + GPU 偵測 + CPU fallback |
@@ -78,7 +78,15 @@ requirements-server-docker.txt          ← Linux GPU 版依賴
 start_server_docker.py                  ← Fork 入口 (與上游 start_server.py 並存)
 ```
 
-**修改的上游檔案：2 個**（`.gitignore`、`readme.md`）。
+**刻意 diverge 的 upstream-tracked 檔案：5 個**。
+
+| 檔案 | 原因 |
+|---|---|
+| `.gitignore` | 排除 Web/verification cache、model download cache、versioned shared libraries 與本地工具狀態 |
+| `readme.md` | 中文首頁改成 fork 視角，避免把 Linux server fork 說成 upstream Windows desktop product |
+| `requirements-server.txt` | 補上裸機 HTTP API runtime dependencies，讓 `start_server_docker.py` 與 diagnostic imports 可重現 |
+| `LLM/default.py` | 移除 upstream template 內的 API-key-like placeholder，避免 repository secret scanning / 使用者誤啟用 |
+| `assets/BUILD_GUIDE.md` | 讓打包文件列出目前 server dependency set |
 
 ## 4. Hook 策略
 
@@ -180,6 +188,6 @@ ForkedCapsWriterServer().start()
 
 1. **第一選擇**：上游 PR 修 bug，等合入
 2. **第二選擇**：fork 內 monkey-patch（runtime 替換）
-3. **第三選擇**：直接修改上游檔。**這時要在該檔頂部加註解標記 fork-modified，並在 `upstream-sync-guide.md` 的「known divergent files」加一筆**
+3. **第三選擇**：直接修改上游檔。這時必須在本文件與 `upstream-sync-guide.md` 的 known divergent files 清單加一筆，說明原因與 merge 時的處理方式。
 
-目前 (2026-07-07) 為止：**第三類為 0**。
+目前 (2026-07-07) 為止：第三類只包含上方 5 個已知檔案；不要新增未記錄的 upstream divergence。

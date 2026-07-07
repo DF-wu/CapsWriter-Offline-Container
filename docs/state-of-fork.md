@@ -27,7 +27,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 | | |
 |---|---|
-| 修改的 upstream 檔案 | **2**：`.gitignore`、`readme.md` |
+| 修改的 upstream-tracked 檔案 | **5**：`.gitignore`、`readme.md`、`requirements-server.txt`、`LLM/default.py`、`assets/BUILD_GUIDE.md` |
 | Fork 新增主要目錄 | `fork_server/`、`docker/`、`client/cli/`、`client/web/`、`docs/`、`.github/workflows/` |
 | Hook 策略 | `ForkedCapsWriterServer` 子類化 + `server_manager.ws_send` 單點 monkey-patch |
 | 唯一高漂移點 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 內嵌 upstream `ws_send` loop，merge upstream 後需比對 |
