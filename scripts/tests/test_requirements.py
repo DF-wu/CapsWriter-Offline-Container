@@ -17,6 +17,7 @@ def requirement_names(path: Path) -> set[str]:
         entry = line.strip()
         if not entry or entry.startswith("#") or entry.startswith("-"):
             continue
+        entry = entry.removesuffix("\\").strip()
         name = entry.split(";", 1)[0].split("[", 1)[0].split("=", 1)[0].strip()
         names.add(name.casefold())
     return names
@@ -24,11 +25,22 @@ def requirement_names(path: Path) -> set[str]:
 
 def requirement_entries(path: Path) -> list[str]:
     entries: list[str] = []
+    current: list[str] = []
     for line in path.read_text(encoding="utf-8").splitlines():
-        entry = line.strip()
-        if not entry or entry.startswith("#"):
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
             continue
-        entries.append(entry)
+        if stripped.startswith("-"):
+            if not current:
+                entries.append(stripped)
+            else:
+                current.append(line.rstrip())
+            continue
+        if current:
+            entries.append("\n".join(current))
+        current = [line.rstrip()]
+    if current:
+        entries.append("\n".join(current))
     return entries
 
 
@@ -53,13 +65,13 @@ class RequirementsTest(unittest.TestCase):
             with self.subTest(entry=entry):
                 self.assertRegex(
                     entry,
-                    r"^[A-Za-z0-9_.-]+(?:\[[A-Za-z0-9_.-]+(?:,[A-Za-z0-9_.-]+)*\])?==[A-Za-z0-9_.!+~-]+$",
+                    r"^[A-Za-z0-9_.-]+(?:\[[A-Za-z0-9_.-]+(?:,[A-Za-z0-9_.-]+)*\])?==[A-Za-z0-9_.!+~-]+ \\\n    --hash=sha256:[0-9a-f]{64}$",
                 )
 
         dockerfile = DOCKERFILE.read_text(encoding="utf-8")
         self.assertIn("COPY requirements-server-docker.txt requirements-server-docker.lock /app/", dockerfile)
         self.assertIn(
-            "python -m pip install --no-build-isolation -r /app/requirements-server-docker.lock",
+            "python -m pip install --require-hashes --no-build-isolation -r /app/requirements-server-docker.lock",
             dockerfile,
         )
 

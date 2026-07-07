@@ -27,7 +27,7 @@ WORKDIR /app
 
 COPY requirements-server-docker.txt requirements-server-docker.lock /app/
 
-RUN python -m pip install --no-build-isolation -r /app/requirements-server-docker.lock
+RUN python -m pip install --require-hashes --no-build-isolation -r /app/requirements-server-docker.lock
 
 COPY . /app
 
