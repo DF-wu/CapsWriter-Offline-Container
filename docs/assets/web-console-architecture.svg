@@ -40,7 +40,7 @@
   <text x="464" y="289" class="small">/v1/audio/transcriptions</text>
   <rect x="468" y="376" width="160" height="64" class="node"/>
   <text x="507" y="404" class="label">TaskRouter</text>
-  <text x="501" y="424" class="small">future + socket id</text>
+  <text x="494" y="424" class="small">future + tombstone</text>
   <rect x="832" y="116" width="216" height="64" class="node"/>
   <text x="906" y="144" class="label">queue_in</text>
   <text x="887" y="164" class="small">PCM task segments</text>

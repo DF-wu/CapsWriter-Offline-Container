@@ -315,7 +315,8 @@ def create_app() -> FastAPI:
         )
 
     @app.post("/v1/audio/translations")
-    async def translations():
+    async def translations(authorization: Optional[str] = Header(None)):
+        _check_auth(authorization)
         # CapsWriter 本地模型不做語種翻譯, 明確返回 501
         raise HTTPException(
             501,
