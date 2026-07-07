@@ -59,6 +59,21 @@ class GitHubWorkflowTest(unittest.TestCase):
                 with self.subTest(filename=filename, action=action):
                     self.assertIn(f"uses: {action}@{sha}", source)
 
+    def test_checkout_steps_do_not_persist_credentials(self) -> None:
+        checkout = f"actions/checkout@{PINNED_ACTIONS['actions/checkout']}"
+        for path in sorted(WORKFLOWS.glob("*.yml")):
+            source = path.read_text(encoding="utf-8")
+            blocks = re.findall(
+                rf"(?ms)^      - name: Checkout\n(?P<body>.*?)(?=^      - name:|\Z)",
+                source,
+            )
+            with self.subTest(filename=path.name):
+                self.assertTrue(blocks)
+            for index, block in enumerate(blocks):
+                with self.subTest(filename=path.name, checkout=index):
+                    self.assertIn(f"uses: {checkout}", block)
+                    self.assertIn("persist-credentials: false", block)
+
     def test_publish_workflows_serialize_per_ref(self) -> None:
         for filename in ("publish-server-image.yml", "publish-web-image.yml"):
             with self.subTest(filename=filename):
