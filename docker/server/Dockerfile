@@ -34,7 +34,7 @@ RUN mkdir -p /app/logs /app/models \
 
 USER appuser
 
-EXPOSE 6016
+EXPOSE 6016 6017
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20m --retries=5 \
   CMD ["python", "docker/server/healthcheck.py"]
