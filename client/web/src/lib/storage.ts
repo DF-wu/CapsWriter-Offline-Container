@@ -29,13 +29,26 @@ export function settingsWithRuntimeDefaults(
 
 export const DEFAULT_SETTINGS: ApiSettings = settingsWithRuntimeDefaults();
 
-function readJson<T>(key: string, fallback: T): T {
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+function isResponseFormat(value: unknown): value is ApiSettings["responseFormat"] {
+  return typeof value === "string" && RESPONSE_FORMATS.has(value);
+}
+
+function stringSetting(value: unknown, fallback: string): string {
+  return typeof value === "string" ? value : fallback;
+}
+
+function readJsonRecord(key: string): Record<string, unknown> {
   try {
     const raw = localStorage.getItem(key);
-    if (!raw) return fallback;
-    return { ...fallback, ...JSON.parse(raw) };
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as unknown;
+    return isRecord(parsed) ? parsed : {};
   } catch {
-    return fallback;
+    return {};
   }
 }
 
@@ -61,9 +74,18 @@ function removeStoredValue(key: string): void {
 }
 
 export function loadSettings(): ApiSettings {
-  const persisted = readJson<Partial<ApiSettings>>(SETTINGS_KEY, {});
-  const { apiKey: _apiKey, ...safePersisted } = persisted;
-  return { ...DEFAULT_SETTINGS, ...safePersisted };
+  const persisted = readJsonRecord(SETTINGS_KEY);
+  return {
+    ...DEFAULT_SETTINGS,
+    apiKey: "",
+    baseUrl: stringSetting(persisted.baseUrl, DEFAULT_SETTINGS.baseUrl),
+    model: stringSetting(persisted.model, DEFAULT_SETTINGS.model),
+    language: stringSetting(persisted.language, DEFAULT_SETTINGS.language),
+    prompt: stringSetting(persisted.prompt, DEFAULT_SETTINGS.prompt),
+    responseFormat: isResponseFormat(persisted.responseFormat)
+      ? persisted.responseFormat
+      : DEFAULT_SETTINGS.responseFormat,
+  };
 }
 
 export function saveSettings(settings: ApiSettings): void {

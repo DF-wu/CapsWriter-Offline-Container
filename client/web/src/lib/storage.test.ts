@@ -84,6 +84,38 @@ describe("settingsWithRuntimeDefaults", () => {
     });
   });
 
+  it("ignores non-object persisted settings", () => {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(["bad", "shape"]));
+
+    expect(loadSettings()).toMatchObject({
+      apiKey: "",
+      baseUrl: "http://localhost:6017",
+      model: "whisper-1",
+      responseFormat: "verbose_json",
+    });
+  });
+
+  it("falls back when persisted settings have invalid field types", () => {
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({
+        baseUrl: 6017,
+        model: false,
+        language: ["zh"],
+        prompt: { text: "terms" },
+        responseFormat: "xml",
+      }),
+    );
+
+    expect(loadSettings()).toMatchObject({
+      baseUrl: "http://localhost:6017",
+      model: "whisper-1",
+      language: "",
+      prompt: "",
+      responseFormat: "verbose_json",
+    });
+  });
+
   it("ignores blocked storage when saving settings", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new Error("storage blocked");
