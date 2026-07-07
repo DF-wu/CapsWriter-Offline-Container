@@ -56,6 +56,7 @@ class UpstreamDivergenceGuardTest(unittest.TestCase):
     def test_unexpected_changes_reports_only_undocumented_divergence(self) -> None:
         paths = [
             "README.en.md",
+            "core/client/hotword/hotword_standalone.py",
             "core/tools/window_detector.py",
             "readme.md",
             "requirements-server.txt",

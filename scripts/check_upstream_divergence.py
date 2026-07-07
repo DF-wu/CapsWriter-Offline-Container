@@ -20,6 +20,7 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         ".gitignore",
         "LLM/default.py",
         "assets/BUILD_GUIDE.md",
+        "core/client/hotword/hotword_standalone.py",
         "core/tools/window_detector.py",
         "readme.md",
         "requirements-server.txt",

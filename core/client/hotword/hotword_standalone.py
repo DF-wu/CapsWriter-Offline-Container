@@ -9,6 +9,7 @@ import os
 import re
 import time
 import json
+import math
 import requests
 import threading
 import logging
@@ -19,6 +20,25 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 from . import logger
+
+OLLAMA_CHAT_TIMEOUT_ENV = "CAPSWRITER_OLLAMA_CHAT_TIMEOUT"
+DEFAULT_OLLAMA_CHAT_TIMEOUT_SECONDS = 30.0
+
+
+def _ollama_chat_timeout_seconds() -> float:
+    raw_timeout = os.environ.get(OLLAMA_CHAT_TIMEOUT_ENV)
+    if raw_timeout is None or raw_timeout == "":
+        return DEFAULT_OLLAMA_CHAT_TIMEOUT_SECONDS
+    try:
+        timeout = float(raw_timeout)
+    except ValueError as exc:
+        raise ValueError(f"{OLLAMA_CHAT_TIMEOUT_ENV} must be a number") from exc
+    if not math.isfinite(timeout):
+        raise ValueError(f"{OLLAMA_CHAT_TIMEOUT_ENV} must be a finite number")
+    if timeout <= 0:
+        raise ValueError(f"{OLLAMA_CHAT_TIMEOUT_ENV} must be > 0")
+    return timeout
+
 
 # 确保控制台输出 UTF-8
 if sys.platform == 'win32':
@@ -494,7 +514,12 @@ def ollama_chat(messages: List[Dict], model: str = "gemma3:4b", stream: bool = T
     url = "http://localhost:11434/api/chat"
     payload = {"model": model, "messages": messages, "stream": stream}
     try:
-        response = requests.post(url, json=payload, stream=stream)
+        response = requests.post(
+            url,
+            json=payload,
+            stream=stream,
+            timeout=_ollama_chat_timeout_seconds(),
+        )
         if not stream: return response.json().get('message', {}).get('content', '')
         full_res = ""
         for line in response.iter_lines():
