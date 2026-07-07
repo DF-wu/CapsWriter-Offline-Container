@@ -4,6 +4,7 @@
 
 from __future__ import annotations
 
+import math
 import os
 import subprocess
 import sys
@@ -26,6 +27,8 @@ def verify_step_timeout_seconds() -> float:
         timeout = float(value)
     except ValueError as exc:
         raise ValueError(f"{CLI_VERIFY_STEP_TIMEOUT_ENV} must be a number") from exc
+    if not math.isfinite(timeout):
+        raise ValueError(f"{CLI_VERIFY_STEP_TIMEOUT_ENV} must be > 0")
     if timeout <= 0:
         raise ValueError(f"{CLI_VERIFY_STEP_TIMEOUT_ENV} must be > 0")
     return timeout

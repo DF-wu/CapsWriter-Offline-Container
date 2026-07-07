@@ -37,6 +37,8 @@ class HttpLimitTest(unittest.TestCase):
         self.assertEqual(task_timeout_seconds("2.5"), 2.5)
         self.assertEqual(task_timeout_seconds(0), 600.0)
         self.assertEqual(task_timeout_seconds("bad"), 600.0)
+        self.assertEqual(task_timeout_seconds("nan"), 600.0)
+        self.assertEqual(task_timeout_seconds("inf"), 600.0)
 
     def test_read_upload_limited_returns_combined_bytes(self) -> None:
         upload = FakeUpload([b"hello", b" ", b"world"])

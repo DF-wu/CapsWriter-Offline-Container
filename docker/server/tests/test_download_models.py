@@ -74,10 +74,12 @@ class DownloadModelsTest(unittest.TestCase):
                 download_models.DEFAULT_DOWNLOAD_TIMEOUT_SECONDS,
             )
 
-    def test_download_timeout_rejects_non_positive_value(self) -> None:
-        with patch.dict(os.environ, {"CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT": "0"}):
-            with self.assertRaisesRegex(ValueError, "must be > 0"):
-                download_models._download_timeout_seconds()
+    def test_download_timeout_rejects_invalid_values(self) -> None:
+        for value in ("0", "nan", "inf"):
+            with self.subTest(value=value):
+                with patch.dict(os.environ, {"CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT": value}):
+                    with self.assertRaisesRegex(ValueError, "must be > 0"):
+                        download_models._download_timeout_seconds()
 
     def test_download_streams_with_configured_timeout_and_atomic_replace(self) -> None:
         observed = {}

@@ -7,6 +7,7 @@ repository verification gate without installing the server runtime stack.
 
 from __future__ import annotations
 
+import math
 from typing import Any, Protocol
 
 
@@ -37,6 +38,8 @@ def _positive_float(value: Any, default: float, minimum: float) -> float:
     try:
         parsed = float(value)
     except (TypeError, ValueError):
+        return default
+    if not math.isfinite(parsed):
         return default
     return parsed if parsed >= minimum else default
 

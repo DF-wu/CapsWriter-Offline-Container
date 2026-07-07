@@ -8,6 +8,7 @@
 
 import io
 import ipaddress
+import math
 import os, sys, json, shutil, argparse, urllib.request, urllib.error, urllib.parse
 from http import client as http_client
 
@@ -43,6 +44,8 @@ def positive_float(value):
         parsed = float(value)
     except ValueError as exc:
         raise argparse.ArgumentTypeError("must be a number") from exc
+    if not math.isfinite(parsed):
+        raise argparse.ArgumentTypeError("must be > 0")
     if parsed <= 0:
         raise argparse.ArgumentTypeError("must be > 0")
     return parsed

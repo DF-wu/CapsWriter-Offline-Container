@@ -75,6 +75,12 @@ class HttpRuntimeConfigTest(unittest.TestCase):
                 with self.assertRaises(ConfigError):
                     parse_http_api_env({name: "0"})
 
+    def test_rejects_non_finite_task_timeout(self) -> None:
+        for value in ("nan", "inf"):
+            with self.subTest(value=value):
+                with self.assertRaises(ConfigError):
+                    parse_http_api_env({"CAPSWRITER_HTTP_API_TASK_TIMEOUT": value})
+
     def test_normalize_cors_origins_allows_star_and_rejects_paths(self) -> None:
         self.assertEqual(normalize_cors_origins("*"), ("*",))
         with self.assertRaises(ConfigError):

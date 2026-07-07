@@ -28,23 +28,25 @@ class CliVerifyScriptTest(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["timeout"], 2.5)
 
     def test_run_rejects_invalid_step_timeout_before_spawning(self) -> None:
-        stderr = io.StringIO()
-        with (
-            patch.dict(
-                verify.os.environ,
-                {verify.CLI_VERIFY_STEP_TIMEOUT_ENV: "0"},
-            ),
-            patch.object(verify.subprocess, "run") as run,
-            redirect_stderr(stderr),
-        ):
-            code = verify.run(["cmd"])
+        for value in ("0", "nan", "inf"):
+            with self.subTest(value=value):
+                stderr = io.StringIO()
+                with (
+                    patch.dict(
+                        verify.os.environ,
+                        {verify.CLI_VERIFY_STEP_TIMEOUT_ENV: value},
+                    ),
+                    patch.object(verify.subprocess, "run") as run,
+                    redirect_stderr(stderr),
+                ):
+                    code = verify.run(["cmd"])
 
-        self.assertEqual(code, 1)
-        run.assert_not_called()
-        self.assertIn(
-            "CAPSWRITER_CLI_VERIFY_STEP_TIMEOUT must be > 0",
-            stderr.getvalue(),
-        )
+                self.assertEqual(code, 1)
+                run.assert_not_called()
+                self.assertIn(
+                    "CAPSWRITER_CLI_VERIFY_STEP_TIMEOUT must be > 0",
+                    stderr.getvalue(),
+                )
 
     def test_run_timeout_returns_timeout_exit_code(self) -> None:
         stderr = io.StringIO()

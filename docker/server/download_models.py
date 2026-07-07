@@ -1,4 +1,5 @@
 import hashlib
+import math
 import os
 import shutil
 import sys
@@ -130,6 +131,8 @@ def _download_timeout_seconds() -> float:
         timeout = float(value)
     except ValueError as exc:
         raise ValueError("CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT must be a number") from exc
+    if not math.isfinite(timeout):
+        raise ValueError("CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT must be > 0")
     if timeout <= 0:
         raise ValueError("CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT must be > 0")
     return timeout

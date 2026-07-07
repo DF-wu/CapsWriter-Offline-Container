@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from ipaddress import ip_address
+import math
 from pathlib import Path
 from typing import Iterable, Mapping
 from urllib.parse import urlsplit
@@ -91,6 +92,8 @@ def parse_float_range(
         value = float(raw)
     except ValueError as exc:
         raise ConfigError(f"{name} must be a number") from exc
+    if not math.isfinite(value):
+        raise ConfigError(f"{name} must be >= {minimum:g}")
     if value < minimum:
         raise ConfigError(f"{name} must be >= {minimum:g}")
     return value

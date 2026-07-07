@@ -103,21 +103,23 @@ class VerifyAllLoggingTest(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["timeout"], 2.5)
 
     def test_run_rejects_invalid_step_timeout_before_spawning(self) -> None:
-        stderr = io.StringIO()
-        with (
-            patch.dict(
-                verify_all.os.environ,
-                {verify_all.VERIFY_STEP_TIMEOUT_ENV: "0"},
-            ),
-            patch.object(verify_all.subprocess, "run") as run,
-            redirect_stdout(io.StringIO()),
-            redirect_stderr(stderr),
-        ):
-            code = verify_all.run(["cmd"])
+        for value in ("0", "nan", "inf"):
+            with self.subTest(value=value):
+                stderr = io.StringIO()
+                with (
+                    patch.dict(
+                        verify_all.os.environ,
+                        {verify_all.VERIFY_STEP_TIMEOUT_ENV: value},
+                    ),
+                    patch.object(verify_all.subprocess, "run") as run,
+                    redirect_stdout(io.StringIO()),
+                    redirect_stderr(stderr),
+                ):
+                    code = verify_all.run(["cmd"])
 
-        self.assertEqual(code, 1)
-        run.assert_not_called()
-        self.assertIn("CAPSWRITER_VERIFY_STEP_TIMEOUT must be > 0", stderr.getvalue())
+                self.assertEqual(code, 1)
+                run.assert_not_called()
+                self.assertIn("CAPSWRITER_VERIFY_STEP_TIMEOUT must be > 0", stderr.getvalue())
 
     def test_run_timeout_uses_redacted_command(self) -> None:
         stdout = io.StringIO()

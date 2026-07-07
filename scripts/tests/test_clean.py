@@ -130,20 +130,22 @@ class CleanTraversalTest(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["timeout"], 2.5)
 
     def test_run_web_clean_rejects_invalid_timeout_before_spawning(self) -> None:
-        stderr = io.StringIO()
-        with (
-            patch.object(clean, "WEB_ROOT", Path("/tmp/capswriter-web")),
-            patch.object(Path, "exists", return_value=True),
-            patch.object(clean.shutil, "which", return_value="/usr/bin/npm"),
-            patch.dict(clean.os.environ, {clean.CLEAN_WEB_TIMEOUT_ENV: "0"}),
-            patch.object(clean.subprocess, "run") as run,
-            redirect_stderr(stderr),
-        ):
-            code = clean.run_web_clean()
+        for value in ("0", "nan", "inf"):
+            with self.subTest(value=value):
+                stderr = io.StringIO()
+                with (
+                    patch.object(clean, "WEB_ROOT", Path("/tmp/capswriter-web")),
+                    patch.object(Path, "exists", return_value=True),
+                    patch.object(clean.shutil, "which", return_value="/usr/bin/npm"),
+                    patch.dict(clean.os.environ, {clean.CLEAN_WEB_TIMEOUT_ENV: value}),
+                    patch.object(clean.subprocess, "run") as run,
+                    redirect_stderr(stderr),
+                ):
+                    code = clean.run_web_clean()
 
-        self.assertEqual(code, 1)
-        run.assert_not_called()
-        self.assertIn("CAPSWRITER_CLEAN_WEB_TIMEOUT must be > 0", stderr.getvalue())
+                self.assertEqual(code, 1)
+                run.assert_not_called()
+                self.assertIn("CAPSWRITER_CLEAN_WEB_TIMEOUT must be > 0", stderr.getvalue())
 
     def test_run_web_clean_timeout_returns_timeout_exit_code(self) -> None:
         stderr = io.StringIO()

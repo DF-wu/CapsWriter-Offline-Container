@@ -330,8 +330,10 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
 
     def test_positive_float_rejects_non_positive_timeout(self) -> None:
         self.assertEqual(check_http_api.positive_float("2.5"), 2.5)
-        with self.assertRaises(check_http_api.argparse.ArgumentTypeError):
-            check_http_api.positive_float("0")
+        for value in ("0", "nan", "inf"):
+            with self.subTest(value=value):
+                with self.assertRaises(check_http_api.argparse.ArgumentTypeError):
+                    check_http_api.positive_float(value)
 
     def test_port_number_rejects_out_of_range_values(self) -> None:
         self.assertEqual(check_http_api.port_number("6017"), 6017)

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import os
 import shutil
 import subprocess
@@ -74,6 +75,8 @@ def clean_web_timeout_seconds() -> float:
         timeout = float(value)
     except ValueError as exc:
         raise ValueError(f"{CLEAN_WEB_TIMEOUT_ENV} must be a number") from exc
+    if not math.isfinite(timeout):
+        raise ValueError(f"{CLEAN_WEB_TIMEOUT_ENV} must be > 0")
     if timeout <= 0:
         raise ValueError(f"{CLEAN_WEB_TIMEOUT_ENV} must be > 0")
     return timeout
