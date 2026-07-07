@@ -198,6 +198,12 @@ It performs:
 
 The tests start an in-process mock HTTP API, so they do not need a real model server. The clean step removes `__pycache__` and `.pyc` files even when a previous step fails.
 
+Each subprocess launched by `client/cli/scripts/verify.py` is bounded by `CAPSWRITER_CLI_VERIFY_STEP_TIMEOUT`, which defaults to `600` seconds. Set a larger positive value for unusually slow machines:
+
+```bash
+CAPSWRITER_CLI_VERIFY_STEP_TIMEOUT=1200 python client/cli/scripts/verify.py
+```
+
 Manual cleanup:
 
 ```bash
