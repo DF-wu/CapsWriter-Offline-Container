@@ -10,9 +10,40 @@
 """
 
 import os
+import math
 import subprocess
 from pathlib import Path
 from datetime import datetime
+
+ZIP_RELEASE_TIMEOUT_ENV = "CAPSWRITER_ZIP_RELEASE_TIMEOUT"
+DEFAULT_ZIP_RELEASE_TIMEOUT_SECONDS = 900
+
+
+def _format_seconds(value):
+    return f"{value:g}"
+
+
+def _positive_float_env(name, default):
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return default
+
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be a number") from exc
+    if not math.isfinite(value):
+        raise ValueError(f"{name} must be a finite number")
+    if value <= 0:
+        raise ValueError(f"{name} must be > 0")
+    return value
+
+
+def zip_release_timeout_seconds():
+    return _positive_float_env(
+        ZIP_RELEASE_TIMEOUT_ENV,
+        DEFAULT_ZIP_RELEASE_TIMEOUT_SECONDS,
+    )
 
 
 def find_7zip():
@@ -114,6 +145,7 @@ def create_file_list(dist_folder, output_file='file_list.txt', is_client_only=Fa
 def package_with_7zip(source_dir, output_zip, file_list_file):
     """使用 7zip 打包目录"""
 
+    timeout = zip_release_timeout_seconds()
     seven_zip = find_7zip()
     if not seven_zip:
         raise FileNotFoundError(
@@ -164,7 +196,8 @@ def package_with_7zip(source_dir, output_zip, file_list_file):
         capture_output=True,
         text=True,
         encoding='utf-8',
-        errors='ignore'
+        errors='ignore',
+        timeout=timeout,
     )
 
     if result.returncode != 0:
@@ -176,13 +209,18 @@ def package_with_7zip(source_dir, output_zip, file_list_file):
     print("\n✅ 打包成功！")
 
     # 显示压缩包信息
-    info_result = subprocess.run(
-        [seven_zip, 'l', str(output_path.absolute())],
-        capture_output=True,
-        text=True,
-        encoding='utf-8',
-        errors='ignore'
-    )
+    try:
+        info_result = subprocess.run(
+            [seven_zip, 'l', str(output_path.absolute())],
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors='ignore',
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        print(f"\n警告: 读取压缩包信息超时（{_format_seconds(timeout)}s）")
+        return
 
     if info_result.returncode == 0:
         # 解析文件数量和大小
@@ -246,6 +284,7 @@ def main():
     # 逐个打包
     success_count = 0
     for idx, pkg in enumerate(packages):
+        list_file = None
         try:
             print(f"\n{'=' * 60}")
             print(f"打包: {pkg['name']}")
@@ -273,15 +312,17 @@ def main():
 
             success_count += 1
 
-            # 删除临时文件列表
-            try:
-                list_file.unlink()
-                print(f"已删除临时文件列表: {list_file}")
-            except Exception as cleanup_error:
-                print(f"警告: 无法删除临时文件列表 {list_file}: {cleanup_error}")
-
         except Exception as e:
             print(f"\n打包失败: {e}")
+
+        finally:
+            # 删除临时文件列表
+            if list_file is not None:
+                try:
+                    list_file.unlink()
+                    print(f"已删除临时文件列表: {list_file}")
+                except Exception as cleanup_error:
+                    print(f"警告: 无法删除临时文件列表 {list_file}: {cleanup_error}")
 
     # 总结
     print(f"\n{'=' * 60}")
