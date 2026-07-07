@@ -10,6 +10,7 @@ dependencies.
 from __future__ import annotations
 
 import argparse
+import hashlib
 from http import client as http_client
 import json
 import os
@@ -31,6 +32,19 @@ DEFAULT_TTS_TIMEOUT_SECONDS = 120.0
 RESPONSE_FORMATS = ("json", "text", "verbose_json", "srt", "vtt")
 MAX_ERROR_BODY_CHARS = 500
 SUPPORTED_BASE_URL_SCHEMES = {"http", "https"}
+OUTPUT_STEM_FALLBACK = "audio"
+MAX_OUTPUT_STEM_CHARS = 120
+WINDOWS_RESERVED_FILENAMES = frozenset(
+    {
+        "CON",
+        "PRN",
+        "AUX",
+        "NUL",
+        *(f"COM{index}" for index in range(1, 10)),
+        *(f"LPT{index}" for index in range(1, 10)),
+    }
+)
+WINDOWS_UNSAFE_FILENAME_CHARS = frozenset('<>:"/\\|?*')
 
 
 @dataclass(frozen=True)
@@ -404,6 +418,26 @@ def render_transcription(result: HttpResult, response_format: str) -> str:
     return json.dumps(payload, ensure_ascii=False, indent=2)
 
 
+def safe_output_stem(stem: str) -> str:
+    cleaned = "".join(
+        "_"
+        if ord(char) < 32 or char in WINDOWS_UNSAFE_FILENAME_CHARS
+        else char
+        for char in stem
+    ).strip(" .")
+    if not cleaned:
+        cleaned = OUTPUT_STEM_FALLBACK
+    if cleaned.split(".", 1)[0].upper() in WINDOWS_RESERVED_FILENAMES:
+        cleaned = f"{cleaned}_{OUTPUT_STEM_FALLBACK}"
+    if len(cleaned) > MAX_OUTPUT_STEM_CHARS:
+        digest = hashlib.sha1(
+            stem.encode("utf-8", errors="surrogatepass")
+        ).hexdigest()[:8]
+        prefix = cleaned[: MAX_OUTPUT_STEM_CHARS - len(digest) - 1].rstrip(" .-_")
+        cleaned = f"{prefix or OUTPUT_STEM_FALLBACK}-{digest}"
+    return cleaned
+
+
 def output_path_for(audio_path: Path, response_format: str, output_dir: Path) -> Path:
     ext = {
         "text": ".txt",
@@ -412,7 +446,11 @@ def output_path_for(audio_path: Path, response_format: str, output_dir: Path) ->
         "srt": ".srt",
         "vtt": ".vtt",
     }[response_format]
-    return output_dir / f"{audio_path.stem}{ext}"
+    return output_dir / f"{safe_output_stem(audio_path.stem)}{ext}"
+
+
+def output_target_collision_key(target: Path) -> str:
+    return os.path.normcase(str(target)).casefold()
 
 
 def output_targets_for(
@@ -424,7 +462,7 @@ def output_targets_for(
     seen: dict[str, tuple[Path, Path]] = {}
     for audio_path in audio_paths:
         target = output_path_for(audio_path, response_format, output_dir)
-        key = os.path.normcase(str(target))
+        key = output_target_collision_key(target)
         if key in seen:
             first_audio, first_target = seen[key]
             raise ValueError(

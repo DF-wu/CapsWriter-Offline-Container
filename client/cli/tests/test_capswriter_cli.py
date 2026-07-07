@@ -402,6 +402,55 @@ class CapsWriterCliTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "multiple inputs"):
                 cli.output_targets_for([first, second], "text", output_dir)
 
+    def test_output_dir_sanitizes_generated_filename_stems(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp) / "out"
+
+            self.assertEqual(
+                cli.output_path_for(Path("CON.wav"), "text", output_dir).name,
+                "CON_audio.txt",
+            )
+            self.assertEqual(
+                cli.output_path_for(Path(".env.wav"), "json", output_dir).name,
+                "env.json",
+            )
+            self.assertEqual(
+                cli.output_path_for(Path('bad:name?.wav'), "vtt", output_dir).name,
+                "bad_name_.vtt",
+            )
+
+    def test_output_dir_bounds_long_generated_filename_stems(self):
+        stem = "a" * 200
+        target = cli.output_path_for(Path(f"{stem}.wav"), "text", Path("out"))
+
+        self.assertEqual(target.suffix, ".txt")
+        self.assertLessEqual(len(target.stem), cli.MAX_OUTPUT_STEM_CHARS)
+        self.assertRegex(target.stem, r"^a+-[0-9a-f]{8}$")
+
+    def test_output_dir_rejects_duplicate_sanitized_paths(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = root / "bad:name.wav"
+            second = root / "bad?name.wav"
+            output_dir = root / "out"
+            first.write_bytes(b"RIFF")
+            second.write_bytes(b"RIFF")
+
+            with self.assertRaisesRegex(ValueError, "multiple inputs"):
+                cli.output_targets_for([first, second], "text", output_dir)
+
+    def test_output_dir_rejects_case_only_generated_path_duplicates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = root / "Sample.wav"
+            second = root / "sample.wav"
+            output_dir = root / "out"
+            first.write_bytes(b"RIFF")
+            second.write_bytes(b"RIFF")
+
+            with self.assertRaisesRegex(ValueError, "multiple inputs"):
+                cli.output_targets_for([first, second], "text", output_dir)
+
     def test_main_rejects_duplicate_output_dir_targets_before_transcribing(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
