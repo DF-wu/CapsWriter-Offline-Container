@@ -86,6 +86,125 @@ describe("App", () => {
     expect(createObjectURL).toHaveBeenCalledWith(file);
   });
 
+  it("rejects selected files above the readiness upload limit before preview creation", async () => {
+    const createObjectURL = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:too-large");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith("/health")) {
+          return new Response(JSON.stringify({ status: "ok", model: "mock_asr", version: "dev" }));
+        }
+        if (url.endsWith("/ready")) {
+          return new Response(
+            JSON.stringify({
+              status: "ok",
+              model: "mock_asr",
+              version: "dev",
+              checks: {
+                task_router_bound: true,
+                ffmpeg_available: true,
+              },
+              config: {
+                auth_enabled: false,
+                max_upload_mb: 1,
+                task_timeout: 600,
+                max_concurrent_requests: 2,
+                cors_enabled: true,
+                cors_origins_count: 1,
+              },
+            }),
+          );
+        }
+        if (url.endsWith("/v1/models")) {
+          return new Response(
+            JSON.stringify({
+              object: "list",
+              data: [{ id: "mock_asr", object: "model", owned_by: "capswriter-offline", created: 0 }],
+            }),
+          );
+        }
+        return new Response("not found", { status: 404 });
+      }),
+    );
+    const { container } = render(<App />);
+    const input = container.querySelector(".file-input");
+    expect(input).toBeInstanceOf(HTMLInputElement);
+
+    await userEvent.click(screen.getByRole("button", { name: "檢查服務" }));
+    expect(await screen.findByText("1 MB / 2 slots")).toBeTruthy();
+
+    await userEvent.upload(
+      input as HTMLInputElement,
+      new File([new Uint8Array(1024 * 1024 + 1)], "too-large.wav", { type: "audio/wav" }),
+    );
+
+    expect(await screen.findByText("音訊超過 server 上限 1 MB，請選擇較小檔案")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "選擇音訊檔" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "too-large.wav" })).toBeNull();
+    expect(createObjectURL).not.toHaveBeenCalled();
+  });
+
+  it("rejects loaded audio above the readiness upload limit before transcription", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith("/health")) {
+        return new Response(JSON.stringify({ status: "ok", model: "mock_asr", version: "dev" }));
+      }
+      if (url.endsWith("/ready")) {
+        return new Response(
+          JSON.stringify({
+            status: "ok",
+            model: "mock_asr",
+            version: "dev",
+            checks: {
+              task_router_bound: true,
+              ffmpeg_available: true,
+            },
+            config: {
+              auth_enabled: false,
+              max_upload_mb: 1,
+              task_timeout: 600,
+              max_concurrent_requests: 2,
+              cors_enabled: true,
+              cors_origins_count: 1,
+            },
+          }),
+        );
+      }
+      if (url.endsWith("/v1/models")) {
+        return new Response(
+          JSON.stringify({
+            object: "list",
+            data: [{ id: "mock_asr", object: "model", owned_by: "capswriter-offline", created: 0 }],
+          }),
+        );
+      }
+      if (url.endsWith("/v1/audio/transcriptions")) {
+        throw new Error("unexpected transcription request");
+      }
+      return new Response("not found", { status: 404 });
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:oversized");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const { container } = render(<App />);
+    const input = container.querySelector(".file-input");
+    expect(input).toBeInstanceOf(HTMLInputElement);
+    const file = new File([new Uint8Array(1024 * 1024 + 1)], "oversized.wav", { type: "audio/wav" });
+
+    await userEvent.upload(input as HTMLInputElement, file);
+    expect(await screen.findByText("已載入 oversized.wav")).toBeTruthy();
+    await userEvent.click(screen.getByRole("button", { name: "檢查服務" }));
+    expect(await screen.findByText("1 MB / 2 slots")).toBeTruthy();
+
+    fetchMock.mockClear();
+    await userEvent.click(screen.getByRole("button", { name: "轉錄" }));
+
+    expect(await screen.findByText("音訊超過 server 上限 1 MB，請選擇較小檔案")).toBeTruthy();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("locks audio replacement while transcription is running", async () => {
     const response = deferred<Response>();
     vi.stubGlobal("fetch", vi.fn(() => response.promise));

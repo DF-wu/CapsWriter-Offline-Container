@@ -43,6 +43,8 @@ import type { ApiSettings, HealthResponse, ReadinessResponse, ResponseFormat, Tr
 type StatusKind = "idle" | "working" | "ok" | "degraded" | "error";
 type SpeechState = "idle" | "speaking" | "paused";
 
+const BYTES_PER_UPLOAD_MB = 1024 * 1024;
+
 function iconStatus(kind: StatusKind) {
   if (kind === "ok") return <CheckCircle2 size={18} aria-hidden="true" />;
   if (kind === "degraded") return <AlertTriangle size={18} aria-hidden="true" />;
@@ -66,6 +68,24 @@ function readinessClass(value: boolean | undefined): string {
 function diagnosticError(label: string, reason: unknown): string {
   const message = reason instanceof Error ? reason.message : "failed";
   return `${label}: ${message}`;
+}
+
+function readinessUploadLimit(
+  readiness: ReadinessResponse | null,
+): { maxBytes: number; maxMb: number } | null {
+  const maxMb = readiness?.config.max_upload_mb;
+  if (typeof maxMb !== "number" || !Number.isFinite(maxMb) || maxMb <= 0) return null;
+  return {
+    maxBytes: maxMb * BYTES_PER_UPLOAD_MB,
+    maxMb,
+  };
+}
+
+function uploadLimitMessage(maxMb: number): string {
+  const displayMb = Number.isInteger(maxMb)
+    ? String(maxMb)
+    : maxMb.toFixed(2).replace(/\.?0+$/, "");
+  return `音訊超過 server 上限 ${displayMb} MB，請選擇較小檔案`;
 }
 
 function makeRecord(
@@ -344,6 +364,12 @@ export default function App() {
       setStatusText("請選擇音訊檔");
       return;
     }
+    const uploadLimit = readinessUploadLimit(readiness);
+    if (uploadLimit && file.size > uploadLimit.maxBytes) {
+      setStatusKind("error");
+      setStatusText(uploadLimitMessage(uploadLimit.maxMb));
+      return;
+    }
     setAudio(fileToBrowserAudio(file));
   };
 
@@ -381,6 +407,12 @@ export default function App() {
     if (!currentAudio) {
       setStatusKind("error");
       setStatusText("未載入音訊");
+      return;
+    }
+    const uploadLimit = readinessUploadLimit(readiness);
+    if (uploadLimit && currentAudio.blob.size > uploadLimit.maxBytes) {
+      setStatusKind("error");
+      setStatusText(uploadLimitMessage(uploadLimit.maxMb));
       return;
     }
     abortRef.current?.abort();
