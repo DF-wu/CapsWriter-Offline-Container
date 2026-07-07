@@ -156,7 +156,7 @@ Container image build can also be included in the root gate:
 python scripts/verify_all.py --docker-build-web
 ```
 
-Maintainers publish the static image through [`.github/workflows/publish-web-image.yml`](../.github/workflows/publish-web-image.yml). The workflow first runs `python scripts/verify_all.py --docker-build-web`, including the production Nginx image smoke, then builds from [`client/web/Dockerfile`](../client/web/Dockerfile) and pushes `ghcr.io/<owner>/capswriter-offline-web:{latest,sha-*}`.
+Maintainers publish the static image through [`.github/workflows/publish-web-image.yml`](../.github/workflows/publish-web-image.yml). The workflow first runs `python scripts/verify_all.py --docker-build-web`, including the production Nginx image smoke, then builds from [`client/web/Dockerfile`](../client/web/Dockerfile), pushes `ghcr.io/<owner>/capswriter-offline-web:{latest,sha-*}`, and publishes provenance/SBOM attestations.
 
 ## 清理策略
 

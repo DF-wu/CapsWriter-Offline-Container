@@ -57,6 +57,16 @@ class GitHubWorkflowTest(unittest.TestCase):
                 self.assertIn("contents: read", publish)
                 self.assertIn("packages: write", publish)
 
+    def test_publish_images_include_supply_chain_attestations(self) -> None:
+        for filename in ("publish-server-image.yml", "publish-web-image.yml"):
+            with self.subTest(filename=filename):
+                source = read_workflow(filename)
+                publish = workflow_job(source, "publish")
+
+                self.assertIn("uses: docker/build-push-action@v6", publish)
+                self.assertIn("provenance: true", publish)
+                self.assertIn("sbom: true", publish)
+
     def test_server_publish_runs_release_gate_before_push(self) -> None:
         source = read_workflow("publish-server-image.yml")
         verify = workflow_job(source, "verify")
