@@ -27,7 +27,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 
 | | |
 |---|---|
-| 修改的 upstream-tracked 檔案 | **12**：`.gitignore`、`readme.md`、`requirements-server.txt`、`LLM/default.py`、`assets/BUILD_GUIDE.md`、`zip_release.py`、`core/client/hotword/hotword_standalone.py`、`core/server/engines/qwen_asr_gguf/inference/audio.py`、`core/server/engines/force_aligner_gguf/inference/audio.py`、`core/server/engines/sensevoice_onnx/inference/audio.py`、`core/server/worker/gpu_boost.py`、`core/tools/window_detector.py` |
+| 修改的 upstream-tracked 檔案 | **13**：`.gitignore`、`readme.md`、`requirements-server.txt`、`LLM/default.py`、`assets/BUILD_GUIDE.md`、`zip_release.py`、`core/client/hotword/hotword_standalone.py`、`core/server/engines/qwen_asr_gguf/inference/audio.py`、`core/server/engines/force_aligner_gguf/inference/audio.py`、`core/server/engines/sensevoice_onnx/inference/audio.py`、`core/server/engines/fun_asr_gguf/inference/audio.py`、`core/server/worker/gpu_boost.py`、`core/tools/window_detector.py` |
 | Fork 新增主要目錄 | `fork_server/`、`docker/`、`client/cli/`、`client/web/`、`docs/`、`.github/workflows/` |
 | Hook 策略 | `ForkedCapsWriterServer` 子類化 + `server_manager.ws_send` 單點 monkey-patch |
 | 唯一高漂移點 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 內嵌 upstream `ws_send` loop；HTTP unit test 會做 AST source guard，merge upstream 後若失敗需 re-port |
@@ -100,7 +100,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 - [`scripts/clean.py`](../scripts/clean.py) 清 Python/Web/Docker 驗證輸出，bounded `npm run clean` 後再跑 Python fallback，並提供 `--check` residue gate。
 - [`zip_release.py`](../zip_release.py) 的 7-Zip release packaging subprocess 有 bounded timeout，失敗時也會清掉暫存 `file_list_*.txt`。
 - [`core/client/hotword/hotword_standalone.py`](../core/client/hotword/hotword_standalone.py) 的 local Ollama chat helper 以 `CAPSWRITER_OLLAMA_CHAT_TIMEOUT` 限制 request，避免 demo/client 流程被未回應的本機 LLM endpoint 卡住。
-- Qwen / force-aligner / SenseVoice direct file-decode helpers 的 `ffmpeg` subprocess 以 `CAPSWRITER_ENGINE_FFMPEG_TIMEOUT` 限制，timeout 後會嘗試 bounded kill cleanup，stderr diagnostic 也會截斷。
+- Qwen / force-aligner / SenseVoice / Fun-ASR direct file-decode helpers 的 `ffmpeg` subprocess 以 `CAPSWRITER_ENGINE_FFMPEG_TIMEOUT` 限制，timeout 後會嘗試 bounded kill cleanup，stderr diagnostic 也會截斷。
 - [`core/server/worker/gpu_boost.py`](../core/server/worker/gpu_boost.py) 的 GPU boost/unboost shell command 以 `CAPSWRITER_GPU_BOOST_TIMEOUT` 限制，避免自訂管理命令卡住 worker loop。
 - [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) 跑 root gate。
 - [`.github/workflows/publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 發 server image。

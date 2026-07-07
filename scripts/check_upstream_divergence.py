@@ -23,6 +23,7 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "core/client/hotword/hotword_standalone.py",
         "core/server/worker/gpu_boost.py",
         "core/server/engines/force_aligner_gguf/inference/audio.py",
+        "core/server/engines/fun_asr_gguf/inference/audio.py",
         "core/server/engines/qwen_asr_gguf/inference/audio.py",
         "core/server/engines/sensevoice_onnx/inference/audio.py",
         "core/tools/window_detector.py",

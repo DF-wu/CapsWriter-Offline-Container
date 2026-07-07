@@ -17,6 +17,7 @@ ENGINE_AUDIO_PATHS = [
     ROOT / "core" / "server" / "engines" / "qwen_asr_gguf" / "inference" / "audio.py",
     ROOT / "core" / "server" / "engines" / "force_aligner_gguf" / "inference" / "audio.py",
     ROOT / "core" / "server" / "engines" / "sensevoice_onnx" / "inference" / "audio.py",
+    ROOT / "core" / "server" / "engines" / "fun_asr_gguf" / "inference" / "audio.py",
 ]
 
 
@@ -71,6 +72,7 @@ def load_audio_namespace(path: Path) -> dict:
                 "_ffmpeg_timeout_seconds",
                 "_stderr_preview",
                 "check_ffmpeg",
+                "load_audio",
                 "load_audio_ffmpeg",
             }
         ):
@@ -87,6 +89,8 @@ def load_audio_namespace(path: Path) -> dict:
     ast.fix_missing_locations(module)
     exec(compile(module, str(path), "exec"), namespace)
     namespace["check_ffmpeg"] = lambda: True
+    if "load_audio_ffmpeg" not in namespace:
+        namespace["load_audio_ffmpeg"] = namespace["load_audio"]
     return namespace
 
 

@@ -58,7 +58,7 @@ Desktop foreground-window detection bounds macOS `osascript` and Linux `wmctrl` 
 
 Standalone hotword Ollama chat calls bound the local `http://localhost:11434/api/chat` request with `CAPSWRITER_OLLAMA_CHAT_TIMEOUT`, default `30` seconds. Invalid local timeout configuration is reported through the helper's existing fail-safe error path before opening the request.
 
-Direct engine file-decode helpers for Qwen, force-aligner, and SenseVoice bound `ffmpeg` subprocesses with `CAPSWRITER_ENGINE_FFMPEG_TIMEOUT`, default `120` seconds. Timeout attempts a bounded kill cleanup and ffmpeg failure diagnostics are capped before being surfaced.
+Direct engine file-decode helpers for Qwen, force-aligner, SenseVoice, and Fun-ASR bound `ffmpeg` subprocesses with `CAPSWRITER_ENGINE_FFMPEG_TIMEOUT`, default `120` seconds. Timeout attempts a bounded kill cleanup and ffmpeg failure diagnostics are capped before being surfaced.
 
 Server GPU boost/unboost shell commands are bounded by `CAPSWRITER_GPU_BOOST_TIMEOUT`, default `5` seconds. Timeout or invalid local timeout configuration leaves the current boost state unchanged instead of blocking the worker loop.
 
