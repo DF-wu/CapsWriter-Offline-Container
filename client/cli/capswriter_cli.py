@@ -711,7 +711,6 @@ def command_transcribe(args) -> int:
         if args.output_dir
         else {}
     )
-    outputs: list[tuple[Path, str]] = []
     for audio_path in args.audio:
         result = transcribe_file(
             config,
@@ -723,9 +722,12 @@ def command_transcribe(args) -> int:
         )
         rendered = render_transcription(result, args.response_format)
         if args.output:
-            outputs.append((args.output, rendered))
+            _write_output(args.output, rendered)
+            print(f"Wrote {args.output}")
         elif args.output_dir:
-            outputs.append((output_targets[audio_path], rendered))
+            target = output_targets[audio_path]
+            _write_output(target, rendered)
+            print(f"Wrote {target}")
         else:
             if len(args.audio) > 1:
                 print(f"==> {audio_path}")
@@ -733,9 +735,6 @@ def command_transcribe(args) -> int:
             if not rendered.endswith("\n"):
                 print()
 
-    for path, text in outputs:
-        _write_output(path, text)
-        print(f"Wrote {path}")
     return 0
 
 

@@ -507,6 +507,49 @@ class CapsWriterCliTest(unittest.TestCase):
         transcribe_file.assert_not_called()
         self.assertIn("--output-dir would write multiple inputs", stderr.getvalue())
 
+    def test_output_dir_writes_each_success_before_later_batch_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            first = root / "first.wav"
+            second = root / "second.wav"
+            output_dir = root / "out"
+            first.write_bytes(b"RIFF")
+            second.write_bytes(b"RIFF")
+            stderr = io.StringIO()
+            stdout = io.StringIO()
+
+            with (
+                patch.object(
+                    cli,
+                    "transcribe_file",
+                    side_effect=[
+                        cli.HttpResult(200, "text/plain", b"first transcript"),
+                        cli.ApiError(500, "server failed"),
+                    ],
+                ),
+                redirect_stdout(stdout),
+                redirect_stderr(stderr),
+            ):
+                code = cli.main(
+                    [
+                        "transcribe",
+                        "--base-url",
+                        self.base_url,
+                        "--output-dir",
+                        str(output_dir),
+                        str(first),
+                        str(second),
+                    ]
+                )
+
+            self.assertEqual(code, 1)
+            self.assertEqual(
+                (output_dir / "first.txt").read_text(encoding="utf-8"),
+                "first transcript",
+            )
+            self.assertIn("Wrote", stdout.getvalue())
+            self.assertIn("HTTP 500: server failed", stderr.getvalue())
+
     def test_main_ready_prints_diagnostics(self):
         stdout = io.StringIO()
         with redirect_stdout(stdout):
