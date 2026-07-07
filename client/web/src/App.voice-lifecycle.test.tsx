@@ -1,6 +1,15 @@
-import { render } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import type * as ReactModule from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+type SpeakTextOptions = {
+  text: string;
+  voiceURI: string;
+  rate: number;
+  pitch: number;
+  onEnd: () => void;
+  onError: (message: string) => void;
+};
 
 const stateProbe = vi.hoisted(() => ({
   unmounted: false,
@@ -9,7 +18,7 @@ const stateProbe = vi.hoisted(() => ({
 
 const speechMock = vi.hoisted(() => ({
   loadVoices: vi.fn<() => Promise<SpeechSynthesisVoice[]>>(),
-  speakText: vi.fn(),
+  speakText: vi.fn<(options: SpeakTextOptions) => void>(),
 }));
 
 vi.mock("react", async (importOriginal) => {
@@ -69,6 +78,30 @@ describe("App voice loading lifecycle", () => {
     ]);
     await pendingVoices.promise;
     await Promise.resolve();
+
+    expect(stateProbe.lateSetState).not.toHaveBeenCalled();
+  });
+
+  it("ignores speech callbacks after unmount", async () => {
+    speechMock.loadVoices.mockResolvedValueOnce([
+      {
+        voiceURI: "voice-1",
+        name: "Voice 1",
+        lang: "en-US",
+      } as SpeechSynthesisVoice,
+    ]);
+
+    const { unmount } = render(<App />);
+    await screen.findByRole("option", { name: "Voice 1 (en-US)" });
+    fireEvent.change(screen.getByLabelText("文字"), { target: { value: "hello" } });
+    fireEvent.click(screen.getByRole("button", { name: "播放" }));
+    expect(speechMock.speakText).toHaveBeenCalledOnce();
+
+    const options = speechMock.speakText.mock.calls[0][0];
+    stateProbe.unmounted = true;
+    unmount();
+    options.onEnd();
+    options.onError("late speech error");
 
     expect(stateProbe.lateSetState).not.toHaveBeenCalled();
   });

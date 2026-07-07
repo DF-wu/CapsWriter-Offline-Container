@@ -115,6 +115,7 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const dragDepthRef = useRef(0);
   const transcriptionRunRef = useRef(0);
+  const mountedRef = useRef(true);
 
   useEffect(() => saveSettings(settings), [settings]);
 
@@ -136,6 +137,7 @@ export default function App() {
 
   useEffect(() => {
     return () => {
+      mountedRef.current = false;
       if (timerRef.current !== null) {
         window.clearInterval(timerRef.current);
         timerRef.current = null;
@@ -451,8 +453,12 @@ export default function App() {
       voiceURI,
       rate,
       pitch,
-      onEnd: () => setSpeechState("idle"),
+      onEnd: () => {
+        if (!mountedRef.current) return;
+        setSpeechState("idle");
+      },
       onError: (message) => {
+        if (!mountedRef.current) return;
         setSpeechState("idle");
         setStatusKind("error");
         setStatusText(message);
