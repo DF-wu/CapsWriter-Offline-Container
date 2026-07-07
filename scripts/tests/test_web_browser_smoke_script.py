@@ -28,6 +28,14 @@ class WebBrowserSmokeScriptTest(unittest.TestCase):
         self.assertIn('child.kill("SIGKILL")', self.source)
         self.assertIn("Promise.all(children.map(stopChild))", self.source)
 
+    def test_http_readiness_probes_are_bounded(self) -> None:
+        self.assertIn("CAPSWRITER_WEB_BROWSER_HTTP_PROBE_TIMEOUT_MS", self.source)
+        self.assertIn("HTTP_PROBE_TIMEOUT_MS", self.source)
+        self.assertIn("new AbortController()", self.source)
+        self.assertIn("signal: controller.signal", self.source)
+        self.assertIn("clearTimeout(timer)", self.source)
+        self.assertIn("fetchWithTimeout(url", self.source)
+
 
 if __name__ == "__main__":
     unittest.main()

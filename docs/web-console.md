@@ -73,7 +73,7 @@ npm run browser-smoke
 ```
 
 This starts a temporary mock API and Vite server on free local ports, opens the app with `agent-browser`, sets the API root, checks health/readiness diagnostics, uploads a generated WAV, runs transcription, and asserts the transcript textarea. It does not need a model server.
-Each `agent-browser` subprocess is bounded by `CAPSWRITER_WEB_BROWSER_AGENT_TIMEOUT_MS`, default `30000` ms. Temporary mock API/Vite child processes are first asked to stop, then force-stopped if they do not exit within `CAPSWRITER_WEB_BROWSER_CHILD_SHUTDOWN_TIMEOUT_MS`, default `5000` ms.
+Each `agent-browser` subprocess is bounded by `CAPSWRITER_WEB_BROWSER_AGENT_TIMEOUT_MS`, default `30000` ms. Browser-smoke HTTP startup probes are bounded by `CAPSWRITER_WEB_BROWSER_HTTP_PROBE_TIMEOUT_MS`, default `2000` ms per attempt. Temporary mock API/Vite child processes are first asked to stop, then force-stopped if they do not exit within `CAPSWRITER_WEB_BROWSER_CHILD_SHUTDOWN_TIMEOUT_MS`, default `5000` ms.
 
 ## Production build
 

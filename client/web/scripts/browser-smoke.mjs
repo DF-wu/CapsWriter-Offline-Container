@@ -11,8 +11,10 @@ const session = `capswriter-web-smoke-${process.pid}`;
 const children = [];
 const AGENT_BROWSER_TIMEOUT_ENV = "CAPSWRITER_WEB_BROWSER_AGENT_TIMEOUT_MS";
 const CHILD_SHUTDOWN_TIMEOUT_ENV = "CAPSWRITER_WEB_BROWSER_CHILD_SHUTDOWN_TIMEOUT_MS";
+const HTTP_PROBE_TIMEOUT_ENV = "CAPSWRITER_WEB_BROWSER_HTTP_PROBE_TIMEOUT_MS";
 const AGENT_BROWSER_TIMEOUT_MS = readPositiveMilliseconds(AGENT_BROWSER_TIMEOUT_ENV, 30000);
 const CHILD_SHUTDOWN_TIMEOUT_MS = readPositiveMilliseconds(CHILD_SHUTDOWN_TIMEOUT_ENV, 5000);
+const HTTP_PROBE_TIMEOUT_MS = readPositiveMilliseconds(HTTP_PROBE_TIMEOUT_ENV, 2000);
 const CHILD_KILL_TIMEOUT_MS = 1000;
 
 function readPositiveMilliseconds(name, defaultValue) {
@@ -45,11 +47,22 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function fetchWithTimeout(url, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function waitForHttp(url, timeoutMs = 25000) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
     try {
-      const response = await fetch(url);
+      const remainingMs = Math.max(1, timeoutMs - (Date.now() - started));
+      const response = await fetchWithTimeout(url, Math.min(HTTP_PROBE_TIMEOUT_MS, remainingMs));
       if (response.ok) return;
     } catch {
       // Keep polling until the local dev server starts.
