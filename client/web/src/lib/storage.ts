@@ -17,12 +17,15 @@ const BUILTIN_SETTINGS: ApiSettings = {
 export function settingsWithRuntimeDefaults(
   runtime: Partial<ApiSettings> | undefined = window.__CAPSWRITER_WEB_CONFIG__,
 ): ApiSettings {
-  const responseFormat = runtime?.responseFormat ?? BUILTIN_SETTINGS.responseFormat;
+  const runtimeConfig = isRecord(runtime) ? runtime : {};
   return {
-    ...BUILTIN_SETTINGS,
-    ...runtime,
-    responseFormat: RESPONSE_FORMATS.has(responseFormat)
-      ? responseFormat
+    baseUrl: stringSetting(runtimeConfig.baseUrl, BUILTIN_SETTINGS.baseUrl),
+    apiKey: stringSetting(runtimeConfig.apiKey, BUILTIN_SETTINGS.apiKey),
+    model: stringSetting(runtimeConfig.model, BUILTIN_SETTINGS.model),
+    language: stringSetting(runtimeConfig.language, BUILTIN_SETTINGS.language),
+    prompt: stringSetting(runtimeConfig.prompt, BUILTIN_SETTINGS.prompt),
+    responseFormat: isResponseFormat(runtimeConfig.responseFormat)
+      ? runtimeConfig.responseFormat
       : BUILTIN_SETTINGS.responseFormat,
   };
 }

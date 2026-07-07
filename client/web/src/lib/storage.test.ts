@@ -34,13 +34,50 @@ describe("settingsWithRuntimeDefaults", () => {
     expect(
       settingsWithRuntimeDefaults({
         baseUrl: "https://asr.example.test",
+        apiKey: "sk-private-deploy",
         model: "whisper-1",
+        language: "zh",
+        prompt: "terms",
         responseFormat: "text",
       }),
     ).toMatchObject({
       baseUrl: "https://asr.example.test",
+      apiKey: "sk-private-deploy",
+      language: "zh",
+      prompt: "terms",
       model: "whisper-1",
       responseFormat: "text",
+    });
+  });
+
+  it("ignores non-object runtime config", () => {
+    expect(settingsWithRuntimeDefaults(["bad", "shape"] as never)).toMatchObject({
+      baseUrl: "http://localhost:6017",
+      apiKey: "",
+      model: "whisper-1",
+      language: "",
+      prompt: "",
+      responseFormat: "verbose_json",
+    });
+  });
+
+  it("falls back when runtime config fields have invalid types", () => {
+    expect(
+      settingsWithRuntimeDefaults({
+        baseUrl: 6017,
+        apiKey: ["sk"],
+        model: false,
+        language: ["zh"],
+        prompt: { text: "terms" },
+        responseFormat: "xml",
+      } as never),
+    ).toMatchObject({
+      baseUrl: "http://localhost:6017",
+      apiKey: "",
+      model: "whisper-1",
+      language: "",
+      prompt: "",
+      responseFormat: "verbose_json",
     });
   });
 
