@@ -3,7 +3,26 @@
 
 检测当前前台活动的应用程序信息，用于兼容性配置
 """
+import math
+import os
 import platform
+import subprocess
+
+
+WINDOW_DETECT_TIMEOUT_ENV = 'CAPSWRITER_WINDOW_DETECT_TIMEOUT'
+DEFAULT_WINDOW_DETECT_TIMEOUT_SECONDS = 2.0
+
+
+def _window_detect_timeout_seconds() -> float:
+    raw = os.environ.get(WINDOW_DETECT_TIMEOUT_ENV, '').strip()
+    if not raw:
+        return DEFAULT_WINDOW_DETECT_TIMEOUT_SECONDS
+    value = float(raw)
+    if not math.isfinite(value):
+        raise ValueError(f'{WINDOW_DETECT_TIMEOUT_ENV} must be a finite number')
+    if value <= 0:
+        raise ValueError(f'{WINDOW_DETECT_TIMEOUT_ENV} must be > 0')
+    return value
 
 
 def get_active_window_info() -> dict:
@@ -71,9 +90,6 @@ def _get_windows_window_info() -> dict:
 def _get_macos_window_info() -> dict:
     """macOS 平台窗口检测"""
     try:
-        import subprocess
-        from plistlib import loads
-
         # 使用 AppleScript 获取前台窗口信息
         script = '''
         tell application "System Events"
@@ -104,7 +120,8 @@ def _get_macos_window_info() -> dict:
         result = subprocess.run(
             ['osascript', '-e', script],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=_window_detect_timeout_seconds(),
         )
 
         if result.returncode == 0:
@@ -127,13 +144,12 @@ def _get_macos_window_info() -> dict:
 def _get_linux_window_info() -> dict:
     """Linux 平台窗口检测"""
     try:
-        import subprocess
-
         # 使用 wmctrl 获取活动窗口
         result = subprocess.run(
             ['wmctrl', '-G', '-a', ':ACTIVE:'],
             capture_output=True,
-            text=True
+            text=True,
+            timeout=_window_detect_timeout_seconds(),
         )
 
         if result.returncode == 0:
