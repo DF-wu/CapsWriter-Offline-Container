@@ -3,6 +3,14 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
+  return { promise, resolve };
+}
+
 describe("App", () => {
   const originalMediaDevices = Object.getOwnPropertyDescriptor(navigator, "mediaDevices");
   const originalClipboard = Object.getOwnPropertyDescriptor(navigator, "clipboard");
@@ -62,6 +70,43 @@ describe("App", () => {
     expect(await screen.findByText("已載入 meeting.wav")).toBeTruthy();
     expect(screen.getByRole("button", { name: "meeting.wav" })).toBeTruthy();
     expect(createObjectURL).toHaveBeenCalledWith(file);
+  });
+
+  it("locks audio replacement while transcription is running", async () => {
+    const response = deferred<Response>();
+    vi.stubGlobal("fetch", vi.fn(() => response.promise));
+    vi.spyOn(URL, "createObjectURL")
+      .mockReturnValueOnce("blob:meeting")
+      .mockReturnValueOnce("blob:other");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const { container } = render(<App />);
+    const input = container.querySelector(".file-input");
+    expect(input).toBeInstanceOf(HTMLInputElement);
+
+    await userEvent.upload(
+      input as HTMLInputElement,
+      new File(["RIFF"], "meeting.wav", { type: "audio/wav" }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "轉錄" }));
+
+    expect(await screen.findByText("轉錄中")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "meeting.wav" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((input as HTMLInputElement).disabled).toBe(true);
+
+    fireEvent.change(input as HTMLInputElement, {
+      target: { files: [new File(["RIFF"], "other.wav", { type: "audio/wav" })] },
+    });
+
+    expect(screen.getByRole("button", { name: "meeting.wav" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "other.wav" })).toBeNull();
+
+    response.resolve(
+      new Response(JSON.stringify({ text: "done" }), {
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    expect(await screen.findByText("完成：4 字")).toBeTruthy();
   });
 
   it("keeps drag highlight while moving inside the upload target", () => {

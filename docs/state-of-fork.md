@@ -78,7 +78,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 ### 3.4 Web Console
 
 - [`client/web`](../client/web/) 是 React/Vite app。
-- 支援錄音、鍵盤可操作的檔案選擇、拖放上傳、播放、STT、五種輸出格式、HTTP readiness diagnostics、歷史紀錄、下載、browser Web Speech TTS。
+- 支援錄音、鍵盤可操作的檔案選擇、拖放上傳、播放、STT、五種輸出格式、HTTP readiness diagnostics、歷史紀錄、下載、browser Web Speech TTS；轉錄中會鎖定音訊替換以避免 stale result 覆蓋目前 UI。
 - API client 會解析 OpenAI-style `error.message`、舊版 `detail`、bounded non-JSON HTTP error previews，並把 invalid JSON response 轉成帶 endpoint/status 的診斷。
 - `npm run browser-smoke` 以 `agent-browser` 驗證真實瀏覽器 health/readiness、upload、transcribe workflow。
 - [`client/web/Dockerfile`](../client/web/Dockerfile) 產出 Nginx static image。
@@ -107,7 +107,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 | `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 12 tests、Verifier/diagnostic 23 tests、Web 36 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 | `python scripts/verify_all.py --skip-web --http-base-url http://127.0.0.1:16017 --http-key ... --http-require-ready --http-audio benchmarks/audio/arctic_a0001.wav --http-expect "Author of"` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 15 tests、Verifier/diagnostic 23 tests、current-branch live `/health` v2.6、`/ready` ok、Qwen ASR model-backed STT (`Author of the Danger Trail, Philip Steels, etc.`) |
 | `python scripts/verify_all.py --skip-web` | 通過：CLI 24 tests、server compile、HTTP 57 tests（含 fail-fast server/model env validation）、Docker server 17 tests（含 entrypoint Qwen CPU preset guard）、Verifier/diagnostic 28 tests（含 Docker Compose HTTP/model tuning env guard）、cleanup |
-| `python scripts/verify_all.py` | 通過：upstream divergence guard、CLI 31 tests + packaged stdin smoke、server compile、HTTP 62 tests（含 server key-file auth 與 ws_send drift guard）、Docker server 17 tests、Verifier/diagnostic 35 tests、Web 43 tests/build（含 keyboard-accessible upload、drag/drop highlight stability、malformed history/runtime-config filtering）、cleanup + residue check |
+| `python scripts/verify_all.py` | 通過：upstream divergence guard、CLI 31 tests + packaged stdin smoke、server compile、HTTP 62 tests（含 server key-file auth 與 ws_send drift guard）、Docker server 17 tests、Verifier/diagnostic 35 tests、Web 44 tests/build（含 keyboard-accessible upload、drag/drop highlight stability、transcription-time audio replacement lock、malformed history/runtime-config filtering）、cleanup + residue check |
 
 `127.0.0.1:6017` 仍是既有外部服務；本分支驗證使用隔離容器掛載目前 checkout，對外映射 `127.0.0.1:16017`，並以 temporary API key 執行 `/ready` 與已知音檔 STT gate。共享 verifier log 會將 `--http-key` 顯示為 `<redacted>`。
 

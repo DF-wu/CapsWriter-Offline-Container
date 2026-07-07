@@ -385,6 +385,12 @@ input[type="range"] {
   background: #ecfdf5;
 }
 
+.drop-zone:disabled {
+  border-style: solid;
+  background: var(--color-muted);
+  color: var(--color-subtle);
+}
+
 .file-input {
   display: none;
 }

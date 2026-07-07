@@ -290,6 +290,11 @@ export default function App() {
 
   const handleFile = (file: File | null) => {
     if (!file) return;
+    if (isTranscribing) {
+      setStatusKind("working");
+      setStatusText("轉錄中，請先取消再更換音訊");
+      return;
+    }
     if (!file.type.startsWith("audio/") && !file.name.match(/\.(wav|mp3|m4a|flac|ogg|webm)$/i)) {
       setStatusKind("error");
       setStatusText("請選擇音訊檔");
@@ -299,18 +304,21 @@ export default function App() {
   };
 
   const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    handleFile(event.currentTarget.files?.item(0) ?? null);
+    const files = event.currentTarget.files;
+    handleFile(files?.item?.(0) ?? files?.[0] ?? null);
     event.currentTarget.value = "";
   };
 
   const handleAudioDragEnter = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    if (isTranscribing) return;
     dragDepthRef.current += 1;
     setIsDragging(true);
   };
 
   const handleAudioDragLeave = (event: DragEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    if (isTranscribing) return;
     dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
     if (dragDepthRef.current === 0) {
       setIsDragging(false);
@@ -321,6 +329,7 @@ export default function App() {
     event.preventDefault();
     dragDepthRef.current = 0;
     setIsDragging(false);
+    if (isTranscribing) return;
     handleFile(event.dataTransfer.files.item(0));
   };
 
@@ -592,6 +601,7 @@ export default function App() {
             type="button"
             className={`drop-zone ${isDragging ? "dragging" : ""}`}
             onClick={() => fileInputRef.current?.click()}
+            disabled={isTranscribing}
             onDragEnter={handleAudioDragEnter}
             onDragOver={(event) => {
               event.preventDefault();
@@ -609,6 +619,7 @@ export default function App() {
             type="file"
             accept="audio/*,.wav,.mp3,.m4a,.flac,.ogg,.webm"
             tabIndex={-1}
+            disabled={isTranscribing}
             onChange={handleFileInputChange}
           />
 
