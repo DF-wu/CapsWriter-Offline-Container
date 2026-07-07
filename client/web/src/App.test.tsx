@@ -1,5 +1,5 @@
 import userEvent from "@testing-library/user-event";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 
@@ -34,6 +34,49 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: "音訊" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "轉錄" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "TTS" })).toBeTruthy();
+  });
+
+  it("opens the audio file picker from the keyboard", async () => {
+    const user = userEvent.setup();
+    const { container } = render(<App />);
+    const input = container.querySelector(".file-input");
+    expect(input).toBeInstanceOf(HTMLInputElement);
+    const click = vi.spyOn(input as HTMLInputElement, "click").mockImplementation(() => {});
+
+    screen.getByRole("button", { name: "選擇音訊檔" }).focus();
+    await user.keyboard("{Enter}");
+
+    expect(click).toHaveBeenCalledOnce();
+  });
+
+  it("loads an audio file selected through the upload input", async () => {
+    const createObjectURL = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:meeting");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const { container } = render(<App />);
+    const input = container.querySelector(".file-input");
+    expect(input).toBeInstanceOf(HTMLInputElement);
+    const file = new File(["RIFF"], "meeting.wav", { type: "audio/wav" });
+
+    await userEvent.upload(input as HTMLInputElement, file);
+
+    expect(await screen.findByText("已載入 meeting.wav")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "meeting.wav" })).toBeTruthy();
+    expect(createObjectURL).toHaveBeenCalledWith(file);
+  });
+
+  it("keeps drag highlight while moving inside the upload target", () => {
+    render(<App />);
+    const uploadTarget = screen.getByRole("button", { name: "選擇音訊檔" });
+    const label = uploadTarget.querySelector("span");
+    expect(label).toBeInstanceOf(HTMLSpanElement);
+
+    fireEvent.dragEnter(uploadTarget);
+    expect(uploadTarget.className).toContain("dragging");
+    fireEvent.dragEnter(label as HTMLSpanElement);
+    fireEvent.dragLeave(label as HTMLSpanElement);
+    expect(uploadTarget.className).toContain("dragging");
+    fireEvent.dragLeave(uploadTarget);
+    expect(uploadTarget.className).not.toContain("dragging");
   });
 
   it("shows readiness diagnostics after checking the server", async () => {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { type ChangeEvent, type DragEvent, useEffect, useRef, useState } from "react";
 import {
   Activity,
   AlertTriangle,
@@ -103,6 +103,8 @@ export default function App() {
   const startedAtRef = useRef<number>(0);
   const abortRef = useRef<AbortController | null>(null);
   const currentAudioRef = useRef<BrowserAudio | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const dragDepthRef = useRef(0);
 
   useEffect(() => saveSettings(settings), [settings]);
 
@@ -294,6 +296,32 @@ export default function App() {
       return;
     }
     setAudio(fileToBrowserAudio(file));
+  };
+
+  const handleFileInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    handleFile(event.currentTarget.files?.item(0) ?? null);
+    event.currentTarget.value = "";
+  };
+
+  const handleAudioDragEnter = (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    dragDepthRef.current += 1;
+    setIsDragging(true);
+  };
+
+  const handleAudioDragLeave = (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+    if (dragDepthRef.current === 0) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleAudioDrop = (event: DragEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    dragDepthRef.current = 0;
+    setIsDragging(false);
+    handleFile(event.dataTransfer.files.item(0));
   };
 
   const runTranscription = async () => {
@@ -560,28 +588,29 @@ export default function App() {
             </span>
           </div>
 
-          <label
+          <button
+            type="button"
             className={`drop-zone ${isDragging ? "dragging" : ""}`}
-            onDragEnter={(event) => {
+            onClick={() => fileInputRef.current?.click()}
+            onDragEnter={handleAudioDragEnter}
+            onDragOver={(event) => {
               event.preventDefault();
-              setIsDragging(true);
+              event.dataTransfer.dropEffect = "copy";
             }}
-            onDragOver={(event) => event.preventDefault()}
-            onDragLeave={() => setIsDragging(false)}
-            onDrop={(event) => {
-              event.preventDefault();
-              setIsDragging(false);
-              handleFile(event.dataTransfer.files.item(0));
-            }}
+            onDragLeave={handleAudioDragLeave}
+            onDrop={handleAudioDrop}
           >
             <Upload size={22} aria-hidden="true" />
             <span>{currentAudio ? currentAudio.name : "選擇音訊檔"}</span>
-            <input
-              type="file"
-              accept="audio/*,.wav,.mp3,.m4a,.flac,.ogg,.webm"
-              onChange={(event) => handleFile(event.target.files?.item(0) ?? null)}
-            />
-          </label>
+          </button>
+          <input
+            ref={fileInputRef}
+            className="file-input"
+            type="file"
+            accept="audio/*,.wav,.mp3,.m4a,.flac,.ogg,.webm"
+            tabIndex={-1}
+            onChange={handleFileInputChange}
+          />
 
           {currentAudio ? (
             <div className="audio-preview">

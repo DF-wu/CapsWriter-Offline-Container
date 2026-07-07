@@ -361,6 +361,7 @@ input[type="range"] {
   display: grid;
   place-items: center;
   gap: 8px;
+  width: 100%;
   min-height: 132px;
   padding: 16px;
   border: 1px dashed #94a3b8;
@@ -369,9 +370,14 @@ input[type="range"] {
   color: var(--color-primary);
   text-align: center;
   cursor: pointer;
+  font-weight: 600;
   transition:
     background-color 160ms ease,
     border-color 160ms ease;
+}
+
+.drop-zone span {
+  overflow-wrap: anywhere;
 }
 
 .drop-zone.dragging {
@@ -379,7 +385,7 @@ input[type="range"] {
   background: #ecfdf5;
 }
 
-.drop-zone input {
+.file-input {
   display: none;
 }
 
