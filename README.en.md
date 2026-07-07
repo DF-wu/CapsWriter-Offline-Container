@@ -175,7 +175,7 @@ CAPSWRITER_HTTP_API_KEY=sk-your-token
 CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:5173
 ```
 
-Expose port `6017` in [`docker-compose.yml`](docker-compose.yml), then restart:
+Uncomment the HTTP API port mapping under `ports:` in [`docker-compose.yml`](docker-compose.yml), then restart:
 
 ```bash
 docker compose up -d --force-recreate capswriter-server

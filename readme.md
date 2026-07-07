@@ -75,7 +75,7 @@ CAPSWRITER_HTTP_API_KEY=sk-your-token       # 對外時務必設定
 CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:5173  # 使用 Web Console 時設定
 ```
 
-打開 [`docker-compose.yml`](docker-compose.yml) 的 HTTP API port mapping（取消 `CAPSWRITER_HTTP_API_PORT` 那行的註解），然後：
+打開 [`docker-compose.yml`](docker-compose.yml) 的 HTTP API port mapping（取消 `ports:` 底下 HTTP API mapping 的註解），然後：
 
 ```bash
 docker compose up -d --force-recreate capswriter-server
