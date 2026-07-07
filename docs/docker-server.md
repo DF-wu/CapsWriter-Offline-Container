@@ -77,12 +77,32 @@ HTTP API 預設不把 prompt/context 或轉錄內容寫入 server log/console；
 
 | 變數 | 預設 | 說明 |
 |---|---|---|
-| `CAPSWRITER_QWEN_VULKAN_ENABLE` | `true` | Qwen llama 是否走 Vulkan |
-| `CAPSWRITER_FUNASR_VULKAN_ENABLE` | `true` | Fun-ASR llama 是否走 Vulkan |
+| `CAPSWRITER_INFERENCE_HARDWARE` | `auto` | Docker entrypoint 的硬體策略；用這個控制 GPU/CPU 偏好 |
+| `CAPSWRITER_QWEN_PRESET` | `default` | Qwen backend 組合；`low_vram_gpu` 可讓 ONNX 留在 GPU、llama 改 CPU |
 | `GGML_VK_DISABLE_COOPMAT` | _(空)_ | AMD iGPU 無法載入 GGUF 時設 `1` |
 | `GGML_VK_DISABLE_F16` | _(空)_ | iGPU 解碼錯誤、熔斷時設 `1` |
 
-### 3.4 日誌與資源
+`CAPSWRITER_QWEN_USE_CUDA`、`CAPSWRITER_FUNASR_USE_CUDA`、`CAPSWRITER_QWEN_VULKAN_ENABLE` 與 `CAPSWRITER_FUNASR_VULKAN_ENABLE` 由 `docker/server/entrypoint.sh` 依硬體偵測結果設定；不要把它們當成 `.env` 的主要操作介面。
+
+### 3.4 模型調校
+
+| 變數 | 預設 | 說明 |
+|---|---|---|
+| `CAPSWRITER_QWEN_CHUNK_SIZE` | `80` | Qwen 分段長度（秒） |
+| `CAPSWRITER_QWEN_N_CTX` | `2048` | Qwen llama context size |
+| `CAPSWRITER_QWEN_MEMORY_NUM` | `1` | Qwen 記憶段數 |
+| `CAPSWRITER_QWEN_PAD_TO` | `30` | Qwen ONNX padding 長度 |
+| `CAPSWRITER_QWEN_LLAMA_N_BATCH` | _(空)_ | expert-only llama batch override |
+| `CAPSWRITER_QWEN_LLAMA_N_UBATCH` | _(空)_ | expert-only llama ubatch override |
+| `CAPSWRITER_QWEN_LLAMA_FLASH_ATTN` | _(空)_ | expert-only llama flash-attention override |
+| `CAPSWRITER_QWEN_LLAMA_OFFLOAD_KQV` | _(空)_ | expert-only llama K/Q/V offload override |
+| `CAPSWRITER_FUNASR_ENABLE_CTC` | `true` | Fun-ASR CTC hotword retrieval |
+| `CAPSWRITER_FUNASR_N_PREDICT` | `512` | Fun-ASR decoder token limit |
+| `CAPSWRITER_FUNASR_PAD_TO` | `30` | Fun-ASR ONNX padding 長度 |
+| `CAPSWRITER_FUNASR_MAX_HOTWORDS` | `20` | 傳入 Fun-ASR decoder 的熱詞上限 |
+| `CAPSWRITER_FUNASR_SIMILAR_THRESHOLD` | `0.6` | Fun-ASR 熱詞相似度門檻 |
+
+### 3.5 日誌與資源
 
 | 變數 | 預設 | 說明 |
 |---|---|---|
