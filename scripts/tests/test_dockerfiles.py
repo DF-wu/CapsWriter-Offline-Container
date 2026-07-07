@@ -21,6 +21,13 @@ EXPECTED_BASE_IMAGES = {
     },
 }
 
+EXPECTED_SERVER_BOOTSTRAP_PACKAGES = {
+    "packaging": "26.2",
+    "pip": "26.1.2",
+    "setuptools": "83.0.0",
+    "wheel": "0.47.0",
+}
+
 
 class DockerfileTest(unittest.TestCase):
     def test_base_images_are_pinned_to_digests(self) -> None:
@@ -34,6 +41,13 @@ class DockerfileTest(unittest.TestCase):
             for image, digest in images.items():
                 with self.subTest(filename=filename, image=image):
                     self.assertIn(f"{image}@sha256:{digest}", source)
+
+    def test_server_python_bootstrap_packages_are_pinned(self) -> None:
+        source = (ROOT / "docker/server/Dockerfile").read_text(encoding="utf-8")
+        self.assertNotIn("pip install --upgrade pip setuptools wheel", source)
+        for package, version in EXPECTED_SERVER_BOOTSTRAP_PACKAGES.items():
+            with self.subTest(package=package):
+                self.assertIn(f"{package}=={version}", source)
 
 
 if __name__ == "__main__":

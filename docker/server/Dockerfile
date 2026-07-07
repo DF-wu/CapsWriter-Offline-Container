@@ -16,7 +16,11 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 python3-venv python3-pip python3-tk tini libgomp1 libvulkan1 ca-certificates ffmpeg \
     && python3 -m venv /opt/venv \
-    && /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel \
+    && /opt/venv/bin/python -m pip install \
+        packaging==26.2 \
+        pip==26.1.2 \
+        setuptools==83.0.0 \
+        wheel==0.47.0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
