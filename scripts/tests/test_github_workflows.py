@@ -18,6 +18,7 @@ PINNED_ACTIONS = {
     "docker/metadata-action": "c299e40c65443455700f0fdfc63efafe5b349051",
     "docker/build-push-action": "10e90e3645eae34f1e60eeb005ba3a3d33f178e8",
 }
+PINNED_RUNNER = "ubuntu-24.04"
 
 
 def read_workflow(filename: str) -> str:
@@ -35,6 +36,15 @@ def workflow_job(source: str, job_name: str) -> str:
 
 
 class GitHubWorkflowTest(unittest.TestCase):
+    def test_workflows_pin_runner_images(self) -> None:
+        for path in sorted(WORKFLOWS.glob("*.yml")):
+            source = path.read_text(encoding="utf-8")
+            runners = re.findall(r"(?m)^\s+runs-on:\s+([^\s#]+)", source)
+            with self.subTest(filename=path.name):
+                self.assertTrue(runners)
+                self.assertNotIn("ubuntu-latest", runners)
+                self.assertTrue(all(runner == PINNED_RUNNER for runner in runners))
+
     def test_workflows_pin_third_party_actions_to_full_shas(self) -> None:
         for path in sorted(WORKFLOWS.glob("*.yml")):
             with self.subTest(filename=path.name):
