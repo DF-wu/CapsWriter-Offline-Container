@@ -107,6 +107,29 @@ _tray_instance: Optional['_TraySystem'] = None
 _lock = threading.Lock()
 
 
+def _detached_popen_kwargs() -> dict:
+    kwargs = {
+        "stdin": subprocess.DEVNULL,
+        "stdout": subprocess.DEVNULL,
+        "stderr": subprocess.DEVNULL,
+        "close_fds": True,
+    }
+    if os.name == "nt":
+        flags = (
+            getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+            | getattr(subprocess, "DETACHED_PROCESS", 0)
+        )
+        if flags:
+            kwargs["creationflags"] = flags
+    else:
+        kwargs["start_new_session"] = True
+    return kwargs
+
+
+def _launch_detached_process(cmd: list[str]) -> subprocess.Popen:
+    return subprocess.Popen(cmd, **_detached_popen_kwargs())
+
+
 def _get_console_hwnd():
     _init_win_api()
     hwnd = kernel32.GetConsoleWindow()
@@ -271,7 +294,7 @@ class _TraySystem:
                 cmd = sys.argv
             else:
                 cmd = [sys.executable] + sys.argv
-            subprocess.Popen(cmd)
+            _launch_detached_process(cmd)
         except Exception as e:
             logger.error(f"重启失败: {e}")
             return

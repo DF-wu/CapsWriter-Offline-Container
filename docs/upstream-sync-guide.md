@@ -21,7 +21,7 @@ upstream (HaujetZhao/CapsWriter-Offline)
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 ```
 
-關鍵：fork 修改 upstream-tracked 檔案數 = **20**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
+關鍵：fork 修改 upstream-tracked 檔案數 = **22**。其他主要功能都在新增路徑，正常情況不會與上游衝突。
 
 | Divergent file | Fork 保留原因 | Merge 處理 |
 |---|---|---|
@@ -33,6 +33,7 @@ fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 | `zip_release.py` | legacy PyInstaller ZIP packaging 需要 bounded 7-Zip subprocess 與失敗 cleanup | 保留 timeout/cleanup guard；同步 upstream 其他 packaging 規則 |
 | `core/client/audio/file_manager.py` | GUI recorder MP3 `ffmpeg` finalize 需要 bounded wait 與 kill cleanup | 保留 `CAPSWRITER_CLIENT_AUDIO_FINISH_TIMEOUT` guard；同步 upstream audio file lifecycle logic |
 | `core/client/hotword/hotword_standalone.py` | standalone hotword Ollama chat helper 需要 bounded local HTTP request | 保留 `CAPSWRITER_OLLAMA_CHAT_TIMEOUT` guard；同步 upstream hotword/demo logic |
+| `core/client/manager/tray_manager.py` | GUI tray hotword-file default opener 需要 detached stdio/session 與 failure logging | 保留 detached launcher helper；同步 upstream tray menu options |
 | `core/client/transcribe/media_tool.py` | GUI file transcription 的 `ffprobe` duration probe 需要 bounded timeout 與 kill cleanup | 保留 `CAPSWRITER_CLIENT_MEDIA_TIMEOUT` guard；同步 upstream media environment/probe logic |
 | `core/client/transcribe/file_transcriber.py` | GUI file transcription 的 `ffmpeg` streaming subprocess 需要 bounded stdout read、final wait 與 kill cleanup | 保留 `CAPSWRITER_CLIENT_MEDIA_TIMEOUT` guard；同步 upstream file transcription flow |
 | `core/server/engines/{qwen_asr_gguf,force_aligner_gguf,fun_asr_gguf}/export/gguf/utility.py` | GGUF export remote safetensor `GET`/`HEAD` 需要 bounded timeout | 保留 `CAPSWRITER_GGUF_EXPORT_HTTP_TIMEOUT` guard；同步 upstream GGUF export utility logic |
@@ -40,6 +41,7 @@ fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 | `core/server/worker/gpu_boost.py` | GPU boost/unboost shell commands 需要 bounded timeout，避免自訂管理命令卡住 worker loop | 保留 `CAPSWRITER_GPU_BOOST_TIMEOUT` guard；同步 upstream GPU boost state logic |
 | `core/server/worker/process_manager.py` | recognizer worker shutdown 需要 bounded graceful join、terminate wait 與 kill fallback | 保留 `CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT` guard；同步 upstream worker lifecycle logic |
 | `core/tools/window_detector.py` | macOS/Linux window detection subprocess 要有 timeout，避免桌面 client output path hang | 保留 timeout guard；同步 upstream window/app detection 規則 |
+| `core/ui/tray.py` | GUI tray restart subprocess 需要 detached stdio/session，避免重啟 child 繼承舊 handles | 保留 detached launcher helper；同步 upstream tray lifecycle/menu logic |
 
 ## 2. 標準同步流程
 
@@ -57,7 +59,7 @@ git merge --ff-only origin/master   # 試 fast-forward
 git merge origin/master
 ```
 
-預期結果：低衝突。若衝突，通常只會落在上方 20 個已知 divergent files。
+預期結果：低衝突。若衝突，通常只會落在上方 22 個已知 divergent files。
 
 跑驗證：
 

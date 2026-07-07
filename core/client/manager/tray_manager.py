@@ -1,8 +1,42 @@
 # coding: utf-8
 import os
+import subprocess
+import sys
+
 from . import logger
-import os, sys, subprocess
 from config_client import ClientConfig as Config
+
+
+def _detached_popen_kwargs() -> dict:
+    kwargs = {
+        "stdin": subprocess.DEVNULL,
+        "stdout": subprocess.DEVNULL,
+        "stderr": subprocess.DEVNULL,
+        "close_fds": True,
+    }
+    if os.name == "nt":
+        flags = (
+            getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
+            | getattr(subprocess, "DETACHED_PROCESS", 0)
+        )
+        if flags:
+            kwargs["creationflags"] = flags
+    else:
+        kwargs["start_new_session"] = True
+    return kwargs
+
+
+def _launch_detached_process(cmd: list[str]) -> subprocess.Popen:
+    return subprocess.Popen(cmd, **_detached_popen_kwargs())
+
+
+def _open_with_default_app(target: str) -> None:
+    if sys.platform == 'win32':
+        os.startfile(target)
+    elif sys.platform == 'darwin':
+        _launch_detached_process(['open', target])
+    else:
+        _launch_detached_process(['xdg-open', target])
 
 
 class TrayManager:
@@ -74,12 +108,10 @@ class TrayManager:
         """用系统默认方式打开热词文件回调"""
         
         target = os.path.abspath('hot.txt')
-        if sys.platform == 'win32':
-            os.startfile(target)
-        elif sys.platform == 'darwin':
-            subprocess.Popen(['open', target])
-        else:
-            subprocess.Popen(['xdg-open', target])
+        try:
+            _open_with_default_app(target)
+        except Exception as e:
+            logger.warning(f"无法打开热词文件: {e}")
 
     def _add_context(self):
         """打开编辑上下文界面回调"""
