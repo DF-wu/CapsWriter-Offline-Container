@@ -21,6 +21,7 @@ class HttpApiTaskSubmissionTest(unittest.TestCase):
             "": "auto",
             "zh": "chinese",
             "zh_CN": "chinese",
+            "pt-BR": "pt-br",
             "EN": "english",
             "ja": "japanese",
             "yue": "cantonese",
@@ -29,6 +30,13 @@ class HttpApiTaskSubmissionTest(unittest.TestCase):
         for value, expected in cases.items():
             with self.subTest(value=value):
                 self.assertEqual(tasks.normalize_language_hint(value), expected)
+
+    def test_language_hint_rejects_oversized_or_unsafe_values(self) -> None:
+        with self.assertRaisesRegex(ValueError, "at most"):
+            tasks.normalize_language_hint("x" * (tasks.MAX_LANGUAGE_HINT_CHARS + 1))
+        for value in ("en\nwarning", "en us", "zh/../../"):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "letters"):
+                tasks.normalize_language_hint(value)
 
     def test_short_audio_spec_uses_upstream_task_field_names(self) -> None:
         pcm = b"\0" * tasks.seconds_to_bytes(1.0)

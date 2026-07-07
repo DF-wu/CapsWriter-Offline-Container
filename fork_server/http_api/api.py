@@ -256,7 +256,10 @@ def create_app() -> FastAPI:
 
         future = task_router.register(task_id)
         context = normalize_prompt_context(prompt)
-        language_hint = normalize_language_hint(language)
+        try:
+            language_hint = normalize_language_hint(language)
+        except ValueError as e:
+            raise HTTPException(400, str(e))
         logger.info(
             f"[HTTP] task={task_id[:8]} duration={duration:.2f}s "
             f"fmt={response_format} lang={language_hint} bytes={len(audio_bytes)}"

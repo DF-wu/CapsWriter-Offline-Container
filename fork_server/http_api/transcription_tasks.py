@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Iterator, Optional, TypedDict
 
 
@@ -14,6 +15,8 @@ PCM_BYTES_PER_SECOND = PCM_SAMPLE_RATE * PCM_BYTES_PER_SAMPLE * PCM_CHANNELS
 DEFAULT_SEG_DURATION = 60.0
 DEFAULT_SEG_OVERLAP = 4.0
 MAX_PROMPT_CONTEXT_CHARS = 2048
+MAX_LANGUAGE_HINT_CHARS = 32
+LANGUAGE_HINT_RE = re.compile(r"^[a-z0-9-]+$")
 
 LANGUAGE_ALIASES = {
     "": "auto",
@@ -83,6 +86,14 @@ def normalize_prompt_context(prompt: Optional[str]) -> str:
 
 def normalize_language_hint(language: Optional[str]) -> str:
     normalized = (language or "").strip().lower().replace("_", "-")
+    if not normalized:
+        return "auto"
+    if len(normalized) > MAX_LANGUAGE_HINT_CHARS:
+        raise ValueError(
+            f"language hint must be at most {MAX_LANGUAGE_HINT_CHARS} characters"
+        )
+    if not LANGUAGE_HINT_RE.fullmatch(normalized):
+        raise ValueError("language hint may only contain letters, numbers, and '-'")
     return LANGUAGE_ALIASES.get(normalized, normalized or "auto")
 
 

@@ -88,7 +88,7 @@ OpenAI Whisper 規格的 multipart 端點。
 |---|---|---|---|
 | `file` | ✅ | — | 音訊檔；ffmpeg 能解的格式都行（mp3/wav/m4a/flac/ogg/webm/...） |
 | `model` | — | `whisper-1` | OpenAI 相容占位，**實際模型由 `CAPSWRITER_MODEL_TYPE` 決定** |
-| `language` | — | `auto` | 語言提示；接受 `chinese`/`english` 等統一名稱，也接受常見 OpenAI-style alias 如 `zh`、`en`、`ja`、`ko` |
+| `language` | — | `auto` | 語言提示；接受 `chinese`/`english` 等統一名稱，也接受常見 OpenAI-style alias 如 `zh`、`en`、`ja`、`ko`；最長 32 字元，只允許英數與 `-`（`_` 會轉成 `-`） |
 | `prompt` | — | _(無)_ | 轉為 upstream `Task.context` 傳給 recognizer；會正規化換行並截斷到前 2048 字元 |
 | `response_format` | — | `json` | 五選一：`json`/`text`/`verbose_json`/`srt`/`vtt` |
 | `temperature` | — | `0.0` | OpenAI 相容占位 |
