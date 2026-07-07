@@ -34,6 +34,28 @@ class UnauthorizedHealthHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
 
+class TranscriptionHandler(BaseHTTPRequestHandler):
+    request_body = b""
+    content_length = 0
+
+    def log_message(self, *_args):
+        return
+
+    def do_POST(self):
+        if self.path != "/v1/audio/transcriptions":
+            self.send_response(404)
+            self.end_headers()
+            return
+        self.__class__.content_length = int(self.headers.get("Content-Length", "0"))
+        self.__class__.request_body = self.rfile.read(self.__class__.content_length)
+        body = b"mock transcript"
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+
 class CheckHttpApiMultipartTest(unittest.TestCase):
     def test_multipart_header_value_escapes_control_characters(self) -> None:
         value = 'sample"\\\r\nX-Injected: yes.wav'
@@ -156,6 +178,41 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
                 int(request.get_header("Content-length")),
                 sum(len(chunk) for chunk in request.data),
             )
+
+    def test_api_post_streaming_body_reaches_http_server(self) -> None:
+        TranscriptionHandler.request_body = b""
+        TranscriptionHandler.content_length = 0
+        server = ThreadingHTTPServer(("127.0.0.1", 0), TranscriptionHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                audio = Path(tmp) / "sample.wav"
+                audio.write_bytes(b"RIFF")
+                result = check_http_api._api_post(
+                    f"http://127.0.0.1:{server.server_port}",
+                    "/v1/audio/transcriptions",
+                    str(audio),
+                    "text",
+                    "",
+                    7.5,
+                )
+        finally:
+            server.shutdown()
+            thread.join(timeout=5)
+            server.server_close()
+
+        self.assertEqual(result["_raw_text"], "mock transcript")
+        self.assertEqual(
+            TranscriptionHandler.content_length,
+            len(TranscriptionHandler.request_body),
+        )
+        self.assertIn(b"RIFF", TranscriptionHandler.request_body)
+        self.assertIn(
+            b'\r\nContent-Disposition: form-data; name="response_format"',
+            TranscriptionHandler.request_body,
+        )
+        self.assertIn(b"\r\n\r\ntext\r\n", TranscriptionHandler.request_body)
 
     def test_positive_float_rejects_non_positive_timeout(self) -> None:
         self.assertEqual(check_http_api.positive_float("2.5"), 2.5)
