@@ -127,6 +127,10 @@ def verify_cli() -> int:
     return run_required([sys.executable, "client/cli/scripts/verify.py"])
 
 
+def verify_upstream_divergence() -> int:
+    return run_required([sys.executable, "scripts/check_upstream_divergence.py"])
+
+
 def verify_server_compile() -> int:
     return run_required(
         [
@@ -467,6 +471,7 @@ def main() -> int:
     status = 0
     try:
         for step in [
+            verify_upstream_divergence,
             verify_cli,
             verify_server_compile,
             verify_server_tests,

@@ -119,11 +119,8 @@ git log --oneline origin/master..HEAD -- core/server/connection/ws_send.py
 python3 -m py_compile $(find fork_server start_server_docker.py -name "*.py")
 python3 -c "from fork_server.bootstrap import apply_env_config, create_server"
 
-# (B) 上游檔修改數應為 5 (known divergent files)
-echo "Modified upstream files:"
-git diff origin/master..HEAD --name-only \
-  | xargs -I {} sh -c 'git ls-tree origin/master --name-only -- {} 2>/dev/null | grep -q . && echo "  {}"' \
-  || true
+# (B) 上游檔修改數應保持在已記錄清單內
+python scripts/check_upstream_divergence.py --require-base
 
 # (C) Container build
 docker build -t capswriter-server:merge-test -f docker/server/Dockerfile .
