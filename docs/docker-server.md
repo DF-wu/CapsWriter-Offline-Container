@@ -69,7 +69,7 @@ docker compose logs -f capswriter-server
 | `CAPSWRITER_HTTP_API_CORS_ORIGINS` | _(空)_ | 逗號分隔的瀏覽器 origin allowlist |
 | `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS` | `false` | 是否把 prompt/context 與轉錄全文寫入 server log/console；production 建議維持 `false` |
 
-HTTP API 相關 env 會在啟動時做範圍驗證。錯誤的 port、上傳大小、timeout 或 CORS origin 會讓 server 直接退出，避免 production 以意外預設值啟動。
+Server、模型調校與 HTTP API env 會在啟動時做格式/範圍驗證。錯誤的 model type、port、log level、boolean、Qwen preset、數值調校、上傳大小、timeout 或 CORS origin 會讓 server 直接退出，避免 production 以意外預設值啟動。
 當 HTTP API 啟用且 `CAPSWRITER_HTTP_API_BIND` 不是 loopback 時，也會要求 `CAPSWRITER_HTTP_API_KEY`，除非明確設定 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND=true`。
 HTTP API 預設不把 prompt/context 或轉錄內容寫入 server log/console；只在受信任本機 debug 時才啟用 `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS=true`。
 

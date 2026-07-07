@@ -51,6 +51,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 - HTTP 上傳以 chunk 讀取並套用 `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB`，成功回應帶 `X-CapsWriter-Task-ID`。
 - `/ready` 回報 `task_router` 與 `ffmpeg` readiness，不暴露 secrets。
 - HTTP API 預設不把 prompt/context 或轉錄文字寫入 server log/console；需明確設定 `CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS=true` 才輸出全文。
+- Server、模型調校與 HTTP API env 在啟動時 fail fast；錯誤 boolean、port、Qwen preset、數值範圍或 CORS origin 不會靜默退回預設值。
 - `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS` 對 HTTP 轉錄請求做 request-slot backpressure。
 - HTTP API 啟用且 bind 到非 loopback 時會要求 Bearer key；無 KEY 只允許 loopback 或明確 insecure opt-out。
 - HTTP error 使用 OpenAI-style `{"error": ...}` JSON envelope，保留原 HTTP status。
@@ -104,7 +105,7 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 | `python -m unittest discover -s scripts/tests -v` | 通過：Verifier/diagnostic 28 tests，含 live HTTP API key log redaction/key-file pass-through、diagnostic streamed multipart/configurable timeout/real HTTP body delivery/POST 401 handling、Docker Compose HTTP/model tuning env guard、HTTP API dependency guard、role template secret/default guard、`/health` 401 API-key guidance、cleanup traversal pruning 與 HTTP decode timeout source guard |
 | `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 12 tests、Verifier/diagnostic 23 tests、Web 36 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
 | `python scripts/verify_all.py --skip-web --http-base-url http://127.0.0.1:16017 --http-key ... --http-require-ready --http-audio benchmarks/audio/arctic_a0001.wav --http-expect "Author of"` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 15 tests、Verifier/diagnostic 23 tests、current-branch live `/health` v2.6、`/ready` ok、Qwen ASR model-backed STT (`Author of the Danger Trail, Philip Steels, etc.`) |
-| `python scripts/verify_all.py --skip-web` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 15 tests、Verifier/diagnostic 28 tests（含 Docker Compose HTTP/model tuning env guard）、cleanup |
+| `python scripts/verify_all.py --skip-web` | 通過：CLI 24 tests、server compile、HTTP 57 tests（含 fail-fast server/model env validation）、Docker server 17 tests（含 entrypoint `cpu_only` guard）、Verifier/diagnostic 28 tests（含 Docker Compose HTTP/model tuning env guard）、cleanup |
 
 `127.0.0.1:6017` 仍是既有外部服務；本分支驗證使用隔離容器掛載目前 checkout，對外映射 `127.0.0.1:16017`，並以 temporary API key 執行 `/ready` 與已知音檔 STT gate。共享 verifier log 會將 `--http-key` 顯示為 `<redacted>`。
 

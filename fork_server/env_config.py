@@ -14,53 +14,80 @@ from __future__ import annotations
 import os
 from typing import Optional, Type
 
-from fork_server.http_api.runtime_config import parse_http_api_env
+from fork_server.http_api.runtime_config import (
+    ConfigError,
+    parse_bool,
+    parse_float_range,
+    parse_http_api_env,
+    parse_int_range,
+)
+
+
+SUPPORTED_MODEL_TYPES = {"qwen_asr", "fun_asr_nano", "sensevoice", "paraformer"}
+SUPPORTED_LOG_LEVELS = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+SUPPORTED_QWEN_PRESETS = {"default", "low_vram_gpu", "cpu_only"}
 
 
 # ---------- helpers ----------
 
 def _env_str(name: str, default: Optional[str] = None) -> Optional[str]:
     val = os.environ.get(name)
-    if val is None or val == "":
+    if val is None:
+        return default
+    val = val.strip()
+    if not val:
         return default
     return val
 
 
 def _env_bool(name: str, default: bool) -> bool:
-    raw = os.environ.get(name)
-    if raw is None or raw == "":
-        return default
-    return raw.strip().lower() in {"1", "true", "yes", "on"}
+    return parse_bool(os.environ, name, default)
 
 
-def _env_int(name: str, default: int) -> int:
-    raw = os.environ.get(name)
-    if raw is None or raw == "":
-        return default
-    try:
-        return int(raw)
-    except ValueError:
-        return default
+def _env_int(
+    name: str,
+    default: int,
+    *,
+    minimum: int,
+    maximum: int | None = None,
+) -> int:
+    return parse_int_range(
+        os.environ,
+        name,
+        default,
+        minimum=minimum,
+        maximum=maximum,
+    )
 
 
-def _env_optional_int(name: str) -> Optional[int]:
-    raw = os.environ.get(name)
-    if raw is None or raw == "":
+def _env_optional_int(
+    name: str,
+    *,
+    minimum: int,
+    maximum: int | None = None,
+) -> Optional[int]:
+    if _env_str(name) is None:
         return None
-    try:
-        return int(raw)
-    except ValueError:
-        return None
+    return parse_int_range(
+        os.environ,
+        name,
+        0,
+        minimum=minimum,
+        maximum=maximum,
+    )
 
 
-def _env_float(name: str, default: float) -> float:
-    raw = os.environ.get(name)
-    if raw is None or raw == "":
-        return default
-    try:
-        return float(raw)
-    except ValueError:
-        return default
+def _env_float(
+    name: str,
+    default: float,
+    *,
+    minimum: float,
+    maximum: float | None = None,
+) -> float:
+    value = parse_float_range(os.environ, name, default, minimum=minimum)
+    if maximum is not None and value > maximum:
+        raise ConfigError(f"{name} must be <= {maximum:g}")
+    return value
 
 
 def _env_csv(name: str, default: Optional[list[str]] = None) -> list[str]:
@@ -74,6 +101,24 @@ def _set(cls: Type, attr: str, value) -> None:
     setattr(cls, attr, value)
 
 
+def _env_choice(name: str, default: str, choices: set[str]) -> str:
+    value = _env_str(name, default) or default
+    value = value.strip().lower()
+    if value not in choices:
+        choices_text = ", ".join(sorted(choices))
+        raise ConfigError(f"{name} must be one of: {choices_text}")
+    return value
+
+
+def _env_log_level(name: str, default: str) -> str:
+    value = _env_str(name, default) or default
+    value = value.strip().upper()
+    if value not in SUPPORTED_LOG_LEVELS:
+        choices_text = ", ".join(sorted(SUPPORTED_LOG_LEVELS))
+        raise ConfigError(f"{name} must be one of: {choices_text}")
+    return value
+
+
 # ---------- preset resolution ----------
 
 def _resolve_qwen_preset(preset: str) -> dict:
@@ -84,6 +129,9 @@ def _resolve_qwen_preset(preset: str) -> dict:
     cpu_only     = ONNX CPU, llama CPU
     """
     preset = (preset or "default").strip().lower()
+    if preset not in SUPPORTED_QWEN_PRESETS:
+        choices_text = ", ".join(sorted(SUPPORTED_QWEN_PRESETS))
+        raise ConfigError(f"CAPSWRITER_QWEN_PRESET must be one of: {choices_text}")
     if preset == "low_vram_gpu":
         return {"onnx_provider": "CUDA", "llm_use_gpu": False}
     if preset == "cpu_only":
@@ -157,14 +205,37 @@ def apply() -> None:
     _absolutize_model_paths()
 
     # ---- ServerConfig ----
-    if (v := _env_str("CAPSWRITER_MODEL_TYPE")):
-        _set(ServerConfig, "model_type", v)
+    if _env_str("CAPSWRITER_MODEL_TYPE") is not None:
+        _set(
+            ServerConfig,
+            "model_type",
+            _env_choice(
+                "CAPSWRITER_MODEL_TYPE",
+                ServerConfig.model_type,
+                SUPPORTED_MODEL_TYPES,
+            ),
+        )
     if (v := _env_str("CAPSWRITER_SERVER_ADDR")):
         _set(ServerConfig, "addr", v)
-    if (v := _env_str("CAPSWRITER_SERVER_PORT")):
-        _set(ServerConfig, "port", v)
-    if (v := _env_str("CAPSWRITER_LOG_LEVEL")):
-        _set(ServerConfig, "log_level", v.upper())
+    if _env_str("CAPSWRITER_SERVER_PORT") is not None:
+        _set(
+            ServerConfig,
+            "port",
+            str(
+                _env_int(
+                    "CAPSWRITER_SERVER_PORT",
+                    int(ServerConfig.port),
+                    minimum=1,
+                    maximum=65535,
+                )
+            ),
+        )
+    if _env_str("CAPSWRITER_LOG_LEVEL") is not None:
+        _set(
+            ServerConfig,
+            "log_level",
+            _env_log_level("CAPSWRITER_LOG_LEVEL", ServerConfig.log_level),
+        )
     _set(ServerConfig, "enable_tray", _env_bool("CAPSWRITER_ENABLE_TRAY", False))
 
     # ---- hotwords path (Docker 內固定 /app/hot-server.txt) ----
@@ -210,20 +281,36 @@ def apply() -> None:
         _set(Qwen3ASRGGUFArgs, "llm_use_gpu",
              _env_bool("CAPSWRITER_QWEN_VULKAN_ENABLE", True))
     _set(Qwen3ASRGGUFArgs, "chunk_size",
-         _env_float("CAPSWRITER_QWEN_CHUNK_SIZE", float(getattr(Qwen3ASRGGUFArgs, "chunk_size", 80.0))))
+         _env_float(
+             "CAPSWRITER_QWEN_CHUNK_SIZE",
+             float(getattr(Qwen3ASRGGUFArgs, "chunk_size", 80.0)),
+             minimum=1.0,
+         ))
     _set(Qwen3ASRGGUFArgs, "n_ctx",
-         _env_int("CAPSWRITER_QWEN_N_CTX", int(getattr(Qwen3ASRGGUFArgs, "n_ctx", 2048))))
+         _env_int(
+             "CAPSWRITER_QWEN_N_CTX",
+             int(getattr(Qwen3ASRGGUFArgs, "n_ctx", 2048)),
+             minimum=1,
+         ))
     _set(Qwen3ASRGGUFArgs, "memory_num",
-         _env_int("CAPSWRITER_QWEN_MEMORY_NUM", int(getattr(Qwen3ASRGGUFArgs, "memory_num", 1))))
+         _env_int(
+             "CAPSWRITER_QWEN_MEMORY_NUM",
+             int(getattr(Qwen3ASRGGUFArgs, "memory_num", 1)),
+             minimum=0,
+         ))
     _set(Qwen3ASRGGUFArgs, "dml_pad_to",
-         _env_int("CAPSWRITER_QWEN_PAD_TO", int(getattr(Qwen3ASRGGUFArgs, "dml_pad_to", 30))))
+         _env_int(
+             "CAPSWRITER_QWEN_PAD_TO",
+             int(getattr(Qwen3ASRGGUFArgs, "dml_pad_to", 30)),
+             minimum=0,
+         ))
 
     # Qwen advanced llama overrides (only set if env explicitly provided)
     for env_name, attr in [
         ("CAPSWRITER_QWEN_LLAMA_N_BATCH", "n_batch"),
         ("CAPSWRITER_QWEN_LLAMA_N_UBATCH", "n_ubatch"),
     ]:
-        if (v := _env_optional_int(env_name)) is not None:
+        if (v := _env_optional_int(env_name, minimum=1)) is not None:
             _set(Qwen3ASRGGUFArgs, attr, v)
     if _env_str("CAPSWRITER_QWEN_LLAMA_FLASH_ATTN") is not None:
         _set(Qwen3ASRGGUFArgs, "flash_attn",
@@ -243,16 +330,29 @@ def apply() -> None:
         _set(FunASRNanoGGUFArgs, "enable_ctc",
              _env_bool("CAPSWRITER_FUNASR_ENABLE_CTC", True))
     _set(FunASRNanoGGUFArgs, "n_predict",
-         _env_int("CAPSWRITER_FUNASR_N_PREDICT",
-                  int(getattr(FunASRNanoGGUFArgs, "n_predict", 512))))
+         _env_int(
+             "CAPSWRITER_FUNASR_N_PREDICT",
+             int(getattr(FunASRNanoGGUFArgs, "n_predict", 512)),
+             minimum=1,
+         ))
     _set(FunASRNanoGGUFArgs, "dml_pad_to",
-         _env_int("CAPSWRITER_FUNASR_PAD_TO",
-                  int(getattr(FunASRNanoGGUFArgs, "dml_pad_to", 30))))
+         _env_int(
+             "CAPSWRITER_FUNASR_PAD_TO",
+             int(getattr(FunASRNanoGGUFArgs, "dml_pad_to", 30)),
+             minimum=0,
+         ))
     _set(FunASRNanoGGUFArgs, "max_hotwords",
-         _env_int("CAPSWRITER_FUNASR_MAX_HOTWORDS",
-                  int(getattr(FunASRNanoGGUFArgs, "max_hotwords", 20))))
+         _env_int(
+             "CAPSWRITER_FUNASR_MAX_HOTWORDS",
+             int(getattr(FunASRNanoGGUFArgs, "max_hotwords", 20)),
+             minimum=0,
+         ))
     _set(FunASRNanoGGUFArgs, "similar_threshold",
-         _env_float("CAPSWRITER_FUNASR_SIMILAR_THRESHOLD",
-                    float(getattr(FunASRNanoGGUFArgs, "similar_threshold", 0.6))))
-    if (v := _env_optional_int("CAPSWRITER_NUM_THREADS")) is not None:
+         _env_float(
+             "CAPSWRITER_FUNASR_SIMILAR_THRESHOLD",
+             float(getattr(FunASRNanoGGUFArgs, "similar_threshold", 0.6)),
+             minimum=0.0,
+             maximum=1.0,
+         ))
+    if (v := _env_optional_int("CAPSWRITER_NUM_THREADS", minimum=1)) is not None:
         _set(FunASRNanoGGUFArgs, "n_threads", v)
