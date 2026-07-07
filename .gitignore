@@ -5,6 +5,7 @@ __pycache__/
 
 # C 扩展
 *.so
+*.so.*
 
 # 发布 / 打包
 .Python

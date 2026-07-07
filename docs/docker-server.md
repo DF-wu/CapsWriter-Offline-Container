@@ -99,7 +99,7 @@ HTTP API 預設不把 prompt/context 或轉錄內容寫入 server log/console；
 1. 根據 `CAPSWRITER_MODEL_TYPE` 找出對應 ASSETS
 2. 檢查 `is_ready()`：required_files 全在 → 跳過下載
 3. 否則下載 zip 到 `models/.downloads/`，校驗 sha256，解壓到 target_dir
-4. 對 GGUF backend（qwen_asr / fun_asr_nano），下載對應 llama.cpp Linux `.so` 到三個 inference/bin 目錄：
+4. 對 GGUF backend（qwen_asr / fun_asr_nano），下載對應 llama.cpp Linux `.so` 到三個 inference/bin 目錄，並檢查 `libggml.so.0` / `libggml-base.so.0` 等 runtime-linked SONAME 檔案：
    - `core/server/engines/qwen_asr_gguf/inference/bin/`
    - `core/server/engines/fun_asr_gguf/inference/bin/`
    - `core/server/engines/force_aligner_gguf/inference/bin/`
@@ -224,6 +224,7 @@ Container healthcheck 行為：
 |---|---|
 | 容器啟動 20 分鐘後 healthcheck 還沒過 | 模型尚未載入或 HTTP `/ready` 還是 degraded；`docker logs` 看進度，`curl :6017/ready` 看 checks。冷啟動可能 30+ 分鐘 |
 | `ONNXRuntimeError: NO_SUCHFILE` | 模型檔不在預期路徑。檢查 `./models/Qwen3-ASR/Qwen3-ASR-1.7B/` 內檔名是否對齊 [`config_server.py:ModelPaths`](../config_server.py) |
+| `libggml-base.so.0: cannot open shared object file` | llama.cpp runtime libraries 不完整；重新跑 `python docker/server/download_models.py` 或重建/重啟容器讓 entrypoint 補齊 versioned `.so` |
 | AMD iGPU 模型載入失敗 | `.env` 設 `GGML_VK_DISABLE_COOPMAT=1` |
 | Intel iGPU 解碼結果亂 | `.env` 設 `GGML_VK_DISABLE_F16=1` |
 | `Container is not running` 立刻退出 | `docker logs <container>` 看 traceback；通常是 missing dep 或 model file 缺失 |

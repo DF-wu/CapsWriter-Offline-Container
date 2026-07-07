@@ -100,11 +100,12 @@ ASR/標點/對齊引擎仍完全來自 upstream `core/server/engines/*`。
 | Gate | 結果 |
 |---|---|
 | `python -m unittest discover -s client/cli/tests -v` | 通過：CLI 24 tests，含 `/ready` ok/degraded diagnostic command、key-file auth、positive timeout validation、valid JSON output files、OpenAI-style error parsing、non-JSON/invalid JSON diagnostics、streamed multipart upload 與 multipart filename escaping |
-| `python -m unittest discover -s docker/server/tests -v` | 通過：Docker server 12 tests，含 HTTP `/ready` healthcheck、healthcheck env parsing 與 model downloader env diagnostics |
+| `python -m unittest discover -s docker/server/tests -v` | 通過：Docker server 15 tests，含 HTTP `/ready` healthcheck、healthcheck env parsing、model downloader env diagnostics 與 llama.cpp runtime library readiness |
 | `python -m unittest discover -s scripts/tests -v` | 通過：Verifier/diagnostic 23 tests，含 live HTTP API key log redaction/key-file pass-through、diagnostic streamed multipart/configurable timeout/real HTTP body delivery/POST 401 handling、HTTP API dependency guard、role template secret/default guard、`/health` 401 API-key guidance、cleanup traversal pruning 與 HTTP decode timeout source guard |
 | `python scripts/verify_all.py --web-browser-smoke --docker-build-web --http-base-url http://127.0.0.1:6017` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 12 tests、Verifier/diagnostic 23 tests、Web 36 tests/build、browser health/readiness/upload/transcribe smoke、Web Docker smoke、live `/health` |
+| `python scripts/verify_all.py --skip-web --http-base-url http://127.0.0.1:16017 --http-key ... --http-require-ready --http-audio benchmarks/audio/arctic_a0001.wav --http-expect "Author of"` | 通過：CLI 24 tests、server compile、HTTP 51 tests、Docker server 15 tests、Verifier/diagnostic 23 tests、current-branch live `/health` v2.6、`/ready` ok、Qwen ASR model-backed STT (`Author of the Danger Trail, Philip Steels, etc.`) |
 
-`--http-require-ready` 已加入 root verifier；目前 `127.0.0.1:6017` 上的 live process 仍是舊版 `v2.5`，需重啟到本分支後 `/ready` 才會從 404 變成可驗證 endpoint。因目前 shell 沒有 live server 的 API key，模型音檔 smoke 會在 `/v1/audio/transcriptions` 收到 401；release evidence 需提供 `--http-key-file` 或 `--http-key`。
+`127.0.0.1:6017` 仍是既有外部服務；本分支驗證使用隔離容器掛載目前 checkout，對外映射 `127.0.0.1:16017`，並以 temporary API key 執行 `/ready` 與已知音檔 STT gate。共享 verifier log 會將 `--http-key` 顯示為 `<redacted>`。
 
 Release candidate 若要宣稱「模型轉錄品質已驗證」，需另外提供已知內容音檔並跑：
 

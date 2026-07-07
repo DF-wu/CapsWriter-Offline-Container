@@ -104,6 +104,20 @@ LLAMA_TARGET_DIRS = [
     Path("core") / "server" / "engines" / "force_aligner_gguf" / "inference" / "bin",
 ]
 
+LLAMA_REQUIRED_CPU_LIBRARIES = [
+    # ctypes loads the unversioned names directly.
+    "libggml.so",
+    "libggml-base.so",
+    "libllama.so",
+    "libggml-cpu.so",
+    # llama.cpp Linux builds also link against these SONAME files at runtime.
+    "libggml.so.0",
+    "libggml-base.so.0",
+]
+LLAMA_REQUIRED_VULKAN_LIBRARIES = [
+    "libggml-vulkan.so",
+]
+
 
 def _download(url: str, destination: Path) -> None:
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -126,10 +140,10 @@ def _extract(archive: Path, target_dir: Path) -> None:
 
 
 def _llama_binaries_ready() -> bool:
-    required_names = ["libggml.so", "libggml-base.so", "libllama.so", "libggml-cpu.so"]
+    required_names = list(LLAMA_REQUIRED_CPU_LIBRARIES)
     preferred_backend = os.getenv("CAPSWRITER_LLAMA_BACKEND", "cpu").strip().lower()
     if preferred_backend == "vulkan":
-        required_names.append("libggml-vulkan.so")
+        required_names.extend(LLAMA_REQUIRED_VULKAN_LIBRARIES)
 
     for target_dir in LLAMA_TARGET_DIRS:
         for required_name in required_names:
