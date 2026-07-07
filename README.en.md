@@ -187,7 +187,7 @@ curl http://127.0.0.1:6017/ready
 
 ```bash
 cd client/web
-npm install
+npm ci --no-audit --no-fund
 npm run dev
 ```
 
