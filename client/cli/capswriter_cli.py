@@ -20,7 +20,7 @@ import sys
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, Iterator, Optional
+from typing import Callable, Iterable, Iterator, Optional, TextIO
 from urllib import error, parse, request
 
 
@@ -459,7 +459,20 @@ def speak_text(text: str, *, voice: str = "", rate: Optional[int] = None, dry_ru
     return subprocess.run(cmd, check=False).returncode
 
 
-def read_text_argument(value: str, from_file: bool) -> str:
+def read_text_argument(
+    value: str | None,
+    *,
+    from_file: bool,
+    from_stdin: bool = False,
+    stdin: TextIO | None = None,
+) -> str:
+    if from_stdin:
+        if value is not None:
+            raise ValueError("--stdin cannot be combined with a text argument")
+        return (stdin or sys.stdin).read()
+    if value is None:
+        source = "file path" if from_file else "text"
+        raise ValueError(f"{source} is required unless --stdin is used")
     if from_file:
         return Path(value).read_text(encoding="utf-8")
     return value
@@ -520,8 +533,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     speak = sub.add_parser("speak", help="Speak text with the local OS TTS engine")
-    speak.add_argument("text", help="Text to speak, or a UTF-8 file path with --file")
-    speak.add_argument("--file", action="store_true", help="Read text from a file")
+    speak.add_argument("text", nargs="?", help="Text to speak, or a UTF-8 file path with --file")
+    speak_source = speak.add_mutually_exclusive_group()
+    speak_source.add_argument("--file", action="store_true", help="Read text from a file")
+    speak_source.add_argument("--stdin", action="store_true", help="Read text from standard input")
     speak.add_argument("--voice", default="")
     speak.add_argument("--rate", type=int)
     speak.add_argument("--dry-run", action="store_true", help="Print the command only")
@@ -598,7 +613,7 @@ def command_transcribe(args) -> int:
 
 
 def command_speak(args) -> int:
-    text = read_text_argument(args.text, args.file)
+    text = read_text_argument(args.text, from_file=args.file, from_stdin=args.stdin)
     return speak_text(text, voice=args.voice, rate=args.rate, dry_run=args.dry_run)
 
 

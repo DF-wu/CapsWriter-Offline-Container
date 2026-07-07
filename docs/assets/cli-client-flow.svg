@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1040" height="440" viewBox="0 0 1040 440" role="img" aria-labelledby="title desc">
   <title id="title">CapsWriter CLI client flow</title>
-  <desc id="desc">No-GUI client sends audio to the CapsWriter HTTP API for transcription and can pass text to the local operating system TTS engine.</desc>
+  <desc id="desc">No-GUI client sends audio to the CapsWriter HTTP API for transcription and can pass direct, file, or stdin text to the local operating system TTS engine.</desc>
   <defs>
     <marker id="arrow-cli" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
       <path d="M0,0 L0,6 L9,3 z" fill="#1E3A5F"/>
@@ -57,5 +57,5 @@
   <path d="M624 276 L760 140" class="edge"/>
   <text x="670" y="184" class="small">formatted result</text>
   <path d="M280 296 C430 380 620 380 760 282" class="edge-soft"/>
-  <text x="470" y="374" class="small">speak text</text>
+  <text x="450" y="374" class="small">speak direct/file/stdin text</text>
 </svg>

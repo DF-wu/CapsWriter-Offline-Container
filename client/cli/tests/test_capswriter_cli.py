@@ -510,6 +510,52 @@ class CapsWriterCliTest(unittest.TestCase):
             "Not Found",
         )
 
+    def test_speak_reads_text_from_stdin(self):
+        self.assertEqual(
+            cli.read_text_argument(
+                None,
+                from_file=False,
+                from_stdin=True,
+                stdin=io.StringIO("hello from pipe"),
+            ),
+            "hello from pipe",
+        )
+
+    def test_main_speak_reads_text_from_stdin(self):
+        stdout = io.StringIO()
+
+        def command_for(text, **_kwargs):
+            return ["tts", text]
+
+        with (
+            patch.object(sys, "stdin", io.StringIO("hello from pipeline")),
+            patch.object(cli, "select_tts_command", side_effect=command_for),
+            redirect_stdout(stdout),
+        ):
+            code = cli.main(["speak", "--stdin", "--dry-run"])
+
+        self.assertEqual(code, 0)
+        self.assertEqual(stdout.getvalue(), "tts hello from pipeline\n")
+
+    def test_speak_rejects_missing_text_without_stdin(self):
+        with self.assertRaisesRegex(ValueError, "text is required"):
+            cli.read_text_argument(None, from_file=False)
+
+    def test_speak_rejects_missing_file_path(self):
+        with self.assertRaisesRegex(ValueError, "file path is required"):
+            cli.read_text_argument(None, from_file=True)
+
+    def test_speak_rejects_stdin_and_text_argument(self):
+        with self.assertRaisesRegex(ValueError, "--stdin cannot be combined"):
+            cli.read_text_argument("ignored", from_file=False, from_stdin=True)
+
+    def test_parser_rejects_speak_file_and_stdin_together(self):
+        with redirect_stderr(io.StringIO()) as stderr, self.assertRaises(SystemExit) as ctx:
+            cli.build_parser().parse_args(["speak", "--file", "--stdin", "transcript.txt"])
+
+        self.assertEqual(ctx.exception.code, 2)
+        self.assertIn("not allowed with argument", stderr.getvalue())
+
     def test_tts_command_selection_linux(self):
         command = cli.select_tts_command(
             "hello",
