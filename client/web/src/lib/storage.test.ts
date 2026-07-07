@@ -81,6 +81,22 @@ describe("settingsWithRuntimeDefaults", () => {
     });
   });
 
+  it("bounds runtime config strings", () => {
+    const settings = settingsWithRuntimeDefaults({
+      baseUrl: "https://".padEnd(3000, "a"),
+      apiKey: "k".repeat(5000),
+      model: "m".repeat(300),
+      language: "l".repeat(100),
+      prompt: "p".repeat(20_000),
+    });
+
+    expect(settings.baseUrl).toHaveLength(2048);
+    expect(settings.apiKey).toHaveLength(4096);
+    expect(settings.model).toHaveLength(128);
+    expect(settings.language).toHaveLength(32);
+    expect(settings.prompt).toHaveLength(16_384);
+  });
+
   it("falls back when runtime response format is invalid", () => {
     expect(
       settingsWithRuntimeDefaults({
@@ -154,6 +170,43 @@ describe("settingsWithRuntimeDefaults", () => {
     });
   });
 
+  it("bounds persisted settings strings", () => {
+    localStorage.setItem(
+      SETTINGS_KEY,
+      JSON.stringify({
+        baseUrl: "https://".padEnd(3000, "a"),
+        model: "m".repeat(300),
+        language: "l".repeat(100),
+        prompt: "p".repeat(20_000),
+        responseFormat: "text",
+      }),
+    );
+
+    const settings = loadSettings();
+
+    expect(settings.baseUrl).toHaveLength(2048);
+    expect(settings.model).toHaveLength(128);
+    expect(settings.language).toHaveLength(32);
+    expect(settings.prompt).toHaveLength(16_384);
+    expect(settings.responseFormat).toBe("text");
+  });
+
+  it("bounds settings before saving", () => {
+    saveSettings({
+      ...settingsWithRuntimeDefaults(undefined),
+      baseUrl: "https://".padEnd(3000, "a"),
+      model: "m".repeat(300),
+      language: "l".repeat(100),
+      prompt: "p".repeat(20_000),
+    });
+
+    const persisted = JSON.parse(localStorage.getItem(SETTINGS_KEY) ?? "{}") as Record<string, string>;
+    expect(persisted.baseUrl).toHaveLength(2048);
+    expect(persisted.model).toHaveLength(128);
+    expect(persisted.language).toHaveLength(32);
+    expect(persisted.prompt).toHaveLength(16_384);
+  });
+
   it("ignores blocked storage when saving settings", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new Error("storage blocked");
@@ -220,6 +273,11 @@ describe("settingsWithRuntimeDefaults", () => {
         { ...valid, durationSeconds: -1 },
         { ...valid, format: "xml" },
         { ...valid, text: 123 },
+        { ...valid, id: "x".repeat(129) },
+        { ...valid, sourceName: "x".repeat(513) },
+        { ...valid, text: "x".repeat(200_001) },
+        { ...valid, raw: "x".repeat(500_001) },
+        { ...valid, raw: { text: "x".repeat(500_000) } },
         { ...valid, raw: ["bad"] },
       ]),
     );
@@ -239,6 +297,28 @@ describe("settingsWithRuntimeDefaults", () => {
     };
 
     saveHistory([valid, { ...valid, raw: ["bad"] } as never]);
+
+    expect(JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]")).toEqual([valid]);
+  });
+
+  it("filters oversized history before saving", () => {
+    const valid: TranscriptRecord = {
+      id: "record-1",
+      createdAt: "2026-07-07T00:00:00.000Z",
+      sourceName: "sample.wav",
+      durationSeconds: 1,
+      format: "text",
+      text: "hello",
+      raw: "hello",
+    };
+
+    saveHistory([
+      valid,
+      { ...valid, id: "x".repeat(129) },
+      { ...valid, sourceName: "x".repeat(513) },
+      { ...valid, text: "x".repeat(200_001), raw: "x".repeat(200_001) },
+      { ...valid, raw: "x".repeat(500_001) },
+    ]);
 
     expect(JSON.parse(localStorage.getItem(HISTORY_KEY) ?? "[]")).toEqual([valid]);
   });
