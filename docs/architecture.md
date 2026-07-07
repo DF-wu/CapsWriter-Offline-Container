@@ -169,7 +169,7 @@ ForkedCapsWriterServer().start()
 
 若上游 `core/server/connection/ws_send.py` 將來簽名或邏輯變更（例如新增 Result 欄位、改廣播協議），需要手動 re-port 到此檔。
 
-**漂移偵測**：merge 上游後跑 `git diff origin/master:core/server/connection/ws_send.py fork_server/http_api/ws_send_with_http.py` 看核心 loop 是否還對齊。詳見 [upstream-sync-guide.md](upstream-sync-guide.md)。
+**漂移偵測**：HTTP unit test 會用 AST 比對 upstream `ws_send` 與 fork 版本（只允許 HTTP `task_router.try_resolve` hook 與 log 文字差異）。merge 上游後若 `python -m unittest fork_server.http_api.tests.test_ws_send_with_http -v` 失敗，先比對 `core/server/connection/ws_send.py` 並手動 re-port，再跑完整 gate。詳見 [upstream-sync-guide.md](upstream-sync-guide.md)。
 
 ## 8. 為什麼不用 monkey-patch 全部？
 
