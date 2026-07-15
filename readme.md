@@ -12,6 +12,8 @@ This repository is a focused fork of [HaujetZhao/CapsWriter-Offline](https://git
 
 > Use the upstream project for the original Windows desktop workflow. Use this fork when you want to run CapsWriter as a Linux-friendly server.
 
+> **Legacy-line notice:** this branch is maintained as the v1 compatibility line. Fixes must target `archive/v1-legacy`, not `master`. See the maintenance, version, and support policy in [English](docs/en/maintenance.md) or [繁體中文](docs/zh-TW/maintenance.md).
+
 ---
 
 ## 📑 Table of Contents
@@ -276,6 +278,7 @@ Start with these files if you want to understand or extend the server path:
 - [`readme.md`](readme.md), project front page
 - [`docs/docker-server.md`](docs/docker-server.md), deeper deployment notes
 - [`docs/HTTP_API.md`](docs/HTTP_API.md), OpenAI-compatible HTTP API reference
+- [`docs/en/maintenance.md`](docs/en/maintenance.md) / [`docs/zh-TW/maintenance.md`](docs/zh-TW/maintenance.md), legacy-line maintenance, version, and support policy
 - [`docker-compose.yml`](docker-compose.yml), default deployment entry point
 - [`config_server.py`](config_server.py), runtime configuration surface
 - [`core_server.py`](core_server.py), server bootstrap

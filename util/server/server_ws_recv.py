@@ -6,8 +6,11 @@ WebSocket 接收处理模块
 """
 
 import json
+import math
 import time
 from base64 import b64decode
+from binascii import Error as Base64Error
+from typing import Optional
 
 import websockets
 
@@ -23,6 +26,19 @@ from . import logger
 status_mic = Status('正在接收音频', spinner='point')
 
 
+# 这些上限涵盖官方客户端的 15/2 秒麦克风终止包与 60/4 秒文件包，
+# 同时避免客户端控制的分段参数造成无限循环或无界缓存。
+MAX_AUDIO_CHUNK_BYTES = 4 * 1024 * 1024
+MAX_SEGMENT_DURATION_SECONDS = 300.0
+MAX_SEGMENT_OVERLAP_SECONDS = 30.0
+MAX_TASK_ID_CHARS = 128
+MAX_CONTEXT_CHARS = 8192
+
+
+class InvalidAudioMessage(ValueError):
+    """客户端音频消息不符合受支持协议。"""
+
+
 class AudioCache:
     """
     音频缓冲区
@@ -33,6 +49,8 @@ class AudioCache:
         self.chunks: bytes = b''    # 音频数据缓冲
         self.offset: float = 0.0    # 当前偏移时间（秒）
         self.byte_count: int = 0    # 累计接收字节数
+        self.task_id: Optional[str] = None
+        self.source: Optional[str] = None
     
     @property
     def duration(self) -> float:
@@ -49,6 +67,85 @@ class AudioCache:
         self.chunks = b''
         self.offset = 0.0
         self.byte_count = 0
+        self.task_id = None
+        self.source = None
+
+    def bind_stream(self, task_id: str, source: str) -> None:
+        """一个连接同一时间只允许传送一个顺序音频流。"""
+        if self.task_id is None:
+            self.task_id = task_id
+            self.source = source
+            return
+        if task_id != self.task_id or source != self.source:
+            raise InvalidAudioMessage(
+                "task_id/source changed before the active stream was finalized"
+            )
+
+
+def _finite_number(value, field_name: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise InvalidAudioMessage(f"{field_name} must be a finite number")
+    value = float(value)
+    if not math.isfinite(value):
+        raise InvalidAudioMessage(f"{field_name} must be a finite number")
+    return value
+
+
+def validate_audio_message(message: dict) -> bytes:
+    """验证消息元数据并严格解码 Base64 音频块。"""
+    if not isinstance(message, dict):
+        raise InvalidAudioMessage("message must be a JSON object")
+
+    task_id = message.get("task_id")
+    if not isinstance(task_id, str) or not task_id or len(task_id) > MAX_TASK_ID_CHARS:
+        raise InvalidAudioMessage("task_id must be a non-empty bounded string")
+    if any(ord(char) < 32 or ord(char) == 127 for char in task_id):
+        raise InvalidAudioMessage("task_id must not contain control characters")
+
+    if message.get("source") not in {"mic", "file"}:
+        raise InvalidAudioMessage("source must be 'mic' or 'file'")
+    if not isinstance(message.get("is_final"), bool):
+        raise InvalidAudioMessage("is_final must be a boolean")
+
+    seg_duration = _finite_number(message.get("seg_duration"), "seg_duration")
+    seg_overlap = _finite_number(message.get("seg_overlap"), "seg_overlap")
+    _finite_number(message.get("time_start"), "time_start")
+    if not 0 < seg_duration <= MAX_SEGMENT_DURATION_SECONDS:
+        raise InvalidAudioMessage(
+            f"seg_duration must be > 0 and <= {MAX_SEGMENT_DURATION_SECONDS:g}"
+        )
+    if not 0 <= seg_overlap <= MAX_SEGMENT_OVERLAP_SECONDS:
+        raise InvalidAudioMessage(
+            f"seg_overlap must be >= 0 and <= {MAX_SEGMENT_OVERLAP_SECONDS:g}"
+        )
+    stride_bytes = AudioFormat.seconds_to_bytes(seg_duration)
+    segment_bytes = AudioFormat.seconds_to_bytes(seg_duration + seg_overlap)
+    if stride_bytes < AudioFormat.BYTES_PER_SAMPLE:
+        raise InvalidAudioMessage("seg_duration is shorter than one audio sample")
+    if (
+        stride_bytes % AudioFormat.BYTES_PER_SAMPLE
+        or segment_bytes % AudioFormat.BYTES_PER_SAMPLE
+    ):
+        raise InvalidAudioMessage("segment geometry must be float32 sample-aligned")
+
+    context = message.get("context", "")
+    if not isinstance(context, str) or len(context) > MAX_CONTEXT_CHARS:
+        raise InvalidAudioMessage("context must be a bounded string")
+
+    encoded = message.get("data")
+    if not isinstance(encoded, str):
+        raise InvalidAudioMessage("data must be a Base64 string")
+    try:
+        decoded = b64decode(encoded, validate=True)
+    except (Base64Error, ValueError) as exc:
+        raise InvalidAudioMessage("data is not valid Base64") from exc
+    if len(decoded) > MAX_AUDIO_CHUNK_BYTES:
+        raise InvalidAudioMessage(
+            f"decoded audio chunk exceeds {MAX_AUDIO_CHUNK_BYTES} bytes"
+        )
+    if len(decoded) % AudioFormat.BYTES_PER_SAMPLE:
+        raise InvalidAudioMessage("decoded float32 audio is not sample-aligned")
+    return decoded
 
 
 async def message_handler(websocket, message: dict, cache: AudioCache) -> None:
@@ -57,17 +154,19 @@ async def message_handler(websocket, message: dict, cache: AudioCache) -> None:
     
     根据消息中的分段参数，将音频数据分段后提交到识别队列。
     """
+    data = validate_audio_message(message)
     queue_in = Cosmic.queue_in
 
     global status_mic
     source = message['source']
     is_final = message['is_final']
-    is_start = not bool(cache.chunks)
+    is_start = cache.task_id is None
 
     # 获取 id
     task_id = message['task_id']
     socket_id = str(websocket.id)
     context = message.get('context', '')
+    cache.bind_stream(task_id, source)
 
     # 从消息中获取分段参数（由客户端决定）
     seg_duration = message['seg_duration']
@@ -75,8 +174,7 @@ async def message_handler(websocket, message: dict, cache: AudioCache) -> None:
     seg_threshold = seg_duration + seg_overlap * 2
 
     try:
-        # base64 解码音频数据（float32, 16kHz, mono）
-        data = b64decode(message['data'])
+        # Base64 已由 validate_audio_message 严格解码（float32, 16kHz, mono）
         cache.chunks += data
         cache.byte_count += len(data)
 
@@ -178,6 +276,12 @@ async def ws_recv(websocket) -> None:
         console.print("ConnectionClosed...")
         logger.info(f"客户端正常关闭连接: {socket_id}")
         
+    except (json.JSONDecodeError, InvalidAudioMessage) as e:
+        logger.warning(f"拒绝无效 WebSocket 音频消息，客户端ID {socket_id}: {e}")
+        try:
+            await websocket.close(code=1008, reason="Invalid audio message")
+        except websockets.ConnectionClosed:
+            pass
     except websockets.ConnectionClosed:
         console.print("ConnectionClosed...")
         logger.warning(f"客户端连接已关闭: {socket_id}")

@@ -14,6 +14,7 @@ OpenAI ASR 响应格式化器
 退化时退回单一 segment (覆盖整个 duration)。
 """
 
+import math
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -85,26 +86,22 @@ def _words_from_tokens(
 
 
 def _fmt_srt_ts(seconds: float) -> str:
-    seconds = max(0.0, seconds)
-    h = int(seconds // 3600)
-    m = int((seconds % 3600) // 60)
-    s = int(seconds % 60)
-    ms = int(round((seconds - int(seconds)) * 1000))
-    if ms == 1000:
-        ms = 0
-        s += 1
+    if not math.isfinite(seconds):
+        seconds = 0.0
+    total_ms = max(0, int(round(seconds * 1000)))
+    h, remainder = divmod(total_ms, 3_600_000)
+    m, remainder = divmod(remainder, 60_000)
+    s, ms = divmod(remainder, 1000)
     return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
 
 
 def _fmt_vtt_ts(seconds: float) -> str:
-    seconds = max(0.0, seconds)
-    h = int(seconds // 3600)
-    m = int((seconds % 3600) // 60)
-    s = int(seconds % 60)
-    ms = int(round((seconds - int(seconds)) * 1000))
-    if ms == 1000:
-        ms = 0
-        s += 1
+    if not math.isfinite(seconds):
+        seconds = 0.0
+    total_ms = max(0, int(round(seconds * 1000)))
+    h, remainder = divmod(total_ms, 3_600_000)
+    m, remainder = divmod(remainder, 60_000)
+    s, ms = divmod(remainder, 1000)
     return f"{h:02d}:{m:02d}:{s:02d}.{ms:03d}"
 
 

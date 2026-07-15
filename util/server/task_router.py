@@ -34,6 +34,8 @@ class TaskRouter:
 
     def bind_loop(self, loop: asyncio.AbstractEventLoop) -> None:
         """由 HTTP server 启动时绑定运行中的事件循环。"""
+        if self._pending and self._loop is not loop:
+            raise RuntimeError("cannot rebind TaskRouter while tasks are pending")
         self._loop = loop
 
     def register(self, task_id: str) -> asyncio.Future:
@@ -41,8 +43,13 @@ class TaskRouter:
         注册一个 HTTP 任务, 返回可 await 的 Future。
         同时将合成 socket_id 加入 Cosmic.sockets_id 跨进程清单, 让识别子进程不会丢弃任务。
         """
-        if self._loop is None:
-            self._loop = asyncio.get_running_loop()
+        running_loop = asyncio.get_running_loop()
+        if task_id in self._pending:
+            raise ValueError(f"task_id is already pending: {task_id}")
+        if self._loop is None or self._loop.is_closed():
+            self._loop = running_loop
+        elif self._loop is not running_loop:
+            raise RuntimeError("TaskRouter is bound to a different event loop")
         fut = self._loop.create_future()
         self._pending[task_id] = fut
 
@@ -77,10 +84,14 @@ class TaskRouter:
             self._pending.pop(result.task_id, None)
             self._remove_synthetic(result.task_id)
             if not fut.done():
+                def set_result_if_pending() -> None:
+                    if not fut.done():
+                        fut.set_result(result)
+
                 if self._loop is not None and self._loop.is_running():
-                    self._loop.call_soon_threadsafe(fut.set_result, result)
+                    self._loop.call_soon_threadsafe(set_result_if_pending)
                 else:
-                    fut.set_result(result)
+                    set_result_if_pending()
         return True
 
     @staticmethod

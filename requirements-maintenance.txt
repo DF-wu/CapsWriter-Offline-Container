@@ -1,0 +1,8 @@
+# Minimal dependencies for protocol/server maintenance tests.
+# Keep this separate from model, audio, UI, and GPU runtime dependencies.
+rich==14.3.3
+websockets==16.0
+numpy==1.26.4
+fastapi==0.139.0
+uvicorn==0.32.1
+python-multipart==0.0.31
