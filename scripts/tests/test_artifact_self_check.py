@@ -64,6 +64,18 @@ class ArtifactSelfCheckTest(unittest.TestCase):
                     artifact_self_check.validate_artifact_layout(root, packaged=True)
 
     def test_success_report_is_stable_and_imports_selected_surface(self) -> None:
+        self.assertIn(
+            "core.server.engines.factory",
+            artifact_self_check.SERVER_IMPORTS,
+        )
+        self.assertNotIn(
+            "core.server.engines.fun_asr_gguf.asr_engine",
+            artifact_self_check.SERVER_IMPORTS,
+        )
+        self.assertNotIn(
+            "core.server.engines.qwen_asr_gguf.asr_engine",
+            artifact_self_check.SERVER_IMPORTS,
+        )
         self.assertIn("sentencepiece", artifact_self_check.SERVER_IMPORTS)
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

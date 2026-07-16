@@ -45,10 +45,12 @@ COMMON_IMPORTS = (
 SERVER_IMPORTS = COMMON_IMPORTS + (
     "config_server",
     "core.server.app",
+    # GGUF engine implementations bind the separately supplied llama.cpp DLLs
+    # at import time.  Probe the lazy factory here; model/runtime assets are a
+    # release-machine acceptance layer, not part of this Python import smoke.
+    "core.server.engines.factory",
     "core.server.engines.paraformer_onnx.asr_engine",
     "core.server.engines.sensevoice_onnx.asr_engine",
-    "core.server.engines.fun_asr_gguf.asr_engine",
-    "core.server.engines.qwen_asr_gguf.asr_engine",
     "fork_server.bootstrap",
     "fork_server.http_api.api",
     "fastapi",
