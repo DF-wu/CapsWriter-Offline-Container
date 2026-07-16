@@ -55,6 +55,10 @@ class MockCapsWriterHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def _read_request_body(self):
+        length = int(self.headers.get("Content-Length", "0"))
+        return self.rfile.read(length)
+
     def do_GET(self):
         if self.path == "/health":
             self._json(200, {"status": "ok", "model": "mock_asr", "version": "dev"})
@@ -84,8 +88,7 @@ class MockCapsWriterHandler(BaseHTTPRequestHandler):
         if self.path != "/v1/audio/transcriptions":
             self._json(404, {"error": "not found"})
             return
-        length = int(self.headers.get("Content-Length", "0"))
-        body = self.rfile.read(length).decode("utf-8", errors="replace")
+        body = self._read_request_body().decode("utf-8", errors="replace")
         if 'name="response_format"\r\n\r\ntext' in body:
             self._text(200, "mock cli transcript")
             return
@@ -95,6 +98,7 @@ class MockCapsWriterHandler(BaseHTTPRequestHandler):
 class ErrorCapsWriterHandler(MockCapsWriterHandler):
     def do_POST(self):
         if self.path == "/v1/audio/transcriptions":
+            self._read_request_body()
             self._json(
                 401,
                 {
@@ -113,6 +117,7 @@ class ErrorCapsWriterHandler(MockCapsWriterHandler):
 class OversizedTranscriptionHandler(MockCapsWriterHandler):
     def do_POST(self):
         if self.path == "/v1/audio/transcriptions":
+            self._read_request_body()
             self._text(200, "abcd")
             return
         super().do_POST()
