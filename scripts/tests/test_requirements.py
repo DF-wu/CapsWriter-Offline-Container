@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import ast
 import re
 import unittest
 from pathlib import Path
@@ -434,14 +435,27 @@ class RequirementsTest(unittest.TestCase):
         self.assertIn("require_importable('Pillow', 'PIL')", source)
         self.assertIn("sys.version_info[:2] != (3, 12)", source)
         self.assertIn("sys.maxsize <= 2**32", source)
-        self.assertIn("raise RuntimeError(f'无法收集 HTTP API package {package}')", source)
+        self.assertIn("raise RuntimeError(f'Cannot collect HTTP API package {package}')", source)
         self.assertIn("required_folders = ('core', 'LLM', 'assets', 'docs')", source)
         self.assertIn("mutable_folders = ('models', 'logs')", source)
         self.assertIn("copytree(", source)
         self.assertIn("dirs_exist_ok=True", source)
         self.assertIn("ignore=portable_copy_ignore", source)
         self.assertIn("is_link_or_junction(candidate)", source)
-        self.assertIn("Windows artifact mutable path 必须为空", source)
+        self.assertIn("Windows artifact mutable path must be empty", source)
+        tree = ast.parse(source, filename=str(WINDOWS_BUILD_SPEC))
+        self.assertIsInstance(tree.body[0], ast.Expr)
+        module_docstring_node = tree.body[0].value
+        self.assertIsInstance(module_docstring_node, ast.Constant)
+        non_ascii_runtime_strings = [
+            (node.lineno, node.value)
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Constant)
+            and isinstance(node.value, str)
+            and node is not module_docstring_node
+            and not node.value.isascii()
+        ]
+        self.assertEqual([], non_ascii_runtime_strings)
         self.assertNotIn("mklink", source.casefold())
         self.assertNotIn("shell=True", source)
         self.assertNotIn("core_server.py", source)

@@ -23,11 +23,11 @@ INCLUDE_CUDA_PROVIDER = False
 # ====================================================
 
 if system() != 'Windows':
-    raise RuntimeError('build.spec 只支持 Windows production artifact')
+    raise RuntimeError('build.spec supports only Windows production artifacts')
 if sys.version_info[:2] != (3, 12):
-    raise RuntimeError('build.spec production artifact 必须使用 CPython 3.12')
+    raise RuntimeError('build.spec production artifacts require CPython 3.12')
 if sys.maxsize <= 2**32:
-    raise RuntimeError('build.spec production artifact 必须使用 64-bit Python')
+    raise RuntimeError('build.spec production artifacts require 64-bit Python')
 
 
 # 初始化空列表
@@ -75,11 +75,11 @@ def require_importable(package, import_name=None):
         available = find_spec(selected_name) is not None
     except (ImportError, ModuleNotFoundError, AttributeError) as error:
         raise RuntimeError(
-            f'无法检查 Windows 打包依赖 {package} ({selected_name})'
+            f'Cannot inspect Windows build dependency {package} ({selected_name})'
         ) from error
     if not available:
         raise RuntimeError(
-            f'缺少 Windows 打包依赖 {package}（import {selected_name}）'
+            f'Missing Windows build dependency {package} (import {selected_name})'
         )
 
 
@@ -87,7 +87,7 @@ def without_cuda_provider(entries):
     filtered = []
     for src, dest in entries:
         if 'providers_cuda' in basename(src).lower():
-            print(f'[INFO] 排除 CUDA provider: {basename(src)}')
+            print(f'[INFO] Excluding CUDA provider: {ascii(basename(src))}')
             continue
         filtered.append((src, dest))
     return filtered
@@ -137,7 +137,7 @@ for package in (
         else:
             collected = collect_submodules(package)
     except Exception as error:
-        raise RuntimeError(f'无法收集 HTTP API package {package}') from error
+        raise RuntimeError(f'Cannot collect HTTP API package {package}') from error
     server_hiddenimports += collected
 
 # # 对所有模块用 .py 源码而非 .pyc（猴子补丁 _get_module_collection_mode）
@@ -179,8 +179,11 @@ for name, src, type in a_1.binaries:
     if not is_system_cuda_dll and not is_unwanted_onnx_dll:
         filtered_binaries.append((name, src, type))
     else:
-        reason = "环境 CUDA DLL" if is_system_cuda_dll else "冗余 ONNX DLL"
-        print(f"[INFO] 排除 {reason}: {name} (从 {src} 收集)")
+        reason = "system CUDA DLL" if is_system_cuda_dll else "redundant ONNX DLL"
+        print(
+            f"[INFO] Excluding {reason}: {ascii(name)} "
+            f"(collected from {ascii(src)})"
+        )
 a_1.binaries = filtered_binaries
 
 a_2 = Analysis(
@@ -216,8 +219,11 @@ for name, src, type in a_2.binaries:
     if not is_system_cuda_dll and not is_unwanted_onnx_dll:
         filtered_binaries.append((name, src, type))
     else:
-        reason = "环境 CUDA DLL" if is_system_cuda_dll else "冗余 ONNX DLL"
-        print(f"[INFO] 排除 {reason}: {name} (从 {src} 收集)")
+        reason = "system CUDA DLL" if is_system_cuda_dll else "redundant ONNX DLL"
+        print(
+            f"[INFO] Excluding {reason}: {ascii(name)} "
+            f"(collected from {ascii(src)})"
+        )
 a_2.binaries = filtered_binaries
 
 
@@ -374,13 +380,13 @@ def portable_copy_ignore(directory, names):
 for relative in required_files:
     source = source_root / relative
     if not source.is_file() or is_link_or_junction(source):
-        raise RuntimeError(f'缺少必要的 Windows artifact 文件: {relative}')
+        raise RuntimeError(f'Missing required Windows artifact file: {relative}')
     copy2(source, dest_root / relative)
 
 for relative in required_folders:
     source = source_root / relative
     if not source.is_dir() or is_link_or_junction(source):
-        raise RuntimeError(f'缺少必要的 Windows artifact 目录: {relative}')
+        raise RuntimeError(f'Missing required Windows artifact directory: {relative}')
     copytree(
         source,
         dest_root / relative,
@@ -393,8 +399,8 @@ for relative in mutable_folders:
     destination = dest_root / relative
     if destination.exists():
         if not destination.is_dir() or is_link_or_junction(destination):
-            raise RuntimeError(f'Windows artifact mutable path 非真实目录: {relative}')
+            raise RuntimeError(f'Windows artifact mutable path is not a real directory: {relative}')
         if any(destination.iterdir()):
-            raise RuntimeError(f'Windows artifact mutable path 必须为空: {relative}')
+            raise RuntimeError(f'Windows artifact mutable path must be empty: {relative}')
     else:
         destination.mkdir()
