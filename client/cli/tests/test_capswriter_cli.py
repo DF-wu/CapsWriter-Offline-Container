@@ -268,18 +268,13 @@ class CapsWriterCliTest(unittest.TestCase):
             self.assertIn(b"whisper-1", b"".join(chunks))
 
     def test_build_multipart_escapes_filename_header_value(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            audio = Path(tmp) / 'sample"\r\nX-Injected: yes.wav'
-            audio.write_bytes(b"RIFF")
-            body, _boundary = cli.build_multipart(
-                audio,
-                {"model": "whisper-1"},
-                boundary="test-boundary",
-            )
-            header = body.split(b"\r\n\r\n", 1)[0]
+        audio = Path('sample"\r\nX-Injected: yes.wav')
+        header = cli._multipart_file_header(audio, "test-boundary").split(
+            b"\r\n\r\n", 1
+        )[0]
 
-            self.assertIn(b'filename="sample\\"  X-Injected: yes.wav"', header)
-            self.assertNotIn(b"\r\nX-Injected:", header)
+        self.assertIn(b'filename="sample\\"  X-Injected: yes.wav"', header)
+        self.assertNotIn(b"\r\nX-Injected:", header)
 
     def test_health_and_transcribe_against_mock_server(self):
         config = cli.ApiConfig(base_url=self.base_url, timeout=5)
@@ -459,6 +454,63 @@ class CapsWriterCliTest(unittest.TestCase):
             thread.join(timeout=5)
             server.server_close()
 
+    def test_http_post_stream_reads_response_after_connection_abort(self):
+        payload = b'{"error":{"message":"early response"}}'
+
+        class EarlyResponse:
+            status = 401
+            reason = "Unauthorized"
+
+            def __init__(self):
+                self.remaining = payload
+
+            def getheader(self, name, default=""):
+                if name.lower() == "content-type":
+                    return "application/json"
+                return default
+
+            def read(self, size):
+                chunk = self.remaining[:size]
+                self.remaining = self.remaining[size:]
+                return chunk
+
+        class EarlyAbortConnection:
+            sock = None
+
+            def __init__(self, *_args, timeout=None, **_kwargs):
+                self.timeout = timeout
+
+            def putrequest(self, *_args):
+                return None
+
+            def putheader(self, *_args):
+                return None
+
+            def endheaders(self):
+                return None
+
+            def send(self, _chunk):
+                raise ConnectionAbortedError("peer sent an early response")
+
+            def getresponse(self):
+                return EarlyResponse()
+
+            def close(self):
+                return None
+
+        config = cli.ApiConfig(base_url="http://127.0.0.1:6017", timeout=5)
+        with patch.object(cli.http_client, "HTTPConnection", EarlyAbortConnection):
+            with self.assertRaises(cli.ApiError) as ctx:
+                cli.http_post_stream(
+                    config,
+                    "/v1/audio/transcriptions",
+                    [b"audio"],
+                    {"Content-Length": "5"},
+                )
+
+        self.assertEqual(ctx.exception.status, 401)
+        self.assertEqual(ctx.exception.message, "early response")
+
     def test_http_get_json_reports_invalid_json_success_response(self):
         class InvalidHealthHandler(MockCapsWriterHandler):
             def do_GET(self):
@@ -633,8 +685,6 @@ class CapsWriterCliTest(unittest.TestCase):
             first = root / "bad:name.wav"
             second = root / "bad?name.wav"
             output_dir = root / "out"
-            first.write_bytes(b"RIFF")
-            second.write_bytes(b"RIFF")
 
             with self.assertRaisesRegex(ValueError, "multiple inputs"):
                 cli.output_targets_for([first, second], "text", output_dir)

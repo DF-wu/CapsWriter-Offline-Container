@@ -144,7 +144,7 @@ ASR／標點／對齊模型與推論算法仍由 upstream `core/server/engines/*
 | Gate | 結果 |
 |---|---|
 | `python scripts/verify_all.py --web-browser-smoke --docker-build-web` | 通過：59-file upstream divergence、46-file docs check、dependency-light repo suites、Web unit/build、真實瀏覽器 upload/transcribe、production Nginx image／security-header smoke，以及 cleanup residue check |
-| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI **62/62**；含 single wall-clock request deadline／slow-drip rejection、direct/no-proxy transport、redirect rejection、跨 preview boundary reflected-key redaction、streamed multipart、bounded response、atomic/batch output 與 Linux／Windows TTS contract |
+| `python -m unittest discover -s client/cli/tests -v` | 通過：CLI **63/63**；含 single wall-clock request deadline／slow-drip rejection、direct/no-proxy transport、redirect rejection、跨 preview boundary reflected-key redaction、streamed multipart／Windows early-response abort recovery、bounded response、atomic/batch output 與 Linux／Windows TTS contract |
 | `python -m unittest discover -s docker/server/tests -v` | 通過：Docker helper **63/63**；含 secure model bootstrap、warm read-only fast path、archive bounds、healthcheck、entrypoint，以及完整 env 必須先套用到 backend probe 的 regression |
 | pinned Python 3.12：`python -m unittest discover -s fork_server/http_api/tests -v` | 通過：完整 HTTP API **153/153**，zero skips |
 | pinned Python 3.12：`python scripts/verify_api_contract.py` | 通過：嚴格完整 HTTP API **153/153**；會驗證 exact installed pins、imports、lock parity、全目錄非零 discovery，且任何 skip 都使 gate 失敗 |

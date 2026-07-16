@@ -519,7 +519,7 @@ def http_post_stream(
                 if connection.sock is not None:
                     connection.sock.settimeout(remaining)
                 connection.send(chunk)
-            except (BrokenPipeError, ConnectionResetError) as exc:
+            except (BrokenPipeError, ConnectionAbortedError, ConnectionResetError) as exc:
                 send_error = exc
                 break
         try:
