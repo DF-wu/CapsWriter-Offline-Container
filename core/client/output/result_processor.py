@@ -12,7 +12,7 @@ import time
 from typing import TYPE_CHECKING, Optional
 
 from config_client import ClientConfig as Config
-from core.client.state import console
+from core.client.state import console, websocket_is_closed
 from core.protocol import RecognitionMessage
 
 from core.client.output.text_output import TextOutput
@@ -314,7 +314,7 @@ class ResultProcessor:
         """清理资源"""
         if self.state.websocket is not None:
             try:
-                if self.state.websocket.closed:
+                if websocket_is_closed(self.state.websocket):
                     self.state.websocket = None
                     logger.debug("WebSocket 连接已清理")
             except Exception:

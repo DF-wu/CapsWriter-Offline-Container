@@ -71,6 +71,8 @@ class TaskSpec(TypedDict):
     time_start: float
     context: str
     language: str
+    log_transcript: bool
+    deadline_monotonic: Optional[float]
 
 
 def seconds_to_bytes(seconds: float) -> int:
@@ -105,6 +107,8 @@ def iter_transcription_task_specs(
     time_start: float,
     context: str,
     language: str,
+    log_transcript: bool = False,
+    deadline_monotonic: Optional[float] = None,
     seg_duration: float = DEFAULT_SEG_DURATION,
     seg_overlap: float = DEFAULT_SEG_OVERLAP,
 ) -> Iterator[TaskSpec]:
@@ -124,6 +128,8 @@ def iter_transcription_task_specs(
             "time_start": time_start,
             "context": context,
             "language": language,
+            "log_transcript": bool(log_transcript),
+            "deadline_monotonic": deadline_monotonic,
         }
 
     if total_bytes <= segment_bytes:

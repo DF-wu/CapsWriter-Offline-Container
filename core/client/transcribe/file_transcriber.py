@@ -10,6 +10,8 @@ from __future__ import annotations
 import asyncio
 import base64
 import json
+import math
+import os
 import time
 import uuid
 from pathlib import Path
@@ -23,6 +25,25 @@ from .media_tool import MediaTool
 from .result_handler import ResultHandler
 from . import logger
 from core.tools.token_sync import sync_tokens_from_text
+
+
+CLIENT_FILE_RESULT_TIMEOUT_ENV = "CAPSWRITER_CLIENT_FILE_RESULT_TIMEOUT"
+DEFAULT_CLIENT_FILE_RESULT_TIMEOUT_SECONDS = 600.0
+
+
+def client_file_result_timeout_seconds() -> float:
+    """Return the post-upload deadline for a file's final result."""
+
+    raw = os.environ.get(CLIENT_FILE_RESULT_TIMEOUT_ENV, "").strip()
+    if not raw:
+        return DEFAULT_CLIENT_FILE_RESULT_TIMEOUT_SECONDS
+    try:
+        timeout = float(raw)
+    except ValueError as exc:
+        raise ValueError(f"{CLIENT_FILE_RESULT_TIMEOUT_ENV} must be a number") from exc
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError(f"{CLIENT_FILE_RESULT_TIMEOUT_ENV} must be > 0")
+    return timeout
 
 if TYPE_CHECKING:
     from core.client.state import ClientState
@@ -82,10 +103,11 @@ class FileTranscriber:
         
         return True
     
-    async def send(self) -> None:
+    async def send(self) -> bool:
         """发送音频数据到服务端 (异步流式处理)"""
         
-        self.task_id = str(uuid.uuid1())
+        if self.task_id is None:
+            self.task_id = str(uuid.uuid4())
         console.print(f'\n任务标识：{self.task_id}')
         console.print(f'    处理文件：{self.file}')
         
@@ -124,7 +146,7 @@ class FileTranscriber:
                 except asyncio.TimeoutError:
                     logger.error(f"ffmpeg 音频读取超时: {timeout:g}s, 文件: {self.file}")
                     await MediaTool.kill_process(process)
-                    return
+                    return False
                 if not data:
                     break
                 
@@ -169,33 +191,49 @@ class FileTranscriber:
             except asyncio.TimeoutError:
                 logger.error(f"ffmpeg 进程等待超时: {timeout:g}s, 文件: {self.file}")
                 await MediaTool.kill_process(process)
-                return
+                return False
             
             if self._audio_duration == 0:
                 self._audio_duration = progress 
                 console.print(f'    音频长度：{self._audio_duration:.2f}s')
 
             logger.debug("音频数据发送完成")
+            return True
             
+        except asyncio.CancelledError:
+            if process is not None:
+                await MediaTool.kill_process_uninterruptibly(process)
+            raise
         except ConnectionError as e:
             logger.error(f"发送数据失败: {e}, 文件: {self.file}")
             if process is not None:
                 await MediaTool.kill_process(process)
-            return
+            return False
         except Exception as e:
             logger.error(f"转录发送异常: {e}", exc_info=True)
             if process is not None:
                 await MediaTool.kill_process(process)
-            return
+            return False
     
-    async def receive(self) -> None:
+    async def receive(self) -> bool:
         """接收转录结果"""
-        
+        message: RecognitionMessage | None = None
         try:
             while True:
                 msg = await self._ws_manager.receive()
                 if not msg:
                     break
+                if msg.task_id != self.task_id:
+                    logger.warning(
+                        f"忽略其他任务的识别结果: {msg.task_id}"
+                    )
+                    continue
+                if msg.error_code:
+                    logger.error(
+                        f"服务端识别失败: {msg.error_code}: "
+                        f"{msg.error_message or 'unknown error'}"
+                    )
+                    return False
                 
                 console.print(f'    转录进度: {msg.duration:.2f}s', end='\r')
                 if msg.is_final:
@@ -203,10 +241,14 @@ class FileTranscriber:
                     break
         except ConnectionError as e:
             logger.error(f"{e}, 文件: {self.file}")
-            return
+            return False
         except Exception as e:
             logger.error(f"接收消息错误: {e}")
-            return
+            return False
+
+        if message is None:
+            logger.error(f"服务端未返回最终识别结果: {self.file}")
+            return False
 
         # 应用热词并同步 tokens
         self._apply_hotwords(message)
@@ -222,6 +264,41 @@ class FileTranscriber:
             f"转录完成: {self.file}, 处理耗时: {process_duration:.2f}s, "
             f"文本长度: {len(text_display)}"
         )
+        return True
+
+    async def transcribe(self) -> bool:
+        """Send and receive concurrently under bounded WebSocket buffering."""
+
+        self.task_id = str(uuid.uuid4())
+        receive_task = asyncio.create_task(
+            self.receive(),
+            name=f"capswriter-file-receive-{self.task_id[:8]}",
+        )
+        try:
+            sent = await self.send()
+            if not sent:
+                receive_task.cancel()
+                await asyncio.gather(receive_task, return_exceptions=True)
+                return False
+            timeout = client_file_result_timeout_seconds()
+            try:
+                return bool(await asyncio.wait_for(receive_task, timeout=timeout))
+            except asyncio.TimeoutError:
+                logger.error(
+                    f"服务端最终识别结果等待超时 ({timeout:g}s): {self.file}"
+                )
+                try:
+                    # Closing is the protocol-level cancellation signal and
+                    # prevents a late result from being attributed to a later
+                    # file on this connection.
+                    await self._ws_manager.close()
+                except Exception as error:
+                    logger.debug(f"关闭超时的文件转录连接失败: {error}")
+                return False
+        except BaseException:
+            receive_task.cancel()
+            await asyncio.gather(receive_task, return_exceptions=True)
+            raise
 
     def _apply_hotwords(self, message: RecognitionMessage) -> None:
         """对识别结果应用热词替换并同步 tokens"""

@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 class HttpApiSourceTest(unittest.TestCase):
-    def test_transcription_decode_uses_configured_timeout(self) -> None:
+    def test_transcription_decode_uses_remaining_end_to_end_deadline(self) -> None:
         tree = ast.parse(Path("fork_server/http_api/api.py").read_text())
         decode_calls = [
             node
@@ -22,8 +22,12 @@ class HttpApiSourceTest(unittest.TestCase):
         self.assertTrue(
             any(
                 keyword.arg == "timeout"
-                and isinstance(keyword.value, ast.Name)
-                and keyword.value.id == "timeout"
+                and isinstance(keyword.value, ast.Call)
+                and isinstance(keyword.value.func, ast.Name)
+                and keyword.value.func.id == "_remaining_seconds"
+                and len(keyword.value.args) == 1
+                and isinstance(keyword.value.args[0], ast.Name)
+                and keyword.value.args[0].id == "deadline"
                 for call in decode_calls
                 for keyword in call.keywords
             )

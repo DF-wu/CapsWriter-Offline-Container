@@ -30,7 +30,7 @@ class SrtAdjuster:
         Args:
             file: 文本文件路径
         """
-        task_id = str(uuid.uuid1())
+        task_id = str(uuid.uuid4())
         console.print(f'\n任务标识：{task_id}')
         console.print(f'    处理文件：{file}')
         

@@ -21,6 +21,10 @@ from fork_server.http_api.runtime_config import (
     parse_http_api_env,
     parse_int_range,
 )
+from fork_server.runtime_limits import (
+    parse_max_websocket_connections,
+    parse_max_websocket_task_seconds,
+)
 
 
 SUPPORTED_MODEL_TYPES = {"qwen_asr", "fun_asr_nano", "sensevoice", "paraformer"}
@@ -230,6 +234,16 @@ def apply() -> None:
                 )
             ),
         )
+    _set(
+        ServerConfig,
+        "max_websocket_connections",
+        parse_max_websocket_connections(os.environ),
+    )
+    _set(
+        ServerConfig,
+        "max_websocket_task_seconds",
+        parse_max_websocket_task_seconds(os.environ),
+    )
     if _env_str("CAPSWRITER_LOG_LEVEL") is not None:
         _set(
             ServerConfig,
@@ -255,10 +269,14 @@ def apply() -> None:
          http_api.api_key)
     _set(ServerConfig, "http_api_max_upload_mb",
          http_api.max_upload_mb)
+    _set(ServerConfig, "http_api_max_audio_seconds",
+         http_api.max_audio_seconds)
     _set(ServerConfig, "http_api_task_timeout",
          http_api.task_timeout)
     _set(ServerConfig, "http_api_max_concurrent_requests",
          http_api.max_concurrent_requests)
+    _set(ServerConfig, "http_api_max_pending_requests",
+         http_api.max_pending_requests)
     _set(ServerConfig, "http_api_cors_origins",
          list(http_api.cors_origins))
     _set(ServerConfig, "http_api_allow_insecure_bind",

@@ -10,6 +10,32 @@ from fork_server.http_api.task_router import TaskRouter
 
 
 class TaskRouterTest(unittest.TestCase):
+    def test_recognizer_process_liveness_tracks_bound_server_state(self) -> None:
+        async def scenario() -> None:
+            process = SimpleNamespace(is_alive=lambda: True)
+            state = SimpleNamespace(
+                sockets_id=[],
+                queue_in=object(),
+                recognize_process=process,
+            )
+            router = TaskRouter()
+
+            self.assertFalse(router.recognizer_process_alive())
+            router.bind(state, asyncio.get_running_loop())
+            self.assertTrue(router.recognizer_process_alive())
+
+            state.recognizer_watchdog_failed = True
+            self.assertFalse(router.recognizer_process_alive())
+            state.recognizer_watchdog_failed = False
+
+            process.is_alive = lambda: False
+            self.assertFalse(router.recognizer_process_alive())
+
+            process.is_alive = lambda: (_ for _ in ()).throw(AssertionError())
+            self.assertFalse(router.recognizer_process_alive())
+
+        asyncio.run(scenario())
+
     def test_register_and_cancel_manage_synthetic_socket(self) -> None:
         async def scenario() -> None:
             state = SimpleNamespace(sockets_id=[], queue_in=object())
@@ -127,7 +153,13 @@ class TaskRouterTest(unittest.TestCase):
             router.bind(state, asyncio.get_running_loop())
             fut = router.register("abc")
 
-            handled = router.try_resolve(SimpleNamespace(task_id="abc", is_final=False))
+            handled = router.try_resolve(
+                SimpleNamespace(
+                    task_id="abc",
+                    socket_id="http:abc",
+                    is_final=False,
+                )
+            )
 
             self.assertTrue(handled)
             self.assertFalse(fut.done())
@@ -141,7 +173,12 @@ class TaskRouterTest(unittest.TestCase):
             router = TaskRouter()
             router.bind(state, asyncio.get_running_loop())
             fut = router.register("abc")
-            result = SimpleNamespace(task_id="abc", is_final=True, text="done")
+            result = SimpleNamespace(
+                task_id="abc",
+                socket_id="http:abc",
+                is_final=True,
+                text="done",
+            )
 
             handled = router.try_resolve(result)
             await asyncio.sleep(0)
@@ -149,6 +186,28 @@ class TaskRouterTest(unittest.TestCase):
             self.assertTrue(handled)
             self.assertIs(fut.result(), result)
             self.assertEqual(state.sockets_id, [])
+
+        asyncio.run(scenario())
+
+    def test_pending_http_id_does_not_capture_same_named_websocket_result(self) -> None:
+        async def scenario() -> None:
+            state = SimpleNamespace(sockets_id=[], queue_in=object())
+            router = TaskRouter()
+            router.bind(state, asyncio.get_running_loop())
+            future = router.register("collision")
+
+            handled = router.try_resolve(
+                SimpleNamespace(
+                    task_id="collision",
+                    socket_id="websocket-peer",
+                    is_final=True,
+                    text="must stay on websocket",
+                )
+            )
+
+            self.assertFalse(handled)
+            self.assertFalse(future.done())
+            self.assertEqual(state.sockets_id, ["http:collision"])
 
         asyncio.run(scenario())
 

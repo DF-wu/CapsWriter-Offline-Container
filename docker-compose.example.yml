@@ -6,13 +6,9 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: ${CAPSWRITER_GPU_DEVICE_COUNT:-all}
-              capabilities: [gpu]
+    # The base file is portable on CPU-only Docker hosts. Add the explicit
+    # docker-compose.gpu.yml (NVIDIA) or docker-compose.igpu.yml (Intel/AMD)
+    # override only when that class of device should be exposed.
     environment:
       CAPSWRITER_MODEL_TYPE: ${CAPSWRITER_MODEL_TYPE:-qwen_asr}
       CAPSWRITER_QWEN_PRESET: ${CAPSWRITER_QWEN_PRESET:-default}
@@ -21,6 +17,8 @@ services:
 
       CAPSWRITER_SERVER_ADDR: 0.0.0.0
       CAPSWRITER_SERVER_PORT: ${CAPSWRITER_SERVER_PORT:-6016}
+      CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS: ${CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS:-8}
+      CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS: ${CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS:-3600}
 
       # Optional browser/API clients. Set CAPSWRITER_HTTP_API_ENABLE=true
       # and publish CAPSWRITER_HTTP_API_PORT when you want host access.
@@ -31,8 +29,10 @@ services:
       CAPSWRITER_HTTP_API_KEY_FILE: ${CAPSWRITER_HTTP_API_KEY_FILE:-}
       CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND: ${CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND:-false}
       CAPSWRITER_HTTP_API_MAX_UPLOAD_MB: ${CAPSWRITER_HTTP_API_MAX_UPLOAD_MB:-100}
+      CAPSWRITER_HTTP_API_MAX_AUDIO_SECONDS: ${CAPSWRITER_HTTP_API_MAX_AUDIO_SECONDS:-3600}
       CAPSWRITER_HTTP_API_TASK_TIMEOUT: ${CAPSWRITER_HTTP_API_TASK_TIMEOUT:-600}
       CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS: ${CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS:-2}
+      CAPSWRITER_HTTP_API_MAX_PENDING_REQUESTS: ${CAPSWRITER_HTTP_API_MAX_PENDING_REQUESTS:-4}
       CAPSWRITER_HTTP_API_CORS_ORIGINS: ${CAPSWRITER_HTTP_API_CORS_ORIGINS:-}
       CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS: ${CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS:-false}
 
@@ -41,9 +41,13 @@ services:
       CAPSWRITER_LOG_DIR: /app/logs
       CAPSWRITER_NUM_THREADS: ${CAPSWRITER_NUM_THREADS:-4}
       CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT: ${CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT:-60}
+      CAPSWRITER_MODEL_BOOTSTRAP_LOCK_TIMEOUT: ${CAPSWRITER_MODEL_BOOTSTRAP_LOCK_TIMEOUT:-1800}
+      CAPSWRITER_BACKEND_PROBE_TIMEOUT: ${CAPSWRITER_BACKEND_PROBE_TIMEOUT:-300}
       CAPSWRITER_ENGINE_FFMPEG_TIMEOUT: ${CAPSWRITER_ENGINE_FFMPEG_TIMEOUT:-120}
       CAPSWRITER_GPU_BOOST_TIMEOUT: ${CAPSWRITER_GPU_BOOST_TIMEOUT:-5}
+      CAPSWRITER_SERVER_MODEL_LOAD_TIMEOUT: ${CAPSWRITER_SERVER_MODEL_LOAD_TIMEOUT:-600}
       CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT: ${CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT:-2}
+      CAPSWRITER_SERVER_WORKER_STALL_TIMEOUT: ${CAPSWRITER_SERVER_WORKER_STALL_TIMEOUT:-900}
 
       CAPSWRITER_QWEN_CHUNK_SIZE: ${CAPSWRITER_QWEN_CHUNK_SIZE:-}
       CAPSWRITER_QWEN_N_CTX: ${CAPSWRITER_QWEN_N_CTX:-}
@@ -67,8 +71,13 @@ services:
       # Optional HTTP API host access:
       # - "${CAPSWRITER_HTTP_API_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}"
     volumes:
-      - ./models:/app/models
-      - ./hot-server.txt:/app/hot-server.txt
+      - capswriter-server-models:/app/models
+      - type: bind
+        source: ./hot-server.txt
+        target: /app/hot-server.txt
+        read_only: true
+        bind:
+          create_host_path: false
       - capswriter-server-logs:/app/logs
     healthcheck:
       test: ["CMD", "python", "docker/server/healthcheck.py"]
@@ -78,4 +87,5 @@ services:
       retries: 5
 
 volumes:
+  capswriter-server-models:
   capswriter-server-logs:

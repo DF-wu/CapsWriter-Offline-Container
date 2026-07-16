@@ -6,6 +6,7 @@ GPU 加速管理模块
 
 import math
 import os
+import signal
 import subprocess
 import time
 import ctypes
@@ -15,6 +16,7 @@ from . import logger
 
 GPU_BOOST_TIMEOUT_ENV = "CAPSWRITER_GPU_BOOST_TIMEOUT"
 DEFAULT_GPU_BOOST_TIMEOUT_SECONDS = 5.0
+GPU_COMMAND_CLEANUP_TIMEOUT_SECONDS = 2.0
 
 
 def _gpu_boost_timeout_seconds() -> float:
@@ -32,6 +34,56 @@ def _gpu_boost_timeout_seconds() -> float:
     return timeout
 
 
+def _gpu_command_popen_kwargs() -> dict:
+    kwargs = {
+        "shell": True,
+        "stdout": subprocess.DEVNULL,
+        "stderr": subprocess.DEVNULL,
+    }
+    if os.name == "posix":
+        kwargs["start_new_session"] = True
+    elif os.name == "nt":
+        kwargs["creationflags"] = getattr(
+            subprocess,
+            "CREATE_NEW_PROCESS_GROUP",
+            0,
+        )
+    return kwargs
+
+
+def _kill_gpu_command_tree(process) -> None:
+    """Force-stop the timed-out shell and descendants, then reap the shell."""
+
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        except OSError as exc:
+            logger.warning(f"GPU 命令 process group 清理失败: {exc}")
+    elif os.name == "nt":
+        try:
+            subprocess.run(
+                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=GPU_COMMAND_CLEANUP_TIMEOUT_SECONDS,
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            logger.warning(f"GPU 命令 process tree 清理失败: {exc}")
+
+    if process.poll() is None:
+        try:
+            process.kill()
+        except OSError:
+            pass
+    try:
+        process.wait(timeout=GPU_COMMAND_CLEANUP_TIMEOUT_SECONDS)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        logger.warning(f"GPU 命令 shell 回收失败: {exc}")
+
+
 def _run_gpu_command(command: str) -> bool:
     try:
         timeout = _gpu_boost_timeout_seconds()
@@ -40,15 +92,19 @@ def _run_gpu_command(command: str) -> bool:
         return False
 
     try:
-        subprocess.run(
-            command,
-            shell=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-            timeout=timeout,
-        )
+        process = subprocess.Popen(command, **_gpu_command_popen_kwargs())
+    except (OSError, ValueError) as exc:
+        logger.warning(f"GPU 命令启动失败: {exc}")
+        return False
+
+    try:
+        returncode = process.wait(timeout=timeout)
     except subprocess.TimeoutExpired:
+        _kill_gpu_command_tree(process)
         logger.warning(f"GPU 命令超时 ({timeout:g}s): {command}")
+        return False
+    if returncode != 0:
+        logger.warning(f"GPU 命令失败 (exit {returncode}): {command}")
         return False
     return True
 

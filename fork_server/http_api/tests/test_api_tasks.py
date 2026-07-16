@@ -58,6 +58,8 @@ class HttpApiTaskSubmissionTest(unittest.TestCase):
         self.assertEqual(spec["data"], pcm)
         self.assertEqual(spec["context"], "meeting terms")
         self.assertEqual(spec["language"], "chinese")
+        self.assertFalse(spec["log_transcript"])
+        self.assertIsNone(spec["deadline_monotonic"])
         self.assertTrue(spec["is_final"])
 
     def test_long_audio_specs_propagate_hints_to_all_segments(self) -> None:
@@ -71,6 +73,8 @@ class HttpApiTaskSubmissionTest(unittest.TestCase):
                 time_start=123.0,
                 context="CapsWriter, FunASR",
                 language="english",
+                log_transcript=True,
+                deadline_monotonic=456.0,
                 seg_duration=1.0,
                 seg_overlap=0.5,
             )
@@ -84,6 +88,8 @@ class HttpApiTaskSubmissionTest(unittest.TestCase):
             self.assertEqual(spec["type"], "file")
             self.assertEqual(spec["context"], "CapsWriter, FunASR")
             self.assertEqual(spec["language"], "english")
+            self.assertTrue(spec["log_transcript"])
+            self.assertEqual(spec["deadline_monotonic"], 456.0)
             self.assertEqual(spec["socket_id"], "http:task-long")
 
 

@@ -42,6 +42,8 @@ class Task:
     language: str = 'auto'
     samplerate: int = 16000
     command: str = ''           # 特殊命令，如 'gpu_boost' / 'gpu_unboost'
+    log_transcript: bool = True  # HTTP can opt out; WebSocket behavior is preserved
+    deadline_monotonic: Optional[float] = None  # HTTP latency deadline; None for WS
 
 
 @dataclass
@@ -66,6 +68,8 @@ class Result:
         timestamps: 字级时间戳列表（秒）
         
         is_final: 是否已完成所有片段识别
+        error_code: 安全、稳定的机器可读错误码；成功时为 None
+        error_message: 可安全发送给客户端的固定错误消息；成功时为 None
     """
     task_id: str
     socket_id: str
@@ -85,6 +89,8 @@ class Result:
     timestamps: List[float] = field(default_factory=list)
     
     is_final: bool = False
+    error_code: Optional[str] = None
+    error_message: Optional[str] = None
 
 @dataclass
 class RecognitionSession:

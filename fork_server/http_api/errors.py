@@ -5,6 +5,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from .limits import REQUEST_BODY_TOO_LARGE_MESSAGE
+
 
 ERROR_TYPE_BY_STATUS = {
     400: "invalid_request_error",
@@ -74,10 +76,22 @@ async def http_exception_handler(
     from fastapi.responses import JSONResponse
 
     del request
+    detail = _string_detail(exc.detail)
+    if exc.status_code == 400 and detail == REQUEST_BODY_TOO_LARGE_MESSAGE:
+        return JSONResponse(
+            status_code=413,
+            content=openai_error_payload(
+                message="Request body is too large",
+                status_code=413,
+                param="file",
+                code="request_too_large",
+            ),
+            headers={"Connection": "close"},
+        )
     return JSONResponse(
         status_code=exc.status_code,
         content=openai_error_payload(
-            message=_string_detail(exc.detail),
+            message=detail,
             status_code=exc.status_code,
         ),
         headers=getattr(exc, "headers", None),

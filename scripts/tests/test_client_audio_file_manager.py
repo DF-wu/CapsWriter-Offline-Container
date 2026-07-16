@@ -31,12 +31,13 @@ class FakeStdin:
 
 
 class FakePopen:
-    def __init__(self, wait_responses=None) -> None:
+    def __init__(self, wait_responses=None, kill_error=None) -> None:
         self.stdin = FakeStdin()
         self.returncode = None
         self.killed = False
         self.wait_responses = list(wait_responses or [0])
         self.wait_timeouts = []
+        self.kill_error = kill_error
 
     def wait(self, timeout=None):
         self.wait_timeouts.append(timeout)
@@ -47,6 +48,8 @@ class FakePopen:
         return response
 
     def kill(self) -> None:
+        if self.kill_error is not None:
+            raise self.kill_error
         self.killed = True
 
 
@@ -171,6 +174,27 @@ class ClientAudioFileManagerTest(unittest.TestCase):
         self.assertEqual(path, Path("recording.mp3"))
         self.assertTrue(process.stdin.closed)
         self.assertTrue(process.killed)
+        self.assertEqual(
+            process.wait_timeouts,
+            [1.5, namespace["CLIENT_AUDIO_FINISH_KILL_GRACE_SECONDS"]],
+        )
+        self.assertIsNone(manager.file_handle)
+
+    def test_finish_timeout_preserves_bounded_wait_when_windows_denies_kill(self) -> None:
+        namespace = load_file_manager_namespace()
+        process = FakePopen(
+            [
+                TimeoutExpired(["ffmpeg"], timeout=1.5),
+                0,
+            ],
+            kill_error=PermissionError("handle is closing"),
+        )
+        manager = build_manager(namespace, process)
+
+        with patch.dict(os.environ, {namespace["CLIENT_AUDIO_FINISH_TIMEOUT_ENV"]: "1.5"}):
+            path = manager.finish()
+
+        self.assertEqual(path, Path("recording.mp3"))
         self.assertEqual(
             process.wait_timeouts,
             [1.5, namespace["CLIENT_AUDIO_FINISH_KILL_GRACE_SECONDS"]],

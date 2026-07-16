@@ -17,7 +17,13 @@ import {
   Volume2,
   XCircle,
 } from "lucide-react";
-import { fetchHealth, fetchModels, fetchReadiness, transcribeAudio } from "./api/capswriter";
+import {
+  fetchHealth,
+  fetchModels,
+  fetchReadiness,
+  safeErrorMessage,
+  transcribeAudio,
+} from "./api/capswriter";
 import {
   chooseRecorderMimeType,
   extensionForMimeType,
@@ -42,6 +48,7 @@ import type { ApiSettings, HealthResponse, ReadinessResponse, ResponseFormat, Tr
 
 type StatusKind = "idle" | "working" | "ok" | "degraded" | "error";
 type SpeechState = "idle" | "speaking" | "paused";
+type RecordingState = "idle" | "starting" | "recording" | "stopping";
 
 const BYTES_PER_UPLOAD_MB = 1024 * 1024;
 
@@ -65,15 +72,14 @@ function readinessClass(value: boolean | undefined): string {
   return "meta-state";
 }
 
-function diagnosticError(label: string, reason: unknown): string {
-  const message = reason instanceof Error ? reason.message : "failed";
-  return `${label}: ${message}`;
+function diagnosticError(label: string, reason: unknown, apiKey: string): string {
+  return `${label}: ${safeErrorMessage(reason, apiKey, "failed")}`;
 }
 
 function readinessUploadLimit(
   readiness: ReadinessResponse | null,
 ): { maxBytes: number; maxMb: number } | null {
-  const maxMb = readiness?.config.max_upload_mb;
+  const maxMb = readiness?.config?.max_upload_mb;
   if (typeof maxMb !== "number" || !Number.isFinite(maxMb) || maxMb <= 0) return null;
   return {
     maxBytes: maxMb * BYTES_PER_UPLOAD_MB,
@@ -113,7 +119,7 @@ export default function App() {
   const [currentAudio, setCurrentAudio] = useState<BrowserAudio | null>(null);
   const [transcript, setTranscript] = useState<TranscriptionResult | null>(null);
   const [history, setHistory] = useState<TranscriptRecord[]>(() => loadHistory());
-  const [isRecording, setIsRecording] = useState(false);
+  const [recordingState, setRecordingState] = useState<RecordingState>("idle");
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
@@ -127,9 +133,9 @@ export default function App() {
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<number | null>(null);
-  const startedAtRef = useRef<number>(0);
+  const recordingBusyRef = useRef(false);
+  const recordingRunRef = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
   const diagnosticAbortRef = useRef<AbortController | null>(null);
   const currentAudioRef = useRef<BrowserAudio | null>(null);
@@ -161,15 +167,19 @@ export default function App() {
     mountedRef.current = true;
     return () => {
       mountedRef.current = false;
+      recordingRunRef.current += 1;
+      recordingBusyRef.current = false;
       if (timerRef.current !== null) {
         window.clearInterval(timerRef.current);
         timerRef.current = null;
       }
       const recorder = recorderRef.current;
-      if (recorder && recorder.state !== "inactive") {
+      if (recorder) {
         recorder.ondataavailable = null;
         recorder.onstop = null;
-        recorder.stop();
+        if (recorder.state !== "inactive") {
+          recorder.stop();
+        }
       }
       recorderRef.current = null;
       revokeAudio(currentAudioRef.current);
@@ -221,21 +231,21 @@ export default function App() {
       setHealth(healthResult.value);
     } else {
       setHealth(null);
-      failures.push(diagnosticError("Health", healthResult.reason));
+      failures.push(diagnosticError("Health", healthResult.reason, settings.apiKey));
     }
 
     if (readinessResult.status === "fulfilled") {
       setReadiness(readinessResult.value);
     } else {
       setReadiness(null);
-      failures.push(diagnosticError("Ready", readinessResult.reason));
+      failures.push(diagnosticError("Ready", readinessResult.reason, settings.apiKey));
     }
 
     if (modelsResult.status === "fulfilled") {
       setModels(modelsResult.value.data.map((item) => item.id));
     } else {
       setModels([]);
-      failures.push(diagnosticError("Models", modelsResult.reason));
+      failures.push(diagnosticError("Models", modelsResult.reason, settings.apiKey));
     }
 
     if (failures.length > 0) {
@@ -258,11 +268,18 @@ export default function App() {
   };
 
   const startRecording = async () => {
+    if (recordingBusyRef.current || abortRef.current) return;
     if (!navigator.mediaDevices?.getUserMedia) {
       setStatusKind("error");
       setStatusText("此瀏覽器不支援麥克風錄音");
       return;
     }
+    recordingBusyRef.current = true;
+    const runId = recordingRunRef.current + 1;
+    recordingRunRef.current = runId;
+    setRecordingState("starting");
+    setStatusKind("working");
+    setStatusText("準備麥克風");
     let stream: MediaStream | null = null;
     try {
       stream = await navigator.mediaDevices.getUserMedia({
@@ -272,49 +289,65 @@ export default function App() {
           autoGainControl: true,
         },
       });
-      if (!mountedRef.current) {
+      if (!mountedRef.current || runId !== recordingRunRef.current) {
         stream.getTracks().forEach((track) => track.stop());
         return;
       }
       const mimeType = chooseRecorderMimeType();
       const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       const recordingStream = stream;
+      const recordingChunks: Blob[] = [];
+      const startedAt = Date.now();
       streamRef.current = stream;
       recorderRef.current = recorder;
-      chunksRef.current = [];
-      startedAtRef.current = Date.now();
 
       recorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
-          chunksRef.current.push(event.data);
+          recordingChunks.push(event.data);
         }
       };
       recorder.onstop = () => {
+        recordingStream.getTracks().forEach((track) => track.stop());
+        if (streamRef.current === recordingStream) {
+          streamRef.current = null;
+        }
+        if (
+          !mountedRef.current ||
+          runId !== recordingRunRef.current ||
+          recorderRef.current !== recorder
+        ) {
+          return;
+        }
+        recorderRef.current = null;
+        recordingBusyRef.current = false;
+        if (timerRef.current !== null) {
+          window.clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
         const finalMimeType = recorder.mimeType || mimeType || "audio/webm";
-        const blob = new Blob(chunksRef.current, { type: finalMimeType });
-        const durationSeconds = Math.max(0, (Date.now() - startedAtRef.current) / 1000);
+        const blob = new Blob(recordingChunks, { type: finalMimeType });
+        const durationSeconds = Math.max(0, (Date.now() - startedAt) / 1000);
         const ext = extensionForMimeType(finalMimeType);
+        setRecordingState("idle");
         setAudio({
           blob,
           name: `recording-${timestampSlug()}.${ext}`,
           objectUrl: URL.createObjectURL(blob),
           durationSeconds,
         });
-        recordingStream.getTracks().forEach((track) => track.stop());
-        streamRef.current = null;
         setRecordingSeconds(Math.round(durationSeconds));
       };
 
       recorder.start(250);
-      setIsRecording(true);
+      setRecordingState("recording");
       setRecordingSeconds(0);
       setStatusKind("working");
       setStatusText("錄音中");
       timerRef.current = window.setInterval(() => {
-        setRecordingSeconds(Math.floor((Date.now() - startedAtRef.current) / 1000));
+        setRecordingSeconds(Math.floor((Date.now() - startedAt) / 1000));
       }, 250);
     } catch (error) {
-      if (!mountedRef.current) {
+      if (!mountedRef.current || runId !== recordingRunRef.current) {
         if (stream) {
           stream.getTracks().forEach((track) => track.stop());
         }
@@ -323,6 +356,7 @@ export default function App() {
         }
         return;
       }
+      recordingBusyRef.current = false;
       if (timerRef.current !== null) {
         window.clearInterval(timerRef.current);
         timerRef.current = null;
@@ -334,26 +368,44 @@ export default function App() {
       if (streamRef.current === stream) {
         streamRef.current = null;
       }
-      setIsRecording(false);
+      setRecordingState("idle");
       setStatusKind("error");
-      setStatusText(error instanceof Error ? error.message : "無法啟動錄音");
+      setStatusText(safeErrorMessage(error, settings.apiKey, "無法啟動錄音"));
     }
   };
 
   const stopRecording = () => {
-    if (timerRef.current) {
+    if (timerRef.current !== null) {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
     }
-    setIsRecording(false);
     const recorder = recorderRef.current;
     if (recorder && recorder.state !== "inactive") {
-      recorder.stop();
+      setRecordingState("stopping");
+      setStatusKind("working");
+      setStatusText("停止錄音中");
+      try {
+        recorder.stop();
+      } catch (error) {
+        recordingRunRef.current += 1;
+        recordingBusyRef.current = false;
+        recorderRef.current = null;
+        streamRef.current?.getTracks().forEach((track) => track.stop());
+        streamRef.current = null;
+        setRecordingState("idle");
+        setStatusKind("error");
+        setStatusText(safeErrorMessage(error, settings.apiKey, "無法停止錄音"));
+      }
     }
   };
 
   const handleFile = (file: File | null) => {
     if (!file) return;
+    if (recordingBusyRef.current) {
+      setStatusKind("working");
+      setStatusText("請先停止錄音再更換音訊");
+      return;
+    }
     if (isTranscribing) {
       setStatusKind("working");
       setStatusText("轉錄中，請先取消再更換音訊");
@@ -404,6 +456,11 @@ export default function App() {
   };
 
   const runTranscription = async () => {
+    if (recordingBusyRef.current) {
+      setStatusKind("working");
+      setStatusText("請先停止錄音再轉錄");
+      return;
+    }
     if (!currentAudio) {
       setStatusKind("error");
       setStatusText("未載入音訊");
@@ -444,7 +501,7 @@ export default function App() {
         setStatusText("已取消");
       } else {
         setStatusKind("error");
-        setStatusText(error instanceof Error ? error.message : "轉錄失敗");
+        setStatusText(safeErrorMessage(error, settings.apiKey, "轉錄失敗"));
       }
     } finally {
       if (mountedRef.current && runId === transcriptionRunRef.current) {
@@ -478,7 +535,7 @@ export default function App() {
     } catch (error) {
       if (!mountedRef.current) return;
       setStatusKind("error");
-      setStatusText(error instanceof Error ? error.message : "複製失敗");
+      setStatusText(safeErrorMessage(error, settings.apiKey, "複製失敗"));
     }
   };
 
@@ -501,6 +558,13 @@ export default function App() {
   };
 
   const clearAllHistory = () => {
+    if (
+      !window.confirm(
+        `清除全部 ${history.length} 筆轉錄歷史？此動作無法復原。`,
+      )
+    ) {
+      return;
+    }
     clearHistory();
     setHistory([]);
     setStatusKind("ok");
@@ -521,7 +585,7 @@ export default function App() {
         if (!mountedRef.current) return;
         setSpeechState("idle");
         setStatusKind("error");
-        setStatusText(message);
+        setStatusText(safeErrorMessage(message, settings.apiKey, "語音播放失敗"));
       },
     });
     setSpeechState("speaking");
@@ -556,7 +620,8 @@ export default function App() {
       </header>
 
       <main className="workspace">
-        <section className="panel controls-panel" aria-labelledby="connection-title">
+        <div className="workspace-column setup-column">
+          <section className="panel controls-panel" aria-labelledby="connection-title">
           <div className="panel-heading">
             <Settings2 size={20} aria-hidden="true" />
             <h2 id="connection-title">連線</h2>
@@ -642,14 +707,14 @@ export default function App() {
             </div>
             <div>
               <dt>Router</dt>
-              <dd className={readinessClass(readiness?.checks.task_router_bound)}>
-                {readinessValue(readiness?.checks.task_router_bound)}
+              <dd className={readinessClass(readiness?.checks?.task_router_bound)}>
+                {readinessValue(readiness?.checks?.task_router_bound)}
               </dd>
             </div>
             <div>
               <dt>FFmpeg</dt>
-              <dd className={readinessClass(readiness?.checks.ffmpeg_available)}>
-                {readinessValue(readiness?.checks.ffmpeg_available)}
+              <dd className={readinessClass(readiness?.checks?.ffmpeg_available)}>
+                {readinessValue(readiness?.checks?.ffmpeg_available)}
               </dd>
             </div>
             <div>
@@ -662,20 +727,22 @@ export default function App() {
             </div>
             <div>
               <dt>Auth</dt>
-              <dd>{readiness ? (readiness.config.auth_enabled ? "enabled" : "off") : "-"}</dd>
+              <dd>{readiness?.config ? (readiness.config.auth_enabled ? "enabled" : "off") : "-"}</dd>
             </div>
             <div>
               <dt>Limits</dt>
               <dd>
-                {readiness
+                {readiness?.config
                   ? `${readiness.config.max_upload_mb} MB / ${readiness.config.max_concurrent_requests} slots`
                   : "-"}
               </dd>
             </div>
           </dl>
-        </section>
+          </section>
+        </div>
 
-        <section className="panel input-panel" aria-labelledby="audio-title">
+        <div className="workspace-column transcription-column">
+          <section className="panel input-panel" aria-labelledby="audio-title">
           <div className="panel-heading">
             <FileAudio size={20} aria-hidden="true" />
             <h2 id="audio-title">音訊</h2>
@@ -685,11 +752,25 @@ export default function App() {
             <button
               className="primary-action"
               type="button"
-              onClick={isRecording ? stopRecording : startRecording}
-              disabled={isTranscribing}
+              onClick={recordingState === "recording" ? stopRecording : startRecording}
+              disabled={
+                isTranscribing ||
+                recordingState === "starting" ||
+                recordingState === "stopping"
+              }
             >
-              {isRecording ? <Square size={18} aria-hidden="true" /> : <Mic size={18} aria-hidden="true" />}
-              {isRecording ? "停止" : "錄音"}
+              {recordingState === "recording" || recordingState === "stopping" ? (
+                <Square size={18} aria-hidden="true" />
+              ) : (
+                <Mic size={18} aria-hidden="true" />
+              )}
+              {recordingState === "starting"
+                ? "準備中"
+                : recordingState === "stopping"
+                  ? "停止中"
+                  : recordingState === "recording"
+                    ? "停止"
+                    : "錄音"}
             </button>
             <span className="timer" aria-label="錄音時間">
               {formatDuration(recordingSeconds)}
@@ -700,7 +781,7 @@ export default function App() {
             type="button"
             className={`drop-zone ${isDragging ? "dragging" : ""}`}
             onClick={() => fileInputRef.current?.click()}
-            disabled={isTranscribing}
+            disabled={isTranscribing || recordingState !== "idle"}
             onDragEnter={handleAudioDragEnter}
             onDragOver={(event) => {
               event.preventDefault();
@@ -718,7 +799,7 @@ export default function App() {
             type="file"
             accept="audio/*,.wav,.mp3,.m4a,.flac,.ogg,.webm"
             tabIndex={-1}
-            disabled={isTranscribing}
+            disabled={isTranscribing || recordingState !== "idle"}
             onChange={handleFileInputChange}
           />
 
@@ -745,7 +826,7 @@ export default function App() {
               className="primary-action"
               type="button"
               onClick={runTranscription}
-              disabled={!currentAudio || isTranscribing}
+              disabled={!currentAudio || isTranscribing || recordingState !== "idle"}
             >
               <Play size={18} aria-hidden="true" />
               轉錄
@@ -760,9 +841,9 @@ export default function App() {
               取消
             </button>
           </div>
-        </section>
+          </section>
 
-        <section className="panel transcript-panel" aria-labelledby="transcript-title">
+          <section className="panel transcript-panel" aria-labelledby="transcript-title">
           <div className="panel-heading split">
             <div className="heading-inline">
               <Activity size={20} aria-hidden="true" />
@@ -779,6 +860,7 @@ export default function App() {
           </div>
           <textarea
             className="transcript-output"
+            aria-label="轉錄內容"
             value={transcript?.text ?? ""}
             onChange={(event) => {
               const text = event.target.value;
@@ -793,9 +875,11 @@ export default function App() {
             <span>{transcript ? transcript.format : "no result"}</span>
             <span>{transcript ? `${transcript.text.length} chars` : "0 chars"}</span>
           </div>
-        </section>
+          </section>
+        </div>
 
-        <section className="panel tts-panel" aria-labelledby="tts-title">
+        <div className="workspace-column support-column">
+          <section className="panel tts-panel" aria-labelledby="tts-title">
           <div className="panel-heading">
             <Volume2 size={20} aria-hidden="true" />
             <h2 id="tts-title">TTS</h2>
@@ -872,15 +956,21 @@ export default function App() {
               停止
             </button>
           </div>
-        </section>
+          </section>
 
-        <section className="panel history-panel" aria-labelledby="history-title">
+          <section className="panel history-panel" aria-labelledby="history-title">
           <div className="panel-heading split">
             <div className="heading-inline">
               <Download size={20} aria-hidden="true" />
               <h2 id="history-title">歷史</h2>
             </div>
-            <button type="button" onClick={clearAllHistory} disabled={history.length === 0} title="清除" aria-label="清除">
+            <button
+              type="button"
+              onClick={clearAllHistory}
+              disabled={history.length === 0}
+              title="清除全部歷史"
+              aria-label="清除全部歷史"
+            >
               <Trash2 size={18} aria-hidden="true" />
             </button>
           </div>
@@ -912,7 +1002,8 @@ export default function App() {
               ))
             )}
           </div>
-        </section>
+          </section>
+        </div>
       </main>
     </div>
   );

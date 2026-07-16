@@ -64,8 +64,32 @@ class TaskRouter:
     def is_bound(self) -> bool:
         return self._state is not None and self._loop is not None
 
+    def recognizer_process_alive(self) -> bool:
+        """Return whether the bound server's recognizer child is still alive."""
+        if self._state is None:
+            return False
+        if getattr(self._state, "recognizer_watchdog_failed", False):
+            return False
+        process = getattr(self._state, "recognize_process", None)
+        if process is None:
+            return False
+        try:
+            return bool(process.is_alive())
+        except (AssertionError, OSError, ValueError):
+            # A stale, closed, or non-child multiprocessing handle is not ready.
+            return False
+
     def synthetic_socket_id(self, task_id: str) -> str:
         return _synthetic_socket_id(task_id)
+
+    def socket_is_active(self, task_id: str) -> bool:
+        """Return whether an HTTP producer still owns its synthetic socket."""
+        if self._state is None or self._state.sockets_id is None:
+            return False
+        try:
+            return _synthetic_socket_id(task_id) in self._state.sockets_id
+        except (BrokenPipeError, EOFError, OSError, TypeError, ValueError):
+            return False
 
     def register(self, task_id: str) -> asyncio.Future:
         """
@@ -99,6 +123,13 @@ class TaskRouter:
             False — task_id 不在 pending, 不是 HTTP 任務, 走原 ws 派發
             True  — 已處理 (resolve 或中間結果), ws_send 不再派發
         """
+        # A client-controlled WebSocket task_id may collide with a pending HTTP
+        # UUID. Only the exact synthetic socket proves HTTP ownership.
+        if getattr(result, "socket_id", None) != _synthetic_socket_id(
+            result.task_id
+        ):
+            return False
+
         fut = self._pending.get(result.task_id)
         if fut is None:
             if self._is_cancelled_http_result(result):
@@ -158,7 +189,7 @@ class TaskRouter:
             return
         try:
             self._state.sockets_id.remove(_synthetic_socket_id(task_id))
-        except ValueError:
+        except (BrokenPipeError, EOFError, OSError, TypeError, ValueError):
             pass
 
     @property

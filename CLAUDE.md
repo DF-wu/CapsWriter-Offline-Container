@@ -72,7 +72,6 @@
 - **LLM角色**: [`LLM/*.py`](LLM/) (根目录, 定义 Role/Prompt/Model)
     - [`default.py`](LLM/default.py) - 默认角色（热词、润色，process=False）
     - [`翻译.py`](LLM/翻译.py) - 翻译角色（ollama/gemma3:12b）
-    - [`高级翻译.py`](LLM/高级翻译.py) - 高级翻译（deepseek/deepseek-chat）
     - [`大助理.py`](LLM/大助理.py) - 大助理（zhipu/glm-4.5-air）
     - [`小助理.py`](LLM/小助理.py) - 小助理（lmstudio/local-model）
 - **服务端核心**: [`core/server/`](core/server/)
@@ -173,4 +172,3 @@
 ## 用户偏好 (User Preferences)
 - **语言**: 中文 (Chinese)，总结、Plan、WalkThrough、注释都要用中文。
 - **环境**: 运行环境是 `conda activate c`，或用 `D:/anaconda3/envs/c/python.exe` 或 `conda run -n c` 执行。所有的临时 Python 代码要先写到临时脚本文件，再运行，而不要直接用命令行跑代码。临时脚本用完不要删。
-

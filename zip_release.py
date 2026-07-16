@@ -17,6 +17,7 @@ from datetime import datetime
 
 ZIP_RELEASE_TIMEOUT_ENV = "CAPSWRITER_ZIP_RELEASE_TIMEOUT"
 DEFAULT_ZIP_RELEASE_TIMEOUT_SECONDS = 900
+REQUIRED_EMPTY_RELEASE_DIRECTORIES = ("models", "logs")
 
 
 def _format_seconds(value):
@@ -120,6 +121,21 @@ def create_file_list(dist_folder, output_file='file_list.txt', is_client_only=Fa
     dist_path = Path(dist_folder)
     if not dist_path.exists():
         return files, None
+
+    # The production artifact contract requires these root-level directories
+    # even when they contain no files.  Add only genuinely empty, real
+    # directories: giving 7-Zip a non-empty directory path would recursively
+    # bypass the per-file model exclusions below.
+    for directory_name in REQUIRED_EMPTY_RELEASE_DIRECTORIES:
+        directory = dist_path / directory_name
+        is_junction = getattr(directory, "is_junction", None)
+        if (
+            directory.is_dir()
+            and not directory.is_symlink()
+            and not (is_junction and is_junction())
+            and not any(directory.iterdir())
+        ):
+            files.append(os.path.relpath(directory, dist_path.parent))
 
     for root, dirs, filenames in os.walk(dist_path):
         # 排除不需要打包的文件夹

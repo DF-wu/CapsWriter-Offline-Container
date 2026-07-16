@@ -32,6 +32,23 @@ class EntrypointTest(unittest.TestCase):
         self.assertIn('export CAPSWRITER_QWEN_USE_CUDA="false"', script)
         self.assertIn('export CAPSWRITER_QWEN_USE_CUDA="true"', script)
 
+    def test_gpu_bootstrap_failure_retries_and_probes_full_cpu_backend(self) -> None:
+        script = ENTRYPOINT.read_text(encoding="utf-8")
+
+        self.assertIn("prepare_and_probe_cpu_fallback()", script)
+        self.assertIn(
+            "if ! python /app/docker/server/download_models.py; then",
+            script,
+        )
+        self.assertIn("selected GPU backend bootstrap failed", script)
+        self.assertIn("prepare_and_probe_cpu_fallback", script)
+        self.assertIn("full CPU backend probe failed; refusing to start", script)
+        self.assertRegex(
+            script,
+            r"(?s)prepare_and_probe_cpu_fallback\(\).*?fallback_to_cpu.*?"
+            r"download_models\.py.*?probe_backend\.py",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

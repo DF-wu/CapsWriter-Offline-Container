@@ -66,7 +66,7 @@ button:focus-visible,
 input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
-  outline: 3px solid rgba(30, 58, 95, 0.28);
+  outline: 3px solid var(--color-ring);
   outline-offset: 2px;
 }
 
@@ -155,12 +155,17 @@ h2 {
 .workspace {
   display: grid;
   grid-template-columns: minmax(280px, 0.82fr) minmax(360px, 1.3fr) minmax(280px, 0.9fr);
-  grid-template-areas:
-    "controls transcript tts"
-    "audio transcript history";
   gap: 16px;
   max-width: 1440px;
   margin: 0 auto;
+  align-items: start;
+}
+
+.workspace-column {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+  align-content: start;
   align-items: start;
 }
 
@@ -170,26 +175,6 @@ h2 {
   background: var(--color-panel);
   box-shadow: var(--shadow-panel);
   padding: 16px;
-}
-
-.controls-panel {
-  grid-area: controls;
-}
-
-.input-panel {
-  grid-area: audio;
-}
-
-.transcript-panel {
-  grid-area: transcript;
-}
-
-.tts-panel {
-  grid-area: tts;
-}
-
-.history-panel {
-  grid-area: history;
 }
 
 .panel-heading,
@@ -485,10 +470,19 @@ input[type="range"] {
 @media (max-width: 1100px) {
   .workspace {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-areas:
-      "controls audio"
-      "transcript transcript"
-      "tts history";
+  }
+
+  .setup-column {
+    grid-column: 1;
+  }
+
+  .transcription-column {
+    grid-column: 2;
+  }
+
+  .support-column {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
@@ -508,12 +502,16 @@ input[type="range"] {
 
   .workspace {
     grid-template-columns: 1fr;
-    grid-template-areas:
-      "controls"
-      "audio"
-      "transcript"
-      "tts"
-      "history";
+  }
+
+  .setup-column,
+  .transcription-column,
+  .support-column {
+    grid-column: 1;
+  }
+
+  .support-column {
+    grid-template-columns: 1fr;
   }
 
   .field-row,

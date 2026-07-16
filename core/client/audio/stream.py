@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import sys
 import time
 import threading
@@ -76,18 +77,35 @@ class AudioStreamManager:
         if not self.state.recording:
             return
 
-        import asyncio
+        loop = self.app.loop
+        queue_in = self.state.queue_in
+        if not loop or not queue_in or not self.state.reserve_audio_chunk():
+            return
 
-        # 将数据放入队列
-        if self.app.loop and self.state.queue_in:
-            asyncio.run_coroutine_threadsafe(
-                self.state.queue_in.put({
-                    'type': 'data',
-                    'time': time.time(),
-                    'data': indata.copy(),
-                }),
-                self.app.loop
-            )
+        try:
+            item = {
+                'type': 'data',
+                'time': time.time(),
+                'data': indata.copy(),
+            }
+        except Exception:
+            self.state.release_audio_chunk()
+            raise
+
+        def enqueue_reserved_audio() -> None:
+            try:
+                queue_in.put_nowait(item)
+            except asyncio.QueueFull:
+                self.state.release_audio_chunk()
+                self.state.mark_audio_input_overflow()
+
+        try:
+            # Reserving before copying/scheduling bounds both queued data and
+            # loop callbacks; no discarded Future or blocked callback thread.
+            loop.call_soon_threadsafe(enqueue_reserved_audio)
+        except RuntimeError:
+            self.state.release_audio_chunk()
+            self.state.mark_audio_input_overflow()
 
     def _on_stream_finished(self) -> None:
         """音频流结束回调"""

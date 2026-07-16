@@ -29,6 +29,8 @@ class Result:
     tokens: list[str] = field(default_factory=list)
     timestamps: list[float] = field(default_factory=list)
     is_final: bool = False
+    error_code: str | None = None
+    error_message: str | None = None
 
 
 @dataclass
@@ -43,13 +45,50 @@ class RecognitionMessage:
     text_accu: str = ""
     tokens: list[str] = field(default_factory=list)
     timestamps: list[float] = field(default_factory=list)
+    error_code: str | None = None
+    error_message: str | None = None
 
     def to_json(self) -> str:
-        return json.dumps(asdict(self), ensure_ascii=False)
+        payload = asdict(self)
+        if self.error_code is None:
+            payload.pop("error_code")
+        if self.error_message is None:
+            payload.pop("error_message")
+        return json.dumps(payload, ensure_ascii=False)
 
 
 async def immediate_to_thread(func, /, *args, **kwargs):
-    return func(*args, **kwargs)
+    value = func(*args, **kwargs)
+    await asyncio.sleep(0)
+    return value
+
+
+class ImmediateDispatcher:
+    def __init__(self, _state, _logger) -> None:
+        self.tasks = []
+
+    def submit(self, websocket, payload, **_metadata) -> None:
+        self.tasks.append(asyncio.create_task(websocket.send(payload)))
+
+    async def aclose(self) -> None:
+        if self.tasks:
+            await asyncio.gather(*self.tasks)
+
+
+class ImmediateQueueReader:
+    def __init__(self, queue_out) -> None:
+        self._queue_out = queue_out
+
+    async def get(self):
+        value = self._queue_out.get()
+        await asyncio.sleep(0)
+        return value
+
+    def close(self) -> None:
+        pass
+
+    async def aclose(self) -> None:
+        self.close()
 
 
 def load_ws_send_module():
@@ -72,6 +111,15 @@ def load_ws_send_module():
     to_thread_module.to_thread = immediate_to_thread
     state_module = types.ModuleType("core.server.state")
     state_module.console = SimpleNamespace(print=Mock())
+    queue_limits_module = types.ModuleType("core.server.queue_limits")
+    queue_limits_module.RESULT_QUEUE_GET_TIMEOUT_SECONDS = 0.1
+    connection_module = types.ModuleType("core.server.connection")
+    connection_module.__path__ = []
+    dispatcher_module = types.ModuleType(
+        "core.server.connection.result_dispatcher"
+    )
+    dispatcher_module.AsyncResultQueueReader = ImmediateQueueReader
+    dispatcher_module.WebSocketResultDispatcher = ImmediateDispatcher
 
     fake_modules = {
         "core": core_module,
@@ -81,6 +129,9 @@ def load_ws_send_module():
         "core.tools": tools_module,
         "core.tools.asyncio_to_thread": to_thread_module,
         "core.server.state": state_module,
+        "core.server.queue_limits": queue_limits_module,
+        "core.server.connection": connection_module,
+        "core.server.connection.result_dispatcher": dispatcher_module,
     }
 
     module_name = "fork_server.http_api.ws_send_with_http"
@@ -162,7 +213,7 @@ class FakeQueue:
     def __init__(self, items) -> None:
         self._items = list(items)
 
-    def get(self):
+    def get(self, *_args):
         return self._items.pop(0)
 
 
@@ -220,7 +271,41 @@ class WsSendWithHttpTest(unittest.TestCase):
         payload = json.loads(websocket.sent[0])
         self.assertEqual(payload["task_id"], "task-1")
         self.assertEqual(payload["text"], "hello")
+        self.assertNotIn("error_code", payload)
+        self.assertNotIn("error_message", payload)
         log_error.assert_not_called()
+
+    def test_websocket_error_fields_are_forwarded(self) -> None:
+        ws_send_with_http = load_ws_send_module()
+        websocket = FakeWebSocket("socket-1")
+        result = Result(
+            task_id="task-1",
+            socket_id="socket-1",
+            type="mic",
+            is_final=True,
+            error_code="worker_processing_failed",
+            error_message="Recognition failed while processing the audio.",
+        )
+        app = SimpleNamespace(
+            state=SimpleNamespace(
+                queue_out=FakeQueue([result, None]),
+                sockets={"socket-1": websocket},
+            )
+        )
+
+        with patch.object(
+            ws_send_with_http.task_router,
+            "try_resolve",
+            return_value=False,
+        ):
+            asyncio.run(ws_send_with_http.ws_send_with_http(app))
+
+        payload = json.loads(websocket.sent[0])
+        self.assertEqual(payload["error_code"], "worker_processing_failed")
+        self.assertEqual(
+            payload["error_message"],
+            "Recognition failed while processing the audio.",
+        )
 
     def test_http_result_is_resolved_without_websocket_send(self) -> None:
         ws_send_with_http = load_ws_send_module()

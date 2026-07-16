@@ -54,3 +54,19 @@ def log_transcription_result(
     console.print(f"    转录时延：{delay:.2f}s")
     console.print("    识别结果：[redacted]")
     console.line()
+
+
+def log_internal_exception(
+    logger: Any,
+    message: str,
+    exc: BaseException,
+    *,
+    log_sensitive_text: bool,
+    level: str = "error",
+) -> None:
+    """Keep backend exception strings and traces behind the text-log opt-in."""
+    emit = getattr(logger, level)
+    if log_sensitive_text:
+        emit(f"{message}: {exc}", exc_info=True)
+        return
+    emit(f"{message}; details=<redacted>", exc_info=False)

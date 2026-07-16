@@ -4,11 +4,14 @@
 适配 PyInstaller 6.0+ 版本
 """
 
-from PyInstaller.utils.hooks import collect_all, collect_data_files, collect_submodules
-# from PyInstaller.building.build_main import Analysis, COLLECT
-from os.path import join, basename, dirname, exists
-from os import walk, makedirs
-from shutil import copyfile, rmtree
+from importlib.util import find_spec
+from os.path import basename
+from pathlib import Path
+from platform import system
+from shutil import copy2, copytree
+import sys
+
+from PyInstaller.utils.hooks import collect_all, collect_submodules
 
 # ==================== 打包配置选项 ====================
 
@@ -19,43 +22,19 @@ INCLUDE_CUDA_PROVIDER = False
 
 # ====================================================
 
+if system() != 'Windows':
+    raise RuntimeError('build.spec 只支持 Windows production artifact')
+if sys.version_info[:2] != (3, 12):
+    raise RuntimeError('build.spec production artifact 必须使用 CPython 3.12')
+if sys.maxsize <= 2**32:
+    raise RuntimeError('build.spec production artifact 必须使用 64-bit Python')
+
 
 # 初始化空列表
 binaries = []
-hiddenimports = []
 datas = []
-
-# 收集 sherpa_onnx 相关文件
-try:
-    sherpa_datas = collect_data_files('sherpa_onnx', include_py_files=False)
-
-    # 根据 INCLUDE_CUDA_PROVIDER 决定是否收集 CUDA provider
-    if not INCLUDE_CUDA_PROVIDER:
-        # 过滤掉 CUDA provider 文件
-        filtered_datas = []
-        for src, dest in sherpa_datas:
-            # 检查是否是 CUDA provider 相关文件
-            if 'providers_cuda' not in basename(src).lower():
-                filtered_datas.append((src, dest))
-            else:
-                print(f"[INFO] 排除 CUDA provider: {basename(src)}")
-        sherpa_datas = filtered_datas
-
-    datas += sherpa_datas
-except:
-    pass
-
-# 收集 Pillow 相关文件（用于托盘图标）
-try:
-    pillow_datas = collect_data_files('PIL', include_py_files=False)
-    datas += pillow_datas
-    pillow_binaries = collect_all('PIL')
-    binaries += pillow_binaries[1]
-except:
-    pass
-
-# 隐藏导入 - 确保所有需要的模块都被包含
-hiddenimports += [
+hiddenimports = [
+    'artifact_self_check',
     'websockets',
     'websockets.client',
     'websockets.server',
@@ -64,36 +43,120 @@ hiddenimports += [
     'rich.markdown',
     'rich._unicode_data.unicode17-0-0',
     'keyboard',
-    'pyclip', 
+    'pynput',
+    'pyclip',
     'numpy',
+    'numba',
+    'soundfile',
     'sounddevice',
     'pypinyin',
+    'rapidfuzz',
     'watchdog',
     'typer',
+    'colorama',
     'srt',
     'sherpa_onnx',
-    'PIL',           # Pillow 用于托盘图标
+    'onnxruntime',
+    'gguf',
+    'PIL',
     'PIL.Image',
-    'pystray',       # 托盘图标库
+    'pystray',
+    'openai',
+    'ollama',
+    'httpx',
+    'markdown',
+    'tkhtmlview',
 ]
+
+
+def require_importable(package, import_name=None):
+    selected_name = import_name or package
+    try:
+        available = find_spec(selected_name) is not None
+    except (ImportError, ModuleNotFoundError, AttributeError) as error:
+        raise RuntimeError(
+            f'无法检查 Windows 打包依赖 {package} ({selected_name})'
+        ) from error
+    if not available:
+        raise RuntimeError(
+            f'缺少 Windows 打包依赖 {package}（import {selected_name}）'
+        )
+
+
+def without_cuda_provider(entries):
+    filtered = []
+    for src, dest in entries:
+        if 'providers_cuda' in basename(src).lower():
+            print(f'[INFO] 排除 CUDA provider: {basename(src)}')
+            continue
+        filtered.append((src, dest))
+    return filtered
+
+# Sherpa/Pillow carry native/data files that static analysis cannot infer.
+# These are production requirements: a missing package or failed collection
+# must stop the build instead of producing a subtly incomplete artifact.
+require_importable('sherpa-onnx', 'sherpa_onnx')
+sherpa_datas, sherpa_binaries, sherpa_hiddenimports = collect_all('sherpa_onnx')
+if not INCLUDE_CUDA_PROVIDER:
+    sherpa_datas = without_cuda_provider(sherpa_datas)
+    sherpa_binaries = without_cuda_provider(sherpa_binaries)
+datas += sherpa_datas
+binaries += sherpa_binaries
+hiddenimports += sherpa_hiddenimports
+
+require_importable('Pillow', 'PIL')
+pillow_datas, pillow_binaries, pillow_hiddenimports = collect_all('PIL')
+datas += pillow_datas
+binaries += pillow_binaries
+hiddenimports += pillow_hiddenimports
+
+# Fork server runtime. The Windows distribution uses the universal entrypoint:
+# it selects the exact upstream server lifecycle by default and the fork server
+# only when the optional OpenAI-compatible API is enabled. Collect the complete
+# plugin-driven package trees because FastAPI/Pydantic/Uvicorn contain dynamic
+# imports that static analysis does not reliably discover across supported
+# Python versions.
+server_hiddenimports = list(hiddenimports)
+for package in (
+    'fork_server',
+    'fastapi',
+    'starlette',
+    'uvicorn',
+    'pydantic',
+    'pydantic_core',
+    'multipart',
+    'python_multipart',
+):
+    require_importable(package)
+    try:
+        if package == 'fork_server':
+            collected = collect_submodules(
+                package,
+                filter=lambda name: '.tests' not in name,
+            )
+        else:
+            collected = collect_submodules(package)
+    except Exception as error:
+        raise RuntimeError(f'无法收集 HTTP API package {package}') from error
+    server_hiddenimports += collected
 
 # # 对所有模块用 .py 源码而非 .pyc（猴子补丁 _get_module_collection_mode）
 # import PyInstaller.building.build_main as _bm
 # _bm._get_module_collection_mode = lambda md, n, na=False: _bm._ModuleCollectionMode.PY
 
 a_1 = Analysis(
-    ['start_server.py'],
+    ['start_server_universal.py'],
     pathex=[],
     binaries=binaries,
     datas=datas,
-    hiddenimports=hiddenimports,
+    hiddenimports=server_hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=['build_hook.py'],
     excludes=['IPython',
               'PySide6', 'PySide2', 'PyQt5',
               'matplotlib', 'wx',
-              'funasr', 'pydantic', 'torch',
+              'funasr', 'torch',
               ],
     noarchive=True,
 )
@@ -242,58 +305,96 @@ coll = COLLECT(
 )
 
 
-# 复制额外所需的文件（只复制用户自己写的文件）
-my_files = [
+# Assemble a genuinely portable distribution.  Immutable product trees are
+# copied into dist; mutable/model data starts empty.  Never follow source-tree
+# symlinks or junctions and never smuggle local caches, secrets, archives, model
+# blobs, logs, or non-Windows native libraries into a release.
+source_root = Path(SPECPATH).resolve()
+dest_root = Path(DISTPATH) / basename(coll.name)
+required_files = (
     'config_client.py',
     'config_server.py',
-    'core_server.py',
-    'core_client.py',
     'hot.txt',
     'hot-server.txt',
     'hot-rule.txt',
     'readme.md',
-    'LICENSE'
-]
-my_folders = []     # 这里是要复制的文件夹
-dest_root = join('dist', basename(coll.name))
+    'README.en.md',
+    'LICENSE',
+)
+required_folders = ('core', 'LLM', 'assets', 'docs')
+mutable_folders = ('models', 'logs')
 
-# 复制文件夹中的文件
-for folder in my_folders:
-    if not exists(folder):
-        continue
-    for dirpath, dirnames, filenames in walk(folder):
-        for filename in filenames:
-            src_file = join(dirpath, filename)
-            if exists(src_file):
-                my_files.append(src_file)
+ignored_directory_names = {
+    '__pycache__',
+    '.ipynb_checkpoints',
+    '.pytest_cache',
+    '.mypy_cache',
+    '.ruff_cache',
+    '.git',
+    'node_modules',
+    'log',
+    'logs',
+    'models',
+}
+ignored_suffixes = (
+    '.pyc', '.pyo', '.bak', '.orig', '.log',
+    '.zip', '.7z', '.rar', '.tar', '.tar.gz', '.tgz', '.gz', '.bz2', '.xz',
+    '.whl',
+    '.onnx', '.ort', '.tflite', '.gguf', '.bin', '.model', '.engine',
+    '.ckpt', '.pt', '.pth', '.safetensors',
+    '.key', '.pem', '.p12', '.pfx',
+)
 
-# 执行文件复制到根目录（不是 internal）
-for file in my_files:
-    if not exists(file):
-        continue
-    # 保持相对路径结构
-    rel_path = file.replace('\\', '/') if '\\' in file else file
-    dest_file = join(dest_root, rel_path)
-    dest_folder = dirname(dest_file)
-    makedirs(dest_folder, exist_ok=True)
-    copyfile(file, dest_file)
+
+def is_link_or_junction(path):
+    candidate = Path(path)
+    if candidate.is_symlink():
+        return True
+    is_junction = getattr(candidate, 'is_junction', None)
+    return bool(is_junction and is_junction())
 
 
-# 为 models 文件夹建立链接，免去复制大文件
-from platform import system
-from subprocess import run
+def portable_copy_ignore(directory, names):
+    ignored = []
+    for name in names:
+        candidate = Path(directory) / name
+        lower_name = name.lower()
+        if (
+            lower_name in ignored_directory_names
+            or lower_name.startswith('.env')
+            or lower_name.endswith(ignored_suffixes)
+            or '.so.' in lower_name
+            or lower_name.endswith(('.so', '.dylib'))
+            or is_link_or_junction(candidate)
+        ):
+            ignored.append(name)
+    return ignored
 
-if system() == 'Windows':
-    link_folders = ['models', 'assets', 'core', 'LLM', 'docs', 'log']  
-    for folder in link_folders:
-        if not exists(folder):
-            continue
-        dest_folder = join(dest_root, folder)
-        if exists(dest_folder):
-            rmtree(dest_folder)
-        # 使用管理员权限运行的命令提示符来创建目录连接符
-        cmd = ['mklink', '/j', dest_folder, folder]
-        try:
-            run(cmd, shell=True, check=True)
-        except:
-            print(f'警告：无法创建目录连接符 {dest_folder}，请手动创建或复制文件夹')
+
+for relative in required_files:
+    source = source_root / relative
+    if not source.is_file() or is_link_or_junction(source):
+        raise RuntimeError(f'缺少必要的 Windows artifact 文件: {relative}')
+    copy2(source, dest_root / relative)
+
+for relative in required_folders:
+    source = source_root / relative
+    if not source.is_dir() or is_link_or_junction(source):
+        raise RuntimeError(f'缺少必要的 Windows artifact 目录: {relative}')
+    copytree(
+        source,
+        dest_root / relative,
+        copy_function=copy2,
+        dirs_exist_ok=True,
+        ignore=portable_copy_ignore,
+    )
+
+for relative in mutable_folders:
+    destination = dest_root / relative
+    if destination.exists():
+        if not destination.is_dir() or is_link_or_junction(destination):
+            raise RuntimeError(f'Windows artifact mutable path 非真实目录: {relative}')
+        if any(destination.iterdir()):
+            raise RuntimeError(f'Windows artifact mutable path 必须为空: {relative}')
+    else:
+        destination.mkdir()

@@ -3,15 +3,28 @@ set -eu
 
 js_escape() {
   printf '%s' "$1" | awk '
+    function escape_line(value, escaped, position, char) {
+      escaped = ""
+      for (position = 1; position <= length(value); position++) {
+        char = substr(value, position, 1)
+        if (char == "\\") {
+          escaped = escaped "\\\\"
+        } else if (char == "\"") {
+          escaped = escaped "\\\""
+        } else if (char == "\r") {
+          escaped = escaped "\\r"
+        } else {
+          escaped = escaped char
+        }
+      }
+      return escaped
+    }
     BEGIN { first = 1 }
     {
-      gsub(/\\/, "\\\\")
-      gsub(/"/, "\\\"")
-      gsub(/\r/, "\\r")
       if (!first) {
         printf "\\n"
       }
-      printf "%s", $0
+      printf "%s", escape_line($0)
       first = 0
     }
   '

@@ -1,9 +1,13 @@
 import userEvent from "@testing-library/user-event";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
-import { WEB_SETTING_LIMITS } from "./lib/storage";
+import {
+  WEB_SETTING_LIMITS,
+  loadHistory,
+  saveHistory,
+} from "./lib/storage";
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -39,13 +43,20 @@ describe("App", () => {
   });
 
   it("renders the primary workbench regions", () => {
-    render(<App />);
+    const { container } = render(<App />);
 
     expect(screen.getByRole("heading", { name: "Web Console" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "連線" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "音訊" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "轉錄" })).toBeTruthy();
     expect(screen.getByRole("heading", { name: "TTS" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "歷史" })).toBeTruthy();
+    expect(screen.getByRole("textbox", { name: "轉錄內容" })).toBeTruthy();
+    expect(
+      Array.from(container.querySelectorAll(".workspace-column"), (column) =>
+        Array.from(column.querySelectorAll("h2"), (heading) => heading.textContent),
+      ),
+    ).toEqual([["連線"], ["音訊", "轉錄"], ["TTS", "歷史"]]);
   });
 
   it("renders settings controls with bounded input lengths", () => {
@@ -56,6 +67,38 @@ describe("App", () => {
     expect((screen.getByLabelText("語言") as HTMLInputElement).maxLength).toBe(WEB_SETTING_LIMITS.language);
     expect((screen.getByLabelText("模型") as HTMLInputElement).maxLength).toBe(WEB_SETTING_LIMITS.model);
     expect((screen.getByLabelText("Prompt") as HTMLTextAreaElement).maxLength).toBe(WEB_SETTING_LIMITS.prompt);
+  });
+
+  it("requires confirmation before irreversibly clearing transcript history", async () => {
+    saveHistory([
+      {
+        id: "history-1",
+        createdAt: "2026-07-17T00:00:00.000Z",
+        sourceName: "private.wav",
+        durationSeconds: 1,
+        format: "text",
+        text: "private transcript",
+        raw: "private transcript",
+      },
+    ]);
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    const user = userEvent.setup();
+    render(<App />);
+    const clear = screen.getByRole("button", { name: "清除全部歷史" });
+
+    await user.click(clear);
+
+    expect(confirm).toHaveBeenCalledWith(
+      "清除全部 1 筆轉錄歷史？此動作無法復原。",
+    );
+    expect(screen.getByText("private.wav")).toBeTruthy();
+    expect(loadHistory()).toHaveLength(1);
+
+    confirm.mockReturnValue(true);
+    await user.click(clear);
+
+    expect(screen.getByText("No records")).toBeTruthy();
+    expect(loadHistory()).toEqual([]);
   });
 
   it("opens the audio file picker from the keyboard", async () => {
@@ -103,6 +146,7 @@ describe("App", () => {
               version: "dev",
               checks: {
                 task_router_bound: true,
+                recognizer_process_alive: true,
                 ffmpeg_available: true,
               },
               config: {
@@ -159,6 +203,7 @@ describe("App", () => {
             version: "dev",
             checks: {
               task_router_bound: true,
+              recognizer_process_alive: true,
               ffmpeg_available: true,
             },
             config: {
@@ -312,6 +357,7 @@ describe("App", () => {
               version: "dev",
               checks: {
                 task_router_bound: true,
+                recognizer_process_alive: true,
                 ffmpeg_available: true,
               },
               config: {
@@ -345,6 +391,44 @@ describe("App", () => {
     expect(screen.getByText("off")).toBeTruthy();
   });
 
+  it("keeps the console mounted when readiness is missing nested checks", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith("/health")) {
+          return new Response(JSON.stringify({ status: "ok", model: "mock_asr", version: "dev" }));
+        }
+        if (url.endsWith("/ready")) {
+          return new Response(
+            JSON.stringify({ status: "ok", model: "mock_asr", version: "dev" }),
+          );
+        }
+        if (url.endsWith("/v1/models")) {
+          return new Response(
+            JSON.stringify({
+              object: "list",
+              data: [{ id: "mock_asr", object: "model", owned_by: "capswriter-offline", created: 0 }],
+            }),
+          );
+        }
+        return new Response("not found", { status: 404 });
+      }),
+    );
+
+    render(<App />);
+    await userEvent.click(screen.getByRole("button", { name: "檢查服務" }));
+
+    expect(
+      await screen.findByText(
+        "服務檢查部分失敗：Ready: HTTP 200: Invalid /ready response: checks must be an object",
+      ),
+    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Web Console" })).toBeTruthy();
+    expect(screen.getAllByRole("region")).toHaveLength(5);
+    expect(screen.getByText("Router").parentElement?.textContent).toBe("Router-");
+  });
+
   it("settles readiness diagnostics when rendered in React StrictMode", async () => {
     vi.stubGlobal(
       "fetch",
@@ -361,6 +445,7 @@ describe("App", () => {
               version: "dev",
               checks: {
                 task_router_bound: true,
+                recognizer_process_alive: true,
                 ffmpeg_available: true,
               },
               config: {
@@ -413,6 +498,7 @@ describe("App", () => {
               version: "dev",
               checks: {
                 task_router_bound: true,
+                recognizer_process_alive: true,
                 ffmpeg_available: true,
               },
               config: {
@@ -439,6 +525,33 @@ describe("App", () => {
     expect(await screen.findByText("服務檢查部分失敗：Models: HTTP 401: Missing API key")).toBeTruthy();
     expect(screen.getByText("100 MB / 2 slots")).toBeTruthy();
     expect(screen.getByText("enabled")).toBeTruthy();
+  });
+
+  it("redacts a peer-reflected API key before rendering diagnostic errors", async () => {
+    const apiKey = "sk-render-reflection-secret";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify({
+            error: {
+              message: `Rejected Authorization: Bearer ${apiKey}\u0000\u001b[31m`,
+            },
+          }),
+          { status: 401 },
+        ),
+      ),
+    );
+
+    render(<App />);
+    await userEvent.type(screen.getByLabelText("API key"), apiKey);
+    await userEvent.click(screen.getByRole("button", { name: "檢查服務" }));
+
+    const status = await screen.findByText(/服務檢查部分失敗/);
+    expect(status.textContent).toContain("Bearer [REDACTED]");
+    expect(status.textContent).not.toContain(apiKey);
+    expect(status.textContent).not.toMatch(/[\u0000-\u001f\u007f-\u009f]/u);
+    expect((screen.getByLabelText("API key") as HTMLInputElement).value).toBe(apiKey);
   });
 
   it("aborts stale server diagnostics when a newer check starts", async () => {
@@ -480,6 +593,7 @@ describe("App", () => {
               version: "dev",
               checks: {
                 task_router_bound: true,
+                recognizer_process_alive: true,
                 ffmpeg_available: true,
               },
               config: {
@@ -550,6 +664,147 @@ describe("App", () => {
 
     expect(recorders[0].stop).toHaveBeenCalledTimes(1);
     expect(track.stop).toHaveBeenCalledTimes(1);
+  });
+
+  it("coalesces recording starts while microphone permission is pending", async () => {
+    const pendingStream = deferred<MediaStream>();
+    const track = { stop: vi.fn() } as unknown as MediaStreamTrack;
+    const stream = { getTracks: vi.fn(() => [track]) } as unknown as MediaStream;
+    const getUserMedia = vi.fn(() => pendingStream.promise);
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia },
+    });
+
+    const recorders: MockRecorder[] = [];
+    class MockRecorder {
+      static isTypeSupported = vi.fn(() => true);
+      state: RecordingState = "inactive";
+      mimeType = "audio/webm";
+      ondataavailable: ((event: BlobEvent) => void) | null = null;
+      onstop: ((event: Event) => void) | null = null;
+
+      constructor() {
+        recorders.push(this);
+      }
+
+      start = vi.fn(() => {
+        this.state = "recording";
+      });
+
+      stop = vi.fn(() => {
+        this.state = "inactive";
+        this.onstop?.(new Event("stop"));
+      });
+    }
+    vi.stubGlobal("MediaRecorder", MockRecorder);
+
+    const { unmount } = render(<App />);
+    const record = screen.getByRole("button", { name: "錄音" });
+    act(() => {
+      record.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      record.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    expect(getUserMedia).toHaveBeenCalledOnce();
+    expect((screen.getByRole("button", { name: "準備中" }) as HTMLButtonElement).disabled).toBe(true);
+
+    await act(async () => {
+      pendingStream.resolve(stream);
+      await pendingStream.promise;
+    });
+
+    expect(await screen.findByText("錄音中")).toBeTruthy();
+    expect(recorders).toHaveLength(1);
+
+    unmount();
+    expect(track.stop).toHaveBeenCalledOnce();
+  });
+
+  it("waits for recorder shutdown and blocks transcription before allowing another start", async () => {
+    const firstTrack = { stop: vi.fn() } as unknown as MediaStreamTrack;
+    const secondTrack = { stop: vi.fn() } as unknown as MediaStreamTrack;
+    const streams = [
+      { getTracks: vi.fn(() => [firstTrack]) } as unknown as MediaStream,
+      { getTracks: vi.fn(() => [secondTrack]) } as unknown as MediaStream,
+    ];
+    const getUserMedia = vi
+      .fn<() => Promise<MediaStream>>()
+      .mockResolvedValueOnce(streams[0])
+      .mockResolvedValueOnce(streams[1]);
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia },
+    });
+
+    const recorders: MockRecorder[] = [];
+    class MockRecorder {
+      static isTypeSupported = vi.fn(() => true);
+      state: RecordingState = "inactive";
+      mimeType = "audio/webm";
+      ondataavailable: ((event: BlobEvent) => void) | null = null;
+      onstop: ((event: Event) => void) | null = null;
+
+      constructor() {
+        recorders.push(this);
+      }
+
+      start = vi.fn(() => {
+        this.state = "recording";
+      });
+
+      stop = vi.fn(() => {
+        this.state = "inactive";
+      });
+
+      finishStop() {
+        this.onstop?.(new Event("stop"));
+      }
+    }
+    vi.stubGlobal("MediaRecorder", MockRecorder);
+    vi.spyOn(URL, "createObjectURL")
+      .mockReturnValueOnce("blob:existing")
+      .mockReturnValueOnce("blob:recording");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { container, unmount } = render(<App />);
+    const input = container.querySelector(".file-input");
+    expect(input).toBeInstanceOf(HTMLInputElement);
+    await userEvent.upload(
+      input as HTMLInputElement,
+      new File(["RIFF"], "existing.wav", { type: "audio/wav" }),
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "錄音" }));
+    expect(await screen.findByText("錄音中")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "轉錄" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((input as HTMLInputElement).disabled).toBe(true);
+
+    await userEvent.click(
+      within(screen.getByRole("region", { name: "音訊" })).getByRole("button", {
+        name: "停止",
+      }),
+    );
+    const stopping = screen.getByRole("button", { name: "停止中" });
+    expect((stopping as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "轉錄" }) as HTMLButtonElement).disabled).toBe(true);
+    stopping.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(getUserMedia).toHaveBeenCalledOnce();
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    act(() => recorders[0].finishStop());
+
+    expect(firstTrack.stop).toHaveBeenCalledOnce();
+    expect((screen.getByRole("button", { name: "轉錄" }) as HTMLButtonElement).disabled).toBe(false);
+    await userEvent.click(screen.getByRole("button", { name: "錄音" }));
+    expect(await screen.findByText("錄音中")).toBeTruthy();
+    expect(getUserMedia).toHaveBeenCalledTimes(2);
+    expect(recorders).toHaveLength(2);
+
+    unmount();
+    expect(secondTrack.stop).toHaveBeenCalledOnce();
   });
 
   it("releases the microphone stream when recorder setup fails", async () => {

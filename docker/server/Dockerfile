@@ -14,7 +14,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CAPSWRITER_INTERACTIVE_ERRORS=false
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 python3-venv python3-pip python3-tk tini libgomp1 libvulkan1 ca-certificates ffmpeg \
+    && apt-get install -y --no-install-recommends python3 python3-venv python3-pip python3-tk tini libgomp1 libvulkan1 mesa-vulkan-drivers ca-certificates ffmpeg \
     && python3 -m venv /opt/venv \
     && /opt/venv/bin/python -m pip install \
         packaging==26.2 \

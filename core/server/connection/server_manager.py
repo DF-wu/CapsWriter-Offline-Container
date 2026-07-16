@@ -11,8 +11,15 @@ import functools
 import websockets
 from config_server import ServerConfig as Config
 from .ws_recv import ws_recv
+from .ws_recv import WebSocketConnectionLimiter
 from .ws_send import ws_send
 from .. import logger # Server module logger
+from ..queue_limits import (
+    WEBSOCKET_CLOSE_TIMEOUT_SECONDS,
+    WEBSOCKET_MAX_MESSAGE_BYTES,
+    WEBSOCKET_MAX_QUEUED_MESSAGES,
+)
+from fork_server.runtime_limits import DEFAULT_SERVER_MAX_WEBSOCKET_CONNECTIONS
 
 
 class SocketManager:
@@ -25,17 +32,45 @@ class SocketManager:
         self.app = app
         self._is_running = False
         self._server = None  # websockets.serve 返回的 server 对象
+        self._websocket_admission = WebSocketConnectionLimiter(
+            getattr(
+                Config,
+                "max_websocket_connections",
+                DEFAULT_SERVER_MAX_WEBSOCKET_CONNECTIONS,
+            )
+        )
 
     def _check_port(self):
         """检查端口可用性"""
         import socket
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+
+        try:
+            addresses = socket.getaddrinfo(
+                Config.addr,
+                int(Config.port),
+                type=socket.SOCK_STREAM,
+                flags=socket.AI_PASSIVE,
+            )
+        except (OSError, TypeError, ValueError) as exc:
+            logger.error(
+                f"无法解析监听地址 {Config.addr}:{Config.port}: {exc}"
+            )
+            return False
+
+        last_error = None
+        for family, socktype, proto, _canonname, sockaddr in addresses:
             try:
-                s.bind((Config.addr, int(Config.port)))
-                return True
-            except socket.error:
-                logger.error(f"端口冲突：{Config.addr}:{Config.port} 已被占用，请检查是否已有服务端正在运行。")
-                return False
+                with socket.socket(family, socktype, proto) as listener:
+                    listener.bind(sockaddr)
+                    return True
+            except OSError as exc:
+                last_error = exc
+
+        logger.error(
+            f"端口冲突或地址不可用：{Config.addr}:{Config.port}，"
+            f"请检查是否已有服务端正在运行。详情: {last_error}"
+        )
+        return False
 
     async def start(self):
         """
@@ -57,7 +92,11 @@ class SocketManager:
         loop.set_default_executor(SimpleDaemonExecutor())
 
         # 2. 准备连接处理器 (注入 app 引用)
-        handler = functools.partial(ws_recv, app=self.app)
+        handler = functools.partial(
+            ws_recv,
+            app=self.app,
+            admission=self._websocket_admission,
+        )
 
         # 3. 启动服务
         logger.info(f"正在拉起 WebSocket 服务 (监听: {Config.addr}:{Config.port})")
@@ -67,7 +106,9 @@ class SocketManager:
             Config.addr,
             Config.port,
             subprotocols=["binary"],
-            max_size=None
+            close_timeout=WEBSOCKET_CLOSE_TIMEOUT_SECONDS,
+            max_size=WEBSOCKET_MAX_MESSAGE_BYTES,
+            max_queue=WEBSOCKET_MAX_QUEUED_MESSAGES,
         ) as server:
             self._server = server  # 保存 server 引用，用于外部关闭
 

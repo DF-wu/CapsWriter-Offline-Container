@@ -17,6 +17,15 @@ DEFAULT_PORT = 6017
 DEFAULT_TRANSCRIBE_TIMEOUT = 600.0
 MAX_RESPONSE_BODY_BYTES = 1024 * 1024
 MAX_ERROR_PREVIEW_CHARS = 100
+MAX_ERROR_SOURCE_SCAN_CHARS = MAX_ERROR_PREVIEW_CHARS * 4
+
+
+class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Reject redirects so a diagnostic bearer token stays on one origin."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        del req, fp, code, msg, headers, newurl
+        return None
 
 
 def green(s):
@@ -196,20 +205,57 @@ def _read_response_body(response, *, max_bytes=None):
     return body
 
 
-def _http_error_preview(error):
+def _redact_truncated_secret_prefix(value, secret):
+    if not secret or not value or value.endswith(secret):
+        return value
+    for length in range(min(len(secret) - 1, len(value)), 0, -1):
+        if value.endswith(secret[:length]):
+            return f"{value[:-length]}[REDACTED]"
+    return value
+
+
+def _compact_error_text(value, api_key=""):
+    source_limit = MAX_ERROR_SOURCE_SCAN_CHARS + len(api_key)
+    source_was_truncated = len(value) > source_limit
+    bounded_source = value[:source_limit]
+    if source_was_truncated:
+        bounded_source = _redact_truncated_secret_prefix(
+            bounded_source,
+            api_key,
+        )
+    if api_key:
+        bounded_source = bounded_source.replace(api_key, "[REDACTED]")
+    printable = "".join(
+        ch if ch.isprintable() else " " for ch in bounded_source
+    )
+    return " ".join(printable.split())[:MAX_ERROR_PREVIEW_CHARS]
+
+
+def _http_error_preview(error, api_key=""):
     try:
         try:
             body = _read_response_body(error)
         except ValueError as exc:
             return str(exc)
-        return body.decode("utf-8", errors="replace")[:MAX_ERROR_PREVIEW_CHARS]
+        return _compact_error_text(
+            body.decode("utf-8", errors="replace"),
+            api_key,
+        )
     finally:
         error.close()
 
 
+def _open_direct(req, timeout):
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),
+        NoRedirectHandler(),
+    )
+    return opener.open(req, timeout=timeout)
+
+
 def _api_get(base, path, api_key):
     req = urllib.request.Request(f"{base}{path}", headers=_headers(api_key))
-    with urllib.request.urlopen(req, timeout=5) as r:
+    with _open_direct(req, 5) as r:
         return json.loads(_read_response_body(r))
 
 
@@ -255,7 +301,7 @@ def _http_post_stream(url, body, headers, timeout):
                 raise urllib.error.URLError(send_error) from exc
             raise
         raw = _read_response_body(response)
-        if response.status >= 400:
+        if not 200 <= response.status < 300:
             _raise_http_error(url, response, raw)
         return response.getheader("Content-Type", ""), raw
     finally:
@@ -365,10 +411,11 @@ def main():
         checks = data.get("checks", {})
         ok(
             f"{status}; ffmpeg={checks.get('ffmpeg_available', '?')}, "
-            f"router={checks.get('task_router_bound', '?')}"
+            f"router={checks.get('task_router_bound', '?')}, "
+            f"recognizer={checks.get('recognizer_process_alive', '?')}"
         )
     except urllib.error.HTTPError as e:
-        fail(f"HTTP {e.code}: {_http_error_preview(e)}")
+        fail(f"HTTP {e.code}: {_http_error_preview(e, api_key)}")
         errors += 1
     except Exception as e:
         fail(str(e))
@@ -408,7 +455,7 @@ def main():
                     fail("返回空文字 — 音频可能无语音或模型未加载")
                     errors += 1
             except urllib.error.HTTPError as e:
-                body = _http_error_preview(e)
+                body = _http_error_preview(e, api_key)
                 fail(f"HTTP {e.code}: {body}")
                 if e.code == 401:
                     print("         → 需要 API key 或 key 不正确")

@@ -14,7 +14,6 @@ import re
 
 import keyboard
 import pyclip
-from pynput import keyboard as pynput_keyboard
 
 from config_client import ClientConfig as Config
 from core.tools.window_detector import get_active_window_info
@@ -28,6 +27,14 @@ _SEMANTIC_UNIT_RE = re.compile(
     r'|[a-zA-Z]+'
     r'|\d+'
 )
+
+
+def _get_pynput_keyboard():
+    """Load the desktop backend only when simulated input is actually used."""
+
+    from pynput import keyboard as pynput_keyboard
+
+    return pynput_keyboard
 
 
 def count_semantic_units(text: str) -> int:
@@ -115,6 +122,7 @@ class TextOutput:
         pyclip.copy(text)
         
         # 粘贴结果（使用 pynput 模拟 Ctrl+V）
+        pynput_keyboard = _get_pynput_keyboard()
         controller = pynput_keyboard.Controller()
         if platform.system() == 'Darwin':
             # macOS: Command+V
@@ -133,15 +141,21 @@ class TextOutput:
             pyclip.copy(temp)
             logger.debug("剪贴板已恢复")
     
-    def _type_text(self, text: str) -> None:
+    @staticmethod
+    def _type_text(text: str) -> None:
         """
         通过模拟打字方式输出文本
 
-        使用 keyboard.write 替代 pynput.keyboard.Controller.type()，
-        避免与中文输入法冲突。
+        Windows 保留 keyboard.write 以兼容既有中文输入法行为；Linux
+        使用当前 X11 session 的 pynput/XTest controller，避免 keyboard
+        套件要求 root 与直接访问 /dev/input 的后端。
 
         Args:
             text: 要输出的文本
         """
         logger.debug(f"使用打字方式输出文本，长度: {len(text)}")
-        keyboard.write(text)
+        if platform.system() == 'Linux':
+            pynput_keyboard = _get_pynput_keyboard()
+            pynput_keyboard.Controller().type(text)
+        else:
+            keyboard.write(text)

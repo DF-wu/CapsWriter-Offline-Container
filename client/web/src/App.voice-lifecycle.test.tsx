@@ -235,7 +235,11 @@ describe("App voice loading lifecycle", () => {
       new Response(
         JSON.stringify({
           status: "ok",
-          checks: { task_router_bound: true, ffmpeg_available: true },
+          checks: {
+            task_router_bound: true,
+            recognizer_process_alive: true,
+            ffmpeg_available: true,
+          },
           config: {
             auth_enabled: false,
             max_upload_mb: 100,

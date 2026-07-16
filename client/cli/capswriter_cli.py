@@ -20,6 +20,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,6 +35,8 @@ DEFAULT_TTS_TIMEOUT_SECONDS = 120.0
 DEFAULT_MAX_RESPONSE_MB = 16.0
 RESPONSE_FORMATS = ("json", "text", "verbose_json", "srt", "vtt")
 MAX_ERROR_BODY_CHARS = 500
+MAX_ERROR_SOURCE_SCAN_CHARS = MAX_ERROR_BODY_CHARS * 4
+RESPONSE_READ_CHUNK_BYTES = 64 * 1024
 SUPPORTED_BASE_URL_SCHEMES = {"http", "https"}
 OUTPUT_STEM_FALLBACK = "audio"
 MAX_OUTPUT_STEM_CHARS = 120
@@ -58,6 +61,31 @@ class ApiConfig:
     max_response_bytes: int = int(DEFAULT_MAX_RESPONSE_MB * 1024 * 1024)
 
 
+def _monotonic() -> float:
+    return time.monotonic()
+
+
+@dataclass(frozen=True)
+class _RequestDeadline:
+    timeout: float
+    expires_at: float
+
+    @classmethod
+    def start(cls, timeout: float) -> "_RequestDeadline":
+        return cls(timeout=timeout, expires_at=_monotonic() + timeout)
+
+    def timeout_error(self) -> TimeoutError:
+        return TimeoutError(
+            f"HTTP request timed out after {self.timeout:g} seconds"
+        )
+
+    def remaining(self) -> float:
+        remaining = self.expires_at - _monotonic()
+        if remaining <= 0:
+            raise self.timeout_error()
+        return remaining
+
+
 @dataclass(frozen=True)
 class HttpResult:
     status: int
@@ -77,6 +105,14 @@ class ApiError(RuntimeError):
         self.status = status
         self.message = message
         super().__init__(f"HTTP {status}: {message}")
+
+
+class NoRedirectHandler(request.HTTPRedirectHandler):
+    """Turn redirects into HTTPError without forwarding bearer credentials."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        del req, fp, code, msg, headers, newurl
+        return None
 
 
 @dataclass(frozen=True)
@@ -168,13 +204,60 @@ def resolve_api_key(api_key: str, api_key_file: str) -> str:
     return read_api_key_file(api_key_file)
 
 
-def _read_response_body(response, max_bytes: int) -> bytes:
+def _set_response_read_timeout(response, timeout: float) -> None:
+    """Apply a deadline remainder to an urllib/http.client response socket."""
+    pending = [response]
+    seen: set[int] = set()
+    while pending and len(seen) < 8:
+        candidate = pending.pop()
+        if candidate is None or id(candidate) in seen:
+            continue
+        seen.add(id(candidate))
+        settimeout = getattr(candidate, "settimeout", None)
+        if callable(settimeout):
+            settimeout(timeout)
+            return
+        for attribute in ("fp", "raw", "_sock", "sock"):
+            nested = getattr(candidate, attribute, None)
+            if nested is not None:
+                pending.append(nested)
+
+
+def _read_response_body(
+    response,
+    max_bytes: int,
+    *,
+    deadline: _RequestDeadline | None = None,
+) -> bytes:
     if max_bytes <= 0:
         raise ValueError("HTTP response limit must be > 0")
-    body = response.read(max_bytes + 1)
-    if len(body) > max_bytes:
-        raise ValueError(f"HTTP response body exceeded {max_bytes} bytes")
-    return body
+    read_chunk = getattr(response, "read1", None)
+    if not callable(read_chunk):
+        read_chunk = response.read
+
+    body = bytearray()
+    while len(body) <= max_bytes:
+        if deadline is not None:
+            remaining = deadline.remaining()
+            _set_response_read_timeout(response, remaining)
+        request_bytes = min(
+            RESPONSE_READ_CHUNK_BYTES,
+            max_bytes + 1 - len(body),
+        )
+        try:
+            chunk = read_chunk(request_bytes)
+        except TimeoutError as exc:
+            if deadline is None:
+                raise
+            raise deadline.timeout_error() from exc
+        if deadline is not None:
+            deadline.remaining()
+        if not chunk:
+            break
+        body.extend(chunk)
+        if len(body) > max_bytes:
+            raise ValueError(f"HTTP response body exceeded {max_bytes} bytes")
+    return bytes(body)
 
 
 def _response_status(response) -> int:
@@ -184,20 +267,45 @@ def _response_status(response) -> int:
     return response.getcode()
 
 
-def _read_response(response, max_response_bytes: int) -> HttpResult:
+def _read_response(
+    response,
+    max_response_bytes: int,
+    *,
+    deadline: _RequestDeadline | None = None,
+) -> HttpResult:
     return HttpResult(
         status=_response_status(response),
         content_type=response.headers.get("Content-Type", ""),
-        body=_read_response_body(response, max_response_bytes),
+        body=_read_response_body(
+            response,
+            max_response_bytes,
+            deadline=deadline,
+        ),
     )
+
+
+def _open_direct(req: request.Request, timeout: float):
+    """Open one URL without ambient proxies or cross-origin redirects."""
+
+    opener = request.build_opener(
+        request.ProxyHandler({}),
+        NoRedirectHandler(),
+    )
+    return opener.open(req, timeout=timeout)
 
 
 def _result_from_http_error(
     exc: error.HTTPError,
     max_response_bytes: int,
+    *,
+    deadline: _RequestDeadline | None = None,
 ) -> HttpResult:
     try:
-        body = _read_response_body(exc, max_response_bytes)
+        body = _read_response_body(
+            exc,
+            max_response_bytes,
+            deadline=deadline,
+        )
     finally:
         exc.close()
     return HttpResult(
@@ -207,28 +315,60 @@ def _result_from_http_error(
     )
 
 
-def error_message_from_body(body: bytes) -> str:
+def _redact_truncated_secret_prefix(value: str, secret: str) -> str:
+    """Redact a reflected key cut at a bounded source-scan boundary."""
+
+    if not secret or not value or value.endswith(secret):
+        return value
+    for length in range(min(len(secret) - 1, len(value)), 0, -1):
+        if value.endswith(secret[:length]):
+            return f"{value[:-length]}[REDACTED]"
+    return value
+
+
+def compact_error_text(value: str, secret: str = "") -> str:
+    source_limit = MAX_ERROR_SOURCE_SCAN_CHARS + len(secret)
+    source_was_truncated = len(value) > source_limit
+    bounded_source = value[:source_limit]
+    if source_was_truncated:
+        bounded_source = _redact_truncated_secret_prefix(
+            bounded_source,
+            secret,
+        )
+    bounded_source = redact_secret(bounded_source, secret)
+    printable = "".join(
+        char if char.isprintable() else " " for char in bounded_source
+    )
+    preview = " ".join(printable.split())
+    if source_was_truncated or len(preview) > MAX_ERROR_BODY_CHARS:
+        return f"{preview[: MAX_ERROR_BODY_CHARS - 3].rstrip()}..."
+    return preview
+
+
+def redact_secret(message: str, secret: str) -> str:
+    return message.replace(secret, "[REDACTED]") if secret else message
+
+
+def error_message_from_body(body: bytes, secret: str = "") -> str:
     text = body.decode("utf-8", errors="replace").strip()
     if not text:
         return ""
     try:
         payload = json.loads(text)
     except json.JSONDecodeError:
-        preview = " ".join(text.split())
-        if len(preview) > MAX_ERROR_BODY_CHARS:
-            return f"{preview[:MAX_ERROR_BODY_CHARS].rstrip()}..."
-        return preview
+        return compact_error_text(text, secret)
+    message = text
     if isinstance(payload, dict):
         error_payload = payload.get("error")
         if isinstance(error_payload, dict) and error_payload.get("message"):
-            return str(error_payload["message"])
-        if payload.get("detail"):
-            return str(payload["detail"])
-    return text
+            message = str(error_payload["message"])
+        elif payload.get("detail"):
+            message = str(payload["detail"])
+    return compact_error_text(message, secret)
 
 
-def _expected_json_message(result: HttpResult, path: str) -> str:
-    message = error_message_from_body(result.body)
+def _expected_json_message(result: HttpResult, path: str, secret: str = "") -> str:
+    message = error_message_from_body(result.body, secret)
     if message:
         return f"Expected JSON response from {path}: {message}"
     return (
@@ -242,23 +382,47 @@ def _json_or_raise(
     path: str,
     *,
     json_error_statuses: tuple[int, ...] = (),
+    secret: str = "",
 ):
     try:
         return result.json()
     except json.JSONDecodeError:
         if result.status < 400 or result.status in json_error_statuses:
-            raise ApiError(result.status, _expected_json_message(result, path)) from None
-        message = error_message_from_body(result.body)
-        raise ApiError(result.status, message or _expected_json_message(result, path)) from None
+            raise ApiError(
+                result.status,
+                _expected_json_message(result, path, secret),
+            ) from None
+        message = error_message_from_body(result.body, secret)
+        raise ApiError(
+            result.status,
+            message or _expected_json_message(result, path, secret),
+        ) from None
 
 
-def _raise_api_error(exc: error.HTTPError, max_response_bytes: int) -> None:
-    result = _result_from_http_error(exc, max_response_bytes)
-    _raise_result_api_error(result, exc.reason)
+def _raise_api_error(
+    exc: error.HTTPError,
+    max_response_bytes: int,
+    secret: str = "",
+    *,
+    deadline: _RequestDeadline | None = None,
+) -> None:
+    result = _result_from_http_error(
+        exc,
+        max_response_bytes,
+        deadline=deadline,
+    )
+    _raise_result_api_error(result, exc.reason, secret=secret)
 
 
-def _raise_result_api_error(result: HttpResult, reason: str = "Request failed") -> None:
-    message = error_message_from_body(result.body) or reason or "Request failed"
+def _raise_result_api_error(
+    result: HttpResult,
+    reason: str = "Request failed",
+    *,
+    secret: str = "",
+) -> None:
+    message = error_message_from_body(result.body, secret)
+    if not message:
+        message = compact_error_text(str(reason or "Request failed"), secret)
     raise ApiError(result.status, message) from None
 
 
@@ -267,11 +431,25 @@ def http_get_json(config: ApiConfig, path: str):
         f"{normalize_base_url(config.base_url)}{path}",
         headers=auth_headers(config),
     )
+    deadline = _RequestDeadline.start(config.timeout)
     try:
-        with request.urlopen(req, timeout=config.timeout) as response:
-            return _json_or_raise(_read_response(response, config.max_response_bytes), path)
+        with _open_direct(req, deadline.remaining()) as response:
+            return _json_or_raise(
+                _read_response(
+                    response,
+                    config.max_response_bytes,
+                    deadline=deadline,
+                ),
+                path,
+                secret=config.api_key,
+            )
     except error.HTTPError as exc:
-        _raise_api_error(exc, config.max_response_bytes)
+        _raise_api_error(
+            exc,
+            config.max_response_bytes,
+            config.api_key,
+            deadline=deadline,
+        )
 
 
 def http_get_json_status(
@@ -284,15 +462,25 @@ def http_get_json_status(
         f"{normalize_base_url(config.base_url)}{path}",
         headers=auth_headers(config),
     )
+    deadline = _RequestDeadline.start(config.timeout)
     try:
-        with request.urlopen(req, timeout=config.timeout) as response:
-            result = _read_response(response, config.max_response_bytes)
+        with _open_direct(req, deadline.remaining()) as response:
+            result = _read_response(
+                response,
+                config.max_response_bytes,
+                deadline=deadline,
+            )
     except error.HTTPError as exc:
-        result = _result_from_http_error(exc, config.max_response_bytes)
+        result = _result_from_http_error(
+            exc,
+            config.max_response_bytes,
+            deadline=deadline,
+        )
     return result.status, _json_or_raise(
         result,
         path,
         json_error_statuses=json_error_statuses,
+        secret=config.api_key,
     )
 
 
@@ -302,6 +490,7 @@ def http_post_stream(
     body: Iterable[bytes],
     headers: dict[str, str],
 ) -> HttpResult:
+    deadline = _RequestDeadline.start(config.timeout)
     url = parse.urlsplit(f"{normalize_base_url(config.base_url)}{path}")
     if url.scheme not in {"http", "https"} or not url.hostname:
         raise ValueError(f"Unsupported URL: {url.geturl()}")
@@ -309,22 +498,35 @@ def http_post_stream(
     connection_class = (
         http_client.HTTPSConnection if url.scheme == "https" else http_client.HTTPConnection
     )
-    connection = connection_class(url.hostname, url.port, timeout=config.timeout)
+    connection = connection_class(
+        url.hostname,
+        url.port,
+        timeout=deadline.remaining(),
+    )
     send_error: OSError | None = None
     try:
         connection.putrequest("POST", target)
         for name, value in headers.items():
             connection.putheader(name, value)
+        connection.timeout = deadline.remaining()
         connection.endheaders()
         for chunk in body:
             if not chunk:
                 continue
             try:
+                remaining = deadline.remaining()
+                connection.timeout = remaining
+                if connection.sock is not None:
+                    connection.sock.settimeout(remaining)
                 connection.send(chunk)
             except (BrokenPipeError, ConnectionResetError) as exc:
                 send_error = exc
                 break
         try:
+            remaining = deadline.remaining()
+            connection.timeout = remaining
+            if connection.sock is not None:
+                connection.sock.settimeout(remaining)
             response = connection.getresponse()
         except OSError as exc:
             if send_error is not None:
@@ -333,10 +535,18 @@ def http_post_stream(
         result = HttpResult(
             status=response.status,
             content_type=response.getheader("Content-Type", ""),
-            body=_read_response_body(response, config.max_response_bytes),
+            body=_read_response_body(
+                response,
+                config.max_response_bytes,
+                deadline=deadline,
+            ),
         )
-        if result.status >= 400:
-            _raise_result_api_error(result, response.reason)
+        if not 200 <= result.status < 300:
+            _raise_result_api_error(
+                result,
+                response.reason,
+                secret=config.api_key,
+            )
         return result
     finally:
         connection.close()
@@ -524,7 +734,8 @@ def select_tts_command(
             "$s = New-Object System.Speech.Synthesis.SpeechSynthesizer; "
         )
         if voice:
-            script += f"$s.SelectVoice('{voice.replace("'", "''")}'); "
+            escaped_voice = voice.replace("'", "''")
+            script += f"$s.SelectVoice('{escaped_voice}'); "
         if rate is not None:
             script += f"$s.Rate = {max(-10, min(10, int(rate)))}; "
         script += f"$s.Speak('{escaped}')"

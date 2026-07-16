@@ -21,6 +21,7 @@ export interface ReadinessResponse {
   version: string;
   checks: {
     task_router_bound: boolean;
+    recognizer_process_alive: boolean;
     ffmpeg_available: boolean;
     [key: string]: boolean;
   };

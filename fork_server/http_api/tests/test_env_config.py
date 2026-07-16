@@ -25,13 +25,17 @@ CLASS_ATTRS = {
         "log_level",
         "enable_tray",
         "hotwords_path",
+        "max_websocket_connections",
+        "max_websocket_task_seconds",
         "http_api_enable",
         "http_api_bind",
         "http_api_port",
         "http_api_key",
         "http_api_max_upload_mb",
+        "http_api_max_audio_seconds",
         "http_api_task_timeout",
         "http_api_max_concurrent_requests",
+        "http_api_max_pending_requests",
         "http_api_cors_origins",
         "http_api_allow_insecure_bind",
         "http_api_log_transcripts",
@@ -131,6 +135,13 @@ class EnvConfigTest(unittest.TestCase):
             ("CAPSWRITER_SERVER_PORT", "abc"),
             ("CAPSWRITER_SERVER_PORT", "0"),
             ("CAPSWRITER_SERVER_PORT", "65536"),
+            ("CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS", "abc"),
+            ("CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS", "0"),
+            ("CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS", "1025"),
+            ("CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS", "abc"),
+            ("CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS", "0"),
+            ("CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS", "86401"),
+            ("CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS", "nan"),
             ("CAPSWRITER_QWEN_N_CTX", "abc"),
             ("CAPSWRITER_QWEN_N_CTX", "0"),
             ("CAPSWRITER_QWEN_LLAMA_N_BATCH", "0"),
@@ -164,6 +175,8 @@ class EnvConfigTest(unittest.TestCase):
             {
                 "CAPSWRITER_MODEL_TYPE": " Fun_ASR_Nano ",
                 "CAPSWRITER_SERVER_PORT": "16016",
+                "CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS": "13",
+                "CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS": "7200.5",
                 "CAPSWRITER_LOG_LEVEL": "warning",
                 "CAPSWRITER_ENABLE_TRAY": "yes",
                 "CAPSWRITER_QWEN_PRESET": "cpu_only",
@@ -188,6 +201,8 @@ class EnvConfigTest(unittest.TestCase):
 
         self.assertEqual(ServerConfig.model_type, "fun_asr_nano")
         self.assertEqual(ServerConfig.port, "16016")
+        self.assertEqual(ServerConfig.max_websocket_connections, 13)
+        self.assertEqual(ServerConfig.max_websocket_task_seconds, 7200.5)
         self.assertEqual(ServerConfig.log_level, "WARNING")
         self.assertTrue(ServerConfig.enable_tray)
         self.assertEqual(Qwen3ASRGGUFArgs.onnx_provider, "CPU")

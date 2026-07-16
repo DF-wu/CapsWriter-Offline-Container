@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import math
 import os
+import secrets
 import shutil
 import subprocess
 import sys
@@ -24,8 +25,11 @@ LIVE_TRANSCRIPTION_TIMEOUT_SECONDS = 600
 VERIFY_STEP_TIMEOUT_ENV = "CAPSWRITER_VERIFY_STEP_TIMEOUT"
 DEFAULT_VERIFY_STEP_TIMEOUT_SECONDS = 1800.0
 TIMEOUT_EXIT_CODE = 124
-WEB_VERIFY_IMAGE = "capswriter-web-console:verify"
-WEB_VERIFY_CONTAINER = "capswriter-web-console-verify"
+WEB_VERIFY_RUN_ID = f"{os.getpid()}-{secrets.token_hex(8)}"
+WEB_VERIFY_LABEL_KEY = "io.capswriter.verify.run"
+WEB_VERIFY_LABEL = f"{WEB_VERIFY_LABEL_KEY}={WEB_VERIFY_RUN_ID}"
+WEB_VERIFY_IMAGE = f"capswriter-web-console:verify-{WEB_VERIFY_RUN_ID}"
+WEB_VERIFY_CONTAINER = f"capswriter-web-console-verify-{WEB_VERIFY_RUN_ID}"
 REDACTED = "<redacted>"
 SENSITIVE_FLAGS = {"--key", "--http-key"}
 SENSITIVE_ENV_PREFIXES = (
@@ -204,6 +208,10 @@ def verify_cli() -> int:
 
 def verify_upstream_divergence() -> int:
     return run_required([sys.executable, "scripts/check_upstream_divergence.py"])
+
+
+def verify_docs() -> int:
+    return run_required([sys.executable, "scripts/check_docs.py"])
 
 
 def verify_server_compile() -> int:
@@ -417,6 +425,8 @@ def verify_web_docker() -> int:
             "build",
             "-f",
             "client/web/Dockerfile",
+            "--label",
+            WEB_VERIFY_LABEL,
             "-t",
             WEB_VERIFY_IMAGE,
             "client/web",
@@ -425,7 +435,6 @@ def verify_web_docker() -> int:
     if code != 0:
         return code
 
-    run_cleanup(["docker", "rm", "-f", WEB_VERIFY_CONTAINER])
     code = run_required(
         [
             "docker",
@@ -433,6 +442,8 @@ def verify_web_docker() -> int:
             "-d",
             "--name",
             WEB_VERIFY_CONTAINER,
+            "--label",
+            WEB_VERIFY_LABEL,
             "-e",
             "CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017",
             "-e",
@@ -474,15 +485,56 @@ def verify_web_docker() -> int:
             ]
         )
     finally:
-        run_cleanup(["docker", "rm", "-f", WEB_VERIFY_CONTAINER])
+        _remove_owned_docker_resource("container", WEB_VERIFY_CONTAINER)
+
+
+def _docker_resource_owned(resource_type: str, name: str) -> bool:
+    """Return whether a Docker resource carries this verifier run's label."""
+    if resource_type not in {"container", "image"}:
+        raise ValueError(f"unsupported Docker resource type: {resource_type}")
+    try:
+        timeout = verify_step_timeout_seconds()
+    except ValueError:
+        return False
+    try:
+        completed = subprocess.run(
+            [
+                "docker",
+                resource_type,
+                "inspect",
+                "--format",
+                f'{{{{ index .Config.Labels "{WEB_VERIFY_LABEL_KEY}" }}}}',
+                name,
+            ],
+            cwd=ROOT,
+            check=False,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        return False
+    return completed.returncode == 0 and completed.stdout.strip() == WEB_VERIFY_RUN_ID
+
+
+def _remove_owned_docker_resource(resource_type: str, name: str) -> int:
+    if not _docker_resource_owned(resource_type, name):
+        return 0
+    if resource_type == "container":
+        return run_cleanup(["docker", "rm", "-f", name])
+    return run_cleanup(["docker", "image", "rm", "-f", name])
 
 
 def clean_web_docker() -> int:
     if shutil.which("docker") is None:
         return 0
-    run_cleanup(["docker", "rm", "-f", WEB_VERIFY_CONTAINER])
-    run_cleanup(["docker", "image", "rm", "-f", WEB_VERIFY_IMAGE])
-    return 0
+    container_status = _remove_owned_docker_resource(
+        "container",
+        WEB_VERIFY_CONTAINER,
+    )
+    image_status = _remove_owned_docker_resource("image", WEB_VERIFY_IMAGE)
+    return container_status or image_status
 
 
 def clean() -> int:
@@ -554,9 +606,11 @@ def main() -> int:
     args = parser.parse_args()
 
     status = 0
+    cleanup_status = 0
     try:
         for step in [
             verify_upstream_divergence,
+            verify_docs,
             verify_cli,
             verify_server_compile,
             verify_server_tests,
@@ -583,12 +637,21 @@ def main() -> int:
             status = step()
             if status != 0:
                 break
-        return status
     finally:
         clean_status = clean()
         docker_clean_status = clean_web_docker() if args.docker_build_web else 0
-        if status == 0 and (clean_status != 0 or docker_clean_status != 0):
-            raise SystemExit(clean_status or docker_clean_status)
+        cleanup_status = clean_status or docker_clean_status
+        if cleanup_status != 0:
+            print(
+                "Verification cleanup failed "
+                f"(repository={clean_status}, docker={docker_clean_status}); "
+                "inspect and remove owned verification residue.",
+                file=sys.stderr,
+            )
+
+    if status == 0 and cleanup_status != 0:
+        return cleanup_status
+    return status
 
 
 if __name__ == "__main__":

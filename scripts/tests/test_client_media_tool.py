@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import ast
 import asyncio
+import base64
 import math
 import os
 import shutil
+import time
 import unittest
+import uuid
 from pathlib import Path
 from types import SimpleNamespace
 from typing import List, Optional
@@ -73,6 +76,39 @@ def find_send_method() -> ast.AsyncFunctionDef:
     raise AssertionError("FileTranscriber.send was not found")
 
 
+def load_send_method(media_tool):
+    send = find_send_method()
+    module = ast.Module(body=[send], type_ignores=[])
+    ast.fix_missing_locations(module)
+
+    class AudioMessage:
+        def __init__(self, **values) -> None:
+            self.__dict__.update(values)
+
+    namespace = {
+        "asyncio": asyncio,
+        "AudioMessage": AudioMessage,
+        "base64": base64,
+        "Config": SimpleNamespace(
+            context="",
+            file_seg_duration=60,
+            file_seg_overlap=4,
+            language="auto",
+        ),
+        "console": SimpleNamespace(print=lambda *_args, **_kwargs: None),
+        "logger": SimpleNamespace(
+            debug=lambda *_args, **_kwargs: None,
+            error=lambda *_args, **_kwargs: None,
+            info=lambda *_args, **_kwargs: None,
+        ),
+        "MediaTool": media_tool,
+        "time": time,
+        "uuid": uuid,
+    }
+    exec(compile(module, str(FILE_TRANSCRIBER_PATH), "exec"), namespace)
+    return namespace["send"]
+
+
 def is_attr(node: ast.AST, *, value_name: str, attr: str) -> bool:
     return (
         isinstance(node, ast.Attribute)
@@ -116,6 +152,61 @@ class HangingDurationProcess:
     def kill(self) -> None:
         self.killed = True
         self.returncode = -9
+
+
+class KillDeniedDurationProcess:
+    def __init__(self) -> None:
+        self.returncode = None
+        self.waited = False
+
+    async def wait(self) -> int:
+        self.waited = True
+        self.returncode = 0
+        return 0
+
+    def kill(self) -> None:
+        raise PermissionError("handle is closing")
+
+
+class HangingTranscodeProcess:
+    def __init__(self) -> None:
+        self.returncode = None
+        self.killed = False
+        self.waited = False
+        self.read_started = asyncio.Event()
+        self.stdout = self
+
+    async def read(self, _size: int) -> bytes:
+        self.read_started.set()
+        await asyncio.Future()
+        return b""
+
+    async def wait(self) -> int:
+        self.waited = True
+        return self.returncode or -9
+
+    def kill(self) -> None:
+        self.killed = True
+        self.returncode = -9
+
+
+class GatedCleanupProcess(HangingTranscodeProcess):
+    def __init__(self) -> None:
+        super().__init__()
+        self.communicate_started = asyncio.Event()
+        self.reap_started = asyncio.Event()
+        self.allow_reap = asyncio.Event()
+
+    async def communicate(self) -> tuple[bytes, bytes]:
+        self.communicate_started.set()
+        await asyncio.Future()
+        return b"", b""
+
+    async def wait(self) -> int:
+        self.waited = True
+        self.reap_started.set()
+        await self.allow_reap.wait()
+        return self.returncode or -9
 
 
 class ClientMediaToolTest(unittest.TestCase):
@@ -221,8 +312,174 @@ class ClientMediaToolTest(unittest.TestCase):
             [0.01, namespace["CLIENT_MEDIA_KILL_GRACE_SECONDS"]],
         )
 
+    def test_get_audio_duration_cancellation_kills_and_reaps_process(self) -> None:
+        namespace = load_media_tool_namespace()
+        media_tool = namespace["MediaTool"]
+        process = HangingDurationProcess()
+
+        async def fake_create_subprocess_exec(*_args, **_kwargs):
+            return process
+
+        async def cancel_duration() -> None:
+            with patch.object(
+                namespace["asyncio"],
+                "create_subprocess_exec",
+                side_effect=fake_create_subprocess_exec,
+            ):
+                task = asyncio.create_task(
+                    media_tool.get_audio_duration(Path("input.wav"))
+                )
+                await asyncio.sleep(0)
+                task.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await task
+
+        asyncio.run(cancel_duration())
+
+        self.assertTrue(process.killed)
+        self.assertTrue(process.waited)
+
+    def test_second_cancellation_waits_for_ffprobe_reap(self) -> None:
+        namespace = load_media_tool_namespace()
+        media_tool = namespace["MediaTool"]
+        process = GatedCleanupProcess()
+
+        async def fake_create_subprocess_exec(*_args, **_kwargs):
+            return process
+
+        async def cancel_duration_twice() -> None:
+            with patch.object(
+                namespace["asyncio"],
+                "create_subprocess_exec",
+                side_effect=fake_create_subprocess_exec,
+            ):
+                task = asyncio.create_task(
+                    media_tool.get_audio_duration(Path("input.wav"))
+                )
+                await process.communicate_started.wait()
+                task.cancel()
+                await process.reap_started.wait()
+                task.cancel()
+                await asyncio.sleep(0)
+                self.assertFalse(task.done())
+                process.allow_reap.set()
+                with self.assertRaises(asyncio.CancelledError):
+                    await task
+
+        asyncio.run(cancel_duration_twice())
+
+        self.assertTrue(process.killed)
+        self.assertTrue(process.waited)
+
+    def test_kill_process_waits_when_windows_denies_kill(self) -> None:
+        namespace = load_media_tool_namespace()
+        media_tool = namespace["MediaTool"]
+        process = KillDeniedDurationProcess()
+
+        cleaned = asyncio.run(media_tool.kill_process(process))
+
+        self.assertTrue(cleaned)
+        self.assertTrue(process.waited)
+
 
 class ClientFileTranscriberSourceGuardTest(unittest.TestCase):
+    def test_send_cancellation_kills_and_reaps_ffmpeg(self) -> None:
+        namespace = load_media_tool_namespace()
+        media_tool = namespace["MediaTool"]
+        send = load_send_method(media_tool)
+        process = HangingTranscodeProcess()
+
+        async def fake_create_subprocess_exec(*_args, **_kwargs):
+            return process
+
+        async def no_duration(_file: Path) -> float:
+            return 0.0
+
+        class Transcriber:
+            task_id = None
+            file = Path("input.wav")
+            _audio_duration = 0.0
+            _ws_manager = SimpleNamespace()
+
+        Transcriber.send = send
+
+        async def cancel_send() -> None:
+            with (
+                patch.object(
+                    namespace["asyncio"],
+                    "create_subprocess_exec",
+                    side_effect=fake_create_subprocess_exec,
+                ),
+                patch.object(media_tool, "get_audio_duration", new=no_duration),
+                patch.object(
+                    media_tool,
+                    "build_ffmpeg_cmd",
+                    return_value=["ffmpeg", "input.wav"],
+                ),
+                patch.object(media_tool, "timeout_seconds", return_value=60.0),
+            ):
+                task = asyncio.create_task(Transcriber().send())
+                await process.read_started.wait()
+                task.cancel()
+                with self.assertRaises(asyncio.CancelledError):
+                    await task
+
+        asyncio.run(cancel_send())
+
+        self.assertTrue(process.killed)
+        self.assertTrue(process.waited)
+
+    def test_second_cancellation_waits_for_ffmpeg_reap(self) -> None:
+        namespace = load_media_tool_namespace()
+        media_tool = namespace["MediaTool"]
+        send = load_send_method(media_tool)
+        process = GatedCleanupProcess()
+
+        async def fake_create_subprocess_exec(*_args, **_kwargs):
+            return process
+
+        async def no_duration(_file: Path) -> float:
+            return 0.0
+
+        class Transcriber:
+            task_id = None
+            file = Path("input.wav")
+            _audio_duration = 0.0
+            _ws_manager = SimpleNamespace()
+
+        Transcriber.send = send
+
+        async def cancel_send_twice() -> None:
+            with (
+                patch.object(
+                    namespace["asyncio"],
+                    "create_subprocess_exec",
+                    side_effect=fake_create_subprocess_exec,
+                ),
+                patch.object(media_tool, "get_audio_duration", new=no_duration),
+                patch.object(
+                    media_tool,
+                    "build_ffmpeg_cmd",
+                    return_value=["ffmpeg", "input.wav"],
+                ),
+                patch.object(media_tool, "timeout_seconds", return_value=60.0),
+            ):
+                task = asyncio.create_task(Transcriber().send())
+                await process.read_started.wait()
+                task.cancel()
+                await process.reap_started.wait()
+                task.cancel()
+                await asyncio.sleep(0)
+                self.assertFalse(task.done())
+                process.allow_reap.set()
+                with self.assertRaises(asyncio.CancelledError):
+                    await task
+
+        asyncio.run(cancel_send_twice())
+
+        self.assertTrue(process.killed)
+        self.assertTrue(process.waited)
+
     def test_send_bounds_ffmpeg_stdout_reads_and_final_wait(self) -> None:
         send = find_send_method()
         wait_for_calls = [

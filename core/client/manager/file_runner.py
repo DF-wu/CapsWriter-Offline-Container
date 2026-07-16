@@ -48,9 +48,10 @@ class FileRunner:
                 else:
                     transcriber = FileTranscriber(self.app, file)
                     if await transcriber.check():
-                        await transcriber.send()
-                        await transcriber.receive()
-                        await transcriber.close()
+                        try:
+                            await transcriber.transcribe()
+                        finally:
+                            await transcriber.close()
                 
                 logger.info(f"文件处理完成: {file}")
             

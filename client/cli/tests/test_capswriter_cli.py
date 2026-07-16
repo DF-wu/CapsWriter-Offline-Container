@@ -292,6 +292,50 @@ class CapsWriterCliTest(unittest.TestCase):
             result = cli.transcribe_file(config, audio, response_format="text")
             self.assertEqual(cli.render_transcription(result, "text"), "mock cli transcript")
 
+    def test_diagnostic_redirect_is_rejected_without_forwarding_api_key(self):
+        observed_authorization = []
+
+        class RedirectTargetHandler(MockCapsWriterHandler):
+            def do_GET(self):
+                observed_authorization.append(self.headers.get("Authorization"))
+                self._json(200, {"status": "unexpected redirect"})
+
+        target = ThreadingHTTPServer(("127.0.0.1", 0), RedirectTargetHandler)
+
+        class RedirectSourceHandler(MockCapsWriterHandler):
+            def do_GET(self):
+                self.send_response(302)
+                self.send_header(
+                    "Location",
+                    f"http://127.0.0.1:{target.server_port}/stolen",
+                )
+                self.send_header("Content-Length", "0")
+                self.end_headers()
+
+        source = ThreadingHTTPServer(("127.0.0.1", 0), RedirectSourceHandler)
+        target_thread = threading.Thread(target=target.serve_forever, daemon=True)
+        source_thread = threading.Thread(target=source.serve_forever, daemon=True)
+        target_thread.start()
+        source_thread.start()
+        try:
+            config = cli.ApiConfig(
+                base_url=f"http://127.0.0.1:{source.server_port}",
+                api_key="never-forward-me",
+                timeout=5,
+            )
+            with self.assertRaises(cli.ApiError) as ctx:
+                cli.http_get_json(config, "/health")
+        finally:
+            source.shutdown()
+            target.shutdown()
+            source_thread.join(timeout=5)
+            target_thread.join(timeout=5)
+            source.server_close()
+            target.server_close()
+
+        self.assertEqual(ctx.exception.status, 302)
+        self.assertEqual(observed_authorization, [])
+
     def test_transcribe_file_streams_audio_without_reading_whole_file(self):
         config = cli.ApiConfig(base_url=self.base_url, timeout=5)
         with tempfile.TemporaryDirectory() as tmp:
@@ -320,6 +364,68 @@ class CapsWriterCliTest(unittest.TestCase):
             cli._read_response(response, 3)
 
         self.assertEqual(response.requested_sizes, [4])
+
+    def test_slow_drip_response_obeys_absolute_request_deadline(self):
+        class VirtualClock:
+            def __init__(self):
+                self.value = 0.0
+
+            def __call__(self):
+                return self.value
+
+            def advance(self, seconds):
+                self.value += seconds
+
+        clock = VirtualClock()
+
+        class SlowDripResponse:
+            status = 200
+            headers = {"Content-Type": "application/json"}
+
+            def __init__(self):
+                self.body = b'{"status":"ok"}'
+                self.offset = 0
+                self.read_timeouts = []
+                self.closed = False
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                self.closed = True
+
+            def settimeout(self, timeout):
+                self.read_timeouts.append(timeout)
+
+            def read1(self, _size=-1):
+                clock.advance(0.4)
+                chunk = self.body[self.offset : self.offset + 1]
+                self.offset += len(chunk)
+                return chunk
+
+            def read(self, _size=-1):
+                clock.advance(2.0)
+                return self.body
+
+        response = SlowDripResponse()
+        config = cli.ApiConfig(base_url="http://localhost", timeout=1.0)
+
+        with (
+            patch.object(cli, "_monotonic", new=clock),
+            patch.object(cli, "_open_direct", return_value=response),
+            self.assertRaisesRegex(
+                TimeoutError,
+                "HTTP request timed out after 1 seconds",
+            ),
+        ):
+            cli.http_get_json(config, "/health")
+
+        self.assertTrue(response.closed)
+        self.assertEqual(response.offset, 3)
+        self.assertEqual(len(response.read_timeouts), 3)
+        self.assertAlmostEqual(response.read_timeouts[0], 1.0)
+        self.assertAlmostEqual(response.read_timeouts[1], 0.6)
+        self.assertAlmostEqual(response.read_timeouts[2], 0.2)
 
     def test_http_error_result_rejects_oversized_body(self):
         exc = cli.error.HTTPError(
@@ -774,6 +880,47 @@ class CapsWriterCliTest(unittest.TestCase):
             "Not Found",
         )
 
+    def test_peer_error_is_control_safe_bounded_and_secret_redacted(self):
+        secret = "sk-memory-only"
+        body = json.dumps(
+            {"error": {"message": f"\x1b[31m{secret} " + "x" * 800}}
+        ).encode("utf-8")
+        result = cli.HttpResult(502, "application/json", body)
+
+        with self.assertRaises(cli.ApiError) as ctx:
+            cli._raise_result_api_error(result, secret=secret)
+
+        message = str(ctx.exception)
+        self.assertNotIn("\x1b", message)
+        self.assertNotIn(secret, message)
+        self.assertIn("[REDACTED]", message)
+        self.assertLessEqual(len(ctx.exception.message), cli.MAX_ERROR_BODY_CHARS)
+
+    def test_peer_error_redacts_secret_at_both_preview_boundaries(self):
+        secret = "sk-" + ("s" * 64)
+        exposed_prefix = secret[:-1]
+        messages = (
+            ("x" * 490) + "Bearer " + secret + ("y" * 700),
+            "Denied" + (" " * 1995) + secret,
+        )
+
+        for reflected in messages:
+            with self.subTest(reflected_length=len(reflected)):
+                result = cli.HttpResult(
+                    502,
+                    "application/json",
+                    json.dumps({"error": {"message": reflected}}).encode("utf-8"),
+                )
+                with self.assertRaises(cli.ApiError) as ctx:
+                    cli._raise_result_api_error(result, secret=secret)
+
+                self.assertNotIn(exposed_prefix, ctx.exception.message)
+                self.assertNotIn(secret, ctx.exception.message)
+                self.assertLessEqual(
+                    len(ctx.exception.message),
+                    cli.MAX_ERROR_BODY_CHARS,
+                )
+
     def test_speak_reads_text_from_stdin(self):
         self.assertEqual(
             cli.read_text_argument(
@@ -885,9 +1032,11 @@ class CapsWriterCliTest(unittest.TestCase):
             "hello",
             platform_name="Windows",
             which=lambda _name: None,
+            voice="Reader's Voice",
             rate=2,
         )
         self.assertEqual(command[:3], ["powershell", "-NoProfile", "-Command"])
+        self.assertIn("$s.SelectVoice('Reader''s Voice')", command[3])
         self.assertIn("$s.Rate = 2", command[3])
         self.assertIn("$s.Speak('hello')", command[3])
 

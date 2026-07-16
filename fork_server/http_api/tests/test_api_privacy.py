@@ -72,6 +72,35 @@ class HttpApiPrivacyLoggingTest(unittest.TestCase):
         self.assertIn("private transcript", _mock_text(logger.info))
         self.assertIn("private\ntranscript", _mock_text(console.print))
 
+    def test_internal_exception_detail_is_redacted_by_default(self) -> None:
+        logger = Mock()
+
+        privacy.log_internal_exception(
+            logger,
+            "recognition failed",
+            RuntimeError("private transcript /model/path"),
+            log_sensitive_text=False,
+        )
+
+        emitted = _mock_text(logger.error)
+        self.assertIn("details=<redacted>", emitted)
+        self.assertNotIn("private transcript", emitted)
+        self.assertNotIn("/model/path", emitted)
+        self.assertIs(logger.error.call_args.kwargs["exc_info"], False)
+
+    def test_internal_exception_detail_requires_explicit_opt_in(self) -> None:
+        logger = Mock()
+
+        privacy.log_internal_exception(
+            logger,
+            "recognition failed",
+            RuntimeError("trusted diagnostic detail"),
+            log_sensitive_text=True,
+        )
+
+        self.assertIn("trusted diagnostic detail", _mock_text(logger.error))
+        self.assertIs(logger.error.call_args.kwargs["exc_info"], True)
+
 
 if __name__ == "__main__":
     unittest.main()

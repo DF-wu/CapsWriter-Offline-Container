@@ -41,14 +41,50 @@ class MediaTool:
             process.kill()
         except ProcessLookupError:
             return True
+        except OSError:
+            # Windows may deny kill while the process handle is already
+            # closing; still make one bounded reap attempt.
+            pass
         try:
             await asyncio.wait_for(
                 process.wait(),
                 timeout=CLIENT_MEDIA_KILL_GRACE_SECONDS,
             )
-        except asyncio.TimeoutError:
+        except (asyncio.TimeoutError, ChildProcessError, OSError):
             return False
         return True
+
+    @staticmethod
+    async def kill_process_uninterruptibly(process) -> bool:
+        """Kill and reap a child before honoring additional cancellation.
+
+        The caller has normally already caught one ``CancelledError``. A second
+        ``Task.cancel()`` must not let the outer task finish while the shielded
+        reap continues in the background, so keep awaiting the cleanup task and
+        re-raise cancellation only after it is done.
+        """
+
+        cleanup_task = asyncio.create_task(MediaTool.kill_process(process))
+        cancelled_again = False
+        while not cleanup_task.done():
+            try:
+                await asyncio.shield(cleanup_task)
+            except asyncio.CancelledError:
+                cancelled_again = True
+            except Exception:
+                # The task is complete with an error; collect and log it below
+                # without replacing the caller's cancellation.
+                break
+
+        try:
+            cleaned = cleanup_task.result()
+        except Exception as error:
+            logger.warning(f"媒体子进程清理失败: {error}")
+            cleaned = False
+
+        if cancelled_again:
+            raise asyncio.CancelledError()
+        return cleaned
 
     @staticmethod
     def check_environment() -> bool:
@@ -81,6 +117,7 @@ class MediaTool:
             "ffprobe", "-v", "error", "-show_entries", "format=duration",
             "-of", "default=noprint_wrappers=1:nokey=1", str(file)
         ]
+        process = None
         try:
             timeout = MediaTool.timeout_seconds()
             process = await asyncio.create_subprocess_exec(
@@ -94,12 +131,18 @@ class MediaTool:
             )
             if process.returncode == 0:
                 return float(stdout.decode().strip())
+        except asyncio.CancelledError:
+            if process is not None:
+                await MediaTool.kill_process_uninterruptibly(process)
+            raise
         except asyncio.TimeoutError:
             logger.warning("ffprobe 获取时长超时")
-            if 'process' in locals():
+            if process is not None:
                 await MediaTool.kill_process(process)
         except Exception as e:
             logger.warning(f"无法通过 ffprobe 获取时长: {e}")
+            if process is not None:
+                await MediaTool.kill_process(process)
         return 0.0
 
     @staticmethod

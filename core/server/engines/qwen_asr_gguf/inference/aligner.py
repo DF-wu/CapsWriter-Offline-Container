@@ -3,6 +3,7 @@ import os
 import time
 import unicodedata
 import numpy as np
+from core.server.privacy import transcript_logging_enabled
 import onnxruntime as ort
 import codecs
 from typing import List, Dict, Any, Optional
@@ -172,7 +173,8 @@ class AlignerProcessor:
                 curr_ptr = end_pos
                 last_ts = item.end_time
             else:
-                logger.warning(f"[Aligner] 降级匹配 idx={i}: 无法在文本中找到 Token '{item.text}'，起始位置={curr_ptr}")
+                token = item.text if transcript_logging_enabled() else "[redacted]"
+                logger.warning(f"[Aligner] 降级匹配 idx={i}: 无法在文本中找到 Token '{token}'，起始位置={curr_ptr}")
                 # 降级：若无法匹配则保持原样
                 reconciled.append(item)
                 last_ts = item.end_time
@@ -334,4 +336,3 @@ class QwenForcedAligner:
                 "total_time": t_total
             }
         )
-

@@ -1,361 +1,209 @@
-# PyInstaller 打包指南
+# Windows production build guide / Windows 正式打包指南
 
-## 📦 新版本 PyInstaller 打包配置
+This guide describes the supported Windows x86-64 release build. For desktop
+runtime behavior and support boundaries, see the paired
+[English desktop guide](../docs/en/desktop-portability.md) and
+[繁體中文桌面指南](../docs/zh-TW/desktop-portability.md).
 
-### 目录结构设计
+本指南說明受支援的 Windows x86-64 正式打包流程。桌面執行行為與支援邊界請搭配
+[English desktop guide](../docs/en/desktop-portability.md) 與
+[繁體中文桌面指南](../docs/zh-TW/desktop-portability.md)閱讀。
 
-打包后的目录结构清晰分离：
+## Release contract / 發布契約
 
+- Build on 64-bit Windows with CPython 3.12.
+- Bootstrap `pip` and the `setuptools` build backend from
+  [`requirements-windows-build-bootstrap.lock`](../requirements-windows-build-bootstrap.lock)
+  with exact wheel hashes and no dependencies.
+- Install the complete client/server build graph from
+  [`requirements-windows-build.lock`](../requirements-windows-build.lock) with
+  hash checking. Every resolved package is pinned and hashed.
+- Build both `start_server.exe` and `start_client.exe` with
+  [`build.spec`](../build.spec).
+- Distribute a real directory tree. The artifact must not contain symbolic
+  links, junctions, or other reparse points into the checkout.
+- `core/`, `LLM/`, `assets/`, and `docs/` are immutable copies. `models/` and
+  `logs/` are real, initially empty directories.
+- A missing required file, Sherpa/Pillow dependency, or dynamic HTTP API package
+  fails the build. The spec does not silently publish a partial artifact.
+
+換言之：正式 artifact 必須由 Python 3.12 x64 Windows 建立、只從完整 hash lock
+安裝、同時產生兩個 executable，且搬離 source checkout 後仍能自我檢查。打包不再
+建立 junction；缺少必要 dependency 或 payload 會直接失敗。
+
+## What is and is not copied / 會複製與不會複製的內容
+
+Required root files:
+
+```text
+config_client.py
+config_server.py
+hot.txt
+hot-server.txt
+hot-rule.txt
+readme.md
+README.en.md
+LICENSE
 ```
+
+Required product trees are copied with caches, logs, local secret material,
+archives, model blobs, links, and non-Windows shared libraries filtered out.
+In particular, the repository's local `models/` contents are never copied.
+Obsolete `core_server.py` and `core_client.py` files are not part of the
+artifact contract.
+
+Windows llama.cpp runtime DLLs that a selected GGUF profile requires are model
+runtime assets, not Python dependencies. A clean CI checkout does not download
+models or exercise those DLLs. Add model/runtime assets from a trusted release
+after extraction, record their source and checksum, and validate the chosen
+profile on the release machine.
+
+必要 product tree 會排除 cache、log、本機 secret、壓縮檔、model blob、link 與
+非 Windows shared library；尤其不會把開發機上龐大的 `models/` 帶進 artifact。
+GGUF profile 所需的 Windows llama.cpp DLL 屬 model runtime asset，必須另外以可信
+來源與 checksum 管理，不能把 Python import smoke 誤當成 model-load 證據。
+
+## Clean build / 乾淨打包
+
+Run these commands from the repository root in PowerShell. Use a disposable
+environment so globally installed packages cannot fill gaps in the lock.
+
+```powershell
+$venv = Join-Path $env:TEMP 'capswriter-windows-build'
+Remove-Item -LiteralPath $venv -Recurse -Force -ErrorAction SilentlyContinue
+py -3.12 -m venv $venv
+
+& "$venv\Scripts\python.exe" -m pip install `
+  --require-hashes `
+  --only-binary=:all: `
+  --no-deps `
+  --requirement requirements-windows-build-bootstrap.lock
+
+& "$venv\Scripts\python.exe" -m pip install `
+  --require-hashes `
+  --only-binary=:all: `
+  --no-binary=srt `
+  --no-build-isolation `
+  --requirement requirements-windows-build.lock
+
+& "$venv\Scripts\python.exe" -m PyInstaller --clean --noconfirm build.spec
+```
+
+The bootstrap lock makes the build frontend and backend explicit before the
+main install disables build isolation. `srt` is the one explicit
+source-distribution exception because its release has no wheel. All other
+packages must be binary distributions. Do not replace either locked install
+with unconstrained `pip install -r requirements-client.txt` or
+`requirements-server.txt` in a production build.
+
+Bootstrap lock 會先明確固定 build frontend 與 backend，再讓主安裝停用 build
+isolation。正式 build 中，`srt` 是唯一明確允許的 source distribution；其他
+dependency 必須是 binary distribution。不得用未鎖定的兩份 `.txt` requirements
+取代任一 hash lock。
+
+## Expected layout / 預期目錄
+
+```text
 dist/CapsWriter-Offline/
-├── start_server.exe          # 服务端可执行文件
-├── start_client.exe          # 客户端可执行文件
-│
-├── internal/                 # 第三方依赖（PyInstaller 自动生成）
-│   ├── *.dll                 # 所有第三方 DLL 文件
-│   ├── *.pyd                 # 所有第三方 PYD 文件
-│   └── ...
-│
-├── config.py                 # 用户配置文件
-├── core_server.py            # 服务端核心代码
-├── core_client.py            # 客户端核心代码
-│
-├── util/                     # 工具模块（用户代码）
-│   ├── __init__.py
-│   ├── client/               # 客户端工具
-│   ├── server/               # 服务端工具
-│   ├── llm/                  # LLM 处理
-│   ├── hotword/              # 热词管理
-│   └── ...
-│
-├── LLM/                      # LLM 角色定义
-│   ├── __init__.py
-│   ├── default.py
-│   ├── 翻译.py
-│   ├── Python.py
-│   └── ...
-│
-├── assets/                   # 资源文件
-│   └── icon.ico
-│
-├── models/                   # 模型文件（目录连接符）
-│   ├── FunASR-Nano/          # 轻量级模型（推荐）
-│   ├── SenseVoice-Small/     # 多语言模型
-│   ├── Paraformer/           # 大模型
-│   ├── Punct-CT-Transformer/ # 标点模型
-│   └── FireRed/              # 大模型（未使用）
-│
-├── hot.txt                   # 热词 - 基于 RAG 音素匹配（中英统一）
-├── hot-rule.txt              # 正则表达式规则
-└── readme.md
+├── start_server.exe
+├── start_client.exe
+├── internal/
+├── core/
+├── LLM/
+├── assets/
+├── docs/
+├── models/                     # real and empty at release-build time
+├── logs/                       # real and empty at release-build time
+├── config_client.py
+├── config_server.py
+├── hot.txt
+├── hot-server.txt
+├── hot-rule.txt
+├── readme.md
+├── README.en.md
+└── LICENSE
 ```
 
-### 设计理念
+## Relocation smoke / 搬移後 smoke
 
-1. **internal/** - 第三方依赖
-   - 所有 DLL、PYD 文件
-   - PyInstaller 自动管理
-   - 用户不需要关心
+Archive the directory, extract it under a different directory outside the
+checkout, and run both executable self-checks from the extracted root:
 
-2. **根目录** - 用户代码和配置
-   - 只有你自己写的 Python 文件
-   - 配置文件（*.txt）
-   - 方便用户查看和修改
+```powershell
+Set-Location "$env:TEMP\capswriter-package-extracted\CapsWriter-Offline"
+.\start_server.exe --artifact-self-check
+.\start_client.exe --artifact-self-check
+```
 
-3. **models/** - 目录连接符
-   - 链接到源代码的 models 文件夹
-   - 避免复制大文件
-   - 节省打包时间
+Each command must exit `0` and print a line beginning with
+`CAPSWRITER_ARTIFACT_SELF_CHECK=` whose JSON report has `"status":"ok"` and
+`"frozen":true`. The self-check verifies required files/directories, rejects
+links/junctions, and imports the server or client runtime surface. It does not:
 
-## 🚀 打包命令
+- bind a WebSocket or HTTP socket;
+- create tray icons or global keyboard/mouse hooks;
+- open a microphone or launch FFmpeg;
+- load a model or run known-audio transcription; or
+- validate DirectML, CUDA, Vulkan, or llama.cpp execution.
 
-### 完整打包（服务端 + 客户端）
+兩個 self-check 都不會啟動正常 server/client lifecycle，因此可在 CI 安全執行；
+它們只證明 archive 搬移後的 layout、embedded Python runtime 與 import surface。
+
+## CI evidence / CI 證據
+
+The `windows-package` job in
+[`.github/workflows/portability.yml`](../.github/workflows/portability.yml) runs
+on pinned `windows-2022` with Python 3.12. It performs the hash-only install,
+PyInstaller build, relocation, ZIP extraction, reparse-point/empty-directory
+inspection, bounded EXE self-checks, and upload of the exact tested ZIP.
+
+This is automated production-package evidence, not hardware acceptance. Before
+publishing a desktop release, retain manual results for:
+
+1. server and client tray creation and clean removal;
+2. configured keyboard and mouse hooks;
+3. microphone capture and file transcription, including FFmpeg integration;
+4. selected model/runtime asset load and known-audio transcription;
+5. CPU plus every advertised DirectML/GPU backend; and
+6. clean shutdown of worker and child processes.
+
+`windows-package` 是正式 package gate，但不是硬體驗收。Tray、hook、麥克風、
+FFmpeg、model、known audio、DirectML/GPU 與 child-process shutdown 仍須在目標
+Windows release machine 留存人工證據。
+
+## Lock maintenance / Lock 維護
+
+Regenerate the lock only as an intentional dependency update:
 
 ```bash
-pyinstaller build.spec
+UV_CACHE_DIR=/tmp/capswriter-windows-lock-cache uv pip compile \
+  requirements-client.txt requirements-server.txt \
+  --python-version 3.12 \
+  --python-platform x86_64-pc-windows-msvc \
+  --generate-hashes \
+  --only-binary=:all: \
+  --no-binary=srt \
+  --no-emit-index-url \
+  --output-file requirements-windows-build.lock
 ```
 
-### 仅打包客户端（用于 Win7）
-
-```bash
-pyinstaller build-client.spec
-```
-
-## 🔧 打包配置选项
-
-在 [`build.spec`](../build.spec) 中可以配置以下选项：
-
-### CUDA Provider 支持
-
-```python
-# 是否收集 CUDA provider
-# - True: 包含 onnxruntime_providers_cuda.dll，支持 GPU 加速（需要在用户机器安装 CUDA 和 CUDNN）
-# - False: 不包含 CUDA provider，只使用 CPU 模式（打包体积更小，兼容性更好）
-INCLUDE_CUDA_PROVIDER = False
-```
-
-### 排除系统 CUDA DLL
-
-打包配置会自动排除从系统 CUDA 安装目录收集的 DLL，避免冲突：
-- `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v*\bin\`
-- `C:\Program Files\NVIDIA\CUDNN\v*\bin\`
-
-### 排除的用户模块
-
-以下模块不会被打包进 exe，而是作为源文件复制到根目录：
-- `util/` - 工具模块
-- `config.py` - 配置文件
-- `LLM/` - LLM 角色定义
-- `core_*.py` - 核心源码入口
-
-## 📝 推荐的打包流程
-
-### 步骤 1：环境准备
-
-```bash
-# 激活 conda 环境
-conda activate capswriter
-
-# 安装 PyInstaller
-pip install pyinstaller
-```
-
-### 步骤 2：安装依赖
-
-```bash
-# 安装服务端依赖（包含 Sherpa-ONNX）
-pip install -r requirements-server.txt
-
-# 安装客户端依赖
-pip install -r requirements-client.txt
-```
-
-**依赖文件说明**:
-
-**服务端依赖** ([`requirements-server.txt`](../requirements-server.txt)):
-```text
-# ASR core
-sherpa-onnx
-numpy
-gguf
-onnxruntime-directml
-
-# basic
-rich
-websockets
-watchdog
-pypinyin
-
-# fork HTTP API
-fastapi
-uvicorn[standard]
-python-multipart
-
-# tray and image
-pystray
-Pillow
-
-markdown
-tkhtmlview
-```
-
-**客户端依赖** ([`requirements-client.txt`](../requirements-client.txt)):
-```text
-# 基础与 CLI
-rich
-typer
-colorama
-
-# 系统、输入与硬件
-keyboard
-pyclip
-sounddevice
-watchdog
-
-# 网络与 API
-websockets
-openai
-httpx
-
-# 数据处理
-numpy
-numba
-pypinyin
-srt
-
-# 托盘与图像
-pystray
-Pillow
-
-# 打包
-pyinstaller
-```
-
-### 步骤 3：清理旧的构建文件
-
-```bash
-# Windows
-rmdir /s /q build dist
-
-# Linux/Mac
-rm -rf build dist
-```
-
-### 步骤 4：运行打包
-
-```bash
-# 完整打包（服务端 + 客户端）
-pyinstaller build.spec
-
-# 或者仅打包客户端（Win7 兼容需 Python3.8）
-pyinstaller build-client.spec
-```
-
-**调试模式**（如果遇到问题）：
-```bash
-# 启用详细日志，查看哪些文件被打包了
-pyinstaller --log-level DEBUG build.spec
-
-# 只查看 WARNING 和 ERROR
-pyinstaller --log-level WARN build.spec
-```
-
-### 步骤 5：验证目录结构
-
-```bash
-cd dist\CapsWriter-Offline
-
-# 检查可执行文件
-dir *.exe
-
-# 检查 internal 目录
-dir internal
-
-# 检查用户文件
-dir *.py
-dir util
-dir LLM
-dir assets
-
-# 检查 models 连接符
-dir models
-```
-
-### 步骤 6：测试运行
-
-```bash
-# 测试服务端
-start_server.exe
-
-# 测试客户端
-start_client.exe
-```
-
-**常见问题**:
-- 如果缺少 DLL，检查 `internal/` 目录是否完整
-- 如果找不到模型，检查 `models/` 连接符是否正确创建
-- 如果热词不生效，检查 `hot*.txt` 文件是否存在
-
-### 步骤 7：打包分发
-
-```bash
-# 使用 7-Zip 或其他工具压缩
-# 注意：如果使用目录连接符，需要提醒接收方
-# 或者直接复制 models/ 文件夹而不是创建连接符
-```
-
-## 🎯 打包最佳实践
-
-### 1. 版本管理
-
-在 [`config.py`](../config.py) 中定义版本号：
-```python
-__version__ = '2.6'
-```
-
-### 2. 模型管理
-
-模型文件单独打包，用户下载后放入 `models/` 目录：
-- FunASR-Nano（推荐）: 约 300MB
-- SenseVoice: 约 500MB
-- Paraformer: 约 1GB
-
-### 3. 目录连接符
-
-打包脚本会自动创建目录连接符（需要管理员权限）：
-```python
-link_folders = ['models', 'assets', 'util', 'LLM', '2026', 'logs']
-```
-
-如果创建失败，会提示用户手动复制文件夹。
-
-### 4. 隐藏导入
-
-打包配置包含所有必要的隐藏导入：
-```python
-hiddenimports = [
-    'websockets', 'keyboard', 'pyclip', 'numpy',
-    'sounddevice', 'pypinyin', 'watchdog', 'typer',
-    'srt', 'sherpa_onnx', 'PIL', 'pystray',
-    # ...
-]
-```
-
-### 5. 排除模块
-
-以下模块会被排除以减小体积：
-```python
-excludes = [
-    'IPython', 'PySide6', 'PySide2', 'PyQt5',
-    'matplotlib', 'wx', 'funasr', 'pydantic', 'torch',
-]
-```
-
-## 📚 参考资源
-
-### PyInstaller 文档
-- [PyInstaller 6.0 Changelog](https://pyinstaller.org/en/v6.0.0/CHANGES.html)
-- [PyInstaller Documentation](https://pyinstaller.org/en/stable/)
-- [Spec File Format](https://pyinstaller.org/en/stable/spec-file.html)
-- [PyInstaller Log Levels](https://pyinstaller.org/en/stable/advanced-features.html#logging)
-
-### Sherpa-ONNX 文档
-- [Sherpa-ONNX GitHub](https://github.com/k2-fsa/sherpa-onnx)
-- [Sherpa-ONNX 文档](https://k2-fsa.github.io/sherpa/onnx/)
-
-### 项目相关
-- [CapsWriter-Offline README](../readme.md)
-- [开发指南](../CLAUDE.md)
-
-## 🔍 故障排查
-
-### 常见问题
-
-**1. 打包后运行报错 "ModuleNotFoundError"**
-- 检查 `hiddenimports` 是否包含该模块
-- 使用 `--log-level DEBUG` 查看打包日志
-
-**2. 找不到 DLL 文件**
-- 检查 `internal/` 目录是否包含所需的 DLL
-- 检查 DLL 是否被错误排除
-
-**3. 模型文件加载失败**
-- 确认 `models/` 连接符创建成功
-- 或手动复制模型文件到打包目录
-
-**4. 热词不生效**
-- 确认 `hot*.txt` 文件被复制到根目录
-- 检查文件编码是否为 UTF-8
-
-**5. 客户端无法连接服务端**
-- 检查防火墙设置
-- 确认端口 6016 未被占用
-
-
----
-
-**更新日期**: 2026-01-13
-**PyInstaller 版本**: 6.0+
-**Python 版本**: 3.8+
-**Sherpa-ONNX 版本**: 1.12.20
-**项目版本**: CapsWriter-Offline v2.2
+Review the dependency/version diff, run the lock/source-contract tests, and let
+the Windows package job prove that pip can install the lock and PyInstaller can
+build it. Remove the temporary cache afterward.
+
+## Troubleshooting / 疑難排解
+
+- Bootstrap or dependency hash mismatch/missing binary: do not disable hash/binary enforcement;
+  regenerate and review the lock only if the dependency update is intentional.
+- Missing required payload: restore the required tracked file/tree; the spec is
+  designed to fail instead of skipping it.
+- Self-check import failure: inspect the EXE's captured stderr and PyInstaller
+  warnings, then correct collection/hidden-import rules.
+- Reparse point found: discard the artifact. A portable ZIP must contain real
+  files and directories only.
+- Model load failure after self-check succeeds: validate the separately supplied
+  models, llama.cpp DLL set, profile configuration, and hardware backend. The
+  self-check intentionally does not cover this layer.
+
+Last reviewed / 最後檢視：2026-07-16. Target: CPython 3.12 x86-64 Windows,
+with dependency and PyInstaller versions defined by the committed lock.

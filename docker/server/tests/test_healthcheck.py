@@ -50,8 +50,10 @@ class HealthcheckTest(unittest.TestCase):
 
     def test_normalize_loopback_host_for_container_binds(self) -> None:
         self.assertEqual(healthcheck.normalize_loopback_host("0.0.0.0"), "127.0.0.1")
-        self.assertEqual(healthcheck.normalize_loopback_host("::"), "127.0.0.1")
+        self.assertEqual(healthcheck.normalize_loopback_host("::"), "::1")
         self.assertEqual(healthcheck.normalize_loopback_host("127.0.0.1"), "127.0.0.1")
+        self.assertEqual(healthcheck.normalize_loopback_host("[::1]"), "::1")
+        self.assertEqual(healthcheck.format_host_header("::1", 6016), "[::1]:6016")
 
     def test_env_enabled_accepts_common_truthy_values(self) -> None:
         for value in ("1", "true", "TRUE", "yes", "on"):
@@ -78,9 +80,114 @@ class HealthcheckTest(unittest.TestCase):
 
     def test_websocket_check_rejects_invalid_port_without_socket(self) -> None:
         with patch.dict(os.environ, {"CAPSWRITER_SERVER_PORT": "not-a-port"}):
-            with patch.object(healthcheck.socket, "socket") as socket_factory:
+            with patch.object(
+                healthcheck.socket,
+                "create_connection",
+            ) as connection:
                 self.assertFalse(healthcheck.check_websocket_port())
-        socket_factory.assert_not_called()
+        connection.assert_not_called()
+
+    def test_websocket_check_completes_valid_upgrade_and_masked_close(self) -> None:
+        expected_accept = healthcheck.base64.b64encode(
+            healthcheck.hashlib.sha1(
+                (
+                    healthcheck.WEBSOCKET_KEY + healthcheck.WEBSOCKET_GUID
+                ).encode("ascii")
+            ).digest()
+        ).decode("ascii")
+
+        class FakeSocket:
+            def __init__(self) -> None:
+                response = (
+                    "HTTP/1.1 101 Switching Protocols\r\n"
+                    "Upgrade: websocket\r\n"
+                    "Connection: Upgrade\r\n"
+                    f"Sec-WebSocket-Accept: {expected_accept}\r\n"
+                    "Sec-WebSocket-Protocol: binary\r\n"
+                    "\r\n"
+                ).encode("ascii")
+                self.responses = [response[:35], response[35:], b"\x88\x00"]
+                self.sent = []
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_exc_info):
+                return False
+
+            def settimeout(self, _timeout) -> None:
+                return
+
+            def sendall(self, data) -> None:
+                self.sent.append(data)
+
+            def recv(self, _size):
+                return self.responses.pop(0)
+
+        fake_socket = FakeSocket()
+        with (
+            patch.object(
+                healthcheck.socket,
+                "create_connection",
+                return_value=fake_socket,
+            ) as connection,
+            patch.dict(
+                os.environ,
+                {
+                    "CAPSWRITER_SERVER_ADDR": "::1",
+                    "CAPSWRITER_SERVER_PORT": "16016",
+                },
+            ),
+        ):
+            self.assertTrue(healthcheck.check_websocket_port())
+
+        self.assertEqual(connection.call_args.args[0], ("::1", 16016))
+        self.assertGreater(connection.call_args.kwargs["timeout"], 0)
+        request = fake_socket.sent[0]
+        self.assertIn(b"Host: [::1]:16016\r\n", request)
+        self.assertIn(b"Upgrade: websocket\r\n", request)
+        self.assertIn(b"Connection: Upgrade\r\n", request)
+        self.assertIn(b"Sec-WebSocket-Protocol: binary\r\n", request)
+        self.assertIn(
+            f"Sec-WebSocket-Key: {healthcheck.WEBSOCKET_KEY}\r\n".encode("ascii"),
+            request,
+        )
+        self.assertEqual(fake_socket.sent[-1], b"\x88\x80\x00\x00\x00\x00")
+
+    def test_websocket_check_rejects_non_upgrade_response(self) -> None:
+        class FakeSocket:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_exc_info):
+                return False
+
+            def settimeout(self, _timeout) -> None:
+                return
+
+            def connect(self, _address) -> None:
+                return
+
+            def sendall(self, _data) -> None:
+                return
+
+            def recv(self, _size):
+                return b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\n\r\n"
+
+        with patch.object(
+            healthcheck.socket,
+            "create_connection",
+            return_value=FakeSocket(),
+        ):
+            self.assertFalse(healthcheck.check_websocket_port())
+
+    def test_websocket_check_enforces_absolute_deadline_before_connect(self) -> None:
+        with (
+            patch.object(healthcheck.time, "monotonic", side_effect=[10.0, 14.0]),
+            patch.object(healthcheck.socket, "create_connection") as connection,
+        ):
+            self.assertFalse(healthcheck.check_websocket_port())
+        connection.assert_not_called()
 
     def test_http_readiness_accepts_ok_payload(self) -> None:
         server = self._serve(ReadyHandler)

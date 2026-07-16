@@ -21,6 +21,59 @@ import zip_release  # noqa: E402
 
 
 class ZipReleaseTest(unittest.TestCase):
+    def test_file_list_preserves_required_empty_release_directories(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "dist" / "CapsWriter-Offline"
+            (source / "models").mkdir(parents=True)
+            (source / "logs").mkdir()
+            (source / "app.exe").write_text("binary", encoding="utf-8")
+
+            files, file_list = zip_release.create_file_list(
+                source,
+                root / "file_list.txt",
+            )
+
+            self.assertIn(
+                os.path.relpath(source / "models", source.parent),
+                files,
+            )
+            self.assertIn(
+                os.path.relpath(source / "logs", source.parent),
+                files,
+            )
+            self.assertIsNotNone(file_list)
+
+    def test_nonempty_models_directory_is_not_listed_recursively(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "dist" / "CapsWriter-Offline"
+            model = source / "models" / "Qwen3-ASR"
+            runtime = model / "runtime"
+            runtime.mkdir(parents=True)
+            (model / "README.md").write_text("instructions", encoding="utf-8")
+            (runtime / "model.gguf").write_text("model", encoding="utf-8")
+            (source / "logs").mkdir()
+            (source / "app.exe").write_text("binary", encoding="utf-8")
+
+            files, _ = zip_release.create_file_list(
+                source,
+                root / "file_list.txt",
+            )
+
+            self.assertNotIn(
+                os.path.relpath(source / "models", source.parent),
+                files,
+            )
+            self.assertIn(
+                os.path.relpath(model / "README.md", source.parent),
+                files,
+            )
+            self.assertNotIn(
+                os.path.relpath(runtime / "model.gguf", source.parent),
+                files,
+            )
+
     def test_package_with_7zip_passes_configured_timeout(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

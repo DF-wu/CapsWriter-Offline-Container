@@ -56,9 +56,13 @@ def kill_process(process: Popen) -> bool:
         process.kill()
     except ProcessLookupError:
         return True
+    except OSError:
+        # Windows may deny kill while the process handle is already closing.
+        # Preserve bounded cleanup instead of replacing timeout semantics.
+        pass
     try:
         process.wait(timeout=CLIENT_AUDIO_FINISH_KILL_GRACE_SECONDS)
-    except TimeoutExpired:
+    except (TimeoutExpired, ChildProcessError, OSError):
         return False
     return True
 

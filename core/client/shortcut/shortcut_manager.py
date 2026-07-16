@@ -10,16 +10,21 @@
 """
 from __future__ import annotations
 import time
+from copy import copy
 from concurrent.futures import ThreadPoolExecutor
-from typing import TYPE_CHECKING, Dict, List, Optional
-
-from pynput import keyboard, mouse
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from . import logger
 from core.client.shortcut.key_mapper import *
 from core.client.shortcut.key_mapper import KeyMapper
 from core.client.shortcut.emulator import ShortcutEmulator
 from core.client.shortcut.event_handler import ShortcutEventHandler
+from core.client.shortcut.platform_support import (
+    HotkeyBackendSupport,
+    detect_hotkey_backend,
+    pynput_button_name,
+    pynput_key_name,
+)
 from core.client.shortcut.task import ShortcutTask
 
 if TYPE_CHECKING:
@@ -34,7 +39,7 @@ class ShortcutManager:
     快捷键管理器
 
     统一管理多个快捷键，使用 pynput 监听键盘和鼠标事件。
-    所有事件处理都在 win32_event_filter 中完成，确保高性能和低延迟。
+    Windows 保留低阶 win32 filter；X11 使用标准 press/release callback。
     """
 
     def __init__(self, app: CapsWriterClient, shortcuts: List[Shortcut]):
@@ -49,8 +54,8 @@ class ShortcutManager:
         self.shortcuts = shortcuts
 
         # 监听器
-        self.keyboard_listener: Optional[keyboard.Listener] = None
-        self.mouse_listener: Optional[mouse.Listener] = None
+        self.keyboard_listener: Optional[Any] = None
+        self.mouse_listener: Optional[Any] = None
 
         # 快捷键任务映射（key -> ShortcutTask）
         self.tasks: Dict[str, ShortcutTask] = {}
@@ -58,8 +63,28 @@ class ShortcutManager:
         # 线程池
         self._pool = ThreadPoolExecutor(max_workers=4)
 
-        # 按键模拟器
-        self._emulator = ShortcutEmulator()
+        self._hotkey_support = detect_hotkey_backend()
+
+        # Unsupported sessions (notably Wayland/headless Linux) must not try to
+        # construct pynput controllers, which would fail before a useful
+        # diagnostic can be logged.
+        if not self._hotkey_support.available:
+            self._emulator = None
+        elif self._hotkey_support.backend == 'win32':
+            # Preserve the upstream Windows initialization behavior.
+            self._emulator = ShortcutEmulator()
+        else:
+            try:
+                self._emulator = ShortcutEmulator()
+            except Exception as error:
+                self._emulator = None
+                self._hotkey_support = HotkeyBackendSupport(
+                    available=False,
+                    backend=self._hotkey_support.backend,
+                    selective_suppression=False,
+                    detail=f"{self._hotkey_support.detail}; initialization failed: {error}",
+                )
+                logger.error(self._hotkey_support.detail)
 
         # 按键恢复状态追踪
         self._restoring_keys = set()
@@ -83,7 +108,15 @@ class ShortcutManager:
             if not shortcut.enabled:
                 continue
 
-            task = ShortcutTask(self.app, shortcut)
+            task_shortcut = shortcut
+            if shortcut.suppress and not self._hotkey_support.selective_suppression:
+                # X11's pynput backend can only grab the whole device. Treat
+                # per-key suppression as disabled instead of freezing all
+                # desktop input or replaying an event that was never blocked.
+                task_shortcut = copy(shortcut)
+                task_shortcut.suppress = False
+
+            task = ShortcutTask(self.app, task_shortcut)
             task._manager_ref = lambda: self  # 弱引用，用于回调
             task.pool = self._pool
             task.threshold = shortcut.get_threshold(Config.threshold)
@@ -160,6 +193,59 @@ class ShortcutManager:
             return True
 
         return win32_event_filter
+
+    def create_portable_keyboard_callbacks(self):
+        """Create pynput callbacks for the X11/macOS listener APIs."""
+
+        def handle(key, pressed: bool, injected: bool = False):
+            if injected:
+                return
+            key_name = pynput_key_name(key)
+            if not key_name:
+                return
+            if self._emulator and self._emulator.is_emulating(key_name):
+                if not pressed:
+                    self._emulator.clear_emulating_flag(key_name)
+                return
+            if self.is_restoring(key_name):
+                if not pressed:
+                    self.clear_restoring_flag(key_name)
+                return
+            task = self.tasks.get(key_name)
+            if task is None:
+                return
+            if pressed:
+                self._event_handler.handle_keydown(key_name, task)
+            else:
+                self._event_handler.handle_keyup(key_name, task)
+
+        return (
+            lambda key, injected=False: handle(key, True, injected),
+            lambda key, injected=False: handle(key, False, injected),
+        )
+
+    def create_portable_mouse_callback(self):
+        """Create a pynput side-button callback for X11/macOS."""
+
+        def on_click(x, y, button, pressed, injected=False):
+            if injected:
+                return
+            button_name = pynput_button_name(button)
+            if button_name not in {'x1', 'x2'}:
+                return
+            if self._emulator and self._emulator.is_emulating(button_name):
+                if not pressed:
+                    self._emulator.clear_emulating_flag(button_name)
+                return
+            task = self.tasks.get(button_name)
+            if task is None:
+                return
+            if pressed:
+                self._event_handler.handle_keydown(button_name, task)
+            else:
+                self._handle_mouse_keyup(button_name, task)
+
+        return on_click
 
     def _handle_mouse_keyup(self, button_name: str, task) -> None:
         """处理鼠标按键释放事件"""
@@ -251,16 +337,42 @@ class ShortcutManager:
 
     def start(self) -> None:
         """启动所有监听器"""
+        if not self._hotkey_support.available:
+            logger.error(
+                f"全局快捷键不可用 ({self._hotkey_support.backend}): "
+                f"{self._hotkey_support.detail}"
+            )
+            return
+
+        from pynput import keyboard, mouse
+
         has_keyboard = any(s.type == 'keyboard' for s in self.shortcuts if s.enabled)
         has_mouse = any(s.type == 'mouse' for s in self.shortcuts if s.enabled)
+
+        if (
+            not self._hotkey_support.selective_suppression
+            and any(s.suppress for s in self.shortcuts if s.enabled)
+        ):
+            logger.warning(
+                f"{self._hotkey_support.backend} 不支持安全的单键阻塞；"
+                "已按 suppress=False 监听，其他应用仍会收到按键"
+            )
 
         if has_keyboard:
             if self.keyboard_listener and self.keyboard_listener.is_alive():
                 logger.debug("键盘监听器已在运行，跳过启动")
             else:
-                self.keyboard_listener = keyboard.Listener(
-                    win32_event_filter=self.create_keyboard_filter()
-                )
+                if self._hotkey_support.backend == 'win32':
+                    self.keyboard_listener = keyboard.Listener(
+                        win32_event_filter=self.create_keyboard_filter()
+                    )
+                else:
+                    on_press, on_release = self.create_portable_keyboard_callbacks()
+                    self.keyboard_listener = keyboard.Listener(
+                        on_press=on_press,
+                        on_release=on_release,
+                        suppress=False,
+                    )
                 self.keyboard_listener.start()
                 logger.info("键盘监听器已启动")
 
@@ -268,9 +380,15 @@ class ShortcutManager:
             if self.mouse_listener and self.mouse_listener.is_alive():
                 logger.debug("鼠标监听器已在运行，跳过启动")
             else:
-                self.mouse_listener = mouse.Listener(
-                    win32_event_filter=self.create_mouse_filter()
-                )
+                if self._hotkey_support.backend == 'win32':
+                    self.mouse_listener = mouse.Listener(
+                        win32_event_filter=self.create_mouse_filter()
+                    )
+                else:
+                    self.mouse_listener = mouse.Listener(
+                        on_click=self.create_portable_mouse_callback(),
+                        suppress=False,
+                    )
                 self.mouse_listener.start()
                 logger.info("鼠标监听器已启动")
 
@@ -279,7 +397,14 @@ class ShortcutManager:
             if shortcut.enabled:
                 mode = "长按" if shortcut.hold_mode else "单击"
                 toggle = "可恢复" if shortcut.is_toggle_key() else "普通键"
-                logger.info(f"  [{shortcut.key}] {mode}模式, 阻塞:{shortcut.suppress}, {toggle}")
+                task = self.tasks.get(shortcut.key)
+                effective_suppress = (
+                    task.shortcut.suppress if task is not None else shortcut.suppress
+                )
+                logger.info(
+                    f"  [{shortcut.key}] {mode}模式, "
+                    f"阻塞:{effective_suppress}, {toggle}"
+                )
 
     def stop(self) -> None:
         """停止所有监听器和清理资源"""

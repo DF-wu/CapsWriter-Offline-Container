@@ -9,6 +9,8 @@ WebSocket 连接管理模块
 from __future__ import annotations
 
 import json
+import math
+import os
 from typing import TYPE_CHECKING, Optional
 
 import websockets
@@ -19,6 +21,27 @@ from core.protocol import AudioMessage, RecognitionMessage
 from ..state import console
 from .. import logger
 import asyncio
+
+
+CLIENT_WEBSOCKET_SEND_TIMEOUT_ENV = "CAPSWRITER_CLIENT_WEBSOCKET_SEND_TIMEOUT"
+DEFAULT_CLIENT_WEBSOCKET_SEND_TIMEOUT_SECONDS = 30.0
+CLIENT_WEBSOCKET_MAX_MESSAGE_BYTES = 16 * 1024 * 1024
+CLIENT_WEBSOCKET_MAX_QUEUED_MESSAGES = 4
+
+
+def client_websocket_send_timeout_seconds() -> float:
+    raw = os.environ.get(CLIENT_WEBSOCKET_SEND_TIMEOUT_ENV, "").strip()
+    if not raw:
+        return DEFAULT_CLIENT_WEBSOCKET_SEND_TIMEOUT_SECONDS
+    try:
+        timeout = float(raw)
+    except ValueError as exc:
+        raise ValueError(
+            f"{CLIENT_WEBSOCKET_SEND_TIMEOUT_ENV} must be a number"
+        ) from exc
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise ValueError(f"{CLIENT_WEBSOCKET_SEND_TIMEOUT_ENV} must be > 0")
+    return timeout
 
 
 if TYPE_CHECKING:
@@ -89,8 +112,8 @@ class WebSocketManager:
             kwargs = dict(
                 uri=url,
                 subprotocols=["binary"],
-                max_size=None,
-                max_queue=None,  # 防止文件过大时，只发送，来不及消费结果，接收队列填满导致 pause_reading
+                max_size=CLIENT_WEBSOCKET_MAX_MESSAGE_BYTES,
+                max_queue=CLIENT_WEBSOCKET_MAX_QUEUED_MESSAGES,
             )
 
             # websockets>=16.0 默认走代理，本地连接需显式禁用，但 14 才引入这个参数
@@ -130,8 +153,24 @@ class WebSocketManager:
             return False
         
         try:
-            await self.state.websocket.send(message.to_json())
+            timeout = client_websocket_send_timeout_seconds()
+            await asyncio.wait_for(
+                self.state.websocket.send(message.to_json()),
+                timeout=timeout,
+            )
             return True
+
+        except asyncio.TimeoutError as error:
+            websocket = self.state.websocket
+            self.state.websocket = None
+            if websocket is not None:
+                try:
+                    await websocket.close()
+                except Exception:
+                    pass
+            raise CommunicationError(
+                f"发送消息超时 ({timeout:g}s)，连接已关闭"
+            ) from error
             
         except (websockets.exceptions.ConnectionClosedError, websockets.exceptions.ConnectionClosedOK):
             self.state.websocket = None

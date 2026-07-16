@@ -89,6 +89,7 @@ const server = http.createServer(async (req, res) => {
       version: "dev",
       checks: {
         task_router_bound: true,
+        recognizer_process_alive: true,
         ffmpeg_available: true,
       },
       config: {

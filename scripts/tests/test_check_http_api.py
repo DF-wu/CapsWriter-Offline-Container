@@ -92,7 +92,8 @@ class UnauthorizedTranscriptionHandler(BaseHTTPRequestHandler):
         if self.path == "/ready":
             self._json(
                 200,
-                '{"status":"ok","checks":{"ffmpeg_available":true,"task_router_bound":true}}',
+                '{"status":"ok","checks":{"ffmpeg_available":true,'
+                '"task_router_bound":true,"recognizer_process_alive":true}}',
             )
             return
         self._json(404, '{"error":"not found"}')
@@ -199,7 +200,7 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
         response = FakeResponse()
         with (
             patch.object(check_http_api, "MAX_RESPONSE_BODY_BYTES", 3),
-            patch.object(check_http_api.urllib.request, "urlopen", return_value=response),
+            patch.object(check_http_api, "_open_direct", return_value=response),
         ):
             with self.assertRaisesRegex(ValueError, "exceeded 3 bytes"):
                 check_http_api._api_get("http://127.0.0.1:6017", "/health", "")
@@ -219,6 +220,62 @@ class CheckHttpApiMultipartTest(unittest.TestCase):
             preview = check_http_api._http_error_preview(error)
 
         self.assertEqual(preview, "HTTP response body exceeded 3 bytes")
+
+    def test_http_error_preview_is_control_safe_and_redacts_key(self) -> None:
+        error = check_http_api.urllib.error.HTTPError(
+            "http://127.0.0.1:6017/ready",
+            503,
+            "Service Unavailable",
+            {},
+            io.BytesIO(b"\x1b[31mreflected-sk-local\nforged"),
+        )
+
+        preview = check_http_api._http_error_preview(error, "sk-local")
+
+        self.assertNotIn("\x1b", preview)
+        self.assertNotIn("sk-local", preview)
+        self.assertEqual(preview, "[31mreflected-[REDACTED] forged")
+
+    def test_http_error_preview_redacts_key_at_both_preview_boundaries(self) -> None:
+        secret = "sk-" + ("s" * 64)
+        exposed_prefix = secret[:-1]
+        bodies = (
+            ("x" * 90) + "Bearer " + secret + ("y" * 700),
+            "Denied" + (" " * 395) + secret,
+        )
+
+        for body in bodies:
+            with self.subTest(body_length=len(body)):
+                error = check_http_api.urllib.error.HTTPError(
+                    "http://127.0.0.1:6017/ready",
+                    503,
+                    "Service Unavailable",
+                    {},
+                    io.BytesIO(body.encode("utf-8")),
+                )
+
+                preview = check_http_api._http_error_preview(error, secret)
+
+                self.assertNotIn(exposed_prefix, preview)
+                self.assertNotIn(secret, preview)
+                self.assertLessEqual(
+                    len(preview),
+                    check_http_api.MAX_ERROR_PREVIEW_CHARS,
+                )
+
+    def test_redirect_handler_refuses_cross_origin_redirect(self) -> None:
+        handler = check_http_api.NoRedirectHandler()
+
+        redirected = handler.redirect_request(
+            object(),
+            None,
+            302,
+            "Found",
+            {},
+            "https://attacker.invalid/stolen",
+        )
+
+        self.assertIsNone(redirected)
 
     def test_api_post_uses_configured_timeout(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -372,6 +429,7 @@ class CheckHttpApiMainTest(unittest.TestCase):
                     "checks": {
                         "ffmpeg_available": True,
                         "task_router_bound": True,
+                        "recognizer_process_alive": True,
                     },
                 }
             raise AssertionError(path)

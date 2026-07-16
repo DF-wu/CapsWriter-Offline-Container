@@ -1,189 +1,129 @@
-# CapsWriter-Offline Linux Server Fork
+# CapsWriter-Offline — Windows + Linux Fork
 
-Linux- and Docker-focused server fork of [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline).
+> Offline speech recognition for Windows desktops, Linux desktops and servers,
+> with Docker deployment, an optional OpenAI-compatible API, and Web, CLI, and
+> TUI clients.
+>
+> English · [繁體中文](readme.md)
 
-This fork keeps the upstream recognition stack and deployment model where it makes sense, but repackages the **server side** for Linux hosts, containers, and GPU-enabled machines.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-334155)](docs/en/desktop-portability.md)
+[![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
+[![OpenAI compatible](https://img.shields.io/badge/OpenAI%20audio-compatible-10A37F)](docs/en/openai-api.md)
 
-## Overview
+This fork builds on the upstream CapsWriter v2 model/inference algorithms and
+Windows desktop experience while carrying a documented compatibility/security
+patch set, including narrow engine I/O and privacy-logging contacts. It extends
+the product into a tested cross-platform delivery surface with a bounded Linux
+X11 desktop path, a Linux container server, an opt-in HTTP API, browser and
+terminal clients, reproducible dependency locks, and release/security gates.
 
-The upstream project is a polished offline speech input tool built primarily for Windows desktop use. This fork exists for a different deployment target:
+It is no longer accurate to describe this repository as a Linux-only server
+overlay. Windows remains a first-class desktop and packaging target. Linux is
+supported through several distinct paths whose limits are documented honestly:
+X11 desktop hotkeys have reduced suppression behavior, Wayland global hotkeys
+are not supported, and headless Linux uses the server, Web, CLI, or TUI paths.
 
-- run the CapsWriter server on Linux,
-- package it as a Docker image,
-- start it with predictable runtime behavior,
-- prefer GPU acceleration when available, and
-- fall back to CPU when GPU execution is not usable.
+Model inference is local once the required assets are present. A first-time
+container bootstrap may download model and runtime assets; no cloud inference
+service is required.
 
-This repository is not a Linux desktop port of the full product. It is a **Linux server fork**.
+## What is included
 
-## Why this fork exists
+| Surface | Intended use | Current evidence and boundary |
+|---|---|---|
+| Windows desktop | Tray, shortcuts, recording, file transcription, optional HTTP API | Windows 2022/Python 3.12 CI hash-installs, builds, relocates, extracts, inspects, and runs import self-checks through both packaged EXEs; tray/audio/model/hardware behavior remains manual release evidence |
+| Linux X11 desktop | Desktop shortcuts and the upstream client on an X11 session | Portable callback contract is tested; listening works, but selective single-key suppression is deliberately disabled |
+| Linux `amd64` server/container | Long-running local or shared ASR service | Docker/Compose, health/readiness, model bootstrap, GPU preference, and CPU fallback paths are gated; ARM64 is not release-gated |
+| OpenAI-compatible API | SDK, curl, Web, CLI, and TUI transcription | Opt-in `whisper-1` file-transcription subset with explicit unsupported-capability errors |
+| Web Console | Browser recording, upload, STT formats, downloads, local browser TTS | React/Vite tests, production build, browser smoke, and static image smoke |
+| No-GUI CLI | Scripts, SSH, batch transcription, local OS TTS | Standard-library zipapp; Linux/Windows Python portability matrix |
+| Textual TUI | Keyboard-first diagnostics, file transcription, optional microphone | Hash-locked Python 3.10–3.12 runtime and no-skip Pilot suite |
 
-CapsWriter-Offline already solves the desktop-side problem well: low-latency offline speech input with strong model support and a practical user experience.
+See the full [support and security matrix](docs/en/support-security.md) before
+making a production or desktop-support claim.
 
-What it did not provide was a deployment path for users who want to run the recognition server on:
+## Choose your path
 
-- a Linux workstation,
-- a home server,
-- a Docker host,
-- or a GPU machine used as a shared inference box.
+| Goal | Start here |
+|---|---|
+| Use or package the Windows desktop app | [Desktop portability](docs/en/desktop-portability.md#windows-package-and-http-api) |
+| Run the desktop client on Linux X11 | [Linux X11 hotkeys and limits](docs/en/desktop-portability.md#linux-x11-hotkeys) |
+| Start a Linux server with Docker | [Getting started](docs/en/getting-started.md#path-c-linux-container-server) |
+| Deploy server + browser console | [Deployment guide](docs/en/deployment.md) |
+| Use an OpenAI SDK or curl | [OpenAI-compatible API](docs/en/openai-api.md) |
+| Automate from a shell or SSH session | [No-GUI CLI guide](docs/en/cli-client.md) |
+| Use a keyboard-first terminal UI | [TUI guide](docs/en/tui.md) |
+| Diagnose a failure | [Troubleshooting](docs/en/troubleshooting.md) |
+| Upgrade or review the current release | [Release notes](docs/en/release-notes.md) |
 
-This fork closes that gap. Its goal is simple: make the server side easier to build, run, operate, and recover on Linux without changing the upstream project's identity.
+The [English documentation home](docs/en/README.md) links every supported user,
+operator, and maintainer path.
 
-## Scope
+## Fastest server start
 
-### What this fork does
-
-- packages the server as a Linux Docker image,
-- uses `qwen_asr` as the default model,
-- supports `fun_asr_nano` through environment variables,
-- downloads required model assets at container startup,
-- prefers GPU inference when available,
-- falls back to CPU when GPU inference is unavailable or fails backend probing,
-- provides a single `docker-compose.yml` entry point,
-- exposes an optional OpenAI-compatible HTTP API,
-- and includes an isolated browser Web Console for STT/TTS workflows.
-
-### What this fork does not do
-
-- replace the upstream Windows desktop client,
-- turn the project into a native Linux desktop application,
-- or redefine the upstream project's product direction.
-
-If you want the original Windows experience, use the upstream repository. If you want a Linux-friendly server deployment path, use this fork.
-
-## What changed from upstream
-
-The main change is not model selection. The main change is **delivery and operation**.
-
-### 1. Container-first server packaging
-
-This fork adds:
-
-- a Linux-oriented Docker image,
-- a Docker Compose entry point,
-- a container health check,
-- an automatic model/bootstrap download flow,
-- and a startup chain designed for long-running server use.
-
-The goal is operational consistency: build, run, restart, inspect, and recover the server in a standard way.
-
-### 2. Deployment-friendly configuration
-
-The upstream project is naturally centered around local configuration files. This fork adds a deployment surface that works well with Docker and remote hosts, including:
-
-- `CAPSWRITER_MODEL_TYPE`
-- `CAPSWRITER_INFERENCE_HARDWARE`
-- `CAPSWRITER_GPU_DEVICE_COUNT`
-- `CAPSWRITER_SERVER_PORT`
-- `CAPSWRITER_LOG_LEVEL`
-
-This does not replace upstream configuration. It makes server deployment easier to automate.
-
-### 3. GPU-first, not GPU-only
-
-This fork treats hardware selection as a runtime decision:
-
-- if a usable GPU runtime is visible, prefer Vulkan,
-- if no GPU runtime is available, fall back to CPU,
-- if a GPU backend is selected but fails probing, fall back to CPU before starting the server.
-
-The target behavior is not “force GPU at all costs.” The target behavior is: **use GPU when it helps, but keep the service available when it does not.**
-
-### 4. Linux and headless runtime fixes
-
-This fork also addresses deployment-level issues that matter in containers:
-
-- no blocking `input()` prompts in non-interactive runs,
-- stable log path handling,
-- a clean Docker build context,
-- model and runtime assets downloaded on demand,
-- one Compose file that works for both GPU-backed and CPU-only startup.
-
-## Supported models
-
-- `qwen_asr` — default
-- `fun_asr_nano` — selected with `CAPSWRITER_MODEL_TYPE=fun_asr_nano`
-
-## Inference hardware behavior
-
-### Runtime selection
-
-- `CAPSWRITER_INFERENCE_HARDWARE=auto` — default; prefer GPU, fall back to CPU
-- `CAPSWRITER_INFERENCE_HARDWARE=gpu` — try GPU first; still fall back to CPU if probing fails
-- `CAPSWRITER_INFERENCE_HARDWARE=cpu` — force CPU
-
-### Compose-level GPU request
-
-- `CAPSWRITER_GPU_DEVICE_COUNT=all` — request GPU devices (default)
-- `CAPSWRITER_GPU_DEVICE_COUNT=0` — request no GPU devices; useful for CPU-only startup
-
-## Quick start
-
-### 1. Create a local `.env`
+Prerequisites: a `linux/amd64` host, Docker Engine, the Compose plugin, and enough disk space
+for the selected model and image. GPU support is optional.
 
 ```bash
+git clone https://github.com/DF-wu/CapsWriter-Offline-Container.git
+cd CapsWriter-Offline-Container
 cp .env.example .env
 cp hot-server.example.txt hot-server.txt
-```
-
-Default values:
-
-```env
-CAPSWRITER_MODEL_TYPE=qwen_asr
-CAPSWRITER_INFERENCE_HARDWARE=auto
-CAPSWRITER_GPU_DEVICE_COUNT=all
-CAPSWRITER_SERVER_PORT=6016
-```
-
-The repository-root `.env` file is for local deployment only. It is excluded from the Docker build context and is not baked into the image.
-
-### 2. Build the image
-
-```bash
-docker compose build capswriter-server
-```
-
-### 3. Start the default server
-
-```bash
 docker compose up -d capswriter-server
+docker compose ps
+docker compose logs -f capswriter-server
 ```
 
-### 4. Switch to `fun_asr_nano`
+The base Compose file makes no vendor-device reservation, so this command also
+works on CPU-only Docker hosts. To expose NVIDIA GPUs, add the explicit override:
 
 ```bash
-CAPSWRITER_MODEL_TYPE=fun_asr_nano \
-CAPSWRITER_INFERENCE_HARDWARE=auto \
-docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml up -d --force-recreate
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml \
+  up -d capswriter-server
 ```
 
-### 5. Start in CPU-only mode
+For an Intel/AMD Linux iGPU, obtain the host GIDs with
+`stat -c '%n %g' /dev/dri/renderD* /dev/dri/card*`, set
+`CAPSWRITER_DRI_RENDER_GID` and `CAPSWRITER_DRI_VIDEO_GID` in `.env`, and add
+`docker-compose.igpu.yml`. Models persist in a Docker named volume by default;
+add `docker-compose.models-bind.yml` only when you need to manage host
+`./models` directly, after assigning the directory to the container user. See
+the [deployment guide](docs/en/deployment.md#linux-container-profile) for the
+exact commands and locking requirements.
 
-```bash
-CAPSWRITER_GPU_DEVICE_COUNT=0 \
-CAPSWRITER_INFERENCE_HARDWARE=auto \
-docker compose up -d --force-recreate capswriter-server
-```
+The default Compose deployment publishes the WebSocket server on host loopback
+port `6016`. The OpenAI-compatible HTTP API is off by default.
 
-### 6. Enable the OpenAI-compatible HTTP API
+To opt in, set a strong local token in `.env`:
 
-```bash
+```dotenv
 CAPSWRITER_HTTP_API_ENABLE=true
-CAPSWRITER_HTTP_API_BIND=0.0.0.0
+CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
+CAPSWRITER_HTTP_API_PUBLISH_HOST=127.0.0.1
 CAPSWRITER_HTTP_API_PORT=6017
-CAPSWRITER_HTTP_API_KEY=sk-your-token
-CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:5173
 ```
 
-Uncomment the HTTP API port mapping under `ports:` in [`docker-compose.yml`](docker-compose.yml), then restart:
+Then uncomment the HTTP mapping under `ports:` in
+[`docker-compose.yml`](docker-compose.yml), recreate the service, and verify
+both liveness and readiness:
 
 ```bash
 docker compose up -d --force-recreate capswriter-server
-python check_http_api.py --host 127.0.0.1 --port 6017 --key sk-your-token
+curl http://127.0.0.1:6017/health
 curl http://127.0.0.1:6017/ready
 ```
 
-### 7. Run the Web Console
+Binding the enabled API beyond loopback requires authentication unless the
+explicit insecure test-network escape hatch is enabled. Read
+[deployment](docs/en/deployment.md) and
+[support/security](docs/en/support-security.md) before exposing it to a LAN.
+
+## Client entry points
+
+### Web Console
+
+Development mode uses the locked Node dependency tree:
 
 ```bash
 cd client/web
@@ -191,94 +131,130 @@ npm ci --no-audit --no-fund
 npm run dev
 ```
 
-See [docs/web-console.md](docs/web-console.md) for the browser STT/TTS workflow, CORS setup, verification commands, and cleanup policy.
-Run `npm run browser-smoke` in `client/web` for a real-browser mock API workflow check.
-
-Production static container:
+For a static container deployment, use:
 
 ```bash
 docker compose -f docker-compose.web.yml up -d --build capswriter-web
 ```
 
-Published image: `ghcr.io/df-wu/capswriter-offline-web:latest`.
+See the [English deployment guide](docs/en/deployment.md#web-console-profile)
+for CORS, microphone security contexts, runtime configuration, and
+production-image verification.
 
-### 8. Run the no-GUI CLI client
+### No-GUI CLI
 
 ```bash
-python client/cli/capswriter_cli.py health --base-url http://127.0.0.1:6017 --key sk-your-token
-python client/cli/capswriter_cli.py ready --base-url http://127.0.0.1:6017 --key sk-your-token
-python client/cli/capswriter_cli.py transcribe meeting.wav --format text --key sk-your-token
-python client/cli/capswriter_cli.py speak "CapsWriter transcription completed."
+python client/cli/capswriter_cli.py ready \
+  --base-url http://127.0.0.1:6017 \
+  --key-file /path/to/capswriter-http.key
+python client/cli/capswriter_cli.py transcribe meeting.wav --format text
 python client/cli/scripts/build_zipapp.py
-python client/cli/dist/capswriter-cli.pyz --help
 ```
 
-See [docs/cli-client.md](docs/cli-client.md) for batch transcription, local TTS backends, isolated verification, and cleanup.
+See [the CLI guide](docs/en/cli-client.md) for batch output, portable filenames,
+timeouts, zipapp packaging, and local TTS.
 
-### 9. Run the repository verification gate
+### Textual TUI
+
+```bash
+python3.12 -m venv .venv-tui
+.venv-tui/bin/python -m pip install \
+  --require-hashes --only-binary=:all: \
+  --requirement requirements-tui.lock
+.venv-tui/bin/python -m client.tui --base-url http://127.0.0.1:6017
+```
+
+The [TUI guide](docs/en/tui.md) includes Windows commands, Traditional Chinese
+UI, keyboard controls, the file-only fallback, and strict verification.
+
+## Desktop path
+
+Windows packaging analyzes the client plus
+[`start_server_universal.py`](start_server_universal.py), preserving the
+upstream desktop configuration when the HTTP API is disabled and adding only
+validated `CAPSWRITER_HTTP_API_*` settings when enabled. Linux desktop hotkeys
+are supported only on X11 and never use an unsafe whole-keyboard grab.
+
+Follow [desktop portability](docs/en/desktop-portability.md) for exact Windows
+build commands, X11 requirements, Wayland/headless limitations, and the release
+evidence that still must be collected on real hardware.
+
+## Security defaults
+
+- The HTTP API is disabled by default; Compose publishes service ports on
+  `127.0.0.1` by default.
+- An enabled non-loopback API requires a Bearer key or key file unless the
+  explicit insecure-bind override is set.
+- Transcript and prompt logging is off by default.
+- Web runtime configuration refuses to publish a default API key unless a
+  separate public-key opt-in is enabled; entering the key in the UI is safer.
+- Container privileges are reduced with `no-new-privileges` and dropped Linux
+  capabilities.
+- Docker/TUI Python dependencies and Web dependencies have reproducible locks;
+  publish workflows attach provenance and SBOM attestations.
+
+Security behavior, private-data boundaries, supported/unsupported platforms,
+and reporting guidance are collected in
+[support and security](docs/en/support-security.md).
+
+## Verification and release policy
+
+Portable contracts run on pinned Ubuntu and Windows runners with Python 3.10
+and 3.12. A separate Python 3.12 Windows job installs the fully hashed production
+lock, builds both PyInstaller executables, ZIP-round-trips the artifact outside
+the checkout, rejects reparse points, import-smokes both EXEs, and uploads the
+exact tested ZIP. The API contract and hash-locked TUI have isolated no-skip
+jobs. The root gate covers server, Docker, CLI, Web, documentation, workflow
+source guards, and cleanup. Model/audio/tray/display/hardware evidence remains
+an explicit release-candidate responsibility rather than being inferred from
+import smoke or unit tests.
+
+![Fork release flow showing active v2 integration gates and isolated v1 maintenance](docs/assets/version-tracks.svg)
+
+Text equivalent: released upstream changes merge into active fork v2 and pass
+Linux, Windows, API, TUI, Web, and security gates before a v2 release. Legacy
+v1 remains isolated; only critical or security fixes are manually backported
+and pass separate legacy gates.
+
+Run the local gate:
 
 ```bash
 python scripts/verify_all.py
-python scripts/verify_all.py --http-base-url http://127.0.0.1:6017 --http-key sk-your-token
-python scripts/clean.py
+PYTHONDONTWRITEBYTECODE=1 python scripts/check_docs.py
+python scripts/clean.py --check
 ```
 
-See [docs/verification.md](docs/verification.md) for CI, cleanup, and release evidence expectations.
+See [verification](docs/verification.md), the
+[v1/v2 policy](docs/en/versioning.md), and the
+[current release notes](docs/en/release-notes.md).
 
-## Startup flow
+## Documentation
 
-At runtime, the container does the following:
+| Document | Purpose |
+|---|---|
+| [Documentation home](docs/en/README.md) | Complete task and audience index |
+| [Getting started](docs/en/getting-started.md) | Select and validate the right Windows/Linux path |
+| [Deployment](docs/en/deployment.md) | Container, desktop-source, Web, network, upgrade, and rollback operations |
+| [Troubleshooting](docs/en/troubleshooting.md) | Diagnostic ladder for desktop, container, API, and clients |
+| [Support and security](docs/en/support-security.md) | Support matrix, limits, secrets, privacy, supply chain, reporting |
+| [Release notes](docs/en/release-notes.md) | Current fork v2 snapshot, changes, migration, known limits |
+| [Desktop portability](docs/en/desktop-portability.md) | Windows package contract; Linux X11, Wayland, and headless truth |
+| [OpenAI-compatible API](docs/en/openai-api.md) | HTTP/SDK contract and resource controls |
+| [TUI](docs/en/tui.md) | Textual workbench installation and operation |
+| [Architecture](docs/architecture.md) | Sidecar integration and upstream-drift strategy |
 
-1. reads model and hardware settings from the environment,
-2. decides whether to use a Vulkan or CPU backend,
-3. downloads missing model assets,
-4. prepares Linux `llama.cpp` shared libraries for `qwen_asr` and `fun_asr_nano`,
-5. probes the selected GPU backend when applicable,
-6. falls back to CPU if the probe fails,
-7. starts the server and exposes health status.
+## Upstream, lifecycle, and license
 
-This order is intentional. It reduces “start and hope” behavior and makes failure handling more predictable.
+This fork is based on
+[HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
+and continues to consume its model/inference algorithms and desktop product
+work. Narrow changes inside upstream-tracked engine files are limited to bounded
+I/O and privacy-aware logging; the fork adds delivery, portability, API, client,
+and operational surfaces without renaming upstream releases or claiming
+ownership of upstream model work.
 
-## Who this fork is for
+Fork v2 is the active development line. Legacy fork v1 is isolated for critical
+and security maintenance only. See the [version policy](docs/en/versioning.md)
+before merging or backporting across generations.
 
-This fork is a better fit than the upstream README if you want to:
-
-- run CapsWriter server on Linux,
-- operate it with Docker,
-- centralize model bootstrap and backend preparation,
-- use GPU when available without losing CPU fallback,
-- keep the upstream recognition path while avoiding Linux deployment work from scratch.
-
-## Relationship to the upstream project
-
-This repository is explicitly based on the original project:
-
-- Upstream: [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
-- Upstream focus: offline speech input on Windows
-- This fork: Linux- and Docker-oriented server deployment
-
-This fork extends the upstream server deployment story. It does not replace the upstream project.
-
-## Project status
-
-This fork is intentionally narrow in scope.
-
-It is meant to make the **server** easier to deploy on Linux. It is not meant to become a general-purpose rewrite of the whole project.
-
-## Acknowledgements
-
-Thanks to the upstream project and its author:
-
-- [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
-
-This fork also depends on the work of the upstream ecosystem around it, including:
-
-- [Sherpa-ONNX](https://github.com/k2-fsa/sherpa-onnx)
-- [FunASR](https://github.com/alibaba-damo-academy/FunASR)
-- [llama.cpp](https://github.com/ggml-org/llama.cpp)
-
-## See also
-
-If you want the original project documentation, desktop workflow, and Windows-focused usage guide, start with the upstream repository:
-
-- <https://github.com/HaujetZhao/CapsWriter-Offline>
+License: [MIT](LICENSE).
