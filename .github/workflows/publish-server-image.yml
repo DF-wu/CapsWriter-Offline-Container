@@ -149,7 +149,7 @@ jobs:
           docker run --rm --network none --read-only \
             --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
             --entrypoint python "$candidate" -c \
-            'import fastapi, gguf, multipart, numpy, onnxruntime, sherpa_onnx, soundfile, starlette, uvicorn, websockets; from fork_server.bootstrap import apply_env_config, create_server'
+            'import fastapi, gguf, multipart, numpy, onnxruntime, sentencepiece, sherpa_onnx, soundfile, starlette, uvicorn, websockets; from fork_server.bootstrap import apply_env_config, create_server'
           docker run --rm --network none --read-only \
             --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
             --entrypoint python "$candidate" -c \

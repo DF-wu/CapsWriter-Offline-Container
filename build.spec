@@ -56,6 +56,7 @@ hiddenimports = [
     'colorama',
     'srt',
     'sherpa_onnx',
+    'sentencepiece',
     'onnxruntime',
     'gguf',
     'PIL',
@@ -109,6 +110,14 @@ pillow_datas, pillow_binaries, pillow_hiddenimports = collect_all('PIL')
 datas += pillow_datas
 binaries += pillow_binaries
 hiddenimports += pillow_hiddenimports
+
+require_importable('sentencepiece')
+sentencepiece_datas, sentencepiece_binaries, sentencepiece_hiddenimports = collect_all(
+    'sentencepiece'
+)
+datas += sentencepiece_datas
+binaries += sentencepiece_binaries
+hiddenimports += sentencepiece_hiddenimports
 
 # Fork server runtime. The Windows distribution uses the universal entrypoint:
 # it selects the exact upstream server lifecycle by default and the fork server

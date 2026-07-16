@@ -60,6 +60,7 @@ SERVER_IMPORTS = COMMON_IMPORTS + (
     "python_multipart",
     "gguf",
     "onnxruntime",
+    "sentencepiece",
     "sherpa_onnx",
     "soundfile",
 )

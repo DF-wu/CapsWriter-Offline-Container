@@ -3,6 +3,7 @@ sherpa-onnx
 numpy
 gguf
 onnxruntime-directml
+sentencepiece==0.2.2
 soundfile==0.13.1
 
 # basic

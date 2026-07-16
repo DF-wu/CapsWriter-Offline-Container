@@ -2,6 +2,7 @@ sherpa-onnx==1.12.34
 numpy==1.26.4
 gguf==0.18.0
 onnxruntime-gpu==1.18.0
+sentencepiece==0.2.2
 rich==14.3.3
 websockets==16.0
 watchdog==6.0.0

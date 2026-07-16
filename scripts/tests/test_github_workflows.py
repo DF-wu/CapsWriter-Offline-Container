@@ -362,6 +362,7 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertIn("candidate=\"$IMAGE@$DIGEST\"", publish)
         self.assertIn('docker pull "$candidate"', publish)
         self.assertIn("--entrypoint python \"$candidate\" -m pip check", publish)
+        self.assertIn("sentencepiece", publish)
         self.assertIn("from fork_server.bootstrap import", publish)
         self.assertIn("os.getuid() == 0", publish)
         self.assertIn("--entrypoint sh \"$candidate\" -n", publish)

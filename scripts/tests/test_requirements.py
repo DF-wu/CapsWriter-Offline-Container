@@ -10,7 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 HTTP_API_REQUIREMENTS = {"fastapi", "starlette", "uvicorn", "python-multipart"}
-ASR_AUDIO_REQUIREMENTS = {"soundfile"}
+ASR_AUDIO_REQUIREMENTS = {"sentencepiece", "soundfile"}
 HTTP_API_TEST_REQUIREMENTS = {
     "colorama",
     "fastapi",
@@ -103,6 +103,7 @@ WINDOWS_BUILD_RUNTIME_REQUIREMENTS = {
     "pydantic-core",
     "pyinstaller",
     "python-multipart",
+    "sentencepiece",
     "sherpa-onnx",
     "soundfile",
     "starlette",
@@ -433,6 +434,7 @@ class RequirementsTest(unittest.TestCase):
 
         self.assertIn("require_importable('sherpa-onnx', 'sherpa_onnx')", source)
         self.assertIn("require_importable('Pillow', 'PIL')", source)
+        self.assertIn("require_importable('sentencepiece')", source)
         self.assertIn("sys.version_info[:2] != (3, 12)", source)
         self.assertIn("sys.maxsize <= 2**32", source)
         self.assertIn("raise RuntimeError(f'Cannot collect HTTP API package {package}')", source)
