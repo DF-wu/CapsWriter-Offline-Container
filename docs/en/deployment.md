@@ -229,7 +229,7 @@ person who can load `/config.js` is allowed to read it. The container refuses
 that configuration unless `CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY=true`; entering a
 token in the browser UI keeps it in page memory instead.
 
-See the detailed [Web Console reference](../web-console.md).
+See the dedicated [Web Console client guide](web-console.md).
 
 ## Persistence and backup
 

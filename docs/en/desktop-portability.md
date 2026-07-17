@@ -1,6 +1,6 @@
 # Desktop portability and native hotkeys
 
-> [繁體中文](../zh-TW/desktop-portability.md) · English
+> [Documentation home](README.md) · [繁體中文](../zh-TW/desktop-portability.md) · English
 
 CapsWriter v2 keeps the upstream Windows desktop behavior while adding a
 bounded Linux desktop path. These are separate support claims: the Linux

@@ -1,8 +1,10 @@
 # Fork 現況（State of Fork）
 
-> **更新時間**：2026-07-17
-> **基底**：`origin/master` @ `7d7fac3`（upstream v2.6）
-> **工作分支**：`feature/universal-asr-client`
+> **更新時間**：2026-07-18
+>
+> **上游基底**：`7d7fac3`（upstream v2.6）
+>
+> **v2 產品合併點**：`master` merge commit `afc8c58`（PR #2）
 
 ---
 
@@ -139,22 +141,26 @@ ASR／標點／對齊模型與推論算法仍由 upstream `core/server/engines/*
 
 ## 4. 已跑驗證
 
-本分支已跑過以下 gate，且執行後確認無 build/cache/Docker 殘留：
+`afc8c58` v2 合併基線已跑過以下 gate，且執行後確認無
+build/cache/Docker 殘留：
 
 | Gate | 結果 |
 |---|---|
-| `python scripts/verify_all.py --web-browser-smoke --docker-build-web` | 通過：59-file upstream divergence、46-file docs check、dependency-light repo suites、Web unit/build、真實瀏覽器 upload/transcribe、production Nginx image／security-header smoke，以及 cleanup residue check |
+| `python scripts/verify_all.py --web-browser-smoke --docker-build-web` | 通過：59-file upstream divergence、paired documentation check、dependency-light repo suites、Web unit/build、真實瀏覽器 upload/transcribe、production Nginx image／security-header smoke，以及 cleanup residue check |
 | `python -m unittest discover -s client/cli/tests -v` | 通過：CLI **63/63**；含 single wall-clock request deadline／slow-drip rejection、direct/no-proxy transport、redirect rejection、跨 preview boundary reflected-key redaction、streamed multipart／Windows early-response abort recovery、bounded response、atomic/batch output 與 Linux／Windows TTS contract |
 | `python -m unittest discover -s docker/server/tests -v` | 通過：Docker helper **63/63**；含 secure model bootstrap、warm read-only fast path、archive bounds、healthcheck、entrypoint，以及完整 env 必須先套用到 backend probe 的 regression |
 | pinned Python 3.12：`python -m unittest discover -s fork_server/http_api/tests -v` | 通過：完整 HTTP API **153/153**，zero skips |
 | pinned Python 3.12：`python scripts/verify_api_contract.py` | 通過：嚴格完整 HTTP API **153/153**；會驗證 exact installed pins、imports、lock parity、全目錄非零 discovery，且任何 skip 都使 gate 失敗 |
-| `python -m unittest discover -s scripts/tests -v` | 通過：Verifier／diagnostic **301 tests**，其中 **16** 個為預期的 dependency-only skips；同 16 個 `scripts.tests.test_server_queue_limits` 已在 pinned environment **16/16**、zero skips，覆蓋 bounded queue、WebSocket ingress／audio ceiling 與 result dispatch isolation |
+| `python -m unittest discover -s scripts/tests -v` | 通過：Verifier／diagnostic **302 tests**，其中 **16** 個為預期的 dependency-only skips；同 16 個 `scripts.tests.test_server_queue_limits` 已在 pinned environment **16/16**、zero skips，覆蓋 bounded queue、WebSocket ingress／audio ceiling、result dispatch isolation，以及 Server／Client entry-doc regression |
 | `cd client/web && npm run verify && npm run browser-smoke` | 通過：Web **103/103**、TypeScript／Vite production build、真實瀏覽器 health/readiness/upload/transcribe；含 recorder overlap／delayed-stop lifecycle 與 transcript accessible-name regressions，root gate另驗證 isolated Nginx image 與安全 headers |
-| `scripts/verify_tui.py`（hash-locked isolated Python 3.10 與 3.12） | 兩個 interpreter 各通過 TUI **63/63**，zero skips；含 single wall-clock request deadline／slow-drip rejection，並驗證 direct-pin/lock parity、installed versions、imports 與 `pip check` |
-| `python -m unittest scripts.tests.test_compose_config scripts.tests.test_docs scripts.tests.test_check_docs -v` + `python scripts/check_docs.py` | Compose **15/15**、docs unit **15/15**、Markdown checker **46 files**；real `docker compose config --quiet` 另通過 base、NVIDIA、iGPU、model bind、Fun-ASR、Web 與 combined overrides |
+| `scripts/verify_tui.py`（hash-locked isolated Python 3.10 與 3.12） | Ubuntu 24.04／Windows 2022 × Python 3.10／3.12 每組通過 TUI **72/72**，zero skips；包含 deterministic、accessible、offline screenshot freshness 與 `NO_COLOR` environment regression |
+| `python -m unittest scripts.tests.test_compose_config scripts.tests.test_docs scripts.tests.test_check_docs -v` + `python scripts/check_docs.py` | Compose **15/15**、docs unit **15/15**、paired Markdown link／anchor／image accessibility checker通過；real `docker compose config --quiet` 另通過 base、NVIDIA、iGPU、model bind、Fun-ASR、Web 與 combined overrides |
 | isolated real Qwen CPU bootstrap／warm／probe | 真實 Qwen 1.7B model files 以 read-only mount 使用；llama.cpp CPU archive 完整下載、hash 驗證、atomic 三目錄 promotion，第二次執行命中不建立 lock 的 warm fast path，修正後 backend probe 成功 construct／cleanup engine；未發布 host port、未改 live model tree |
 
-`127.0.0.1:6017` 仍是既有外部服務；本分支驗證使用隔離容器掛載目前 checkout，對外映射 `127.0.0.1:16017`，並以 temporary API key 執行 `/ready` 與已知音檔 STT gate。共享 verifier log 會將 `--http-key` 顯示為 `<redacted>`。
+合併前的 live gate 使用隔離容器掛載 checkout，對外映射
+`127.0.0.1:16017`，並以 temporary API key 執行 `/ready` 與已知音檔 STT；未
+佔用既有 `127.0.0.1:6017` service。共享 verifier log 會將 `--http-key` 顯示為
+`<redacted>`。
 
 Release candidate 若要宣稱「模型轉錄品質已驗證」，需另外提供已知內容音檔並跑：
 
@@ -174,7 +180,7 @@ python scripts/verify_all.py \
 | CI 不下載模型 | 預期設計；CI 驗證協議、格式、build、Docker smoke。模型品質由 `--http-audio` release gate 補足 |
 | Browser TTS 可用性依賴瀏覽器 / OS voice | Web Console 文件已標明；不走雲端 TTS |
 | `ws_send_with_http.py` 需人工追 upstream | 已對齊 `origin/master @ 7d7fac3`；HTTP unit test 會偵測未 re-port 的 upstream loop drift，失敗時仍需人工搬回上游修改 |
-| 公開 image 需 merge 到 master 後由 workflow 發布 | feature branch 只提供 workflow 與 local Docker smoke |
+| 公開 image 發布 | `afc8c58` 合併後 server／Web workflow 的 verify、publish、promote 全部成功；`sha-afc8c58...` 與 `latest` 已指向相同 verified digest，並附 SPDX SBOM／SLSA provenance |
 
 ---
 
@@ -186,6 +192,7 @@ python scripts/verify_all.py \
 | [`docker/`](../docker/) | Server image、entrypoint、模型下載、backend probe |
 | [`client/cli/`](../client/cli/) | no-GUI Python CLI 與 tests |
 | [`client/web/`](../client/web/) | React/Vite Web Console、mock API、Docker/Nginx deployment |
+| [`docs/en/server-and-clients.md`](en/server-and-clients.md)／[`docs/zh-TW/server-and-clients.md`](zh-TW/server-and-clients.md) | Server／Client ownership、port 與部署組合 |
 | [`docs/assets/`](assets/) | 架構與驗證 SVG |
 | [`scripts/`](../scripts/) | root verify/clean automation |
 | [`.github/workflows/`](../.github/workflows/) | CI 與 GHCR publish workflows |
@@ -195,10 +202,10 @@ python scripts/verify_all.py \
 
 ## 7. 回滾與追溯
 
-本分支每個功能切片都有 commit：
+PR #2 的功能切片與 merge commit 都保留在 ancestry 中：
 
 ```bash
-git log --oneline origin/master..feature/universal-asr-client
+git log --oneline 4a893b27..afc8c58
 ```
 
 回滾單一切片優先使用 `git revert <commit>`。不要用 `git reset --hard` 清工作樹，除非已明確決定丟棄整個分支狀態。

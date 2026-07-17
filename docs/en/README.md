@@ -2,51 +2,73 @@
 
 > English · [繁體中文](../zh-TW/README.md) · [Project README](../../README.en.md)
 
-This is the documentation home for the active Windows + Linux fork. Choose a
-task below instead of assuming that one deployment path represents the whole
-product.
+CapsWriter has two roles: an **ASR server** performs local model inference, and
+one or more **clients** capture/select audio and present transcripts. Start
+with [Server and client roles](server-and-clients.md) if that distinction is
+not already clear.
 
-## Start by task
+## New user: follow these three steps
 
-| I want to… | Read |
+1. **Understand the components:** [Server and client roles](server-and-clients.md).
+2. **Choose where the server runs:** [Getting started](getting-started.md).
+3. **Choose a client:** desktop, Web, CLI, TUI, or SDK from the table below.
+
+## Server documentation
+
+| I need to… | Read |
 |---|---|
-| Decide between Windows desktop, Linux desktop, container, Web, CLI, and TUI | [Getting started](getting-started.md) |
-| Operate a server or browser deployment | [Deployment](deployment.md) |
-| Fix a desktop, container, API, or client failure | [Troubleshooting](troubleshooting.md) |
-| Understand supported, limited, and unsupported claims | [Support and security](support-security.md) |
-| Review changes and migrate to the current v2 snapshot | [Release notes](release-notes.md) |
+| Start Docker, Windows native, or a source server | [Deployment](deployment.md) |
+| Enable HTTP `6017` for Web/CLI/TUI/SDK | [OpenAI-compatible API](openai-api.md) |
+| Understand WebSocket `6016`, HTTP `6017`, and readiness | [Server and client roles](server-and-clients.md#server-interfaces) |
+| Configure exposure, authentication, privacy, or hardware claims | [Support and security](support-security.md) |
+| Fix model, container, readiness, or API failures | [Troubleshooting](troubleshooting.md) |
 
-## Product surfaces
+The server owns models, FFmpeg, inference, hotwords, queues, and readiness. It
+does not provide desktop hotkeys, browser UI, terminal UI, or client-local TTS.
 
-| Surface | Guide | Important boundary |
-|---|---|---|
-| Windows desktop and package | [Desktop portability](desktop-portability.md#windows-package-and-http-api) | CI validates source/package contracts; a real Windows release still needs build, audio, tray, and shortcut evidence |
-| Linux desktop | [Desktop portability](desktop-portability.md#linux-x11-hotkeys) | X11 is supported with no selective suppression; Wayland global hotkeys are unsupported |
-| Linux `amd64` server and Docker | [Deployment](deployment.md#linux-container-profile) | Containers are the primary headless deployment path; ARM64 is not release-gated |
-| OpenAI-compatible HTTP API | [API guide](openai-api.md) | Opt-in file-transcription subset, not the entire upstream OpenAI Audio API |
-| Web Console | [Deployment](deployment.md#web-console-profile) | Browser microphone needs a secure context; browser TTS depends on local browser/OS voices |
-| No-GUI CLI | [CLI reference](cli-client.md) | Standard-library client; no desktop global hotkey or tray |
-| Textual TUI | [TUI guide](tui.md) | Core file mode is hash locked; microphone is an optional native stack |
+## Client documentation
 
-## Operating and release documentation
+| Client | Server connection | Guide | Client-owned behavior |
+|---|---|---|---|
+| Windows/Linux X11 desktop | WebSocket `6016` | [Desktop portability](desktop-portability.md) | Tray, hotkeys, microphone, files, text injection |
+| Web Console | HTTP `6017` | [Web Console guide](web-console.md) | Browser recording, history, downloads, browser/OS TTS |
+| No-GUI CLI | HTTP `6017` | [CLI reference](cli-client.md) | File/batch automation, atomic output, optional OS TTS |
+| Textual TUI | HTTP `6017` | [TUI guide](tui.md) | Keyboard workflow, files, optional native microphone, save |
+| OpenAI SDK/curl | HTTP `6017/v1` | [API guide](openai-api.md) | Integration-specific file upload and result handling |
 
-| Document | Audience |
+No client above contains an ASR model. Web/CLI/TUI/SDK require the opt-in HTTP
+API; the desktop client uses WebSocket and normally does not.
+
+## Choose by deployment
+
+| Goal | Server | Client | Start here |
+|---|---|---|---|
+| Personal Windows dictation | Windows packaged/native server | Windows desktop client | [Windows desktop path](getting-started.md#path-a-windows-desktop) |
+| Linux desktop dictation | Native source server in X11 | Linux X11 desktop client | [Linux X11 path](getting-started.md#path-b-linux-x11-desktop) |
+| NAS/headless/shared ASR | Linux `amd64` container | Web, CLI, TUI, or SDK | [Container path](getting-started.md#path-c-linux-container-server) |
+| Existing OpenAI integration | Any server with HTTP enabled | SDK/curl | [API compatibility](openai-api.md#compatibility-at-a-glance) |
+
+## Operations and release documentation
+
+| Document | Audience and purpose |
 |---|---|
+| [Release notes](release-notes.md) | Users reviewing changes, migration, limits, and release evidence |
+| [Troubleshooting](troubleshooting.md) | Users/operators following a server-first diagnostic ladder |
 | [Verification and cleanup](../verification.md) | Contributors and release operators |
 | [v1/v2 maintenance policy](versioning.md) | Maintainers and users planning upgrades |
-| [Architecture](../architecture.md) | Contributors changing fork integration points |
-| [Current fork state](../state-of-fork.md) | Reviewers who need implementation and evidence inventory |
+| [Architecture](../architecture.md) | Contributors changing server, sidecar, or routing integration |
+| [Current fork state](../state-of-fork.md) | Reviewers checking implementation and evidence inventory |
 | [Upstream synchronization](../upstream-sync-guide.md) | Maintainers merging released upstream changes |
-| [Upstream product changelog](../CHANGELOG.md) | Users reviewing recognition-engine and upstream desktop history |
+| [Upstream product changelog](../CHANGELOG.md) | Recognition-engine and upstream desktop history |
 
-## Suggested reading paths
+## Reading order by audience
 
-- New desktop user: **Getting started → Desktop portability → Troubleshooting**.
-- New server operator: **Getting started → Deployment → Support/security**.
-- API/client integrator: **Getting started → API guide → CLI, Web, or TUI guide**.
+- Desktop user: **Server/client roles → Getting started → Desktop portability → Troubleshooting**.
+- Server operator: **Server/client roles → Deployment → Support/security → Troubleshooting**.
+- API integrator: **Server/client roles → API guide → chosen client guide**.
 - Release reviewer: **Release notes → Support/security → Verification → Current fork state**.
 - Maintainer: **Architecture → Versioning → Upstream synchronization → Verification**.
 
-When a page describes automated evidence, read it as the boundary of that
-evidence. A compile or mock contract test does not prove a real microphone,
-display server, GPU, model download, or packaged desktop artifact.
+Automated evidence has explicit limits. A compile, unit test, or package import
+self-check does not prove a real microphone, display server, model, GPU, tray,
+or global shortcut on the target machine.

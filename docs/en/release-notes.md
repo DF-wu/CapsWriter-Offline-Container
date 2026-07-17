@@ -2,12 +2,12 @@
 
 > [Documentation home](README.md) · [繁體中文](../zh-TW/release-notes.md) · [Getting started](getting-started.md)
 
-## Unreleased — fork v2 cross-platform release candidate
+## fork-v2.0.0-rc.1 — cross-platform release candidate
 
-Snapshot date: **2026-07-17**. A final `fork-v2.<minor>.<patch>` tag is assigned
-only when the release evidence below is complete. This page describes the
-current development snapshot; it does not claim that an untagged artifact has
-already been published.
+Release-candidate date: **2026-07-18**. `fork-v2.0.0-rc.1` is a GitHub
+pre-release, not the final `fork-v2.0.0` support claim. Automated source, API,
+TUI, Web, image, and Windows package gates are complete; the real-device/model
+qualification listed below remains required before a stable release.
 
 ![Fork maintenance flow: released upstream changes enter active v2 while only critical or security fixes are manually backported to isolated v1](../assets/version-tracks.svg)
 
@@ -169,7 +169,7 @@ Never merge or bulk cherry-pick v2 into `maintenance/v1`. See the
 - The local API intentionally implements a bounded transcription subset, not
   streaming, diarization, translation, or every current OpenAI Audio feature.
 
-## Release evidence still required before tagging
+## Qualification still required before stable fork-v2.0.0
 
 - Green portable Ubuntu/Windows matrix and isolated API/TUI jobs.
 - Root verification, documentation, cleanup, Web browser/image smoke, and

@@ -2,26 +2,35 @@
 
 > [文件首頁](README.md) · [English](../en/getting-started.md) · [疑難排解](troubleshooting.md)
 
-CapsWriter fork v2 有多個有效入口。請依實際 machine 與 interaction model 選擇
-正確路徑。
+CapsWriter fork v2 一定包含兩個決策：**ASR Server 在哪裡執行**，以及**哪一個
+Client 把音訊送給它**。Server 會載入 model；Client 不會。若這個分工還不熟悉，
+請先讀 [Server 與 Client 分工](server-and-clients.md)。
 
 ![真實 CapsWriter Textual 工作台；畫面上方是 server 診斷，下方可見檔案輸入與轉錄面板](../assets/tui-workbench.svg)
 
-這張 screenshot 由真實 Textual application 產生，不是 mockup。它示範其中一個
-portable client surface；Windows desktop app、Web Console 與無 GUI CLI 仍是
-不同選項。
+這張 screenshot 由真實 Textual Client 產生，不是 mockup；model 與 inference
+worker 仍位於它所連線的 Server。
 
-## 選擇路徑
+## 1. 選擇 Server 執行位置
 
-| 需求 | 建議路徑 | 不可推論 |
+| 需求 | Server 路徑 | 不可推論 |
 |---|---|---|
-| 完整 Windows tray／hotkey desktop | Windows desktop package／source path | CI compile 不等於已簽署、經 hardware 驗證的 release binary |
-| Linux desktop dictation | Linux X11 source desktop path | X11 支援不代表 Wayland global hotkey 支援 |
-| Shared／headless ASR | Linux container server | HTTP process healthy 不等於 model ready |
-| Browser 互動 | Server + Web Console | Browser TTS 是本機 browser／OS 能力，不是 server TTS |
-| Script、SSH、batch job | 無 GUI CLI | CLI 不會 global text injection，也沒有 tray |
-| 鍵盤優先 terminal workflow | Textual TUI | Core lock 保證 file mode；native microphone 為選用 |
-| 既有 OpenAI client code | 選用 HTTP API | 只實作文件列出的 transcription subset |
+| 完整 Windows desktop dictation | Windows packaged／native Server | Package self-check 不等於真實 audio／tray／hardware evidence |
+| Linux desktop dictation | X11 session 內的 native source Server | X11 支援不代表 Wayland global hotkey 支援 |
+| Shared／headless ASR | Linux `amd64` container Server | 只有 `/health` 不代表 model ready |
+
+## 2. 選擇 Client
+
+| 操作方式 | Client | Server interface | 重要邊界 |
+|---|---|---|---|
+| Tray、global hotkey、文字注入 | Desktop Client | WebSocket `6016` | Windows native；Linux global hotkey 需要 X11 |
+| Browser 錄音／upload | Web Console | HTTP `6017` | Browser TTS 在本機，不是 Server TTS |
+| Script、SSH、batch job | 無 GUI CLI | HTTP `6017` | 沒有麥克風、tray、hotkey 或文字注入 |
+| 鍵盤優先 terminal workflow | Textual TUI | HTTP `6017` | File mode 是核心；native microphone 是選用能力 |
+| 既有 integration | OpenAI SDK／curl | HTTP `6017/v1` | 只實作文件列出的 transcription subset |
+
+Web／CLI／TUI／SDK 需要選用 HTTP API。Desktop Client 直接使用 WebSocket，一般
+不需要 HTTP。
 
 ## 共通先決條件
 
@@ -151,7 +160,7 @@ curl http://127.0.0.1:6017/ready
 接著選擇 client：
 
 - [OpenAI 相容 API 與 SDK](openai-api.md)
-- [Web Console](../web-console.md)
+- [Web Console](web-console.md)
 - [無 GUI CLI](cli-client.md)
 - [Textual TUI](tui.md)
 

@@ -1,6 +1,6 @@
 # 桌面跨平臺與原生快捷鍵
 
-> 繁體中文 · [English](../en/desktop-portability.md)
+> [文件首頁](README.md) · 繁體中文 · [English](../en/desktop-portability.md)
 
 CapsWriter v2 在保留上游 Windows 桌面行為的同時，加入有明確邊界的 Linux
 桌面路徑。這些是不同的支援聲明：Linux server/container 與可攜 CLI 不需要

@@ -216,7 +216,7 @@ Web publish address 預設是 loopback。Remote browser 需要：
 `CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY=true`；改在 browser UI 輸入 token，會讓它
 只留在 page memory。
 
-詳見 [Web Console reference](../web-console.md)。
+詳見 [Web Console Client 指南](web-console.md)。
 
 ## Persistence 與 backup
 

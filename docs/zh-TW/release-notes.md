@@ -2,11 +2,12 @@
 
 > [文件首頁](README.md) · [English](../en/release-notes.md) · [開始使用](getting-started.md)
 
-## Unreleased — fork v2 跨平台 release candidate
+## fork-v2.0.0-rc.1 — 跨平台 release candidate
 
-Snapshot date：**2026-07-17**。只有下方 release evidence 完整後才會指定最終
-`fork-v2.<minor>.<patch>` tag。本頁描述目前 development snapshot，不表示 untagged
-artifact 已經發布。
+Release candidate 日期：**2026-07-18**。`fork-v2.0.0-rc.1` 是 GitHub
+pre-release，不是 final `fork-v2.0.0` support claim。Automated source、API、TUI、
+Web、image 與 Windows package gates 已完成；下方 real-device／model qualification
+仍須在 stable release 前補齊。
 
 ![Fork 維護流程：上游正式變更進入 active v2，只有重大或安全修正才人工回移到隔離 v1](../assets/version-tracks.svg)
 
@@ -155,7 +156,7 @@ deployment 移轉：
 - Local API 刻意只實作 bounded transcription subset，不含 streaming、
   diarization、translation 或所有現行 OpenAI Audio features。
 
-## Tag 前仍需的 release evidence
+## Stable fork-v2.0.0 前仍需的 qualification
 
 - Green portable Ubuntu／Windows matrix 與 isolated API／TUI jobs。
 - Root verification、documentation、cleanup、Web browser／image smoke、

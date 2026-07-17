@@ -10,8 +10,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PAIRED_RELEASE_DOCS = (
     "README.md",
+    "server-and-clients.md",
     "getting-started.md",
     "deployment.md",
+    "web-console.md",
     "troubleshooting.md",
     "support-security.md",
     "release-notes.md",
@@ -19,6 +21,7 @@ PAIRED_RELEASE_DOCS = (
 RELEASE_DOC_ASSETS = {
     "getting-started.md": "../assets/tui-workbench.svg",
     "deployment.md": "../assets/web-console-architecture.svg",
+    "web-console.md": "../assets/web-console-architecture.svg",
     "troubleshooting.md": "../assets/openai-api-lifecycle.svg",
     "support-security.md": "../assets/verification-pipeline.svg",
     "release-notes.md": "../assets/version-tracks.svg",
@@ -102,6 +105,34 @@ class DocumentationTest(unittest.TestCase):
             for link in links:
                 with self.subTest(filename=filename, link=link):
                     self.assertIn(link, source)
+
+    def test_entry_docs_separate_server_and_client_roles(self) -> None:
+        entry_docs = (
+            ROOT / "README.en.md",
+            ROOT / "readme.md",
+            ROOT / "docs" / "en" / "README.md",
+            ROOT / "docs" / "zh-TW" / "README.md",
+            ROOT / "docs" / "en" / "server-and-clients.md",
+            ROOT / "docs" / "zh-TW" / "server-and-clients.md",
+        )
+
+        for path in entry_docs:
+            source = path.read_text(encoding="utf-8")
+            folded = source.casefold()
+            with self.subTest(path=path.relative_to(ROOT)):
+                self.assertIn("server", folded)
+                self.assertIn("client", folded)
+                self.assertIn("6016", source)
+                self.assertIn("6017", source)
+
+        for filename in ("README.en.md", "readme.md"):
+            source = (ROOT / filename).read_text(encoding="utf-8")
+            self.assertIn(
+                "docs/en/server-and-clients.md"
+                if filename == "README.en.md"
+                else "docs/zh-TW/server-and-clients.md",
+                source,
+            )
 
     def test_english_readme_uses_locked_web_dependency_install(self) -> None:
         source = (ROOT / "README.en.md").read_text(encoding="utf-8")
