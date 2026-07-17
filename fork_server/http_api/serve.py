@@ -36,14 +36,23 @@ async def run_http_server(cw_server) -> None:
         log_level=str(getattr(Config, "log_level", "INFO")).lower(),
         access_log=False,
         loop="asyncio",
+        timeout_graceful_shutdown=5,
     )
     server = uvicorn.Server(config)
+    cw_server._http_server = server
+    if getattr(cw_server, "_http_stop_requested", False):
+        server.should_exit = True
 
     api_key = getattr(Config, "http_api_key", "") or ""
     max_upload = getattr(Config, "http_api_max_upload_mb", 100)
+    max_audio_seconds = getattr(Config, "http_api_max_audio_seconds", 3600)
+    max_concurrent = getattr(Config, "http_api_max_concurrent_requests", 2)
+    max_pending = getattr(Config, "http_api_max_pending_requests", 4)
     logger.info(
         f"HTTP API 監聽 {config.host}:{config.port} "
-        f"(auth={'on' if api_key else 'off'}, max_upload={max_upload}MB)"
+        f"(auth={'on' if api_key else 'off'}, max_upload={max_upload}MB, "
+        f"max_audio={max_audio_seconds}s, max_concurrent={max_concurrent}, "
+        f"max_pending={max_pending})"
     )
     auth_flag = f'-H "Authorization: Bearer $KEY"' if api_key else ""
     auth_hint = "  [yellow](需 API key)[/]" if api_key else ""
@@ -61,7 +70,7 @@ async def run_http_server(cw_server) -> None:
     console.print(
         f"    • 语音转写: curl -X POST {auth_flag} "
         f"http://{config.host}:{config.port}/v1/audio/transcriptions "
-        f'-F "file=@test.wav"'
+        f'-F "file=@test.wav" -F "model=whisper-1"'
     )
     console.print(f"    • 诊断工具: python check_http_api.py {key_arg}--audio test.wav")
 
@@ -72,4 +81,8 @@ async def run_http_server(cw_server) -> None:
 
     console.print()
 
-    await server.serve()
+    try:
+        await server.serve()
+    finally:
+        if getattr(cw_server, "_http_server", None) is server:
+            cw_server._http_server = None

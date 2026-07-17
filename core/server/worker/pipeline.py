@@ -9,11 +9,13 @@
 
 import re
 import time
-from core.server.state import WorkerState, console
+from core.server.state import WorkerState, console, session_key
 from core.server.schema import Task, Result
 from core.server.formatter import TextFormatter
+from config_server import ServerConfig as Config
 from core.tools.token_sync import sync_tokens_from_text
 from core.server.engines.base import EngineCapabilities
+from core.server.privacy import transcript_logging, transcript_logging_enabled
 from .audio import process_audio_task
 from . import logger
 
@@ -56,15 +58,27 @@ class TaskPipeline:
             logger.warning(f"简单文本拼接失败: {e}")
 
     def process(self, task: Task) -> Result:
+        """Process one task under its prompt/transcript logging policy."""
+        with transcript_logging(getattr(task, "log_transcript", True)):
+            return self._process(task)
+
+    def _process(self, task: Task) -> Result:
         """
         处理单个音频任务片段并返回识别结果
         """
         try:
-            logger.info(f"任务 {task.task_id[:8]}, 语言={task.language}, 来源={task.source}")
-            is_first_segment = task.task_id not in self.state.sessions
-            session = self.state.get_session(task.task_id, task.socket_id, task.source)
+            logger.info(f"任务 {task.task_id[:8]}, 语言={task.language}, 类型={task.type}")
+            is_first_segment = session_key(
+                task.socket_id,
+                task.task_id,
+            ) not in self.state.sessions
+            session = self.state.get_session(task.task_id, task.socket_id, task.type)
             result = session.result
-            
+
+            # GPU 加速活跃时间更新（只要有任务进来就刷新）
+            if Config.gpu_boost_enabled and self.state.gpu_boosted:
+                self.state.gpu_last_active = time.time()
+
             # 2. 预处理音频并获取采样点
             samples = process_audio_task(task, result)
 
@@ -86,14 +100,18 @@ class TaskPipeline:
 
             # 4. 路径 A: 简单文本拼接 (主要用于实时回显)
             asr_raw_text = stream.result.text
-            logger.info(f'模型输出：{asr_raw_text}')
-            console.print(f'\033[0G  模型输出：[cyan]{asr_raw_text}', soft_wrap=True)
+            if transcript_logging_enabled():
+                logger.info(f'模型输出：{asr_raw_text}')
+                console.print(f'\033[0G  模型输出：[cyan]{asr_raw_text}', soft_wrap=True)
+            else:
+                logger.info(f'模型输出：[redacted], 字符数={len(asr_raw_text)}')
+                console.print('\033[0G  模型输出：[dim]<redacted>', soft_wrap=True)
             self._process_simple_merge(result, asr_raw_text)
 
             # 5. 路径 B: 对齐增强 (仅针对文件任务)
             # 门控：仅在“文件任务”且“引擎不支持时间戳”时，才调用外部 Aligner
             caps = self.recognizer.capabilities
-            if (task.source == 'file'  
+            if (task.type == 'file'
                 and EngineCapabilities.TIMESTAMPS not in caps 
                 and self.aligner 
                 and stream.result.text.strip()):
@@ -130,10 +148,17 @@ class TaskPipeline:
             raw_text = result.text
             result.text = self.formatter.format(result.text)
             result.text_accu = self.formatter.format(result.text_accu)
-            console.print(f'  片段拼接：[purple]{raw_text}', soft_wrap=True)
-            console.print(f'  格式化后：[green]{result.text}\n', soft_wrap=True)
-
-            logger.debug(f'格式调整：{raw_text} --> {result.text}')
+            if transcript_logging_enabled():
+                console.print(f'  片段拼接：[purple]{raw_text}', soft_wrap=True)
+                console.print(f'  格式化后：[green]{result.text}\n', soft_wrap=True)
+                logger.debug(f'格式调整：{raw_text} --> {result.text}')
+            else:
+                console.print('  片段拼接：[dim]<redacted>', soft_wrap=True)
+                console.print('  格式化后：[dim]<redacted>\n', soft_wrap=True)
+                logger.debug(
+                    f'格式调整：[redacted], '
+                    f'原字符数={len(raw_text)}, 格式化字符数={len(result.text)}'
+                )
 
             # 将格式化引入的标点同步回 token 序列
             if result.tokens and result.text_accu:
@@ -159,8 +184,8 @@ class TaskPipeline:
             return result
 
         except Exception as e:
-            logger.error(f"推理管线错误: {e}", exc_info=True)
+            if transcript_logging_enabled():
+                logger.error(f"推理管线错误: {e}", exc_info=True)
+            else:
+                logger.error("推理管线错误: [details redacted]", exc_info=False)
             raise
-
-
-

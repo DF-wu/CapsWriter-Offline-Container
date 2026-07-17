@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="560" viewBox="0 0 1120 560" role="img" aria-labelledby="title desc">
+  <title id="title">CapsWriter Web Console data flow</title>
+  <desc id="desc">Browser recording and text to speech flow through the OpenAI-compatible CapsWriter HTTP API and the shared recognizer process.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1E3A5F"/>
+    </marker>
+    <style>
+      .lane { fill: #f8fafc; stroke: #d9e2ec; stroke-width: 1.5; }
+      .node { fill: #ffffff; stroke: #1e3a5f; stroke-width: 1.8; rx: 8; }
+      .node-alt { fill: #ecfdf5; stroke: #059669; stroke-width: 1.8; rx: 8; }
+      .node-warn { fill: #eff6ff; stroke: #2563eb; stroke-width: 1.8; rx: 8; }
+      .label { fill: #0f172a; font-family: Arial, sans-serif; font-size: 16px; font-weight: 700; }
+      .small { fill: #475569; font-family: Arial, sans-serif; font-size: 12px; }
+      .lane-title { fill: #1e3a5f; font-family: Arial, sans-serif; font-size: 15px; font-weight: 700; }
+      .edge { fill: none; stroke: #1e3a5f; stroke-width: 2; marker-end: url(#arrow); }
+      .edge-soft { fill: none; stroke: #64748b; stroke-width: 1.6; stroke-dasharray: 5 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect x="24" y="32" width="312" height="496" class="lane"/>
+  <rect x="396" y="32" width="336" height="496" class="lane"/>
+  <rect x="792" y="32" width="304" height="496" class="lane"/>
+  <text x="44" y="64" class="lane-title">Browser client</text>
+  <text x="416" y="64" class="lane-title">HTTP API sidecar</text>
+  <text x="812" y="64" class="lane-title">CapsWriter core</text>
+  <rect x="76" y="116" width="208" height="64" class="node-warn"/>
+  <text x="100" y="144" class="label">Recorder / Upload</text>
+  <text x="100" y="164" class="small">MediaRecorder, audio file</text>
+  <rect x="76" y="238" width="208" height="74" class="node"/>
+  <text x="112" y="268" class="label">React Web Console</text>
+  <text x="112" y="289" class="small">settings, export, history</text>
+  <rect x="76" y="376" width="208" height="64" class="node-alt"/>
+  <text x="117" y="404" class="label">Web Speech TTS</text>
+  <text x="117" y="424" class="small">voice, rate, pitch</text>
+  <rect x="428" y="116" width="240" height="64" class="node-warn"/>
+  <text x="477" y="144" class="label">CORS Allowlist</text>
+  <text x="477" y="164" class="small">CAPSWRITER_HTTP_API_CORS_ORIGINS</text>
+  <rect x="428" y="238" width="240" height="74" class="node"/>
+  <text x="464" y="268" class="label">FastAPI HTTP API</text>
+  <text x="464" y="289" class="small">/v1/audio/transcriptions</text>
+  <rect x="468" y="376" width="160" height="64" class="node"/>
+  <text x="507" y="404" class="label">TaskRouter</text>
+  <text x="494" y="424" class="small">future + tombstone</text>
+  <rect x="832" y="116" width="216" height="64" class="node"/>
+  <text x="906" y="144" class="label">queue_in</text>
+  <text x="887" y="164" class="small">PCM task segments</text>
+  <rect x="832" y="246" width="216" height="64" class="node-alt"/>
+  <text x="876" y="274" class="label">Recognizer Process</text>
+  <text x="893" y="294" class="small">shared model worker</text>
+  <rect x="832" y="376" width="216" height="64" class="node"/>
+  <text x="899" y="404" class="label">queue_out</text>
+  <text x="899" y="424" class="small">final Result</text>
+  <path d="M180 180 L180 238" class="edge"/>
+  <text x="194" y="218" class="small">audio blob</text>
+  <path d="M180 312 L180 376" class="edge-soft"/>
+  <text x="194" y="350" class="small">transcript text</text>
+  <path d="M284 257 C342 257 362 148 428 148" class="edge-soft"/>
+  <text x="318" y="180" class="small">preflight</text>
+  <path d="M284 276 L428 276" class="edge"/>
+  <text x="316" y="264" class="small">multipart upload</text>
+  <path d="M548 312 L548 376" class="edge"/>
+  <text x="562" y="352" class="small">register</text>
+  <path d="M628 404 C720 404 728 148 832 148" class="edge"/>
+  <text x="700" y="218" class="small">Task</text>
+  <path d="M940 180 L940 246" class="edge"/>
+  <text x="954" y="222" class="small">segments</text>
+  <path d="M940 310 L940 376" class="edge"/>
+  <text x="954" y="351" class="small">Result</text>
+  <path d="M832 408 C724 408 724 408 628 408" class="edge"/>
+  <text x="694" y="432" class="small">resolve final</text>
+  <path d="M468 404 C340 404 348 294 284 294" class="edge"/>
+  <text x="324" y="383" class="small">json/text/srt/vtt</text>
+</svg>

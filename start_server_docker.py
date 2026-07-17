@@ -16,18 +16,27 @@ start_server_docker.py — fork-only server entrypoint
      WebSocket send 迴圈與 uvicorn server。
 """
 
+import sys
 from multiprocessing import freeze_support
+
+from fork_server.http_api.runtime_config import ConfigError
+
+
+def run_configured_server(apply_env_config, create_server) -> None:
+    try:
+        apply_env_config()
+    except ConfigError as exc:
+        print(f"CapsWriter configuration error: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+
+    server = create_server()
+    server.start()
 
 
 def main() -> None:
     from fork_server.bootstrap import apply_env_config, create_server
 
-    # 步驟 1: env → Config (必須在 import core.server.* 之前)
-    apply_env_config()
-
-    # 步驟 2-3: 建立並啟動 server
-    server = create_server()
-    server.start()
+    run_configured_server(apply_env_config, create_server)
 
 
 if __name__ == '__main__':

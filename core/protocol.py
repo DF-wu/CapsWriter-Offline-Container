@@ -73,6 +73,8 @@ class RecognitionMessage:
         text_accu: 精确输出 - 基于时间戳去重的拼接结果（用于字幕生成）
         tokens: 字级 token 列表（与 timestamps 对应）
         timestamps: 字级时间戳列表（秒）
+        error_code: 可选的机器可读错误码
+        error_message: 可选的安全错误消息
     """
     task_id: str
     is_final: bool
@@ -88,14 +90,21 @@ class RecognitionMessage:
     text_accu: str = ''
     tokens: List[str] = field(default_factory=list)
     timestamps: List[float] = field(default_factory=list)
+    error_code: Optional[str] = None
+    error_message: Optional[str] = None
     
     def to_json(self) -> str:
         """序列化为 JSON 字符串"""
-        return json.dumps(asdict(self), ensure_ascii=False)
+        return json.dumps(self.to_dict(), ensure_ascii=False)
     
     def to_dict(self) -> dict:
         """转换为字典"""
-        return asdict(self)
+        data = asdict(self)
+        if self.error_code is None:
+            data.pop('error_code', None)
+        if self.error_message is None:
+            data.pop('error_message', None)
+        return data
     
     @classmethod
     def from_dict(cls, data: dict) -> RecognitionMessage:
@@ -111,4 +120,6 @@ class RecognitionMessage:
             text_accu=data.get('text_accu', ''),
             tokens=data.get('tokens', []),
             timestamps=data.get('timestamps', []),
+            error_code=data.get('error_code'),
+            error_message=data.get('error_message'),
         )

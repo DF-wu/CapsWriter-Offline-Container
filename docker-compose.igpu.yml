@@ -1,0 +1,10 @@
+services:
+  capswriter-server:
+    # Linux Intel/AMD render nodes are never exposed by the CPU-safe base file.
+    # Determine the host GIDs with:
+    #   stat -c '%g' /dev/dri/renderD128 /dev/dri/card0
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "${CAPSWRITER_DRI_RENDER_GID:-109}"
+      - "${CAPSWRITER_DRI_VIDEO_GID:-44}"

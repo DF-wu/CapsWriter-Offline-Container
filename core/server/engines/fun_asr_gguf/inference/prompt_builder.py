@@ -4,6 +4,7 @@ FunASR-GGUF Prompt 构建工具
 
 from typing import List, Optional, Tuple
 import numpy as np
+from core.server.privacy import transcript_logging_enabled
 from . import llama, logger
 
 class PromptBuilder:
@@ -32,19 +33,28 @@ class PromptBuilder:
             if context:
                 prefix_prompt += f"请结合上下文信息，更加准确地完成语音转写任务。\n\n\n"
                 prefix_prompt += f"**上下文信息：**{context}\n\n\n"
-                logger.info(f'上下文信息：{context}')
+                if transcript_logging_enabled():
+                    logger.info(f'上下文信息：{context}')
+                else:
+                    logger.info(f'上下文信息：[redacted], 字符数={len(context)}')
 
             if hotwords:
                 hotwords_str = ", ".join(hotwords)
                 prefix_prompt += f"热词列表：[{hotwords_str}]\n"
-                logger.info(f'热词列表：{hotwords_str}')
+                if transcript_logging_enabled():
+                    logger.info(f'热词列表：{hotwords_str}')
+                else:
+                    logger.info(f'热词列表：[redacted], 数量={len(hotwords)}')
 
         if not language:
             prefix_prompt += "语音转写："
         else:
             prefix_prompt += f"语音转写成{language}："
         
-        logger.debug(f"Generated Prompt:\n{'-'*40}\n{prefix_prompt}\n{'-'*40}")
+        if transcript_logging_enabled():
+            logger.debug(f"Generated Prompt:\n{'-'*40}\n{prefix_prompt}\n{'-'*40}")
+        else:
+            logger.debug(f"Generated Prompt: [redacted], 字符数={len(prefix_prompt)}")
         
         suffix_prompt = "<|im_end|>\n<|im_start|>assistant\n"
 
@@ -56,4 +66,3 @@ class PromptBuilder:
         suffix_embd = self.embedding_table[suffix_tokens].astype(np.float32)
 
         return prefix_embd, suffix_embd, len(prefix_tokens), len(suffix_tokens), prefix_prompt
-

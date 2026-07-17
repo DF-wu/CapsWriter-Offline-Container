@@ -1,0 +1,210 @@
+name: portability
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core-cli:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2022]
+        python-version: ["3.10", "3.12"]
+    env:
+      PYTHONNOUSERSITE: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Compile portable Python surface
+        run: >-
+          python -m compileall -q
+          start_server.py start_server_universal.py
+          core/protocol.py core/server/schema.py
+          core/client/shortcut core/client/global_hotkey client/cli
+          scripts/check_docs.py scripts/tests/test_desktop_portability.py
+
+      - name: Compile PyInstaller specification
+        run: >-
+          python -c "from pathlib import Path;
+          compile(Path('build.spec').read_text(encoding='utf-8'),
+          'build.spec', 'exec')"
+
+      - name: Verify desktop and packaging portability contracts
+        run: >-
+          python -m unittest -v
+          scripts.tests.test_artifact_self_check
+          scripts.tests.test_desktop_portability
+          scripts.tests.test_protocol
+          scripts.tests.test_requirements
+          scripts.tests.test_github_workflows
+
+      - name: Verify dependency-free CLI
+        run: python client/cli/scripts/verify.py
+
+      - name: Verify paired portability documentation
+        run: >-
+          python scripts/check_docs.py
+          docs/en/desktop-portability.md
+          docs/zh-TW/desktop-portability.md
+
+  windows-package:
+    name: Windows 2022 / Python 3.12 production package
+    runs-on: windows-2022
+    timeout-minutes: 60
+    env:
+      PYTHONNOUSERSITE: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Bootstrap hash-locked Windows build toolchain
+        run: >-
+          python -m pip install
+          --require-hashes
+          --only-binary=:all:
+          --no-deps
+          --requirement requirements-windows-build-bootstrap.lock
+
+      - name: Install hash-locked Windows build dependencies
+        run: >-
+          python -m pip install
+          --require-hashes
+          --only-binary=:all:
+          --no-binary=srt
+          --no-build-isolation
+          --requirement requirements-windows-build.lock
+
+      - name: Build portable PyInstaller distribution
+        run: python -m PyInstaller --clean --noconfirm build.spec
+
+      - name: Relocate and archive outside the checkout
+        shell: pwsh
+        run: |
+          $built = Join-Path $env:GITHUB_WORKSPACE 'dist\CapsWriter-Offline'
+          if (-not (Test-Path -LiteralPath $built -PathType Container)) {
+            throw "PyInstaller output is missing: $built"
+          }
+
+          $stage = Join-Path $env:RUNNER_TEMP 'capswriter-package-stage'
+          $archive = Join-Path $env:RUNNER_TEMP 'CapsWriter-Offline-windows-x86_64.zip'
+          Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item -LiteralPath $archive -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Path $stage | Out-Null
+          Copy-Item -LiteralPath $built -Destination $stage -Recurse
+
+          Push-Location $stage
+          try {
+            Compress-Archive -Path 'CapsWriter-Offline' -DestinationPath $archive
+          } finally {
+            Pop-Location
+          }
+          $sha256 = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "CapsWriter-Offline-windows-x86_64.zip sha256=$sha256"
+          "CAPSWRITER_WINDOWS_ARCHIVE=$archive" |
+            Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Extract, inspect, and smoke both executables
+        shell: pwsh
+        run: |
+          $extractRoot = Join-Path $env:RUNNER_TEMP 'capswriter-package-extracted'
+          Remove-Item -LiteralPath $extractRoot -Recurse -Force -ErrorAction SilentlyContinue
+          Expand-Archive -LiteralPath $env:CAPSWRITER_WINDOWS_ARCHIVE -DestinationPath $extractRoot
+          $artifact = Join-Path $extractRoot 'CapsWriter-Offline'
+
+          $required = @(
+            'internal', 'core', 'LLM', 'assets', 'docs', 'models', 'logs',
+            'config_client.py', 'config_server.py', 'hot.txt', 'hot-server.txt',
+            'hot-rule.txt', 'readme.md', 'README.en.md', 'LICENSE',
+            'start_server.exe', 'start_client.exe'
+          )
+          foreach ($relative in $required) {
+            $candidate = Join-Path $artifact $relative
+            if (-not (Test-Path -LiteralPath $candidate)) {
+              throw "Extracted artifact is missing: $relative"
+            }
+          }
+
+          $reparsePoints = @(
+            Get-ChildItem -LiteralPath $artifact -Force -Recurse |
+              Where-Object {
+                ($_.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0
+              }
+          )
+          if ($reparsePoints.Count -ne 0) {
+            throw "Extracted artifact contains reparse points: $($reparsePoints.FullName -join ', ')"
+          }
+          foreach ($mutable in @('models', 'logs')) {
+            $contents = @(Get-ChildItem -LiteralPath (Join-Path $artifact $mutable) -Force)
+            if ($contents.Count -ne 0) {
+              throw "Mutable artifact directory is not empty: $mutable"
+            }
+          }
+
+          function Invoke-ArtifactSelfCheck([string] $ExecutableName) {
+            $stdout = Join-Path $env:RUNNER_TEMP "$ExecutableName.stdout.txt"
+            $stderr = Join-Path $env:RUNNER_TEMP "$ExecutableName.stderr.txt"
+            $executable = Join-Path $artifact $ExecutableName
+            $process = Start-Process `
+              -FilePath $executable `
+              -ArgumentList '--artifact-self-check' `
+              -WorkingDirectory $artifact `
+              -RedirectStandardOutput $stdout `
+              -RedirectStandardError $stderr `
+              -PassThru
+            try {
+              Wait-Process -Id $process.Id -Timeout 120 -ErrorAction Stop
+            } catch {
+              Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+              throw "$ExecutableName artifact self-check timed out"
+            }
+            $process.Refresh()
+            $stdoutText = if (Test-Path $stdout) { Get-Content -LiteralPath $stdout -Raw } else { '' }
+            $stderrText = if (Test-Path $stderr) { Get-Content -LiteralPath $stderr -Raw } else { '' }
+            if ($process.ExitCode -ne 0) {
+              Write-Host $stdoutText
+              Write-Error $stderrText
+              throw "$ExecutableName artifact self-check exited $($process.ExitCode)"
+            }
+            if ($stdoutText -notmatch 'CAPSWRITER_ARTIFACT_SELF_CHECK=.*"status":"ok"') {
+              Write-Host $stdoutText
+              Write-Error $stderrText
+              throw "$ExecutableName artifact self-check marker is missing"
+            }
+          }
+
+          Invoke-ArtifactSelfCheck 'start_server.exe'
+          Invoke-ArtifactSelfCheck 'start_client.exe'
+
+      - name: Upload portable Windows package
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: CapsWriter-Offline-windows-x86_64
+          path: ${{ env.CAPSWRITER_WINDOWS_ARCHIVE }}
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14

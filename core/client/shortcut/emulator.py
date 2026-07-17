@@ -5,7 +5,6 @@
 负责异步模拟键盘和鼠标按键输入
 """
 
-from pynput import keyboard, mouse
 from . import logger
 from core.client.shortcut.key_mapper import KeyMapper
 
@@ -20,6 +19,10 @@ class ShortcutEmulator:
 
     def __init__(self):
         """初始化模拟器"""
+        from pynput import keyboard, mouse
+
+        self._keyboard = keyboard
+        self._mouse = mouse
         self._keyboard_controller = keyboard.Controller()
         self._mouse_controller = mouse.Controller()
         self._emulating_keys = set()
@@ -60,11 +63,13 @@ class ShortcutEmulator:
 
         # pynput 鼠标按键对象映射
         button_map = {
-            'x1': mouse.Button.x1,
-            'x2': mouse.Button.x2
+            'x1': getattr(self._mouse.Button, 'x1', None)
+                or getattr(self._mouse.Button, 'button8', None),
+            'x2': getattr(self._mouse.Button, 'x2', None)
+                or getattr(self._mouse.Button, 'button9', None),
         }
 
-        if button_name in button_map:
+        if button_map.get(button_name) is not None:
             button = button_map[button_name]
             self._mouse_controller.press(button)
             self._mouse_controller.release(button)

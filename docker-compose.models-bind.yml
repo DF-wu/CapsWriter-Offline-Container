@@ -1,0 +1,6 @@
+services:
+  capswriter-server:
+    # Optional operator-managed persistence. Compose merges volumes by container
+    # target, so this replaces the base named volume at /app/models.
+    volumes:
+      - ./models:/app/models

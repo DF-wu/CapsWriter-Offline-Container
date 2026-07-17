@@ -14,11 +14,10 @@
 from __future__ import annotations
 
 import threading
-from typing import Callable, Dict, Optional
-
-from pynput import keyboard
+from typing import Any, Callable, Dict, Optional
 
 from . import logger
+from core.client.shortcut.platform_support import detect_hotkey_backend
 
 
 
@@ -31,7 +30,7 @@ class GlobalHotkeyManager:
     对比 keyboard 库的优势：
     - 与 pynput 的其他功能兼容
     - 不需要额外的依赖
-    - 更好的跨平台支持
+    - Windows 与 X11 使用同一注册格式（Wayland 不提供全域监听）
     """
 
     # 单例实例
@@ -51,7 +50,7 @@ class GlobalHotkeyManager:
             return
         
         self._hotkeys: Dict[str, Callable] = {}
-        self._listener: Optional[keyboard.GlobalHotKeys] = None
+        self._listener: Optional[Any] = None
         self._running = False
         self._initialized = True
         logger.debug("GlobalHotkeyManager 初始化完成")
@@ -99,10 +98,17 @@ class GlobalHotkeyManager:
         if not self._hotkeys:
             logger.warning("没有注册的快捷键，跳过启动")
             return
+
+        support = detect_hotkey_backend()
+        if not support.available:
+            logger.error(f"全局快捷键不可用 ({support.backend}): {support.detail}")
+            return
         
         self._running = True
-        self._start_listener()
-        logger.info(f"GlobalHotkeyManager 已启动，注册了 {len(self._hotkeys)} 个快捷键")
+        if self._start_listener():
+            logger.info(f"GlobalHotkeyManager 已启动，注册了 {len(self._hotkeys)} 个快捷键")
+        else:
+            self._running = False
 
     def stop(self) -> None:
         """停止快捷键监听"""
@@ -115,18 +121,22 @@ class GlobalHotkeyManager:
             self._listener = None
         logger.info("GlobalHotkeyManager 已停止")
 
-    def _start_listener(self) -> None:
+    def _start_listener(self) -> bool:
         """启动监听器"""
         if not self._hotkeys:
-            return
+            return False
         
         try:
+            from pynput import keyboard
+
             self._listener = keyboard.GlobalHotKeys(self._hotkeys)
             self._listener.start()
             logger.debug(f"GlobalHotKeys 监听器已启动: {list(self._hotkeys.keys())}")
+            return True
         except Exception as e:
             logger.error(f"启动 GlobalHotKeys 监听器失败: {e}")
             self._listener = None
+            return False
 
     def _restart_listener(self) -> None:
         """重启监听器（用于更新快捷键后）"""
@@ -138,7 +148,8 @@ class GlobalHotkeyManager:
             self._listener = None
         
         if self._running and self._hotkeys:
-            self._start_listener()
+            if not self._start_listener():
+                self._running = False
 
 
 # 全局单例实例

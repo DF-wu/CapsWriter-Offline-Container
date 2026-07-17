@@ -5,19 +5,43 @@
 处理按键名称和虚拟键码之间的转换，以及相关常量定义
 """
 
-from pynput import keyboard
-from pynput._util.win32 import KeyTranslator
+from platform import system
+
 from . import logger
 
 
-# 创建键盘翻译器实例（用于 VK 到字符的转换）
-_key_translator = KeyTranslator()
+_key_translator = None
+_SPECIAL_KEYS = None
 
-# 特殊键 VK 映射（从 pynput 复制）
-_SPECIAL_KEYS = {
-    key.value.vk: key
-    for key in keyboard.Key
-}
+
+def _get_keyboard_module():
+    from pynput import keyboard
+
+    return keyboard
+
+
+def _get_key_translator():
+    """Load the private Win32 translator only on Windows."""
+
+    global _key_translator
+    if system() != 'Windows':
+        return None
+    if _key_translator is None:
+        from pynput._util.win32 import KeyTranslator
+
+        _key_translator = KeyTranslator()
+    return _key_translator
+
+
+def _get_special_keys():
+    global _SPECIAL_KEYS
+    if _SPECIAL_KEYS is None:
+        keyboard = _get_keyboard_module()
+        _SPECIAL_KEYS = {
+            key.value.vk: key
+            for key in keyboard.Key
+        }
+    return _SPECIAL_KEYS
 
 # 小键盘按键映射（VK -> 名称）
 NUMPAD_KEYS = {
@@ -68,6 +92,7 @@ class KeyMapper:
     def _get_special_key_objects(cls):
         """获取 pynput 特殊键对象（延迟初始化）"""
         if cls._SPECIAL_KEY_OBJECTS is None:
+            keyboard = _get_keyboard_module()
             cls._SPECIAL_KEY_OBJECTS = {
                 'caps_lock': keyboard.Key.caps_lock,
                 'space': keyboard.Key.space,
@@ -98,8 +123,9 @@ class KeyMapper:
             str: 按键名称（与 Shortcut.key 格式一致）
         """
         # 首先检查是否是特殊键（pynput Key 枚举）
-        if vk in _SPECIAL_KEYS:
-            return _SPECIAL_KEYS[vk].name
+        special_keys = _get_special_keys()
+        if vk in special_keys:
+            return special_keys[vk].name
 
         # 检查是否是小键盘按键
         if vk in NUMPAD_KEYS:
@@ -107,9 +133,11 @@ class KeyMapper:
 
         # 使用 pynput 的 KeyTranslator 获取字符（字母、数字、符号键）
         try:
-            params = _key_translator(vk, is_press=True)
-            if 'char' in params and params['char'] is not None:
-                return params['char']
+            translator = _get_key_translator()
+            if translator is not None:
+                params = translator(vk, is_press=True)
+                if 'char' in params and params['char'] is not None:
+                    return params['char']
         except Exception:
             pass
 
@@ -127,6 +155,8 @@ class KeyMapper:
         Returns:
             pynput 按键对象或 None
         """
+        keyboard = _get_keyboard_module()
+
         # 特殊按键
         special_keys = KeyMapper._get_special_key_objects()
         if key_name in special_keys:

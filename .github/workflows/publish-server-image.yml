@@ -8,20 +8,103 @@ on:
 
 permissions:
   contents: read
-  packages: write
+
+concurrency:
+  group: publish-server-image-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  publish:
-    runs-on: ubuntu-latest
+  verify:
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Require current master tip before verification
+        run: |
+          current_sha="$(git ls-remote --exit-code origin refs/heads/master | awk '{print $1}')"
+          if [ "$current_sha" != "$GITHUB_SHA" ]; then
+            echo "::error::Refusing to publish stale commit $GITHUB_SHA; master is $current_sha"
+            exit 1
+          fi
+
+      - name: Fetch upstream base
+        run: |
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream https://github.com/HaujetZhao/CapsWriter-Offline.git
+          git fetch --no-tags --depth=1 upstream master:refs/remotes/upstream/master
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Verify server release gate
+        env:
+          CAPSWRITER_UPSTREAM_BASE: upstream/master
+        run: python scripts/verify_all.py --skip-web
+
+      - name: Create isolated API contract environment
+        run: python -m venv "$RUNNER_TEMP/api-contract"
+
+      - name: Install pinned API contract dependencies
+        run: >-
+          "$RUNNER_TEMP/api-contract/bin/python" -m pip install
+          --disable-pip-version-check
+          --require-hashes
+          --only-binary=:all:
+          --requirement requirements-api-test.lock
+
+      - name: Verify API contract before publication
+        env:
+          PYTHONNOUSERSITE: "1"
+        run: >-
+          "$RUNNER_TEMP/api-contract/bin/python" scripts/verify_api_contract.py
+
+  publish:
+    if: github.ref == 'refs/heads/master'
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ steps.image.outputs.name }}
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Require current master tip before build
+        run: |
+          current_sha="$(git ls-remote --exit-code origin refs/heads/master | awk '{print $1}')"
+          if [ "$current_sha" != "$GITHUB_SHA" ]; then
+            echo "::error::Refusing to publish stale commit $GITHUB_SHA; master is $current_sha"
+            exit 1
+          fi
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Resolve lowercase image name
+        id: image
+        shell: bash
+        run: echo "name=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/capswriter-offline-server" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -29,18 +112,95 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/capswriter-offline-server
+          images: ${{ steps.image.outputs.name }}
+          flavor: latest=false
           tags: |
-            type=raw,value=latest
-            type=sha
+            type=raw,value=sha-${{ github.sha }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v6
+      - name: Build and push immutable image
+        id: build
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
           file: docker/server/Dockerfile
+          platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: true
+          sbom: true
+
+      - name: Verify pushed server image digest
+        env:
+          IMAGE: ${{ steps.image.outputs.name }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          if [[ ! "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Build returned an invalid image digest"
+            exit 1
+          fi
+          candidate="$IMAGE@$DIGEST"
+          docker pull "$candidate"
+          docker run --rm --network none --read-only \
+            --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+            --entrypoint python "$candidate" -m pip check
+          docker run --rm --network none --read-only \
+            --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+            --entrypoint python "$candidate" -c \
+            'import fastapi, gguf, multipart, numpy, onnxruntime, sentencepiece, sherpa_onnx, soundfile, starlette, uvicorn, websockets; from fork_server.bootstrap import apply_env_config, create_server'
+          docker run --rm --network none --read-only \
+            --tmpfs /tmp:rw,noexec,nosuid,nodev,size=64m \
+            --entrypoint python "$candidate" -c \
+            'import os; raise SystemExit("server image must run as non-root" if os.getuid() == 0 else 0)'
+          docker run --rm --network none --read-only \
+            --entrypoint sh "$candidate" -n /app/docker/server/entrypoint.sh
+
+  promote:
+    if: github.ref == 'refs/heads/master'
+    needs: publish
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Require current master tip before latest promotion
+        run: |
+          current_sha="$(git ls-remote --exit-code origin refs/heads/master | awk '{print $1}')"
+          if [ "$current_sha" != "$GITHUB_SHA" ]; then
+            echo "::error::Refusing to promote stale commit $GITHUB_SHA; master is $current_sha"
+            exit 1
+          fi
+
+      - name: Promote verified digest to latest
+        env:
+          IMAGE: ${{ needs.publish.outputs.image }}
+          DIGEST: ${{ needs.publish.outputs.digest }}
+        run: |
+          if [[ ! "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "::error::Build returned an invalid image digest"
+            exit 1
+          fi
+          docker buildx imagetools create --prefer-index=false --tag "$IMAGE:latest" "$IMAGE@$DIGEST"
+          promoted_digest="$(docker buildx imagetools inspect "$IMAGE:latest" --format '{{.Manifest.Digest}}')"
+          if [ "$promoted_digest" != "$DIGEST" ]; then
+            echo "::error::latest digest verification failed"
+            exit 1
+          fi

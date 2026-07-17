@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="440" viewBox="0 0 1040 440" role="img" aria-labelledby="title desc">
+  <title id="title">CapsWriter CLI client flow</title>
+  <desc id="desc">No-GUI client sends audio to the CapsWriter HTTP API for transcription and can pass direct, file, or stdin text to the local operating system TTS engine.</desc>
+  <defs>
+    <marker id="arrow-cli" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#1E3A5F"/>
+    </marker>
+    <style>
+      .lane { fill: #f8fafc; stroke: #d9e2ec; stroke-width: 1.5; }
+      .node { fill: #ffffff; stroke: #1e3a5f; stroke-width: 1.8; rx: 8; }
+      .node-green { fill: #ecfdf5; stroke: #059669; stroke-width: 1.8; rx: 8; }
+      .node-blue { fill: #eff6ff; stroke: #2563eb; stroke-width: 1.8; rx: 8; }
+      .label { fill: #0f172a; font-family: Arial, sans-serif; font-size: 16px; font-weight: 700; }
+      .small { fill: #475569; font-family: Arial, sans-serif; font-size: 12px; }
+      .lane-title { fill: #1e3a5f; font-family: Arial, sans-serif; font-size: 15px; font-weight: 700; }
+      .edge { fill: none; stroke: #1e3a5f; stroke-width: 2; marker-end: url(#arrow-cli); }
+      .edge-soft { fill: none; stroke: #64748b; stroke-width: 1.6; stroke-dasharray: 5 5; marker-end: url(#arrow-cli); }
+    </style>
+  </defs>
+  <rect x="24" y="32" width="304" height="360" class="lane"/>
+  <rect x="368" y="32" width="304" height="360" class="lane"/>
+  <rect x="712" y="32" width="304" height="360" class="lane"/>
+  <text x="44" y="64" class="lane-title">No-GUI client</text>
+  <text x="388" y="64" class="lane-title">CapsWriter HTTP API</text>
+  <text x="732" y="64" class="lane-title">Local OS output</text>
+
+  <rect x="72" y="112" width="208" height="64" class="node-blue"/>
+  <text x="118" y="140" class="label">Audio file(s)</text>
+  <text x="104" y="160" class="small">wav, mp3, m4a, flac, webm</text>
+
+  <rect x="72" y="238" width="208" height="74" class="node"/>
+  <text x="114" y="268" class="label">capswriter_cli.py</text>
+  <text x="97" y="289" class="small">health, models, transcribe, speak</text>
+
+  <rect x="416" y="112" width="208" height="64" class="node"/>
+  <text x="472" y="140" class="label">/health</text>
+  <text x="455" y="160" class="small">readiness and model info</text>
+
+  <rect x="416" y="238" width="208" height="74" class="node-green"/>
+  <text x="450" y="268" class="label">/v1/audio/transcriptions</text>
+  <text x="454" y="289" class="small">OpenAI-compatible STT</text>
+
+  <rect x="760" y="104" width="208" height="72" class="node"/>
+  <text x="809" y="134" class="label">Transcript files</text>
+  <text x="790" y="154" class="small">txt, json, srt, vtt</text>
+
+  <rect x="760" y="246" width="208" height="72" class="node-green"/>
+  <text x="801" y="276" class="label">OS TTS engine</text>
+  <text x="779" y="296" class="small">PowerShell, spd-say, espeak</text>
+
+  <path d="M176 176 L176 238" class="edge"/>
+  <text x="190" y="216" class="small">file path</text>
+  <path d="M280 260 C344 260 352 144 416 144" class="edge-soft"/>
+  <text x="314" y="177" class="small">health check</text>
+  <path d="M280 276 L416 276" class="edge"/>
+  <text x="314" y="264" class="small">multipart upload</text>
+  <path d="M624 276 L760 140" class="edge"/>
+  <text x="670" y="184" class="small">formatted result</text>
+  <path d="M280 296 C430 380 620 380 760 282" class="edge-soft"/>
+  <text x="450" y="374" class="small">speak direct/file/stdin text</text>
+</svg>

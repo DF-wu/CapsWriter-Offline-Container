@@ -8,6 +8,8 @@
 
 from __future__ import annotations
 
+import math
+import os
 import re
 import shutil
 import tempfile
@@ -15,7 +17,7 @@ import time
 import wave
 from os import makedirs
 from pathlib import Path
-from subprocess import DEVNULL, PIPE, Popen
+from subprocess import DEVNULL, PIPE, Popen, TimeoutExpired
 from typing import Optional, Tuple, Union
 
 import numpy as np
@@ -26,6 +28,43 @@ from . import logger
 
 # 音频文件句柄类型
 AudioWriter = Union[Popen, wave.Wave_write]
+
+CLIENT_AUDIO_FINISH_TIMEOUT_ENV = "CAPSWRITER_CLIENT_AUDIO_FINISH_TIMEOUT"
+DEFAULT_CLIENT_AUDIO_FINISH_TIMEOUT_SECONDS = 30.0
+CLIENT_AUDIO_FINISH_KILL_GRACE_SECONDS = 2.0
+
+
+def audio_finish_timeout_seconds() -> float:
+    raw_timeout = os.environ.get(CLIENT_AUDIO_FINISH_TIMEOUT_ENV)
+    if raw_timeout is None or raw_timeout == "":
+        return DEFAULT_CLIENT_AUDIO_FINISH_TIMEOUT_SECONDS
+    try:
+        timeout = float(raw_timeout)
+    except ValueError as exc:
+        raise ValueError(f"{CLIENT_AUDIO_FINISH_TIMEOUT_ENV} must be a number") from exc
+    if not math.isfinite(timeout):
+        raise ValueError(f"{CLIENT_AUDIO_FINISH_TIMEOUT_ENV} must be a finite number")
+    if timeout <= 0:
+        raise ValueError(f"{CLIENT_AUDIO_FINISH_TIMEOUT_ENV} must be > 0")
+    return timeout
+
+
+def kill_process(process: Popen) -> bool:
+    if process.returncode is not None:
+        return True
+    try:
+        process.kill()
+    except ProcessLookupError:
+        return True
+    except OSError:
+        # Windows may deny kill while the process handle is already closing.
+        # Preserve bounded cleanup instead of replacing timeout semantics.
+        pass
+    try:
+        process.wait(timeout=CLIENT_AUDIO_FINISH_KILL_GRACE_SECONDS)
+    except (TimeoutExpired, ChildProcessError, OSError):
+        return False
+    return True
 
 
 class AudioFileManager:
@@ -139,8 +178,19 @@ class AudioFileManager:
         
         try:
             if isinstance(self.file_handle, Popen):
-                self.file_handle.stdin.close()
-                logger.debug("FFmpeg 进程已关闭")
+                try:
+                    timeout = audio_finish_timeout_seconds()
+                except ValueError as e:
+                    logger.error(f"FFmpeg 关闭 timeout 配置无效: {e}")
+                    timeout = DEFAULT_CLIENT_AUDIO_FINISH_TIMEOUT_SECONDS
+                if self.file_handle.stdin is not None:
+                    self.file_handle.stdin.close()
+                try:
+                    self.file_handle.wait(timeout=timeout)
+                    logger.debug("FFmpeg 进程已关闭")
+                except TimeoutExpired:
+                    logger.error(f"FFmpeg 进程关闭超时: {self.file_path}")
+                    kill_process(self.file_handle)
             elif isinstance(self.file_handle, wave.Wave_write):
                 self.file_handle.close()
                 logger.debug("WAV 文件已关闭")

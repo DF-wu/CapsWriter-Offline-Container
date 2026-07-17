@@ -4,12 +4,12 @@
 
 # ==================== 基本信息 ====================
 name = '大助理'                         # 角色名称（留空表示默认）
-enabled = True                           # 是否启用此角色
+enabled = False                          # 是否启用此角色
 
 # ==================== API 配置 ====================
 provider = 'deepseek'                               # API 提供商：'ollama', 'openai', 'deepseek', 'moonshot', 'zhipu', 'claude', 'gemini'
 api_url = ''                                        # 留空则自动使用 provider 对应的默认值
-api_key = 'sk-4c756***********************36fb'     # API Key
+api_key = ''                                        # API Key
 model = 'deepseek-v4-flash'                         # 模型名称
 
 # ==================== 上下文管理 ====================

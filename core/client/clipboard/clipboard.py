@@ -12,12 +12,19 @@ import asyncio
 import platform
 from contextlib import contextmanager
 import pyclip
-from pynput import keyboard
 from . import logger
 
 
 # 支持的编码列表
 CLIPBOARD_ENCODINGS = ['utf-8', 'gbk', 'utf-16', 'latin1']
+
+
+def _get_pynput_keyboard():
+    """Load the desktop backend only when simulated paste is requested."""
+
+    from pynput import keyboard
+
+    return keyboard
 
 
 def safe_paste() -> str:
@@ -121,6 +128,7 @@ async def paste_text(text: str, restore_clipboard: bool = True):
     logger.debug(f"已复制文本到剪贴板，长度: {len(text)}")
 
     # 粘贴结果（使用 pynput 模拟 Ctrl+V）
+    keyboard = _get_pynput_keyboard()
     controller = keyboard.Controller()
     if platform.system() == 'Darwin':
         # macOS: Command+V

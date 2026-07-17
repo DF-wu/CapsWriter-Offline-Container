@@ -1,0 +1,9 @@
+services:
+  capswriter-server:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: ${CAPSWRITER_GPU_DEVICE_COUNT:-all}
+              capabilities: [gpu]

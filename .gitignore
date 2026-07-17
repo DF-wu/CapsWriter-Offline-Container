@@ -5,6 +5,7 @@ __pycache__/
 
 # C 扩展
 *.so
+*.so.*
 
 # 发布 / 打包
 .Python
@@ -14,8 +15,8 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+/lib/
+/lib64/
 parts/
 sdist/
 var/
@@ -96,6 +97,14 @@ ipython_config.py
 
 # PEP 582 代码隔离相关
 __pypackages__/
+
+# Node / browser client local dependencies and caches
+node_modules/
+.vite/
+coverage/
+playwright-report/
+test-results/
+.drawio-tmp/
 
 # Celery 异步任务相关
 celerybeat-schedule
@@ -184,7 +193,7 @@ models/.downloads/
 benchmarks/
 
 diag*.py
-test_*.py 
+/test_*.py
 test_*.ipynb 
 test_*.md 
 test_*.txt

@@ -1,0 +1,6 @@
+# CapsWriter TUI v2 runtime (Python 3.10+)
+textual==8.2.8
+httpx==0.28.1
+
+# Optional microphone capture (file-only mode works without it):
+# sounddevice>=0.5,<0.6

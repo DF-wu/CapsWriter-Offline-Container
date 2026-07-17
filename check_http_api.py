@@ -1,13 +1,31 @@
 #!/usr/bin/env python3
 """CapsWriter HTTP API 诊断工具 — 检查 OpenAI 相容 API 是否正常运作。
 
-用法: python check_http_api.py [--host 127.0.0.1] [--port 6017] [--audio test.wav] [--key sk-xxx]
+用法: python check_http_api.py [--host 127.0.0.1] [--port 6017]
+                            [--audio test.wav] [--expect 你好] [--key sk-xxx]
+                            [--key-file /run/secrets/capswriter.key] [--timeout 600]
 """
 
-import os, sys, json, shutil, argparse, urllib.request, urllib.error
+import io
+import ipaddress
+import math
+import os, sys, json, shutil, argparse, urllib.request, urllib.error, urllib.parse
+from http import client as http_client
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 6017
+DEFAULT_TRANSCRIBE_TIMEOUT = 600.0
+MAX_RESPONSE_BODY_BYTES = 1024 * 1024
+MAX_ERROR_PREVIEW_CHARS = 100
+MAX_ERROR_SOURCE_SCAN_CHARS = MAX_ERROR_PREVIEW_CHARS * 4
+
+
+class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Reject redirects so a diagnostic bearer token stays on one origin."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        del req, fp, code, msg, headers, newurl
+        return None
 
 
 def green(s):
@@ -24,6 +42,59 @@ def yellow(s):
 
 def bold(s):
     return f"\033[1m{s}\033[0m"
+
+
+def compact_for_match(s):
+    return "".join(s.split()).casefold()
+
+
+def positive_float(value):
+    try:
+        parsed = float(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be a number") from exc
+    if not math.isfinite(parsed):
+        raise argparse.ArgumentTypeError("must be > 0")
+    if parsed <= 0:
+        raise argparse.ArgumentTypeError("must be > 0")
+    return parsed
+
+
+def port_number(value):
+    try:
+        parsed = int(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError("must be an integer") from exc
+    if parsed < 1 or parsed > 65535:
+        raise argparse.ArgumentTypeError("must be 1..65535")
+    return parsed
+
+
+def host_name(value):
+    host = (value or "").strip()
+    if not host:
+        raise argparse.ArgumentTypeError("must not be empty")
+    if any(ch.isspace() for ch in host) or any(ch in host for ch in "/\\?#@"):
+        raise argparse.ArgumentTypeError("must be a host name or IP address, not a URL")
+    if host.startswith("[") or host.endswith("]"):
+        if not (host.startswith("[") and host.endswith("]")):
+            raise argparse.ArgumentTypeError("IPv6 hosts must use [addr] brackets")
+        inner = host[1:-1]
+        try:
+            parsed = ipaddress.ip_address(inner)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError("IPv6 host must be a valid address") from exc
+        if parsed.version != 6:
+            raise argparse.ArgumentTypeError("brackets are only valid for IPv6 hosts")
+        return host
+    if ":" in host:
+        try:
+            parsed = ipaddress.ip_address(host)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError("IPv6 host must be a valid address") from exc
+        if parsed.version == 6:
+            return f"[{host}]"
+    return host
 
 
 def check(label):
@@ -46,54 +117,241 @@ def _headers(api_key):
     return h
 
 
+def read_api_key_file(path):
+    if not path:
+        return ""
+    with open(path, encoding="utf-8") as f:
+        value = f.read().strip()
+    if not value:
+        raise ValueError(f"API key file must not be empty: {path}")
+    return value
+
+
+def resolve_api_key(api_key, api_key_file):
+    explicit_key = (api_key or "").strip()
+    if explicit_key:
+        return explicit_key
+    return read_api_key_file(api_key_file)
+
+
+def multipart_header_value(value):
+    return (
+        value.replace("\\", "\\\\")
+        .replace('"', r"\"")
+        .replace("\r", " ")
+        .replace("\n", " ")
+    )
+
+
+class MultipartBody:
+    def __init__(self, audio_path, prefix, suffix, chunk_size):
+        self.audio_path = audio_path
+        self.prefix = prefix
+        self.suffix = suffix
+        self.chunk_size = chunk_size
+
+    def __iter__(self):
+        yield self.prefix
+        with open(self.audio_path, "rb") as f:
+            while True:
+                chunk = f.read(self.chunk_size)
+                if not chunk:
+                    break
+                yield chunk
+        yield self.suffix
+
+
+def _multipart_prefix(audio_path, boundary):
+    filename = multipart_header_value(os.path.basename(audio_path))
+    return (
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+        f"Content-Type: application/octet-stream\r\n\r\n"
+    ).encode()
+
+
+def _multipart_suffix(fmt, boundary):
+    return (
+        f"\r\n--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="model"\r\n\r\nwhisper-1\r\n'
+        f"--{boundary}\r\n"
+        f'Content-Disposition: form-data; name="response_format"\r\n\r\n{fmt}\r\n'
+        f"--{boundary}--\r\n"
+    ).encode()
+
+
+def _build_multipart_stream(audio_path, fmt, boundary=None, chunk_size=1024 * 1024):
+    if chunk_size <= 0:
+        raise ValueError("chunk_size must be positive")
+    boundary = boundary or "----FormBoundary7MA4YWxkTrZu0gW"
+    prefix = _multipart_prefix(audio_path, boundary)
+    suffix = _multipart_suffix(fmt, boundary)
+    content_length = len(prefix) + os.path.getsize(audio_path) + len(suffix)
+    return MultipartBody(audio_path, prefix, suffix, chunk_size), boundary, content_length
+
+
+def _build_multipart_body(audio_path, fmt, boundary=None):
+    body, boundary, _content_length = _build_multipart_stream(audio_path, fmt, boundary)
+    return b"".join(body), boundary
+
+
+def _read_response_body(response, *, max_bytes=None):
+    limit = MAX_RESPONSE_BODY_BYTES if max_bytes is None else max_bytes
+    if limit <= 0:
+        raise ValueError("max_bytes must be positive")
+    body = response.read(limit + 1)
+    if len(body) > limit:
+        raise ValueError(f"HTTP response body exceeded {limit} bytes")
+    return body
+
+
+def _redact_truncated_secret_prefix(value, secret):
+    if not secret or not value or value.endswith(secret):
+        return value
+    for length in range(min(len(secret) - 1, len(value)), 0, -1):
+        if value.endswith(secret[:length]):
+            return f"{value[:-length]}[REDACTED]"
+    return value
+
+
+def _compact_error_text(value, api_key=""):
+    source_limit = MAX_ERROR_SOURCE_SCAN_CHARS + len(api_key)
+    source_was_truncated = len(value) > source_limit
+    bounded_source = value[:source_limit]
+    if source_was_truncated:
+        bounded_source = _redact_truncated_secret_prefix(
+            bounded_source,
+            api_key,
+        )
+    if api_key:
+        bounded_source = bounded_source.replace(api_key, "[REDACTED]")
+    printable = "".join(
+        ch if ch.isprintable() else " " for ch in bounded_source
+    )
+    return " ".join(printable.split())[:MAX_ERROR_PREVIEW_CHARS]
+
+
+def _http_error_preview(error, api_key=""):
+    try:
+        try:
+            body = _read_response_body(error)
+        except ValueError as exc:
+            return str(exc)
+        return _compact_error_text(
+            body.decode("utf-8", errors="replace"),
+            api_key,
+        )
+    finally:
+        error.close()
+
+
+def _open_direct(req, timeout):
+    opener = urllib.request.build_opener(
+        urllib.request.ProxyHandler({}),
+        NoRedirectHandler(),
+    )
+    return opener.open(req, timeout=timeout)
+
+
 def _api_get(base, path, api_key):
     req = urllib.request.Request(f"{base}{path}", headers=_headers(api_key))
-    with urllib.request.urlopen(req, timeout=5) as r:
-        return json.loads(r.read())
+    with _open_direct(req, 5) as r:
+        return json.loads(_read_response_body(r))
 
 
-def _api_post(base, path, audio_path, fmt, api_key):
-    boundary = "----FormBoundary7MA4YWxkTrZu0gW"
-    with open(audio_path, "rb") as f:
-        audio_data = f.read()
-    body = (
-        (
-            f"--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="file"; filename="{os.path.basename(audio_path)}"\r\n'
-            f"Content-Type: application/octet-stream\r\n\r\n"
-        ).encode()
-        + audio_data
-        + (
-            f"\r\n--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="model"\r\n\r\nwhisper-1\r\n'
-            f"--{boundary}\r\n"
-            f'Content-Disposition: form-data; name="response_format"\r\n\r\n{fmt}\r\n'
-            f"--{boundary}--\r\n"
-        ).encode()
+def _raise_http_error(url, response, body):
+    raise urllib.error.HTTPError(
+        url,
+        response.status,
+        response.reason,
+        response.headers,
+        io.BytesIO(body),
     )
-    h = {"Content-Type": f"multipart/form-data; boundary={boundary}"}
+
+
+def _http_post_stream(url, body, headers, timeout):
+    parsed = urllib.parse.urlsplit(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        raise ValueError(f"Unsupported URL: {url}")
+    target = urllib.parse.urlunsplit(("", "", parsed.path or "/", parsed.query, ""))
+    connection_class = (
+        http_client.HTTPSConnection
+        if parsed.scheme == "https"
+        else http_client.HTTPConnection
+    )
+    connection = connection_class(parsed.hostname, parsed.port, timeout=timeout)
+    send_error = None
+    try:
+        connection.putrequest("POST", target)
+        for name, value in headers.items():
+            connection.putheader(name, value)
+        connection.endheaders()
+        for chunk in body:
+            if not chunk:
+                continue
+            try:
+                connection.send(chunk)
+            except (BrokenPipeError, ConnectionResetError) as exc:
+                send_error = exc
+                break
+        try:
+            response = connection.getresponse()
+        except OSError as exc:
+            if send_error is not None:
+                raise urllib.error.URLError(send_error) from exc
+            raise
+        raw = _read_response_body(response)
+        if not 200 <= response.status < 300:
+            _raise_http_error(url, response, raw)
+        return response.getheader("Content-Type", ""), raw
+    finally:
+        connection.close()
+
+
+def _api_post(base, path, audio_path, fmt, api_key, timeout):
+    body, boundary, content_length = _build_multipart_stream(audio_path, fmt)
+    h = {
+        "Content-Type": f"multipart/form-data; boundary={boundary}",
+        "Content-Length": str(content_length),
+    }
     h.update(_headers(api_key))
-    req = urllib.request.Request(f"{base}{path}", data=body, headers=h)
-    with urllib.request.urlopen(req, timeout=120) as r:
-        ct = r.headers.get("Content-Type", "")
-        raw = r.read()
-        if "application/json" in ct:
-            return json.loads(raw)
-        return {"_raw_text": raw.decode("utf-8"), "_content_type": ct}
+    ct, raw = _http_post_stream(f"{base}{path}", body, h, timeout)
+    if "application/json" in ct:
+        return json.loads(raw)
+    return {"_raw_text": raw.decode("utf-8"), "_content_type": ct}
 
 
 def main():
     p = argparse.ArgumentParser(description="CapsWriter HTTP API 诊断工具")
-    p.add_argument("--host", default=DEFAULT_HOST)
-    p.add_argument("--port", type=int, default=DEFAULT_PORT)
+    p.add_argument("--host", type=host_name, default=DEFAULT_HOST)
+    p.add_argument("--port", type=port_number, default=DEFAULT_PORT)
     p.add_argument("--audio", help="测试用音频文件 (wav/mp3)")
+    p.add_argument("--expect", help="转录结果中应包含的文字；未设置时只检查非空")
+    p.add_argument(
+        "--timeout",
+        type=positive_float,
+        default=DEFAULT_TRANSCRIBE_TIMEOUT,
+        help=(
+            "转录 POST 请求超时秒数 "
+            f"(default: {DEFAULT_TRANSCRIBE_TIMEOUT:g}; 与 server task timeout 一致)"
+        ),
+    )
     p.add_argument(
         "--key",
         default=os.environ.get("CAPSWRITER_HTTP_API_KEY", ""),
         help="API key (或设置环境变量 CAPSWRITER_HTTP_API_KEY)",
     )
+    p.add_argument(
+        "--key-file",
+        default=os.environ.get("CAPSWRITER_HTTP_API_KEY_FILE", ""),
+        help="包含 API key 的 UTF-8 文件 (或设置环境变量 CAPSWRITER_HTTP_API_KEY_FILE)",
+    )
     args = p.parse_args()
-    api_key = args.key or ""
+    try:
+        api_key = resolve_api_key(args.key, args.key_file)
+    except (OSError, ValueError) as exc:
+        print(red(f"无法读取 API key 文件: {exc}"), file=sys.stderr)
+        return 1
     base = f"http://{args.host}:{args.port}"
     errors = 0
 
@@ -113,6 +371,13 @@ def main():
     try:
         data = _api_get(base, "/health", api_key)
         ok(f"model={data.get('model', '?')} v{data.get('version', '?')}")
+    except urllib.error.HTTPError as e:
+        fail(f"HTTP {e.code}")
+        if e.code == 401:
+            print(
+                f"         → 需要 API key: {bold('python check_http_api.py --key YOUR_KEY')}"
+            )
+        return 1
     except urllib.error.URLError as e:
         fail(f"无法连接: {e.reason}")
         print(f"\n{yellow('请确认:')}")
@@ -121,13 +386,6 @@ def main():
         )
         print(f"  2. 环境变量: {bold('CAPSWRITER_HTTP_API_ENABLE=true')}")
         print(f"  3. Docker: 取消 docker-compose.yml 中 HTTP_API 相关注释\n")
-        return 1
-    except urllib.error.HTTPError as e:
-        fail(f"HTTP {e.code}")
-        if e.code == 401:
-            print(
-                f"         → 需要 API key: {bold('python check_http_api.py --key YOUR_KEY')}"
-            )
         return 1
     except Exception as e:
         fail(str(e))
@@ -146,6 +404,23 @@ def main():
         fail(str(e))
         errors += 1
 
+    check("GET /ready")
+    try:
+        data = _api_get(base, "/ready", api_key)
+        status = data.get("status", "?")
+        checks = data.get("checks", {})
+        ok(
+            f"{status}; ffmpeg={checks.get('ffmpeg_available', '?')}, "
+            f"router={checks.get('task_router_bound', '?')}, "
+            f"recognizer={checks.get('recognizer_process_alive', '?')}"
+        )
+    except urllib.error.HTTPError as e:
+        fail(f"HTTP {e.code}: {_http_error_preview(e, api_key)}")
+        errors += 1
+    except Exception as e:
+        fail(str(e))
+        errors += 1
+
     if not args.audio:
         print(f"\n{yellow('未提供 --audio，跳过转录测试。')}")
         print(f"用法: python check_http_api.py --audio test.wav\n")
@@ -157,9 +432,20 @@ def main():
             check(f"POST /v1/audio/transcriptions fmt={fmt}")
             try:
                 result = _api_post(
-                    base, "/v1/audio/transcriptions", args.audio, fmt, api_key
+                    base,
+                    "/v1/audio/transcriptions",
+                    args.audio,
+                    fmt,
+                    api_key,
+                    args.timeout,
                 )
                 text = result.get("text") or result.get("_raw_text", "")
+                if args.expect and compact_for_match(args.expect) not in compact_for_match(
+                    text
+                ):
+                    fail(f"未包含预期文字: {args.expect}")
+                    errors += 1
+                    continue
                 has_chinese = any("\u4e00" <= c <= "\u9fff" for c in text)
                 if has_chinese:
                     ok(f"中文 ✓ ({len(text)}字) — {text[:50]}…")
@@ -169,8 +455,8 @@ def main():
                     fail("返回空文字 — 音频可能无语音或模型未加载")
                     errors += 1
             except urllib.error.HTTPError as e:
-                body = e.read().decode("utf-8", errors="replace")
-                fail(f"HTTP {e.code}: {body[:100]}")
+                body = _http_error_preview(e, api_key)
+                fail(f"HTTP {e.code}: {body}")
                 if e.code == 401:
                     print("         → 需要 API key 或 key 不正确")
                 elif e.code == 500 and "ffmpeg" in body.lower():

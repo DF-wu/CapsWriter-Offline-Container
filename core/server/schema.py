@@ -14,11 +14,11 @@ from typing import List, Optional
 class Task:
     """
     语音识别任务
-    
+
     封装发送到识别进程的任务数据，包含音频数据和元信息。
-    
+
     Attributes:
-        source: 音频来源 ('mic' 或 'file')
+        type: 任务类型 ('mic' 麦克风, 'file' 文件, 'cmd' 命令)
         data: 原始音频数据 (float32, 16kHz, mono)
         offset: 当前片段在整段音频中的时间偏移（秒）
         overlap: 片段重叠时间（秒），用于去重
@@ -29,7 +29,7 @@ class Task:
         time_submit: 任务提交时间戳
         samplerate: 采样率，默认 16000 Hz
     """
-    source: str
+    type: str
     data: bytes
     offset: float
     overlap: float
@@ -41,6 +41,9 @@ class Task:
     context: str = ''
     language: str = 'auto'
     samplerate: int = 16000
+    command: str = ''           # 特殊命令，如 'gpu_boost' / 'gpu_unboost'
+    log_transcript: bool = True  # HTTP can opt out; WebSocket behavior is preserved
+    deadline_monotonic: Optional[float] = None  # HTTP latency deadline; None for WS
 
 
 @dataclass
@@ -65,11 +68,13 @@ class Result:
         timestamps: 字级时间戳列表（秒）
         
         is_final: 是否已完成所有片段识别
+        error_code: 安全、稳定的机器可读错误码；成功时为 None
+        error_message: 可安全发送给客户端的固定错误消息；成功时为 None
     """
     task_id: str
     socket_id: str
-    source: str
-    
+    type: str
+
     duration: float = 0.0
     time_start: float = 0.0
     time_submit: float = 0.0
@@ -84,6 +89,8 @@ class Result:
     timestamps: List[float] = field(default_factory=list)
     
     is_final: bool = False
+    error_code: Optional[str] = None
+    error_message: Optional[str] = None
 
 @dataclass
 class RecognitionSession:

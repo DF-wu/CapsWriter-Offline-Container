@@ -12,11 +12,12 @@ import time
 from typing import TYPE_CHECKING, Optional
 
 from config_client import ClientConfig as Config
-from core.client.state import console
+from core.client.state import console, websocket_is_closed
 from core.protocol import RecognitionMessage
 
 from core.client.output.text_output import TextOutput
 from core.tools.window_detector import get_active_window_info
+import keyboard
 from . import logger
 
 from core.client.udp.udp_broadcaster import broadcast_output_udp
@@ -39,6 +40,13 @@ def _estimate_tokens(text: str) -> int:
     chinese_chars = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
     other_chars = len(text) - chinese_chars
     return int(chinese_chars / 1.5 + other_chars / 4)
+
+
+async def _auto_enter(delay: float) -> None:
+    """延迟发送回车键"""
+    await asyncio.sleep(delay)
+    keyboard.press_and_release('enter')
+    logger.debug(f"自动回车已发送 (延迟 {delay}s)")
 
 
 class ResultProcessor:
@@ -230,7 +238,7 @@ class ResultProcessor:
             logger.debug(f"热词替换后: {text[:50]}{'...' if len(text) > 50 else ''}")
 
         # 热词匹配情况
-        matched_hotwords = correction_result.matchs
+        matched_hotwords = correction_result.matches
         potential_hotwords = correction_result.similars
 
         # 1. 显示完全匹配/已替换的热词
@@ -254,6 +262,11 @@ class ResultProcessor:
         if any(app.lower() == process_name for app in Config.paste_apps):
             paste = True
             logger.debug(f"检测到兼容性应用: {process_name}，使用粘贴模式")
+
+        # 自动回车检测
+        for app, delay in Config.enter_apps:
+            if app.lower() == process_name:
+                asyncio.create_task(_auto_enter(delay))
 
         # LLM 处理和输出
         llm_result = None
@@ -301,7 +314,7 @@ class ResultProcessor:
         """清理资源"""
         if self.state.websocket is not None:
             try:
-                if self.state.websocket.closed:
+                if websocket_is_closed(self.state.websocket):
                     self.state.websocket = None
                     logger.debug("WebSocket 连接已清理")
             except Exception:

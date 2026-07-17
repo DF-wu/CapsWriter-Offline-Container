@@ -5,6 +5,15 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+client/cli/dist/
+client/web/node_modules/
+client/web/dist/
+client/web/coverage/
+client/web/.vite/
+client/web/playwright-report/
+client/web/test-results/
+client/web/.tmp/
+client/web/*.tsbuildinfo
 
 # Fork archive (used for rollback reference, not for runtime)
 .fork-archive-*/
@@ -25,12 +34,44 @@ __pycache__/
 logs/
 20*/
 
-# Local env files
+# Local env and secret files
 .env
-.env.local
+.env.*
+.envrc
+!.env.example
+.npmrc
+.yarnrc
+.yarnrc.yml
+.pnpmrc
+.pypirc
+pip.conf
+.pip/
+.netrc
+.ssh/
+.docker/
+.aws/
+.azure/
+.config/gcloud/
+.config/gh/
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+id_rsa
+id_ed25519
 
-# Models stay outside image (mounted at runtime)
-models/.downloads/
+# Models stay outside image (mounted/downloaded at runtime)
+models/
+
+# Local archives and interrupted downloads
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.part
 
 # Client-only assets (server image doesn't need them)
 build-client.spec
@@ -40,4 +81,3 @@ zip_release.py
 
 # Benchmarks (test data, not runtime)
 benchmarks/
-

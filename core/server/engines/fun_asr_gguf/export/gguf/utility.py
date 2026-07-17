@@ -6,7 +6,11 @@ from typing import Literal
 
 import os
 import json
+import math
 import numpy as np
+
+GGUF_EXPORT_HTTP_TIMEOUT_ENV = "CAPSWRITER_GGUF_EXPORT_HTTP_TIMEOUT"
+DEFAULT_GGUF_EXPORT_HTTP_TIMEOUT_SECONDS = 60.0
 
 
 def fill_templated_filename(filename: str, output_type: str | None) -> str:
@@ -110,6 +114,21 @@ class SafetensorRemote:
     """
 
     BASE_DOMAIN = "https://huggingface.co"
+
+    @classmethod
+    def _http_timeout_seconds(cls) -> float:
+        raw_timeout = os.environ.get(GGUF_EXPORT_HTTP_TIMEOUT_ENV)
+        if raw_timeout is None or raw_timeout == "":
+            return DEFAULT_GGUF_EXPORT_HTTP_TIMEOUT_SECONDS
+        try:
+            timeout = float(raw_timeout)
+        except ValueError as exc:
+            raise ValueError(f"{GGUF_EXPORT_HTTP_TIMEOUT_ENV} must be a number") from exc
+        if not math.isfinite(timeout):
+            raise ValueError(f"{GGUF_EXPORT_HTTP_TIMEOUT_ENV} must be a finite number")
+        if timeout <= 0:
+            raise ValueError(f"{GGUF_EXPORT_HTTP_TIMEOUT_ENV} must be > 0")
+        return timeout
 
     @classmethod
     def get_list_tensors_hf_model(cls, model_id: str) -> dict[str, RemoteTensor]:
@@ -233,7 +252,12 @@ class SafetensorRemote:
         headers = cls._get_request_headers()
         if size > -1:
             headers["Range"] = f"bytes={start}-{start + size}"
-        response = requests.get(url, allow_redirects=True, headers=headers)
+        response = requests.get(
+            url,
+            allow_redirects=True,
+            headers=headers,
+            timeout=cls._http_timeout_seconds(),
+        )
         response.raise_for_status()
 
         # Get raw byte data
@@ -255,7 +279,12 @@ class SafetensorRemote:
         try:
             headers = cls._get_request_headers()
             headers["Range"] = "bytes=0-0"
-            response = requests.head(url, allow_redirects=True, headers=headers)
+            response = requests.head(
+                url,
+                allow_redirects=True,
+                headers=headers,
+                timeout=cls._http_timeout_seconds(),
+            )
             # Success (2xx) or redirect (3xx)
             return 200 <= response.status_code < 400
         except requests.RequestException:
