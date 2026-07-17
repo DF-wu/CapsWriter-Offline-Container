@@ -4,10 +4,13 @@
 
 ## fork-v2.0.0-rc.1 — cross-platform release candidate
 
-Release-candidate date: **2026-07-18**. `fork-v2.0.0-rc.1` is a GitHub
-pre-release, not the final `fork-v2.0.0` support claim. Automated source, API,
-TUI, Web, image, and Windows package gates are complete; the real-device/model
-qualification listed below remains required before a stable release.
+Release-candidate date: **2026-07-18**. `fork-v2.0.0-rc.1` is intended for
+GitHub pre-release distribution, not the final `fork-v2.0.0` support claim. The
+exact tagged `master` commit must pass CI, portability/Windows-package,
+server-image, and Web-image workflows; earlier branch or baseline runs cannot
+substitute. The GitHub pre-release records those exact run, artifact, checksum,
+image-tag, and digest references. The real-device/model qualification listed
+below remains required before a stable release.
 
 ![Fork maintenance flow: released upstream changes enter active v2 while only critical or security fixes are manually backported to isolated v1](../assets/version-tracks.svg)
 
@@ -156,8 +159,10 @@ Never merge or bulk cherry-pick v2 into `maintenance/v1`. See the
 
 - CI does not download every production model or prove recognition quality.
 - Windows CI hash-installs, builds, relocates, ZIP-round-trips, inspects, and
-  import-smokes both packaged EXEs. Each shipped artifact still needs real
-  tray, shortcut, audio/FFmpeg, model/known-audio, hardware, and exit tests.
+  import-smokes both packaged EXEs. That exact ZIP keeps `models/` empty and
+  excludes GGUF runtime DLLs and FFmpeg; follow the checksummed prerequisite
+  procedure in the desktop guide. Each shipped artifact still needs real tray,
+  shortcut, audio/FFmpeg, model/known-audio, hardware, and exit tests.
 - Linux global shortcuts require X11; Wayland/headless desktop hotkeys are not
   supported. X11 cannot selectively suppress one key safely.
 - GPU usability, memory, performance, and fallback depend on the target

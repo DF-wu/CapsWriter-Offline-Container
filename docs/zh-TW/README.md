@@ -22,8 +22,10 @@ CapsWriter 有兩種角色：**ASR Server** 在本機執行模型推論；一個
 | 設定 exposure、authentication、privacy 或 hardware claim | [支援與安全](support-security.md) |
 | 排查 model、container、readiness 或 API 問題 | [疑難排解](troubleshooting.md) |
 
-Server 負責 model、FFmpeg、inference、hotword、queue 與 readiness；不提供 desktop
-hotkey、browser UI、terminal UI 或 Client 本機 TTS。
+Server 負責 model、Server 端 FFmpeg decode、inference、hotword、queue 與
+readiness；不提供 desktop hotkey、browser UI、terminal UI 或 Client 本機 TTS。
+Desktop Client 可能自行使用 FFmpeg 做本機 media preparation，但不會執行 ASR
+推論。
 
 ## Client 文件
 

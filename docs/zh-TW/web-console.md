@@ -27,8 +27,11 @@ CAPSWRITER_HTTP_API_ENABLE=true
 CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 CAPSWRITER_HTTP_API_PUBLISH_HOST=127.0.0.1
 CAPSWRITER_HTTP_API_PORT=6017
-CAPSWRITER_HTTP_API_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080
+CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080,http://127.0.0.1:5173,http://localhost:5173
 ```
+
+`8080`、`5173` 分別是 production container 與 Vite development origin；沒有
+使用的 origin 應移除。
 
 取消 `docker-compose.yml` 內 `ports:` 下 HTTP mapping 的註解，重建 Server 並確認
 readiness：
@@ -63,6 +66,10 @@ npm ci --no-audit --no-fund
 npm run dev
 ```
 
+開啟 `http://127.0.0.1:5173`，把 API root 設為
+`http://127.0.0.1:6017`，再輸入 Server token。如果 Server CORS allowlist 原本
+沒有 `5173` exact origin，加入後必須先重建 Server 才能測試。
+
 若只做沒有 model Server 的 UI 測試，可在另一個 terminal 執行
 `npm run mock-api`。它只回固定資料，不是真實轉錄證據。
 
@@ -96,4 +103,3 @@ npm run browser-smoke
 
 Network exposure、runtime variable、upgrade 與 rollback 請接著讀
 [部署](deployment.md#web-console-profile)及[支援與安全](support-security.md)。
-

@@ -7,9 +7,11 @@ CapsWriter 是 client/server 應用程式。**Server** 執行語音辨識；**Cl
 
 ## 只要記住這個規則
 
-1. 依需要的 model／hardware profile 啟動一個 Server。
+1. 依需要的 model／hardware profile 啟動一個 Server；若刻意執行多個，必須先
+   隔離 port 與可寫入的 storage。
 2. 等 Server ready。
-3. 連接任意數量的相容 Client。
+3. 在設定的 connection、queue 與 concurrency 上限內，連接一個或多個相容
+   Client。
 
 ```mermaid
 flowchart LR
@@ -28,15 +30,19 @@ flowchart LR
 
 ## Server 負責什麼
 
-只有 Server 會：
+只有 Server 會載入辨識模型並執行 ASR 推論。Server 端另外會：
 
 - 載入 Qwen ASR、Fun-ASR、SenseVoice 或其他 configured recognition model；
 - 依設定下載／準備 model 與 native runtime asset；
-- 呼叫 FFmpeg 並把音訊轉成推論需要的格式；
+- 呼叫 FFmpeg，把收到的音訊解碼並轉成推論需要的格式；
 - 套用 server hotword 與 recognition setting；
 - 排程 worker、限制 request／queue 並回傳逐字稿；
 - 回報 process health 與 model／runtime readiness；
 - 提供 WebSocket，以及明確啟用後的 HTTP interface。
+
+Desktop Client 也可能啟動自己的 FFmpeg process，用來儲存本機錄音，或在透過
+WebSocket 送出檔案轉錄音訊前先做 media preparation。這是 Client 端的音訊處理，
+不是 ASR 推論，也不會載入辨識模型。
 
 ### Server 選擇
 
@@ -65,7 +71,7 @@ Client 不會執行 Server 的 ASR model；本機功能如下：
 
 | Client | 輸入與操作 | 連線 | Client 本機功能 | 不包含 |
 |---|---|---|---|---|
-| Windows／Linux X11 desktop | 麥克風、檔案、tray、全域快捷鍵 | WebSocket `6016` | 剪貼簿／文字注入 | 一般流程不需要 HTTP API |
+| Windows／Linux X11 desktop | 麥克風、檔案、tray、全域快捷鍵 | WebSocket `6016` | 剪貼簿／文字注入與本機 FFmpeg media preparation | 沒有 ASR 模型／推論；一般流程不需要 HTTP API |
 | Web Console | Browser 錄音或檔案 upload | HTTP `6017` | Browser history／download 與 browser／OS TTS | 沒有 model、FFmpeg worker、tray、global hotkey |
 | CLI | 檔案或 batch path | HTTP `6017` | Atomic file 與選用 OS TTS | 沒有麥克風、tray、global hotkey |
 | Textual TUI | 檔案與選用 native 麥克風 | HTTP `6017` | 鍵盤 workflow 與 atomic save | 沒有 TTS、tray、global hotkey |
@@ -78,7 +84,7 @@ Web／CLI 的 TTS 在 Client 本機執行，不代表 ASR Server 提供 TTS endp
 ### 個人 Windows desktop
 
 ```text
-start_server.exe  --WebSocket :6016-->  start_client.exe
+start_client.exe  --WebSocket :6016-->  start_server.exe
 ```
 
 先啟動 Server、等待 model load，再啟動 desktop Client。HTTP API 是選用功能，
@@ -87,7 +93,7 @@ start_server.exe  --WebSocket :6016-->  start_client.exe
 ### Linux X11 desktop
 
 ```text
-start_server_universal.py  --WebSocket :6016-->  start_client.py
+start_client.py  --WebSocket :6016-->  start_server_universal.py
 ```
 
 兩個 process 都在已登入的 X11 environment 中執行。Wayland／headless global
@@ -96,7 +102,7 @@ hotkey 不支援；請改用 file、Web、CLI 或 TUI Client。
 ### Headless Server + browser／terminal Client
 
 ```text
-Docker Server --HTTP :6017--> Web / CLI / TUI / SDK
+Web / CLI / TUI / SDK  --HTTP :6017-->  Docker Server
 ```
 
 啟用 HTTP API 與 authentication、發布 `6017`，再連接一個或多個 Client。

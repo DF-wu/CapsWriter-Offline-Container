@@ -20,7 +20,7 @@ package, and cross-platform release gates.
 
 ```mermaid
 flowchart LR
-    D[Windows / Linux X11<br/>desktop client] -->|WebSocket :6016| S[CapsWriter ASR Server<br/>models・FFmpeg・inference・hotwords]
+    D[Windows / Linux X11<br/>desktop client] -->|WebSocket :6016| S[CapsWriter ASR Server<br/>models・server-side FFmpeg・inference・hotwords]
     W[Web Console] -->|HTTP :6017| S
     C[CLI] -->|HTTP :6017| S
     T[Textual TUI] -->|HTTP :6017| S
@@ -78,11 +78,22 @@ The Windows package contains two programs with different roles:
 1. `start_server.exe` loads the model and provides recognition.
 2. `start_client.exe` provides the tray, hotkeys, recording, and text-input UX.
 
-Download a v2 release with a Windows ZIP from
-[GitHub Releases](https://github.com/DF-wu/CapsWriter-Offline-Container/releases),
-extract the complete archive, start the server first, and then start the client.
-Do not copy only one EXE: `models/`, runtime libraries, and configuration files
-must retain their release-relative paths.
+For a packaged install, choose a v2 entry on
+[GitHub Releases](https://github.com/DF-wu/CapsWriter-Offline-Container/releases)
+only when that entry includes a Windows ZIP. If none is listed yet, follow the
+source build instructions in the portability guide. Extract the complete
+archive, then complete the
+[Windows package prerequisites](docs/en/desktop-portability.md#prepare-a-downloaded-windows-package)
+before starting a local Server. The tested program ZIP intentionally has an
+empty `models/` directory and does not bundle the GGUF runtime DLLs or FFmpeg.
+The guide pins the default Qwen model and llama.cpp downloads by SHA-256 and
+shows their exact destinations. A Client that connects to another Server does
+not need a local model; desktop file/media transcription still needs FFmpeg.
+
+After the prerequisites are present, start `start_server.exe`, wait for the
+model to load, and then start `start_client.exe`. Do not copy only one EXE:
+configuration, source trees, and runtime files must retain their
+release-relative paths.
 
 See [desktop portability](docs/en/desktop-portability.md) for build instructions,
 DirectML, X11, and real-host qualification.
@@ -115,7 +126,12 @@ CAPSWRITER_HTTP_API_ENABLE=true
 CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 CAPSWRITER_HTTP_API_PUBLISH_HOST=127.0.0.1
 CAPSWRITER_HTTP_API_PORT=6017
+CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080,http://127.0.0.1:5173,http://localhost:5173
 ```
+
+The `8080` origins are for the packaged Web Console below; the `5173` origins
+are for Vite development. Remove origins you do not use. CLI, TUI, SDK, and
+curl are not governed by browser CORS.
 
 Then uncomment the second port mapping in
 [`docker-compose.yml`](docker-compose.yml):
@@ -144,14 +160,19 @@ or private overlay network. See [support and security](docs/en/support-security.
 Web Console:
 
 ```bash
-docker compose -f docker-compose.web.yml up -d --build capswriter-web
+CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017 \
+  docker compose -f docker-compose.web.yml up -d --build capswriter-web
 ```
+
+Open `http://127.0.0.1:8080`, confirm the API root is
+`http://127.0.0.1:6017`, and enter the same server token in the masked API-key
+field. The Web container serves static UI; the browser calls the server itself.
 
 CLI:
 
 ```bash
 export CAPSWRITER_API_BASE=http://127.0.0.1:6017
-export CAPSWRITER_HTTP_API_KEY_FILE=/path/to/capswriter-http.key
+export CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 python client/cli/capswriter_cli.py ready
 python client/cli/capswriter_cli.py transcribe meeting.wav --format text
 ```
@@ -177,9 +198,14 @@ npm ci --no-audit --no-fund
 npm run dev
 ```
 
+Open `http://127.0.0.1:5173`, use API root `http://127.0.0.1:6017`, and enter
+the Server token. If you add or change an origin, recreate the Server so its
+CORS configuration takes effect.
+
 ## Server capabilities
 
-- Local ASR models and FFmpeg decoding; no cloud inference service is required.
+- Local ASR models and server-side FFmpeg decoding; no cloud inference service
+  is required.
 - Model bootstrap, hotwords, persistence, GPU preference, CPU fallback, and
   readiness reporting.
 - The original WebSocket protocol plus an opt-in OpenAI-compatible `whisper-1`

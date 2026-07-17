@@ -23,8 +23,10 @@ not already clear.
 | Configure exposure, authentication, privacy, or hardware claims | [Support and security](support-security.md) |
 | Fix model, container, readiness, or API failures | [Troubleshooting](troubleshooting.md) |
 
-The server owns models, FFmpeg, inference, hotwords, queues, and readiness. It
-does not provide desktop hotkeys, browser UI, terminal UI, or client-local TTS.
+The server owns models, server-side FFmpeg decoding, inference, hotwords,
+queues, and readiness. It does not provide desktop hotkeys, browser UI,
+terminal UI, or client-local TTS. The desktop client may use its own FFmpeg
+process for local media preparation, but never runs ASR inference.
 
 ## Client documentation
 

@@ -148,6 +148,64 @@ class DocumentationTest(unittest.TestCase):
                 self.assertNotIn("CAPSWRITER_HTTP_API_PORT` 那行的註解", source)
                 self.assertNotIn("Expose port `6017`", source)
 
+    def test_http_client_quick_starts_include_required_runtime_values(self) -> None:
+        for filename in ("readme.md", "README.en.md"):
+            with self.subTest(filename=filename):
+                source = (ROOT / filename).read_text(encoding="utf-8")
+                self.assertIn(
+                    "CAPSWRITER_HTTP_API_CORS_ORIGINS="
+                    "http://127.0.0.1:8080,http://localhost:8080",
+                    source,
+                )
+                self.assertIn(
+                    "http://127.0.0.1:5173,http://localhost:5173",
+                    source,
+                )
+                self.assertIn("http://127.0.0.1:8080", source)
+                self.assertIn("CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017", source)
+                self.assertIn(
+                    "CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token",
+                    source,
+                )
+                self.assertNotIn(
+                    "CAPSWRITER_HTTP_API_KEY_FILE=/path/to/capswriter-http.key",
+                    source,
+                )
+
+    def test_role_guides_keep_client_connections_and_ffmpeg_roles_truthful(self) -> None:
+        english = (ROOT / "docs" / "en" / "server-and-clients.md").read_text(
+            encoding="utf-8"
+        )
+        traditional = (
+            ROOT / "docs" / "zh-TW" / "server-and-clients.md"
+        ).read_text(encoding="utf-8")
+        combined = english + traditional
+
+        for required in (
+            "start_client.exe  --WebSocket :6016-->  start_server.exe",
+            "start_client.py  --WebSocket :6016-->  start_server_universal.py",
+            "Web / CLI / TUI / SDK  --HTTP :6017-->  Docker server",
+            "Web / CLI / TUI / SDK  --HTTP :6017-->  Docker Server",
+            "configured connection",
+            "connection、queue 與 concurrency 上限",
+            "desktop client can also launch its own FFmpeg",
+            "Desktop Client 也可能啟動自己的 FFmpeg",
+        ):
+            with self.subTest(required=required):
+                self.assertIn(required, combined)
+
+        for reversed_or_unbounded in (
+            "start_server.exe  --WebSocket :6016-->  start_client.exe",
+            "start_server_universal.py  --WebSocket :6016-->  start_client.py",
+            "Docker server --HTTP :6017--> Web / CLI / TUI / SDK",
+            "Docker Server --HTTP :6017--> Web / CLI / TUI / SDK",
+            "Start exactly one server",
+            "Connect any number of compatible clients",
+            "連接任意數量的相容 Client",
+        ):
+            with self.subTest(reversed_or_unbounded=reversed_or_unbounded):
+                self.assertNotIn(reversed_or_unbounded, combined)
+
     def test_windows_release_docs_describe_the_real_package_gate(self) -> None:
         build_guide = (ROOT / "assets" / "BUILD_GUIDE.md").read_text(
             encoding="utf-8"
@@ -199,6 +257,37 @@ class DocumentationTest(unittest.TestCase):
                 self.assertIn("reparse", combined.casefold())
                 self.assertIn("DirectML", combined)
                 self.assertIn("known audio", combined.replace("known-audio", "known audio"))
+                self.assertIn("Qwen3-ASR-1.7B-q5_k.zip", desktop)
+                self.assertIn(
+                    "f40040fe62a5ef0c09f8699fdbcb30f18bb8ae2bcd515ed4954e1f62b8b0e88f",
+                    desktop,
+                )
+                self.assertIn("llama-b7798-bin-win-vulkan-x64.zip", desktop)
+                self.assertIn(
+                    "d478b7070dd12a5c64478a398352e1f880d488c4c346a8f00e7051935ef6f8e8",
+                    desktop,
+                )
+                self.assertIn("core\\server\\engines\\llama\\bin", desktop)
+                self.assertNotIn("qwen_asr_gguf\\inference\\bin", desktop)
+                self.assertIn("ffmpeg.exe", desktop)
+                self.assertIn("`models/`", desktop)
+                self.assertTrue("empty" in desktop or "空白" in desktop)
+
+    def test_web_guides_allow_the_documented_production_and_dev_origins(self) -> None:
+        cors_value = (
+            "CAPSWRITER_HTTP_API_CORS_ORIGINS="
+            "http://127.0.0.1:8080,http://localhost:8080,"
+            "http://127.0.0.1:5173,http://localhost:5173"
+        )
+        for language in ("en", "zh-TW"):
+            with self.subTest(language=language):
+                source = (ROOT / "docs" / language / "web-console.md").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn(cors_value, source)
+                self.assertIn("http://127.0.0.1:5173", source)
+                self.assertIn("http://127.0.0.1:6017", source)
+                self.assertIn("npm run dev", source)
 
     def test_root_readmes_claim_packaged_windows_evidence_not_source_only(self) -> None:
         for filename in ("README.en.md", "readme.md"):

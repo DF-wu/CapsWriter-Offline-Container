@@ -18,7 +18,7 @@ CLI、TUI、Windows production package 與完整的跨平臺驗證。
 
 ```mermaid
 flowchart LR
-    D[Windows / Linux X11<br/>桌面 Client] -->|WebSocket :6016| S[CapsWriter ASR Server<br/>模型・FFmpeg・推論・熱詞]
+    D[Windows / Linux X11<br/>桌面 Client] -->|WebSocket :6016| S[CapsWriter ASR Server<br/>模型・Server 端 FFmpeg・推論・熱詞]
     W[Web Console] -->|HTTP :6017| S
     C[CLI] -->|HTTP :6017| S
     T[Textual TUI] -->|HTTP :6017| S
@@ -75,10 +75,19 @@ Windows package 同時包含兩個程式，角色不可互換：
 1. `start_server.exe`：載入模型並提供辨識服務。
 2. `start_client.exe`：提供 tray、快捷鍵、錄音與文字輸入操作。
 
-從 [GitHub Releases](https://github.com/DF-wu/CapsWriter-Offline-Container/releases)
-下載有附 Windows ZIP 的 v2 release，完整解壓後先啟動 server，再啟動 client。
-不要只複製其中一個 EXE；`models/`、runtime library 與設定檔也必須保持 release
-內的相對位置。
+要使用打包版本，請從
+[GitHub Releases](https://github.com/DF-wu/CapsWriter-Offline-Container/releases)
+選擇**確實附有 Windows ZIP** 的 v2 項目；若尚未列出，請依桌面可攜性文件從
+source 建置。完整解壓後，先完成
+[Windows package 先決條件](docs/zh-TW/desktop-portability.md#準備下載的-windows-package)，
+再啟動本機 Server。CI 測過的程式 ZIP 刻意讓 `models/` 保持空白，也不內含 GGUF
+runtime DLL 或 FFmpeg；指南列出預設 Qwen model、llama.cpp 的固定 SHA-256 與正確
+放置位置。只連接其他 Server 的 Client 不需要本機 model；desktop 檔案／media
+轉錄仍需要 FFmpeg。
+
+先啟動 `start_server.exe` 並等待 model 載入，再啟動 `start_client.exe`。不要只複製
+其中一個 EXE；configuration、source tree 與 runtime file 都必須保持 package 內的
+相對位置。
 
 建置、DirectML、X11 與實機驗證要求請見
 [桌面可攜性](docs/zh-TW/desktop-portability.md)。
@@ -111,7 +120,12 @@ CAPSWRITER_HTTP_API_ENABLE=true
 CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 CAPSWRITER_HTTP_API_PUBLISH_HOST=127.0.0.1
 CAPSWRITER_HTTP_API_PORT=6017
+CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080,http://127.0.0.1:5173,http://localhost:5173
 ```
+
+`8080` origins 供下方 packaged Web Console 使用；`5173` origins 供 Vite
+development 使用。未使用的 origin 應移除；CLI、TUI、SDK 與 curl 不受 browser
+CORS 管制。
 
 再取消 [`docker-compose.yml`](docker-compose.yml) 內第二個 port mapping 的註解：
 
@@ -138,14 +152,19 @@ private overlay network。詳見[支援與安全](docs/zh-TW/support-security.md
 Web Console：
 
 ```bash
-docker compose -f docker-compose.web.yml up -d --build capswriter-web
+CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017 \
+  docker compose -f docker-compose.web.yml up -d --build capswriter-web
 ```
+
+開啟 `http://127.0.0.1:8080`，確認 API root 是
+`http://127.0.0.1:6017`，再於遮罩 API-key 欄位輸入相同的 Server token。Web
+container 只提供 static UI；實際送出 request 的是 browser。
 
 CLI：
 
 ```bash
 export CAPSWRITER_API_BASE=http://127.0.0.1:6017
-export CAPSWRITER_HTTP_API_KEY_FILE=/path/to/capswriter-http.key
+export CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 python client/cli/capswriter_cli.py ready
 python client/cli/capswriter_cli.py transcribe meeting.wav --format text
 ```
@@ -171,9 +190,13 @@ npm ci --no-audit --no-fund
 npm run dev
 ```
 
+開啟 `http://127.0.0.1:5173`，把 API root 設為
+`http://127.0.0.1:6017`，再輸入 Server token。新增或變更 origin 後，必須重建
+Server，新的 CORS 設定才會生效。
+
 ## Server 功能
 
-- 本機 ASR 模型與 FFmpeg decode；不需要雲端推論服務。
+- 本機 ASR 模型與 Server 端 FFmpeg decode；不需要雲端推論服務。
 - Model bootstrap、熱詞、持久化、GPU preference、CPU fallback 與 readiness。
 - 原有 WebSocket protocol，以及選用 OpenAI 相容 `whisper-1` 檔案轉錄 subset。
 - `text`、`json`、`verbose_json`、`srt`、`vtt` 五種 HTTP response format。

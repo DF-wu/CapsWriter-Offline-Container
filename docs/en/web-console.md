@@ -27,8 +27,11 @@ CAPSWRITER_HTTP_API_ENABLE=true
 CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 CAPSWRITER_HTTP_API_PUBLISH_HOST=127.0.0.1
 CAPSWRITER_HTTP_API_PORT=6017
-CAPSWRITER_HTTP_API_CORS_ORIGINS=http://localhost:8080,http://127.0.0.1:8080
+CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080,http://127.0.0.1:5173,http://localhost:5173
 ```
+
+Ports `8080` and `5173` are the production-container and Vite-development
+origins respectively. Remove origins you do not use.
 
 Uncomment the HTTP mapping under `ports:` in `docker-compose.yml`, recreate the
 server, and verify readiness:
@@ -63,6 +66,11 @@ cd client/web
 npm ci --no-audit --no-fund
 npm run dev
 ```
+
+Open `http://127.0.0.1:5173`, set the API root to
+`http://127.0.0.1:6017`, and enter the Server token. If `5173` was not already
+in the Server CORS allowlist, add the exact origin and recreate the Server
+before testing.
 
 For UI-only work without a model server, run `npm run mock-api` in another
 terminal. It returns fixed data and is not evidence of real transcription.
@@ -99,4 +107,3 @@ npm run browser-smoke
 For network exposure, runtime variables, upgrades, and rollback, continue with
 [Deployment](deployment.md#web-console-profile) and
 [Support and security](support-security.md).
-

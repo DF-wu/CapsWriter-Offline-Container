@@ -4,10 +4,12 @@
 
 ## fork-v2.0.0-rc.1 — 跨平台 release candidate
 
-Release candidate 日期：**2026-07-18**。`fork-v2.0.0-rc.1` 是 GitHub
-pre-release，不是 final `fork-v2.0.0` support claim。Automated source、API、TUI、
-Web、image 與 Windows package gates 已完成；下方 real-device／model qualification
-仍須在 stable release 前補齊。
+Release candidate 日期：**2026-07-18**。`fork-v2.0.0-rc.1` 預定以 GitHub
+pre-release 形式發布，不是 final `fork-v2.0.0` support claim。Exact tagged
+`master` commit 必須通過 CI、portability／Windows-package、server-image、Web-image
+workflows；較早的 branch／baseline run 不能替代。GitHub pre-release 會記錄這個
+commit 的 run、artifact、checksum、image tag 與 digest。下方 real-device／model
+qualification 仍須在 stable release 前補齊。
 
 ![Fork 維護流程：上游正式變更進入 active v2，只有重大或安全修正才人工回移到隔離 v1](../assets/version-tracks.svg)
 
@@ -143,8 +145,10 @@ deployment 移轉：
 
 - CI 不下載每一個 production model，也不證明 recognition quality。
 - Windows CI 會 hash-install、build、搬移、ZIP round-trip、檢查並 import-smoke
-  兩個 packaged EXE；每個 shipped artifact 仍需真實 tray、shortcut、audio／
-  FFmpeg、model／known-audio、hardware 與 exit test。
+  兩個 packaged EXE。該 exact ZIP 的 `models/` 是空的，也不含 GGUF runtime DLL 或
+  FFmpeg；請依 desktop guide 的 checksummed prerequisite 流程準備。每個 shipped
+  artifact 仍需真實 tray、shortcut、audio／FFmpeg、model／known-audio、hardware
+  與 exit test。
 - Linux global shortcut 需要 X11；Wayland／headless desktop hotkey 不支援。X11
   無法安全 selectively suppress 單一 key。
 - GPU usability、memory、performance、fallback 依 target driver／device／model，

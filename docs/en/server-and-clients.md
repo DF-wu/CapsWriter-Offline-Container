@@ -8,9 +8,11 @@ client does not install or duplicate the recognition model.
 
 ## The one rule to remember
 
-1. Start exactly one server for the model/hardware profile you want.
+1. Start one server for the model/hardware profile you want. Isolate ports and
+   writable storage before intentionally running another.
 2. Wait until that server is ready.
-3. Connect any number of compatible clients.
+3. Connect one or more compatible clients within the configured connection,
+   queue, and concurrency limits.
 
 ```mermaid
 flowchart LR
@@ -29,15 +31,21 @@ flowchart LR
 
 ## What the server owns
 
-The server is the only component that:
+Only the server loads the recognition model and runs ASR inference. On the
+server side, it also:
 
 - loads Qwen ASR, Fun-ASR, SenseVoice, or another configured recognition model;
 - downloads/prepares model and native runtime assets when configured to do so;
-- invokes FFmpeg and converts audio for inference;
+- invokes FFmpeg to decode and normalize submitted audio for inference;
 - applies server hotwords and recognition settings;
 - schedules the worker, bounds requests/queues, and returns transcripts;
 - reports liveness and model/runtime readiness;
 - exposes WebSocket and, when explicitly enabled, HTTP interfaces.
+
+The desktop client can also launch its own FFmpeg process to save local
+recordings or prepare file-transcription audio before sending it over
+WebSocket. That client-side media preparation is not ASR inference and does not
+load a recognition model.
 
 ### Server choices
 
@@ -68,7 +76,7 @@ Clients never run the server's ASR model. Their local behavior differs:
 
 | Client | Input and UX | Connection | Local-only features | Not included |
 |---|---|---|---|---|
-| Windows/Linux X11 desktop | Microphone, file transcription, tray, global hotkeys | WebSocket `6016` | Clipboard/text injection | HTTP API is not required for its normal path |
+| Windows/Linux X11 desktop | Microphone, file transcription, tray, global hotkeys | WebSocket `6016` | Clipboard/text injection and local FFmpeg media preparation | No ASR model or inference; HTTP API is not required for its normal path |
 | Web Console | Browser recording or file upload | HTTP `6017` | Browser history/downloads and browser/OS TTS | No model, FFmpeg worker, tray, or global hotkey |
 | CLI | File or batch paths | HTTP `6017` | Atomic files and optional OS TTS | No microphone, tray, or global hotkey |
 | Textual TUI | File input and optional native microphone | HTTP `6017` | Keyboard workflow and atomic save | No TTS, tray, or global hotkey |
@@ -82,7 +90,7 @@ endpoint.
 ### Personal Windows desktop
 
 ```text
-start_server.exe  --WebSocket :6016-->  start_client.exe
+start_client.exe  --WebSocket :6016-->  start_server.exe
 ```
 
 Start the server first, wait for model load, then start the desktop client. The
@@ -91,7 +99,7 @@ HTTP API is optional and can remain disabled.
 ### Linux X11 desktop
 
 ```text
-start_server_universal.py  --WebSocket :6016-->  start_client.py
+start_client.py  --WebSocket :6016-->  start_server_universal.py
 ```
 
 Both processes run in the logged-in X11 environment. Wayland/headless global
@@ -100,7 +108,7 @@ hotkeys are unsupported; use a file, Web, CLI, or TUI client instead.
 ### Headless server with browser or terminal clients
 
 ```text
-Docker server --HTTP :6017--> Web / CLI / TUI / SDK
+Web / CLI / TUI / SDK  --HTTP :6017-->  Docker server
 ```
 
 Enable the HTTP API and authentication, publish port `6017`, then connect one
