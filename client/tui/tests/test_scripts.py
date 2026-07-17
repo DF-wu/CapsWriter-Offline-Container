@@ -122,13 +122,23 @@ class ScriptTest(unittest.TestCase):
 
 class ScreenshotCaptureTest(unittest.IsolatedAsyncioTestCase):
     async def test_real_capture_is_current_clock_free_and_offline(self) -> None:
-        rendered = await capture_screenshot.capture_svg(
-            locale="en",
-            width=140,
-            height=46,
-        )
+        with mock.patch.dict(os.environ):
+            os.environ.pop("NO_COLOR", None)
+            rendered = await capture_screenshot.capture_svg(
+                locale="en",
+                width=140,
+                height=46,
+            )
+        with mock.patch.dict(os.environ, {"NO_COLOR": "1"}):
+            no_color_rendered = await capture_screenshot.capture_svg(
+                locale="en",
+                width=140,
+                height=46,
+            )
+            self.assertEqual(os.environ["NO_COLOR"], "1")
         committed = capture_screenshot.DEFAULT_OUTPUT.read_text(encoding="utf-8")
 
+        self.assertEqual(no_color_rendered, rendered)
         self.assertEqual(rendered, committed)
         self.assertIsNone(capture_screenshot.REMOTE_CSS_URL.search(rendered))
         header_text = html.unescape(

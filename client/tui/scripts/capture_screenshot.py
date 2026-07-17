@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 from pathlib import Path
 import re
 import sys
@@ -89,11 +90,23 @@ def normalize_render_identifier(svg: str) -> str:
 async def capture_svg(*, locale: str, width: int, height: int) -> str:
     """Mount the production app and export its rendered screen through Textual."""
 
-    app = CapsWriterTui(
-        locale=locale,
-        show_clock=False,
-        recorder=UnavailableRecorder("optional microphone dependency not installed"),
-    )
+    # Textual installs its monochrome filter during construction when NO_COLOR
+    # is present. Documentation evidence must use the same full-color pipeline
+    # in hosted CI and local audit shells, so isolate the synchronous constructor
+    # from that caller preference and restore the environment before any await.
+    no_color = os.environ.pop("NO_COLOR", None)
+    try:
+        app = CapsWriterTui(
+            locale=locale,
+            show_clock=False,
+            recorder=UnavailableRecorder(
+                "optional microphone dependency not installed"
+            ),
+        )
+    finally:
+        if no_color is not None:
+            os.environ["NO_COLOR"] = no_color
+    app.no_color = False
     async with app.run_test(size=(width, height)) as pilot:
         await pilot.pause()
         svg = normalize_render_identifier(
