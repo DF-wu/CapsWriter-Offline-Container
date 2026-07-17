@@ -15,6 +15,15 @@ env/
 ENV/
 .env
 .env.*
+
+# Mutable operator hotword files must stay out of image layers. Keep only the
+# reviewed onboarding example in the source build context.
+hot-server.txt
+hot.txt
+hot-rule.txt
+hot-rectify.txt
+!hot-server.example.txt
+
 build/
 dist/
 logs/

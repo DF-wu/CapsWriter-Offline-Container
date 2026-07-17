@@ -6,7 +6,12 @@ rich==14.3.3
 websockets==16.0
 watchdog==6.0.0
 pypinyin==0.55.0
-Pillow==12.1.1
+Pillow==12.3.0
 markdown==3.10.2
 tkhtmlview==0.3.2
 srt==3.5.3
+
+# OpenAI-compatible HTTP API (optional, gated by CAPSWRITER_HTTP_API_ENABLE)
+fastapi==0.139.0
+uvicorn[standard]==0.32.1
+python-multipart==0.0.31

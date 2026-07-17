@@ -16,6 +16,7 @@ OpenAI-compatible HTTP API
 """
 
 import asyncio
+import hmac
 import shutil
 import time
 import uuid
@@ -27,6 +28,7 @@ from fastapi import (
     Form,
     Header,
     HTTPException,
+    Request,
     Response,
     UploadFile,
 )
@@ -40,6 +42,7 @@ from util.server.audio_decoder import (
     decode_to_pcm,
 )
 from util.server.openai_formatter import format_response
+from util.server.http_limits import UploadTooLargeError, read_upload_limited
 from util.server.server_classes import Task, Result
 from util.server.server_cosmic import Cosmic
 from util.server.task_router import router as task_router
@@ -59,11 +62,21 @@ def _check_auth(authorization: Optional[str]) -> None:
     api_key = Config.http_api_key
     if not api_key:
         return
-    if not authorization or not authorization.startswith("Bearer "):
+    if not authorization:
         raise HTTPException(401, "Missing or invalid Authorization header")
-    token = authorization[len("Bearer "):].strip()
-    if token != api_key:
+    parts = authorization.strip().split()
+    if len(parts) != 2 or parts[0].casefold() != "bearer" or not parts[1]:
+        raise HTTPException(401, "Missing or invalid Authorization header")
+    token = parts[1]
+    if not hmac.compare_digest(token.encode("utf-8"), api_key.encode("utf-8")):
         raise HTTPException(401, "Invalid API key")
+
+
+def _check_transcription_content_type(content_type: Optional[str]) -> None:
+    """Reject parser surfaces that the legacy endpoint never supports."""
+    media_type = (content_type or "").partition(";")[0].strip().casefold()
+    if media_type != "multipart/form-data":
+        raise HTTPException(415, "Content-Type must be multipart/form-data")
 
 
 def _split_and_submit(task_id: str, pcm: bytes) -> None:
@@ -150,6 +163,26 @@ def create_app() -> FastAPI:
         ),
     )
 
+    @app.middleware("http")
+    async def guard_transcription_request(request: Request, call_next):
+        # Use the ASGI scope path rather than request.url so malformed Host
+        # headers cannot influence this security decision. Authentication and
+        # media-type rejection happen before Starlette parses multipart fields.
+        if (
+            request.method == "POST"
+            and request.scope.get("path") == "/v1/audio/transcriptions"
+        ):
+            try:
+                _check_auth(request.headers.get("authorization"))
+                _check_transcription_content_type(request.headers.get("content-type"))
+            except HTTPException as error:
+                return JSONResponse(
+                    status_code=error.status_code,
+                    content={"detail": error.detail},
+                    headers=error.headers,
+                )
+        return await call_next(request)
+
     @app.get("/health")
     async def health():
         return {
@@ -184,11 +217,12 @@ def create_app() -> FastAPI:
         del model, temperature  # 仅作 OpenAI 兼容占位, 本地模型由 Config.model_type 决定
 
         max_bytes = Config.http_api_max_upload_mb * 1024 * 1024
-        audio_bytes = await file.read()
+        try:
+            audio_bytes = await read_upload_limited(file, max_bytes)
+        except UploadTooLargeError:
+            raise HTTPException(413, f"File too large (>{Config.http_api_max_upload_mb} MB)")
         if not audio_bytes:
             raise HTTPException(400, "Empty file")
-        if len(audio_bytes) > max_bytes:
-            raise HTTPException(413, f"File too large (>{Config.http_api_max_upload_mb} MB)")
 
         try:
             pcm = await decode_to_pcm(audio_bytes)
@@ -212,12 +246,16 @@ def create_app() -> FastAPI:
         try:
             await asyncio.to_thread(_split_and_submit, task_id, pcm)
             if prompt:
-                # 当前 Task.context 是按片段设置的; 这里只 log 一下,
+                # 当前 Task.context 是按片段设置的; 这里只记录长度，避免逐字稿内容落盘。
                 # 完整的 prompt-as-context 注入留待 Fun-ASR-Nano 整段 prompt 支援。
-                logger.debug(f"[HTTP] task={task_id[:8]} prompt={prompt[:50]!r}")
+                logger.debug(f"[HTTP] task={task_id[:8]} prompt_chars={len(prompt)}")
             result: Result = await asyncio.wait_for(
                 future, timeout=Config.http_api_task_timeout
             )
+        except asyncio.CancelledError:
+            task_router.cancel(task_id)
+            logger.warning(f"[HTTP] task={task_id[:8]} request cancelled")
+            raise
         except asyncio.TimeoutError:
             task_router.cancel(task_id)
             logger.error(
@@ -227,7 +265,7 @@ def create_app() -> FastAPI:
         except Exception as e:
             task_router.cancel(task_id)
             logger.error(f"[HTTP] task={task_id[:8]} error: {e}", exc_info=True)
-            raise HTTPException(500, f"Recognition error: {e}")
+            raise HTTPException(500, "Recognition failed")
 
         body, media_type = format_response(result, response_format, language=language)
         text = result.text_accu or result.text

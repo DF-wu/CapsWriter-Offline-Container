@@ -31,7 +31,8 @@ from util.server.text_merge import (
 from util.server.error_handler import save_error_audio
 
 
-# 任务结果缓存（按 task_id 索引）
+# 任务结果缓存。task_id 由 client 控制，必须同时以 socket_id 分区，
+# 避免不同连接复用同一 ID 时互相合并或收到对方的逐字稿。
 _results = {}
 
 
@@ -101,12 +102,13 @@ def recognize(recognizer, punc_model, task: Task) -> Result:
     """
     try:
         # 1. 初始化/获取结果容器
-        is_first_segment = task.task_id not in _results
+        result_key = (task.socket_id, task.task_id)
+        is_first_segment = result_key not in _results
         if is_first_segment:
-            _results[task.task_id] = Result(task.task_id, task.socket_id, task.source)
+            _results[result_key] = Result(task.task_id, task.socket_id, task.source)
             logger.debug(f"新任务: {task.task_id[:8]}...")
         
-        result = _results[task.task_id]
+        result = _results[result_key]
 
         # 2. 解码音频
         samples = np.frombuffer(task.data, dtype=np.float32)
@@ -186,7 +188,7 @@ def recognize(recognizer, punc_model, task: Task) -> Result:
                 result.timestamps = [i * time_per_char for i in range(len(chars))]
                 logger.warning(f"模型无时间戳，使用粗略估计: {len(chars)} 字符, {result.duration:.2f}s")
         
-        result = _results.pop(task.task_id)
+        result = _results.pop(result_key)
         result.is_final = True
         
         process_time = result.time_complete - task.time_submit
@@ -213,12 +215,15 @@ def clear_results_by_socket_id(socket_id: str) -> None:
     当客户端连接断开时调用，防止内存泄漏。
     """
     global _results
-    tasks_to_remove = [
-        task_id for task_id, result in _results.items() 
+    result_keys_to_remove = [
+        result_key for result_key, result in _results.items()
         if result.socket_id == socket_id
     ]
-    for task_id in tasks_to_remove:
-        _results.pop(task_id, None)
+    for result_key in result_keys_to_remove:
+        _results.pop(result_key, None)
     
-    if tasks_to_remove:
-        logger.debug(f"已清理断开连接相关的缓存: socket_id={socket_id}, 任务数={len(tasks_to_remove)}")
+    if result_keys_to_remove:
+        logger.debug(
+            f"已清理断开连接相关的缓存: socket_id={socket_id}, "
+            f"任务数={len(result_keys_to_remove)}"
+        )

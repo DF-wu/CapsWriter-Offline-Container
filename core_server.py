@@ -68,7 +68,11 @@ async def run_websocket_server():
     # 2. 启动服务器
     logger.info(f"WebSocket 服务器正在启动，监听地址: {Config.addr}:{Config.port}")
     async with websockets.serve(
-        ws_recv, Config.addr, Config.port, subprotocols=["binary"], max_size=None
+        ws_recv,
+        Config.addr,
+        Config.port,
+        subprotocols=["binary"],
+        max_size=max(1, Config.websocket_max_message_mb) * 1024 * 1024,
     ):
         send_task = asyncio.create_task(ws_send())
 

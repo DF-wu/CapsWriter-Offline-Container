@@ -113,6 +113,12 @@ class ServerConfig:
     addr = _env_str("CAPSWRITER_SERVER_ADDR", "0.0.0.0")
     port = _env_str("CAPSWRITER_SERVER_PORT", "6016")
 
+    # 单个 WebSocket JSON frame 上限。官方客户端的文件分块约 5.12 MiB
+    # (Base64 后)，默认 8 MiB 可保留既有行为并阻止无限制 frame 分配。
+    websocket_max_message_mb = int(
+        _env_str("CAPSWRITER_WS_MAX_MESSAGE_MB", "8")
+    )
+
     # 语音模型选择：'fun_asr_nano', 'sensevoice', 'paraformer', 'qwen_asr'
     model_type = _env_str("CAPSWRITER_MODEL_TYPE", "qwen_asr")
 

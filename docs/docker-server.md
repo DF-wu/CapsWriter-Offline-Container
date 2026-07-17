@@ -1,6 +1,7 @@
-# CapsWriter Server Docker 部署
+# CapsWriter v1 Server Docker 部署
 
-這份文件只覆蓋 **Server 端**。Client 仍維持原本 Windows 用法。
+這份文件只覆蓋 **v1 Server 端**。Client 是保留相容性的 upstream-era Windows
+`start_client.py` source workflow；v2 的 Web／CLI／TUI 不存在於此維護線。
 
 ## 目標
 
@@ -23,7 +24,8 @@
 - Docker 內強制關閉 tray、DirectML；Vulkan / CPU 由 runtime 自動判斷
 - 模型掛載到 `./models`，日誌持久化到 Docker named volume
 
-> 目前公開 image 的優先目標是 **Tesla P4 / Pascal** 這類已驗證硬體。其他 GPU 世代的廣泛相容性仍列為後續 TODO。
+> v1 GitHub Release 是 source-only，沒有公開 v1 container image。公開
+> `ghcr.io/df-wu/capswriter-offline-server:latest` 屬於 v2，不可用於 v1。
 
 這樣做是為了先得到最穩定、最容易在 Linux 上落地的 server 版本。
 
@@ -37,15 +39,17 @@ cp docker/server/.env.example .env
 
 根目錄 `.env` 只作為本機啟動設定使用，已被 Docker build context 排除，不會被打進 image。
 
-## 1. 準備公開 image
+## 1. 從 v1 source build 本機 image
 
-預設情況下，這份 compose 會直接使用公開 image：
+Compose 預設從目前 v1 checkout 的 `docker/server/Dockerfile` build：
 
-```text
-ghcr.io/df-wu/capswriter-offline-server:latest
+```bash
+docker compose build --pull capswriter-server
 ```
 
-你可以在 `.env` 裡覆蓋成別的 tag 或私有 image，但大多數情況不需要。
+本機 image 名稱預設為 `capswriter-offline-v1-local:source`。若 operator 自行發布
+經審查的 private v1 image，可在 `.env` 覆蓋 `CAPSWRITER_SERVER_IMAGE`；不要改用
+v2 `latest`。
 
 ## 2. 啟動 Server
 
@@ -96,9 +100,9 @@ Compose 層額外提供 `CAPSWRITER_GPU_DEVICE_COUNT`：
 
 不需要額外的 helper service。啟動 `capswriter-server` 時，容器會自動下載缺失模型與 backend。
 
-## 3. 直接使用 image
+## 3. 直接使用本機 build 的 image
 
-如果你要直接使用 image，也可以：
+先執行前述 `docker compose build`，再使用本機 image：
 
 ```bash
 docker run -d --name capswriter-server \
@@ -108,7 +112,7 @@ docker run -d --name capswriter-server \
   -p 6016:6016 \
   -v "$(pwd)/models:/app/models" \
   -v "$(pwd)/hot-server.txt:/app/hot-server.txt" \
-  ghcr.io/df-wu/capswriter-offline-server:latest
+  capswriter-offline-v1-local:source
 ```
 
 改成 `fun_asr_nano`：
@@ -122,7 +126,7 @@ docker run -d --name capswriter-server \
   -p 6016:6016 \
   -v "$(pwd)/models:/app/models" \
   -v "$(pwd)/hot-server.txt:/app/hot-server.txt" \
-  ghcr.io/df-wu/capswriter-offline-server:latest
+  capswriter-offline-v1-local:source
 ```
 
 ## 4. 查看狀態
