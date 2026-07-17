@@ -1,6 +1,6 @@
 # Docker 部署細節
 
-本文件只覆蓋 **Server 端**。無 GUI CLI 與 Web Console 請見[繁體中文 CLI 指南](zh-TW/cli-client.md)與 [Web Console 指南](web-console.md)。
+本文件只覆蓋 **Server 端**。無 GUI CLI 與 Web Console 請見[繁體中文 CLI 指南](zh-TW/cli-client.md)與 [Web Console Client 指南](zh-TW/web-console.md)。
 
 ---
 

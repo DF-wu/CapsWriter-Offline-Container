@@ -2,26 +2,36 @@
 
 > [Documentation home](README.md) · [繁體中文](../zh-TW/getting-started.md) · [Troubleshooting](troubleshooting.md)
 
-CapsWriter fork v2 has multiple valid entry points. Start with the path that
-matches the machine and interaction model you actually need.
+CapsWriter fork v2 always involves two decisions: **where the ASR server runs**
+and **which client sends audio to it**. The server loads the model; clients do
+not. Read [Server and client roles](server-and-clients.md) before continuing if
+that distinction is new.
 
 ![Real CapsWriter Textual workbench with server diagnostics above the visible file-input and transcript panels](../assets/tui-workbench.svg)
 
-The screenshot is generated from the real Textual application, not a mockup.
-It demonstrates one portable client surface; the Windows desktop app, Web
-Console, and no-GUI CLI remain separate choices.
+The screenshot is generated from the real Textual client, not a mockup. The
+model and inference worker are still on the server it connects to.
 
-## Pick a path
+## 1. Pick where the server runs
 
-| Need | Recommended path | Do not infer |
+| Need | Server path | Do not infer |
 |---|---|---|
-| Full Windows tray/hotkey desktop | Windows desktop package/source path | A CI compile is not a signed or hardware-tested release binary |
-| Linux desktop dictation | Linux X11 source desktop path | X11 support does not imply Wayland global-hotkey support |
-| Shared/headless ASR | Linux container server | A healthy HTTP process alone does not prove the model is ready |
-| Browser interaction | Server + Web Console | Browser TTS is local browser/OS capability, not server TTS |
-| Scripts, SSH, batch jobs | No-GUI CLI | CLI does not inject text globally or provide a tray |
-| Keyboard-first terminal workflow | Textual TUI | Core lock guarantees file mode; native microphone support is optional |
-| Existing OpenAI client code | Opt-in HTTP API | Only the documented transcription subset is implemented |
+| Full Windows desktop dictation | Windows packaged/native server | Package self-check is not real audio/tray/hardware evidence |
+| Linux desktop dictation | Native source server in an X11 session | X11 support does not imply Wayland global-hotkey support |
+| Shared/headless ASR | Linux `amd64` container server | `/health` alone does not prove the model is ready |
+
+## 2. Pick a client
+
+| Interaction | Client | Server interface | Important boundary |
+|---|---|---|---|
+| Tray, global hotkeys, text injection | Desktop client | WebSocket `6016` | Windows native; Linux global hotkeys require X11 |
+| Browser recording/upload | Web Console | HTTP `6017` | Browser TTS is local, not server TTS |
+| Scripts, SSH, batch jobs | No-GUI CLI | HTTP `6017` | No microphone, tray, hotkey, or text injection |
+| Keyboard-first terminal workflow | Textual TUI | HTTP `6017` | File mode is core; native microphone is optional |
+| Existing integration | OpenAI SDK/curl | HTTP `6017/v1` | Only the documented transcription subset is implemented |
+
+Web/CLI/TUI/SDK require the opt-in HTTP API. The desktop client uses WebSocket
+directly and normally does not require HTTP.
 
 ## Common prerequisites
 
@@ -159,7 +169,7 @@ curl http://127.0.0.1:6017/ready
 Then choose one client:
 
 - [OpenAI-compatible API and SDK](openai-api.md)
-- [Web Console](deployment.md#web-console-profile)
+- [Web Console](web-console.md)
 - [No-GUI CLI](cli-client.md)
 - [Textual TUI](tui.md)
 

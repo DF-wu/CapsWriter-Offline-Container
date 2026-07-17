@@ -1,6 +1,6 @@
 # OpenAI 相容語音轉錄 API
 
-> 繁體中文 · [English](../en/openai-api.md)
+> [文件首頁](README.md) · 繁體中文 · [English](../en/openai-api.md)
 
 CapsWriter 可選擇性提供本機 `POST /v1/audio/transcriptions` 端點。它實作
 官方 OpenAI Python SDK 使用的 `whisper-1` 檔案轉錄子集；實際離線識別器仍由

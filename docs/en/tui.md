@@ -1,6 +1,6 @@
 # CapsWriter TUI v2
 
-> [繁體中文](../zh-TW/tui.md) · English
+> [Documentation home](README.md) · [繁體中文](../zh-TW/tui.md) · English
 
 CapsWriter TUI is the keyboard-first client for the fork v2 local
 OpenAI-compatible transcription API. It runs on Windows and Linux, checks the

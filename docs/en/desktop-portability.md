@@ -1,6 +1,6 @@
 # Desktop portability and native hotkeys
 
-> [繁體中文](../zh-TW/desktop-portability.md) · English
+> [Documentation home](README.md) · [繁體中文](../zh-TW/desktop-portability.md) · English
 
 CapsWriter v2 keeps the upstream Windows desktop behavior while adding a
 bounded Linux desktop path. These are separate support claims: the Linux
@@ -88,6 +88,76 @@ binding sockets, opening devices, creating hooks/trays, launching FFmpeg, or
 loading models. See the bilingual
 [production build guide](../../assets/BUILD_GUIDE.md) for the exact artifact
 contract, CI sequence, and lock-regeneration command.
+
+## Prepare a downloaded Windows package
+
+The release ZIP is the exact program artifact tested by CI. It deliberately
+keeps `models/` empty and does not include GGUF runtime DLLs or FFmpeg. Do not
+interpret the EXE import self-check as model-load evidence.
+
+For the default `model_type = 'qwen_asr'` local Server, provision these two
+separate upstream assets before starting `start_server.exe`:
+
+| Purpose | Exact asset | SHA-256 | Destination |
+|---|---|---|---|
+| Default Qwen model | [`Qwen3-ASR-1.7B-q5_k.zip`](https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q5_k.zip) | `f40040fe62a5ef0c09f8699fdbcb30f18bb8ae2bcd515ed4954e1f62b8b0e88f` | Extract under `models/Qwen3-ASR/`; the result must be `models/Qwen3-ASR/Qwen3-ASR-1.7B/` |
+| Windows x86-64 GGUF runtime | [`llama-b7798-bin-win-vulkan-x64.zip`](https://github.com/ggml-org/llama.cpp/releases/download/b7798/llama-b7798-bin-win-vulkan-x64.zip) | `d478b7070dd12a5c64478a398352e1f880d488c4c346a8f00e7051935ef6f8e8` | Copy its DLL files into the shared `core/server/engines/llama/bin/` directory |
+
+Run the following from the extracted `CapsWriter-Offline` directory in
+PowerShell. The commands stop before extraction if either download hash differs:
+
+```powershell
+$modelZip = Join-Path $env:TEMP 'Qwen3-ASR-1.7B-q5_k.zip'
+$runtimeZip = Join-Path $env:TEMP 'llama-b7798-bin-win-vulkan-x64.zip'
+$runtimeStage = Join-Path $env:TEMP 'capswriter-llama-b7798'
+
+Invoke-WebRequest `
+  'https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q5_k.zip' `
+  -OutFile $modelZip
+if ((Get-FileHash $modelZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne `
+    'f40040fe62a5ef0c09f8699fdbcb30f18bb8ae2bcd515ed4954e1f62b8b0e88f') {
+  throw 'Qwen model SHA-256 mismatch'
+}
+New-Item -ItemType Directory -Force '.\models\Qwen3-ASR' | Out-Null
+Expand-Archive $modelZip -DestinationPath '.\models\Qwen3-ASR' -Force
+
+Invoke-WebRequest `
+  'https://github.com/ggml-org/llama.cpp/releases/download/b7798/llama-b7798-bin-win-vulkan-x64.zip' `
+  -OutFile $runtimeZip
+if ((Get-FileHash $runtimeZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne `
+    'd478b7070dd12a5c64478a398352e1f880d488c4c346a8f00e7051935ef6f8e8') {
+  throw 'llama.cpp runtime SHA-256 mismatch'
+}
+Remove-Item $runtimeStage -Recurse -Force -ErrorAction SilentlyContinue
+Expand-Archive $runtimeZip -DestinationPath $runtimeStage
+
+$runtimeTarget = '.\core\server\engines\llama\bin'
+New-Item -ItemType Directory -Force $runtimeTarget | Out-Null
+Copy-Item -Path (Join-Path $runtimeStage '*.dll') -Destination $runtimeTarget -Force
+```
+
+Before startup, verify that at least these files exist:
+
+```text
+models/Qwen3-ASR/Qwen3-ASR-1.7B/qwen3_asr_encoder_frontend.onnx
+models/Qwen3-ASR/Qwen3-ASR-1.7B/qwen3_asr_encoder_backend.onnx
+models/Qwen3-ASR/Qwen3-ASR-1.7B/qwen3_asr_llm.gguf
+core/server/engines/llama/bin/ggml.dll
+core/server/engines/llama/bin/ggml-base.dll
+core/server/engines/llama/bin/llama.dll
+```
+
+Other model choices have different archives, hashes, paths, and hardware
+profiles; do not mix them with the default instructions. The
+[upstream model release](https://github.com/HaujetZhao/CapsWriter-Offline/releases/tag/models)
+describes those choices. They remain unqualified by this release candidate
+until tested on the target Windows host.
+
+Desktop file/media transcription also requires `ffmpeg.exe` on `PATH` or in the
+package root; `ffprobe.exe` enables duration/progress reporting. Install both
+from a trusted [FFmpeg distribution](https://ffmpeg.org/download.html). The
+microphone/WebSocket path does not require FFmpeg. A Client that connects to a
+remote Server does not need a local model or GGUF runtime.
 
 The package starts with the same desktop defaults when no HTTP environment
 variables are present:

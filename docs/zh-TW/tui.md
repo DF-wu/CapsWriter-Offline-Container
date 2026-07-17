@@ -1,6 +1,6 @@
 # CapsWriter TUI v2
 
-> 繁體中文 · [English](../en/tui.md)
+> [文件首頁](README.md) · 繁體中文 · [English](../en/tui.md)
 
 CapsWriter TUI 是 fork v2 本機 OpenAI 相容轉錄 API 的鍵盤優先 client。它可在
 Windows 與 Linux terminal 執行；工作前先分別檢查 server、readiness 與 model，

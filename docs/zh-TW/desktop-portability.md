@@ -1,6 +1,6 @@
 # 桌面跨平臺與原生快捷鍵
 
-> 繁體中文 · [English](../en/desktop-portability.md)
+> [文件首頁](README.md) · 繁體中文 · [English](../en/desktop-portability.md)
 
 CapsWriter v2 在保留上游 Windows 桌面行為的同時，加入有明確邊界的 Linux
 桌面路徑。這些是不同的支援聲明：Linux server/container 與可攜 CLI 不需要
@@ -81,6 +81,73 @@ status 為 `ok`。Self-check 只驗證 layout 與 server/client import，不會 
 開啟 device、建立 hook／tray、啟動 FFmpeg 或載入 model。完整 artifact contract、
 CI sequence 與 lock regeneration command 請見雙語
 [正式打包指南](../../assets/BUILD_GUIDE.md)。
+
+## 準備下載的 Windows package
+
+Release ZIP 是 CI 實際測過的程式 artifact。它刻意讓 `models/` 保持空白，也不內含
+GGUF runtime DLL 或 FFmpeg；EXE import self-check 不能當成 model-load evidence。
+
+若要使用預設 `model_type = 'qwen_asr'` 啟動本機 Server，必須先準備兩個獨立的
+upstream asset：
+
+| 用途 | 固定 asset | SHA-256 | 放置位置 |
+|---|---|---|---|
+| 預設 Qwen model | [`Qwen3-ASR-1.7B-q5_k.zip`](https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q5_k.zip) | `f40040fe62a5ef0c09f8699fdbcb30f18bb8ae2bcd515ed4954e1f62b8b0e88f` | 解壓到 `models/Qwen3-ASR/`；結果必須是 `models/Qwen3-ASR/Qwen3-ASR-1.7B/` |
+| Windows x86-64 GGUF runtime | [`llama-b7798-bin-win-vulkan-x64.zip`](https://github.com/ggml-org/llama.cpp/releases/download/b7798/llama-b7798-bin-win-vulkan-x64.zip) | `d478b7070dd12a5c64478a398352e1f880d488c4c346a8f00e7051935ef6f8e8` | 把其中 DLL 複製到共用的 `core/server/engines/llama/bin/` |
+
+在已解壓的 `CapsWriter-Offline` 目錄開啟 PowerShell，執行下列命令。任一下載檔的
+hash 不符時，命令會在解壓前停止：
+
+```powershell
+$modelZip = Join-Path $env:TEMP 'Qwen3-ASR-1.7B-q5_k.zip'
+$runtimeZip = Join-Path $env:TEMP 'llama-b7798-bin-win-vulkan-x64.zip'
+$runtimeStage = Join-Path $env:TEMP 'capswriter-llama-b7798'
+
+Invoke-WebRequest `
+  'https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q5_k.zip' `
+  -OutFile $modelZip
+if ((Get-FileHash $modelZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne `
+    'f40040fe62a5ef0c09f8699fdbcb30f18bb8ae2bcd515ed4954e1f62b8b0e88f') {
+  throw 'Qwen model SHA-256 mismatch'
+}
+New-Item -ItemType Directory -Force '.\models\Qwen3-ASR' | Out-Null
+Expand-Archive $modelZip -DestinationPath '.\models\Qwen3-ASR' -Force
+
+Invoke-WebRequest `
+  'https://github.com/ggml-org/llama.cpp/releases/download/b7798/llama-b7798-bin-win-vulkan-x64.zip' `
+  -OutFile $runtimeZip
+if ((Get-FileHash $runtimeZip -Algorithm SHA256).Hash.ToLowerInvariant() -ne `
+    'd478b7070dd12a5c64478a398352e1f880d488c4c346a8f00e7051935ef6f8e8') {
+  throw 'llama.cpp runtime SHA-256 mismatch'
+}
+Remove-Item $runtimeStage -Recurse -Force -ErrorAction SilentlyContinue
+Expand-Archive $runtimeZip -DestinationPath $runtimeStage
+
+$runtimeTarget = '.\core\server\engines\llama\bin'
+New-Item -ItemType Directory -Force $runtimeTarget | Out-Null
+Copy-Item -Path (Join-Path $runtimeStage '*.dll') -Destination $runtimeTarget -Force
+```
+
+啟動前至少確認下列檔案存在：
+
+```text
+models/Qwen3-ASR/Qwen3-ASR-1.7B/qwen3_asr_encoder_frontend.onnx
+models/Qwen3-ASR/Qwen3-ASR-1.7B/qwen3_asr_encoder_backend.onnx
+models/Qwen3-ASR/Qwen3-ASR-1.7B/qwen3_asr_llm.gguf
+core/server/engines/llama/bin/ggml.dll
+core/server/engines/llama/bin/ggml-base.dll
+core/server/engines/llama/bin/llama.dll
+```
+
+其他 model 選擇使用不同 archive、hash、path 與 hardware profile，不可與預設步驟
+混用。請見 [upstream model release](https://github.com/HaujetZhao/CapsWriter-Offline/releases/tag/models)；
+在目標 Windows host 實測前，本 release candidate 不替其他組合做 qualification。
+
+Desktop 檔案／media 轉錄還需要讓 `ffmpeg.exe` 位於 `PATH` 或 package root；
+`ffprobe.exe` 會提供 duration／progress 資訊。請從可信的
+[FFmpeg distribution](https://ffmpeg.org/download.html)安裝兩者。Microphone／
+WebSocket 路徑不需要 FFmpeg；只連到遠端 Server 的 Client 也不需要本機 model 或
+GGUF runtime。
 
 沒有 HTTP 環境變數時，package 會沿用相同桌面預設值：
 

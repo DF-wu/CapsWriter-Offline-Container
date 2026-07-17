@@ -1,6 +1,6 @@
 # OpenAI-compatible transcription API
 
-> [繁體中文](../zh-TW/openai-api.md) · English
+> [Documentation home](README.md) · [繁體中文](../zh-TW/openai-api.md) · English
 
 CapsWriter exposes an optional local `POST /v1/audio/transcriptions` endpoint.
 It implements the file-transcription subset used by the official OpenAI Python

@@ -1,6 +1,6 @@
 # v1 and v2 maintenance policy
 
-> [繁體中文](../zh-TW/versioning.md) · English
+> [Documentation home](README.md) · [繁體中文](../zh-TW/versioning.md) · English
 
 This fork maintains two product generations. The names **fork v1** and
 **fork v2** describe this fork's generations; they are not the upstream
@@ -18,7 +18,7 @@ its separate container, API, and model-asset checks before a v1-only release.
 | Track | Authoritative branch | Upstream lineage | Change policy |
 |---|---|---|---|
 | fork v1 | `maintenance/v1` | Logical snapshot of upstream `v2.5-alpha` plus the hotword optimization at `3419171` | Critical security, compatibility, and model-asset fixes only |
-| fork v2 | `master` after the feature PR; development on `feature/universal-asr-client` | Upstream master `7d7fac3` (v2.6 plus all later merged commits as of 2026-07-16) | Active cross-platform product development and merge-based upstream sync |
+| fork v2 | `master`; PR #2 product merge at `afc8c58` | Includes upstream master `7d7fac3` (v2.6 plus all later merged commits as of 2026-07-16) | Active cross-platform product development; use short-lived branches and merge-based upstream sync |
 | v1 audit snapshot | `archive/v1-legacy` and tag `fork-pre-reset-20260525-1411` | Last pre-reset v1 tree, `b46ca74` | Immutable recovery/audit point; do not develop directly |
 
 The v1 and v2 Git histories diverged before upstream's large `util/` to
@@ -65,6 +65,8 @@ belong to v2.
 
 - v1 release tags: `fork-v1.<minor>.<patch>`
 - v2 release tags: `fork-v2.<minor>.<patch>`
+- release candidates append the SemVer pre-release suffix `-rc.<n>` and are
+  marked as GitHub pre-releases; a final tag never reuses an RC tag
 - current automated v2 image tags: immutable `sha-<full-git-sha>` plus a
   guarded `latest` promotion for the current `master` tip
 - the current workflows publish no moving `v1` or `v2` channel tags

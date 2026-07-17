@@ -63,6 +63,20 @@ profile on the release machine.
 GGUF profile 所需的 Windows llama.cpp DLL 屬 model runtime asset，必須另外以可信
 來源與 checksum 管理，不能把 Python import smoke 誤當成 model-load 證據。
 
+The release ZIP must remain byte-for-byte identical to the CI-tested artifact.
+Do not inject downloaded models, runtime DLLs, or FFmpeg into that ZIP after the
+job records its digest. Distribute those prerequisites separately. For the
+default Qwen profile, the exact asset names, SHA-256 values, extraction paths,
+and PowerShell procedure are maintained in the paired
+[English](../docs/en/desktop-portability.md#prepare-a-downloaded-windows-package)
+and [繁體中文](../docs/zh-TW/desktop-portability.md#準備下載的-windows-package)
+desktop guides.
+
+Release ZIP 必須與 CI 測過並記錄 digest 的 artifact 完全相同，不可在 job 結束後
+再塞入 model、runtime DLL 或 FFmpeg。這些先決條件應獨立發布／下載；預設 Qwen
+profile 的固定檔名、SHA-256、解壓位置與 PowerShell 步驟由上述雙語 desktop guide
+維護。
+
 ## Clean build / 乾淨打包
 
 Run these commands from the repository root in PowerShell. Use a disposable
