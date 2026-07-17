@@ -38,6 +38,15 @@
 
 CI 通過只表示可攜式協定與 server 控制路徑通過；不代表音訊硬體、桌面整合、GPU backend、模型準確度或可發行執行檔已獲驗證。
 
+「Windows desktop Client」只指此 tree 保留的 upstream-era `start_client.py`
+source workflow；此維護線不含 v2 Web Console、無 GUI CLI、Textual TUI 或
+universal Windows package。Release notes 必須分開列出 Server／API／container
+deliverable 與 Windows Client source／binary 狀態。沒有 attached artifact 與真實
+Windows qualification 時，不可宣稱有 Windows download。
+
+目前 v1 release 為 source-only。Compose 從 checkout build 本機 v1 image；公開
+`ghcr.io/df-wu/capswriter-offline-server:latest` 是 v2，不可宣稱為 v1 image。
+
 ## 輸入與安全基線
 
 維護線對合法 client 保留既有協定，並套用以下防禦性限制：
@@ -73,7 +82,10 @@ Linux／Python 3.10 lane 另外驗證 `docker/server/entrypoint.sh` 與 Compose 
 3. 在隔離環境執行可攜式 gate；不可使用 production 模型、憑證或可寫入的 production volume。
 4. 影響 runtime 的變更，須再執行前述發行驗證。
 5. PR base 必須是 `archive/v1-legacy`；不可把整條舊版線合併回 v2。
-6. 舊版發行 tag 應採明確的 v1-track 名稱並附上來源 commit。只有在有意識的發行決策中，才變更應用程式內部版本。
+6. 舊版發行 tag 使用 `fork-v1.<minor>.<patch>`（pre-release 加 `-rc.<n>`），附上
+   exact source commit，並分別說明是否交付 Server source、container image、
+   Windows Client source 或經驗證的 Windows binary。只有在有意識的發行決策中，
+   才變更應用程式內部版本。
 
 ## 已知殘餘風險
 

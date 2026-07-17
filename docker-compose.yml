@@ -1,6 +1,9 @@
 services:
   capswriter-server:
-    image: ${CAPSWRITER_SERVER_IMAGE:-ghcr.io/df-wu/capswriter-offline-server:latest}
+    image: ${CAPSWRITER_SERVER_IMAGE:-capswriter-offline-v1-local:source}
+    build:
+      context: .
+      dockerfile: docker/server/Dockerfile
     restart: unless-stopped
     deploy:
       resources:

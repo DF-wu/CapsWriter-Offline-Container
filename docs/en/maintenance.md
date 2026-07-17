@@ -38,6 +38,17 @@ No end-of-life date or response-time SLA is promised. Fixes are provided on a be
 
 Passing CI means the portable protocol and server control paths passed. It does not certify audio hardware, desktop integration, a GPU backend, model accuracy, or a distributable executable.
 
+“Windows desktop client” means only the upstream-era `start_client.py` source
+workflow retained in this tree. This line does not include the v2 Web Console,
+no-GUI CLI, Textual TUI, or universal Windows package. Release notes must list
+server/API/container deliverables separately from Windows client source/binary
+status. Never advertise a Windows download unless the release attaches an
+artifact that passed real-Windows qualification.
+
+The current v1 release path is source-only. Compose builds a local v1 image from
+the checkout; the public `ghcr.io/df-wu/capswriter-offline-server:latest` tag is
+v2 and must never be presented as a v1 image.
+
 ## Ingress and security baseline
 
 The maintenance line retains the existing protocol for valid clients and applies these defensive limits:
@@ -73,7 +84,11 @@ The Linux/Python 3.10 lane additionally validates `docker/server/entrypoint.sh` 
 3. Run the portable gate in an isolated environment. Do not use production models, credentials, or writable production volumes.
 4. For runtime-affecting changes, perform the release qualification described above.
 5. Open the pull request with base `archive/v1-legacy`; never merge the legacy line into v2 as a whole.
-6. Tag legacy releases with an unambiguous v1-track name and include the source commit. Change the internal application version only as part of an intentional release decision.
+6. Tag legacy releases as `fork-v1.<minor>.<patch>` (or add `-rc.<n>` for a
+   pre-release), include the exact source commit, and state separately whether
+   the release ships server source, a container image, Windows client source,
+   or a qualified Windows binary. Change the internal application version only
+   as part of an intentional release decision.
 
 ## Known residual risks
 

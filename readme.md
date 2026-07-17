@@ -1,312 +1,141 @@
-# CapsWriter-Offline Linux Server Fork
+# CapsWriter-Offline fork v1 — Legacy Server + Desktop Client
 
-> Offline speech recognition that **runs** on Linux servers and **speaks** OpenAI Whisper's API.
+> **v1 是隔離的 best-effort 維護線。**主要交付是 Linux/headless ASR Server；
+> 同一份 source 保留 upstream 2.5-alpha 時期的 Windows desktop Client 相容性。
+>
+> 繁體中文 · [English](README.en.md)
 
-[![License](https://img.shields.io/badge/license-MIT-blue)](#)
-[![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
-[![OpenAI-Compatible](https://img.shields.io/badge/OpenAI%20Whisper-compatible-10A37F?logo=openai&logoColor=white)](docs/HTTP_API.md)
-[![GPU](https://img.shields.io/badge/GPU-NVIDIA%20%2B%20CPU%20fallback-76B900?logo=nvidia&logoColor=white)](#-configuration-that-matters-first)
-[![Upstream](https://img.shields.io/badge/upstream-HaujetZhao%2FCapsWriter--Offline-181717?logo=github)](https://github.com/HaujetZhao/CapsWriter-Offline)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Track](https://img.shields.io/badge/track-fork--v1%20legacy-64748B)](docs/zh-TW/maintenance.md)
+[![Server](https://img.shields.io/badge/server-Linux%20%7C%20Docker-2496ED?logo=docker&logoColor=white)](docs/docker-server.md)
 
-This repository is a focused fork of [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline). It keeps the upstream recognition stack, but redesigns the **server deployment path** for Linux hosts, containers, GPU-backed machines, and predictable long-running operation.
+## 先理解 v1 的 Server／Client 分工
 
-> Use the upstream project for the original Windows desktop workflow. Use this fork when you want to run CapsWriter as a Linux-friendly server.
+```mermaid
+flowchart LR
+    C[Legacy Windows desktop Client<br/>start_client.py] -->|WebSocket :6016| S[v1 ASR Server<br/>model・FFmpeg・inference]
+    O[OpenAI SDK / curl] -->|選用 HTTP :6017| S
+    S --> R[逐字稿]
+```
 
-> **Legacy-line notice:** this branch is maintained as the v1 compatibility line. Fixes must target `archive/v1-legacy`, not `master`. See the maintenance, version, and support policy in [English](docs/en/maintenance.md) or [繁體中文](docs/zh-TW/maintenance.md).
+| 元件 | v1 內容 | 發行狀態 |
+|---|---|---|
+| **Server** | Linux bare-metal／Docker、WebSocket `6016`、選用 transcription-only HTTP `6017`、model bootstrap、GPU preference／CPU fallback | v1 的主要維護路徑；GitHub Release 提供 source，由使用者在本機 build |
+| **Desktop Client** | Upstream-era `start_client.py`：Windows GUI、tray、hotkey、麥克風、剪貼簿／文字注入 | 只保留 source compatibility；沒有 v1 Windows EXE，除非 release 明確附上經真實 Windows 驗證的 artifact |
+| **外部 API caller** | 相容 SDK／curl 可使用文件列出的 `whisper-1` transcription subset | API interface，不是本 repository 內附的 Client app |
 
----
+**v1 不包含 v2 的 Web Console、no-GUI CLI、Textual TUI 或 universal Windows
+package。**需要這些功能請使用 v2。
 
-## 📑 Table of Contents
+## Release 與 image 邊界
 
-- [🚀 Quick start](#-quick-start)
-- [🤖 OpenAI-Compatible ASR API](#-openai-compatible-asr-api)
-- [🎯 Supported deployment scope](#-supported-deployment-scope)
-- [⚙️ Configuration that matters first](#%EF%B8%8F-configuration-that-matters-first)
-- [🧠 Operational model](#-operational-model)
-- [📦 Example files](#-example-files)
-- [▶️ Common start modes](#%EF%B8%8F-common-start-modes)
-- [💾 Persistence](#-persistence)
-- [✅ What success looks like](#-what-success-looks-like)
-- [📚 Docs and repository map](#-docs-and-repository-map)
-- [🔗 Relationship to upstream](#-relationship-to-upstream)
-- [🤝 Contributing](#-contributing)
-- [🙏 Acknowledgements](#-acknowledgements)
+- v1 GitHub Release 是 **source-only pre-release**。
+- Source archive 同時含 legacy Server/API/container code 與相容保留的 Windows
+  desktop Client source。
+- 目前不發布 v1 container image，也不附 Windows executable。
+- `ghcr.io/df-wu/capswriter-offline-server:latest` 屬於 **v2**；v1 不可使用。
+- v1 Compose 預設從目前 checkout build `capswriter-offline-v1-local:source`。
 
----
+## 快速開始：v1 Linux Server
 
-## Why this fork exists
-
-CapsWriter-Offline already solves offline speech input well on Windows. What it did not provide was a clean path for people who want to run the recognition server on Linux, package it in Docker, and operate it as a stable service.
-
-This fork exists for that deployment target. The goal is straightforward: make the server easier to bootstrap, run, restart, inspect, and recover without changing the core recognition story of the upstream project.
-
-## What you get here
-
-| Capability | Detail |
-| --- | --- |
-| 🐳 **Docker-first** | Linux-oriented Docker image and Compose entry point |
-| 📥 **Auto bootstrap** | Models download automatically at container startup |
-| 🎮 **GPU-aware** | GPU-first runtime selection with graceful CPU fallback |
-| 🖥️ **Headless-safe** | Server defaults tuned for container deployment (no tray, no UI) |
-| 🤖 **OpenAI-compatible** | Optional `POST /v1/audio/transcriptions` endpoint — drop-in for any OpenAI SDK |
-| 🧪 **Easy onboarding** | Root-level example files (`.env.example`, `docker-compose.example.yml`) |
-
----
-
-## 🚀 Quick start
-
-### Prerequisites
-
-- Linux
-- Docker Engine
-- Docker Compose plugin
-- NVIDIA driver and NVIDIA Container Toolkit if you want GPU acceleration
-
-### 1. Prepare local files
+先決條件：Linux、Docker Engine、Compose plugin，以及 model 所需空間。NVIDIA
+GPU 為選用；CPU fallback 可用。
 
 ```bash
 cp .env.example .env
 cp hot-server.example.txt hot-server.txt
-```
-
-### 2. Start the server
-
-```bash
+docker compose build --pull capswriter-server
 docker compose up -d capswriter-server
-```
-
-### 3. Verify health
-
-```bash
 docker compose ps
 docker compose logs -f capswriter-server
 ```
 
-The default WebSocket endpoint is:
+預設 WebSocket：
 
 ```text
 ws://127.0.0.1:6016
 ```
 
-### 4. Stop it
+Model、GPU／CPU、volume 與故障排查請見
+[v1 Docker Server 指南](docs/docker-server.md)。
 
-```bash
-docker compose down
+## 選用 OpenAI 相容 HTTP API
+
+HTTP API 與 WebSocket Server 共用 recognizer，但預設關閉。它只實作文件列出的
+檔案轉錄 subset，不支援 translation 或完整 OpenAI Audio API。
+
+在 `.env` 啟用並設定 token：
+
+```dotenv
+CAPSWRITER_HTTP_API_ENABLE=true
+CAPSWRITER_HTTP_API_BIND=127.0.0.1
+CAPSWRITER_HTTP_API_PORT=6017
+CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 ```
 
----
+取消 `docker-compose.yml` 內 HTTP `ports:` mapping 的註解後重建 Server。相容 SDK
+caller 可以把 base URL 指向 `http://127.0.0.1:6017/v1`；unsupported field 可能
+被拒絕，不能假設所有 OpenAI feature 都存在。
 
-## 🤖 OpenAI-Compatible ASR API
+完整 contract、安全限制與 curl／SDK 範例見
+[HTTP API reference](docs/HTTP_API.md)。
 
-Any OpenAI Whisper client (Python / Node / curl / your favourite app) can talk to this server with **zero code changes** — just point `base_url` at the local service. The endpoint is opt-in and runs **alongside** the WebSocket server, sharing the same recognition subprocess.
+## Legacy Windows Desktop Client
 
-**Three steps to enable:**
+v1 source 保留原始 desktop 流程：
 
-```bash
-# 1. Turn it on in .env (or in docker compose environment)
-echo "CAPSWRITER_HTTP_API_ENABLE=true" >> .env
-
-# 2. Expose port 6017 (uncomment the line in docker-compose.yml under `ports:`)
-#    Or restart with both ports bound:
-docker compose up -d --force-recreate capswriter-server
-
-# 3. Point the OpenAI SDK at it
-python -c "
-from openai import OpenAI
-client = OpenAI(base_url='http://localhost:6017/v1', api_key='dummy')
-with open('sample.mp3', 'rb') as f:
-    print(client.audio.transcriptions.create(model='whisper-1', file=f).text)
-"
+```text
+start_server.py  --WebSocket :6016-->  start_client.py
 ```
 
-| Endpoint | Purpose |
-| --- | --- |
-| `POST /v1/audio/transcriptions` | Whisper-compatible transcription (`json` / `text` / `srt` / `vtt` / `verbose_json`) |
-| `GET  /v1/models` | OpenAI SDK introspection |
-| `GET  /health` | Liveness probe |
+Desktop Client 負責 tray、hotkey、mic、clipboard 與 text injection；Server 才會載入
+model 並推論。這不是 v2 universal package，也沒有隨目前 v1 Release 提供 EXE。
 
-> 📖 **Full reference, security guidance, OpenAI SDK examples, design notes & troubleshooting →  [`docs/HTTP_API.md`](docs/HTTP_API.md)**
+若自行建立 Windows artifact，發行前必須在真實 Windows 主機驗證 launch／exit、
+tray、configured hotkey、microphone、clipboard、FFmpeg、model load、known audio 與
+child-process cleanup。
 
----
+## 支援範圍
 
-## 🎯 Supported deployment scope
+| 路徑 | 狀態 | Automated evidence | 仍需實機驗證 |
+|---|---|---|---|
+| Linux Docker Server | 主要 legacy Server path | Ubuntu tests、Compose config、entrypoint shell、protocol／API units | Disposable image build、model download/load、中英文 known audio、GPU／CPU host |
+| Linux bare-metal Server | Best effort | Python 3.10／3.12 server tests | FFmpeg、native library、model、service supervision |
+| Windows desktop source | Compatibility-preserved | Windows Python 3.10／3.12 syntax／protocol tests | Tray、hotkey、mic、clipboard、PyInstaller artifact |
+| Optional HTTP API | Legacy compatibility | Auth、upload bound、format、routing tests | Live authenticated model-backed transcription |
+| macOS | 未列入 release qualification | 無完整 gate | 不做 project-level support claim |
 
-This repository is intentionally narrow in scope.
+CI 通過不等於 model quality、GPU backend、audio hardware 或 Windows desktop 已通過
+release qualification。
 
-- **Primary target:** Linux + Docker + server deployment
-- **Validated priority path:** NVIDIA Pascal / Tesla P4 class hardware
-- **Default model path:** `qwen_asr`
-- **Alternate supported path:** `fun_asr_nano` via environment configuration
+## 維護與分支規則
 
-This repo is **not** a Linux desktop port of the full project. It is a server-focused deployment fork.
+- 開發 branch：`maintenance/v1`
+- Standing comparison PR base：`archive/v1-legacy`
+- 不可把 v1 merge 到 `master`，也不可把 v2 整體 backport 到 v1。
+- 只接受重大 security、compatibility、model asset 與 contract 修正。
+- v1 tag 使用 `fork-v1.<minor>.<patch>`；pre-release 可加 `-rc.<n>`。
 
----
+詳細政策：
 
-## ⚙️ Configuration that matters first
+- [English maintenance policy](docs/en/maintenance.md)
+- [繁體中文維護政策](docs/zh-TW/maintenance.md)
 
-These are the environment variables most users need first:
+## 文件
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `CAPSWRITER_SERVER_IMAGE` | `ghcr.io/df-wu/capswriter-offline-server:latest` | Docker image to run |
-| `CAPSWRITER_MODEL_TYPE` | `qwen_asr` | Selects the server model |
-| `CAPSWRITER_QWEN_PRESET` | `default` | Qwen runtime preset |
-| `CAPSWRITER_INFERENCE_HARDWARE` | `auto` | `auto`, `gpu`, or `cpu` |
-| `CAPSWRITER_GPU_DEVICE_COUNT` | `all` | GPU request at the Compose layer |
-| `CAPSWRITER_SERVER_PORT` | `6016` | WebSocket port |
-| `CAPSWRITER_LOG_LEVEL` | `INFO` | Server log verbosity |
-| `CAPSWRITER_NUM_THREADS` | `4` | CPU thread hint for CPU-bound stages |
-| `CAPSWRITER_HTTP_API_ENABLE` | `false` | Opt-in OpenAI-compatible REST endpoint (see [docs/HTTP_API.md](docs/HTTP_API.md)) |
-| `CAPSWRITER_HTTP_API_PORT` | `6017` | HTTP API port, if enabled |
+| 文件 | 內容 |
+|---|---|
+| [v1 Docker Server](docs/docker-server.md) | Local source build、models、GPU／CPU、volume、ops |
+| [HTTP API](docs/HTTP_API.md) | Transcription subset、auth、limits、SDK／curl |
+| [v1 維護政策](docs/zh-TW/maintenance.md) | Branch、support、qualification、residual risk |
+| [v1 Release notes](docs/zh-TW/release-notes.md) | RC 交付內容、Server／Client 邊界、剩餘 qualification |
+| [Upstream changelog](docs/CHANGELOG.md) | Upstream-era product history |
 
-See [`.env.example`](.env.example) for the full deployment-oriented template.
+## Upstream 與授權
 
----
+此維護線來自
+[HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
+2.5-alpha 時期的 desktop／recognition code，並加入 fork 的 Linux Server、Docker
+與 HTTP API 維護修正。新功能開發位於 fork v2。
 
-## 🧠 Operational model
-
-At startup, the container follows a fixed boot path:
-
-1. [`docker-compose.yml`](docker-compose.yml) defines the service, port, environment, and volumes.
-2. [`docker/server/entrypoint.sh`](docker/server/entrypoint.sh) selects the hardware path.
-3. [`docker/server/download_models.py`](docker/server/download_models.py) downloads missing model assets and Linux `llama.cpp` libraries.
-4. [`docker/server/probe_backend.py`](docker/server/probe_backend.py) verifies the selected GPU backend when applicable.
-5. [`start_server.py`](start_server.py) and [`core_server.py`](core_server.py) bring up the WebSocket service (and HTTP API if enabled).
-6. [`util/server/service.py`](util/server/service.py) runs recognition in a separate subprocess so model inference does not block the main server loop.
-
-The practical outcome is simple: prefer GPU when available, fall back to CPU when necessary, and keep the service start path predictable.
-
----
-
-## 📦 Example files
-
-This fork includes root-level examples so onboarding does not depend on nested Docker folders:
-
-- [`.env.example`](.env.example)
-- [`docker-compose.example.yml`](docker-compose.example.yml)
-- [`hot-server.example.txt`](hot-server.example.txt)
-
-If you want a local variant without touching the default compose file:
-
-```bash
-cp .env.example .env
-cp hot-server.example.txt hot-server.txt
-cp docker-compose.example.yml docker-compose.local.yml
-docker compose -f docker-compose.local.yml up -d capswriter-server
-```
-
----
-
-## ▶️ Common start modes
-
-### Default `qwen_asr`
-
-```bash
-docker compose up -d capswriter-server
-```
-
-### Switch to `fun_asr_nano`
-
-Use the bundled compose override (no `.env` editing needed):
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml up -d
-```
-
-Or, set it inline for a one-off:
-
-```bash
-CAPSWRITER_MODEL_TYPE=fun_asr_nano \
-docker compose up -d --force-recreate capswriter-server
-```
-
-**When to pick which model:**
-
-| Model | Best for | Trade-off |
-| --- | --- | --- |
-| `qwen_asr` (default) | Long-form transcription, highest accuracy | Slower per request |
-| `fun_asr_nano` | HTTP API / real-time / airi / interactive dictation | Lower accuracy on long/complex sentences |
-
-### Force CPU-only startup
-
-```bash
-CAPSWRITER_GPU_DEVICE_COUNT=0 \
-CAPSWRITER_INFERENCE_HARDWARE=cpu \
-docker compose up -d --force-recreate capswriter-server
-```
-
-### Enable OpenAI-compatible API
-
-```bash
-CAPSWRITER_HTTP_API_ENABLE=true \
-docker compose up -d --force-recreate capswriter-server
-# Remember to also uncomment the second port mapping in docker-compose.yml.
-```
-
----
-
-## 💾 Persistence
-
-The default Compose setup mounts:
-
-- `./models:/app/models`
-- `./hot-server.txt:/app/hot-server.txt`
-- `capswriter-server-logs:/app/logs`
-
-In practice:
-
-- `models/` stores model assets, download cache, and prepared runtime libraries
-- `hot-server.txt` provides the server-side hotword file, mainly relevant for `fun_asr_nano`
-- `capswriter-server-logs` keeps logs persistent without requiring a host bind mount
-
----
-
-## ✅ What success looks like
-
-The deployment is in a good state when all three are true:
-
-1. `docker compose ps` shows the service as `healthy`
-2. `docker compose logs -f capswriter-server` shows model loading and server startup messages
-3. Your client or test tool can connect to `ws://127.0.0.1:${CAPSWRITER_SERVER_PORT}` (and, if enabled, `http://127.0.0.1:${CAPSWRITER_HTTP_API_PORT}/health` returns `{"status":"ok"}`)
-
----
-
-## 📚 Docs and repository map
-
-Start with these files if you want to understand or extend the server path:
-
-- [`readme.md`](readme.md), project front page
-- [`docs/docker-server.md`](docs/docker-server.md), deeper deployment notes
-- [`docs/HTTP_API.md`](docs/HTTP_API.md), OpenAI-compatible HTTP API reference
-- [`docs/en/maintenance.md`](docs/en/maintenance.md) / [`docs/zh-TW/maintenance.md`](docs/zh-TW/maintenance.md), legacy-line maintenance, version, and support policy
-- [`docker-compose.yml`](docker-compose.yml), default deployment entry point
-- [`config_server.py`](config_server.py), runtime configuration surface
-- [`core_server.py`](core_server.py), server bootstrap
-- [`docker/server/Dockerfile`](docker/server/Dockerfile), image definition
-- [`util/server/service.py`](util/server/service.py), recognition subprocess management
-
----
-
-## 🔗 Relationship to upstream
-
-- Upstream project: [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
-- Upstream focus: offline speech input on Windows
-- This fork: Linux- and Docker-oriented server deployment
-
-This fork extends the upstream deployment story. It does not replace the upstream project.
-
----
-
-## 🤝 Contributing
-
-Issues and pull requests that improve the Linux server path are welcome. If you are changing runtime behavior, Docker packaging, or deployment defaults, keep the server-first scope intact and prefer changes that preserve predictable startup and fallback behavior.
-
----
-
-## 🙏 Acknowledgements
-
-- [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
-- [Sherpa-ONNX](https://github.com/k2-fsa/sherpa-onnx)
-- [FunASR](https://github.com/alibaba-damo-academy/FunASR)
-- [llama.cpp](https://github.com/ggml-org/llama.cpp)
-- [FastAPI](https://fastapi.tiangolo.com/) & [uvicorn](https://www.uvicorn.org/) (HTTP API layer)
+License：[MIT](LICENSE)。
