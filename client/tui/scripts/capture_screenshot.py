@@ -25,6 +25,12 @@ DEFAULT_DESCRIPTION = (
     "CapsWriter TUI v2 running in Textual: server connection and diagnostics "
     "controls above a keyboard-first file transcription workspace and transcript panel."
 )
+RICH_REMOTE_FONT_SOURCE = re.compile(
+    r'src:\s*local\("(?P<local>[^"]+)"\),\s*'
+    r'url\("https://cdnjs\.cloudflare\.com/[^"]+"\)\s*format\("woff2"\),\s*'
+    r'url\("https://cdnjs\.cloudflare\.com/[^"]+"\)\s*format\("woff"\);'
+)
+REMOTE_CSS_URL = re.compile(r"url\(\s*['\"]?https?://", re.IGNORECASE)
 
 
 def add_accessibility_metadata(svg: str, description: str) -> str:
@@ -55,17 +61,33 @@ def add_accessibility_metadata(svg: str, description: str) -> str:
     return svg[: title.start()] + replacement + svg[title.end() :]
 
 
+def remove_remote_font_sources(svg: str) -> str:
+    """Keep generated documentation screenshots self-contained and offline-safe."""
+
+    offline = RICH_REMOTE_FONT_SOURCE.sub(
+        lambda match: f'src: local("{match.group("local")}");',
+        svg,
+    )
+    if REMOTE_CSS_URL.search(offline):
+        raise ValueError("Textual screenshot export retained an external CSS URL")
+    return offline
+
+
 async def capture_svg(*, locale: str, width: int, height: int) -> str:
     """Mount the production app and export its rendered screen through Textual."""
 
     app = CapsWriterTui(
         locale=locale,
+        show_clock=False,
         recorder=UnavailableRecorder("optional microphone dependency not installed"),
     )
     async with app.run_test(size=(width, height)) as pilot:
         await pilot.pause()
-        svg = app.export_screenshot(title="CapsWriter TUI v2 — Textual workbench")
-    return add_accessibility_metadata(svg, DEFAULT_DESCRIPTION)
+        svg = remove_remote_font_sources(
+            app.export_screenshot(title="CapsWriter TUI v2 — Textual workbench")
+        )
+    accessible_svg = add_accessibility_metadata(svg, DEFAULT_DESCRIPTION)
+    return "\n".join(line.rstrip() for line in accessible_svg.splitlines()) + "\n"
 
 
 def build_parser() -> argparse.ArgumentParser:

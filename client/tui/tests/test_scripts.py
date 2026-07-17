@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import html
 import os
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -75,6 +77,53 @@ class ScriptTest(unittest.TestCase):
             result,
         )
         self.assertIn('<rect width="10" height="10"/>', result)
+
+    def test_screenshot_removes_remote_font_sources(self) -> None:
+        source = '''
+        <style>
+        @font-face {
+            font-family: "Fira Code";
+            src: local("FiraCode-Regular"),
+                url("https://cdnjs.cloudflare.com/fonts/FiraCode.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/fonts/FiraCode.woff") format("woff");
+        }
+        </style>
+        '''
+
+        result = capture_screenshot.remove_remote_font_sources(source)
+
+        self.assertIn('src: local("FiraCode-Regular");', result)
+        self.assertNotIn("cdnjs.cloudflare.com", result)
+        self.assertNotIn('url("https://', result)
+
+    def test_screenshot_rejects_unknown_remote_css_url(self) -> None:
+        with self.assertRaisesRegex(ValueError, "external CSS URL"):
+            capture_screenshot.remove_remote_font_sources(
+                '<style>src: url("https://example.test/font.woff2")</style>'
+            )
+
+
+class ScreenshotCaptureTest(unittest.IsolatedAsyncioTestCase):
+    async def test_real_capture_is_current_clock_free_and_offline(self) -> None:
+        rendered = await capture_screenshot.capture_svg(
+            locale="en",
+            width=140,
+            height=46,
+        )
+        committed = capture_screenshot.DEFAULT_OUTPUT.read_text(encoding="utf-8")
+
+        self.assertEqual(rendered, committed)
+        self.assertIsNone(capture_screenshot.REMOTE_CSS_URL.search(rendered))
+        header_text = html.unescape(
+            "".join(
+                re.findall(
+                    r'<text[^>]+clip-path="[^"]+-line-0[^"]*"[^>]*>(.*?)</text>',
+                    rendered,
+                )
+            )
+        )
+        self.assertIn("CapsWriter", header_text)
+        self.assertNotRegex(header_text, r"\b\d{1,2}:\d{2}\b")
 
 
 if __name__ == "__main__":

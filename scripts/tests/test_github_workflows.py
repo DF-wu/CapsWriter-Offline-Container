@@ -179,10 +179,18 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertNotIn("6016", job)
         self.assertNotIn("6017", job)
 
-    def test_ci_runs_tui_lock_and_strict_suite_on_python_310_and_312(self) -> None:
+    def test_ci_runs_four_leg_tui_lock_and_strict_suite(self) -> None:
         source = read_workflow("ci.yml")
         tui = workflow_job(source, "tui")
 
+        self.assertIn(
+            "name: ${{ matrix.os }} / TUI Python ${{ matrix.python-version }}",
+            tui,
+        )
+        self.assertIn("runs-on: ${{ matrix.os }}", tui)
+        self.assertIn("os: [ubuntu-24.04, windows-2022]", tui)
+        self.assertIn("venv_python: ./.venv-tui/bin/python", tui)
+        self.assertIn("venv_python: ./.venv-tui/Scripts/python.exe", tui)
         self.assertIn(
             f"uses: actions/setup-python@{PINNED_ACTIONS['actions/setup-python']}",
             tui,
@@ -192,14 +200,16 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertIn("timeout-minutes: 15", tui)
         self.assertIn('PYTHONDONTWRITEBYTECODE: "1"', tui)
         self.assertIn('PYTHONNOUSERSITE: "1"', tui)
-        self.assertIn(
-            'python -m venv "$RUNNER_TEMP/tui-${{ matrix.python-version }}"',
-            tui,
-        )
+        self.assertIn("run: python -m venv .venv-tui", tui)
+        self.assertIn("${{ matrix.venv_python }} -m pip install", tui)
         self.assertIn("--require-hashes", tui)
         self.assertIn("--only-binary=:all:", tui)
         self.assertIn("--requirement requirements-tui.lock", tui)
-        self.assertIn("scripts/verify_tui.py", tui)
+        self.assertIn(
+            "run: ${{ matrix.venv_python }} scripts/verify_tui.py",
+            tui,
+        )
+        self.assertNotIn("exclude:", tui)
         self.assertNotRegex(tui, r"(?m)^\s+if:")
 
     def test_publish_workflows_serialize_runs_per_ref(self) -> None:

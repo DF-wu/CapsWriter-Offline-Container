@@ -5,7 +5,7 @@
 CapsWriter fork v2 has multiple valid entry points. Start with the path that
 matches the machine and interaction model you actually need.
 
-![Real CapsWriter Textual workbench with server diagnostics, file input, optional microphone controls, and transcript output](../assets/tui-workbench.svg)
+![Real CapsWriter Textual workbench with server diagnostics above the visible file-input and transcript panels](../assets/tui-workbench.svg)
 
 The screenshot is generated from the real Textual application, not a mockup.
 It demonstrates one portable client surface; the Windows desktop app, Web

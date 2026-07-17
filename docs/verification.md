@@ -28,9 +28,9 @@ The web dependency install is scoped to `client/web/node_modules`. Nothing is in
 
 The dependency-bearing TUI gate is intentionally separate from the
 dependency-light repository gate. A release candidate must run both supported
-interpreter endpoints, not one representative version. On POSIX, install the
-reviewed lock into two disposable environments and run the strict consumer in
-each:
+interpreter endpoints on each supported CI operating system, not one
+representative version. On POSIX, install the reviewed lock into two disposable
+environments and run the strict consumer in each:
 
 ```bash
 for version in 3.10 3.12; do
@@ -47,8 +47,9 @@ done
 This verifier checks direct-pin/lock parity, installed versions, imports, and
 `pip check`, then runs the complete TUI unit/Pilot suite. Missing dependencies,
 zero discovered tests, and skipped tests are failures rather than optional
-coverage. See the [English](en/tui.md) or [繁體中文](zh-TW/tui.md) guide for the
-runtime workflow and Windows commands.
+coverage. CI repeats the same consumer on Ubuntu 24.04 and Windows 2022 with
+Python 3.10 and 3.12, for four strict legs. See the [English](en/tui.md) or
+[繁體中文](zh-TW/tui.md) guide for the runtime workflow and Windows commands.
 
 ## Options
 
@@ -221,18 +222,20 @@ checkout -> fetch HaujetZhao upstream base -> setup Python 3.12 -> setup Node 24
   -> CAPSWRITER_UPSTREAM_BASE=upstream/master python scripts/verify_all.py
 ```
 
-CI and publish jobs pin the hosted runner label to `ubuntu-24.04` instead of
-the moving `ubuntu-latest` alias, and checkout steps disable persisted git
-credentials because the workflows do not push through the checked-out remote.
+CI and publish jobs use pinned `ubuntu-24.04` and, for cross-platform matrices,
+`windows-2022` runner labels instead of moving `*-latest` aliases. Checkout
+steps disable persisted git credentials because the workflows do not push
+through the checked-out remote.
 The explicit upstream fetch makes the low-drift guard fail CI when the checked-out
 fork tree touches a new upstream-tracked file without documenting that divergence;
 the same command also catches staged or unstaged tracked drift during local review.
 
-The same workflow has an unconditional `tui` matrix job for Python 3.10 and
-3.12. Each matrix leg creates a `$RUNNER_TEMP` virtual environment, installs
-`requirements-tui.lock` with `--require-hashes --only-binary=:all:`, and runs
-`scripts/verify_tui.py` with user-site packages and bytecode writes disabled.
-The matrix does not infer TUI support from the dependency-light root job.
+The same workflow has an unconditional four-leg `tui` matrix for Ubuntu 24.04
+and Windows 2022 with Python 3.10 and 3.12. Each isolated job creates its own
+checkout-local `.venv-tui`, installs `requirements-tui.lock` with
+`--require-hashes --only-binary=:all:`, and runs `scripts/verify_tui.py` with
+user-site packages and bytecode writes disabled. The matrix does not infer TUI
+support from the dependency-light root job.
 
 [`portability.yml`](../.github/workflows/portability.yml) has two independent
 gates. `core-cli` runs the dependency-light desktop/package/CLI contracts on
@@ -265,7 +268,7 @@ For a release candidate, keep these artifacts or logs:
 | Web Console build valid | `npm run verify` logs from inside the root gate |
 | Web Console browser workflow valid | `--web-browser-smoke` gate output |
 | CLI valid | `client/cli/scripts/verify.py` logs from inside the root gate |
-| TUI dependency lock and Textual/Pilot suite valid | isolated `scripts/verify_tui.py` logs on Python 3.10 and 3.12, with zero skips |
+| TUI dependency lock and Textual/Pilot suite valid | isolated four-leg Ubuntu 24.04/Windows 2022 × Python 3.10/3.12 `scripts/verify_tui.py` logs, with zero skips |
 | Portable Windows production package valid | `windows-package` hash-install/build/relocation/reparse inspection and both-EXE self-check logs, uploaded ZIP, and its digest |
 | Docker asset integrity and fallback contract valid | Docker helper tests for schema-2 model/runtime manifests, same-size corruption rejection, bounded backend probes, and mandatory CPU rebootstrap/second probe |
 | Real HTTP server reachable and ready | `--http-base-url --http-require-ready` gate output or `check_http_api.py` output |

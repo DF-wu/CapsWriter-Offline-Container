@@ -73,12 +73,19 @@ jobs:
           "$RUNNER_TEMP/api-contract/bin/python" scripts/verify_api_contract.py
 
   tui:
-    runs-on: ubuntu-24.04
+    name: ${{ matrix.os }} / TUI Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-24.04, windows-2022]
         python-version: ["3.10", "3.12"]
+        include:
+          - os: ubuntu-24.04
+            venv_python: ./.venv-tui/bin/python
+          - os: windows-2022
+            venv_python: ./.venv-tui/Scripts/python.exe
     env:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONNOUSERSITE: "1"
@@ -94,17 +101,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Create isolated TUI environment
-        run: python -m venv "$RUNNER_TEMP/tui-${{ matrix.python-version }}"
+        run: python -m venv .venv-tui
 
       - name: Install hash-locked TUI dependencies
         run: >-
-          "$RUNNER_TEMP/tui-${{ matrix.python-version }}/bin/python" -m pip install
+          ${{ matrix.venv_python }} -m pip install
           --disable-pip-version-check
           --require-hashes
           --only-binary=:all:
           --requirement requirements-tui.lock
 
       - name: Verify TUI without skips
-        run: >-
-          "$RUNNER_TEMP/tui-${{ matrix.python-version }}/bin/python"
-          scripts/verify_tui.py
+        run: ${{ matrix.venv_python }} scripts/verify_tui.py

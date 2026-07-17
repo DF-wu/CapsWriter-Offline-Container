@@ -26,7 +26,7 @@ tray／hook 與 known audio 仍是 automated CI 以外的明確 release evidence
 
 | Surface | 狀態 | Automated evidence | 必要 manual／release evidence |
 |---|---|---|---|
-| Windows desktop package | 支援 | Windows 2022／Python 3.12 hash-only dependency install、PyInstaller build、relocation／ZIP extraction、reparse-point inspection、兩個 EXE import smoke，以及四組 source matrix | 真實 Windows 的 tray、shortcut、microphone、FFmpeg、model/runtime asset、known audio、選用 API、CPU／DirectML／GPU profile 與 clean child shutdown |
+| Windows desktop package | 支援 | Windows 2022／Python 3.12 hash-only dependency install、PyInstaller build、relocation／ZIP extraction、reparse-point inspection、兩個 EXE import smoke，以及四組 source matrix | 真實 Windows 的 tray、shortcut、microphone、FFmpeg、model/runtime asset、known audio、選用 API、CPU、DirectML 與 GPU profile，以及 clean child shutdown |
 | Linux X11 desktop shortcut | 有限支援 | Backend detection、callback mapping、listener wiring、failure downgrade tests | 真實 X11 session、keyboard/mouse device、所選 shortcut 與 text-injection workflow |
 | Linux Wayland global shortcut | 不支援 | Backend 回 unavailable，且不建構 listener | 使用 X11，或改用不需 global hotkey 的 Web／CLI／TUI／file workflow |
 | Linux headless desktop shortcut | 不支援 | Headless backend 回 unavailable | 使用 container／source server 與非 desktop clients |
@@ -37,7 +37,7 @@ tray／hook 與 known audio 仍是 automated CI 以外的明確 release evidence
 | OpenAI 相容 transcription subset | 啟用時支援 | Dedicated exact-pin API contract no-skip job | Production release 的 live authenticated deployment 與 known audio |
 | Web Console | 現代 Windows／Linux browser 支援 | Unit/type/build、browser mock smoke、static-image smoke | Target browser；使用 microphone 時的 permission／secure context；real API／model |
 | 無 GUI CLI | Windows／Linux Python 3.10、3.12 支援 | 四組 OS／Python portability matrix 與 packaged zipapp smoke | 需要 `speak` 時的 target local TTS command／voice |
-| Textual TUI core file workflow | Windows／Linux Python 3.10–3.12 支援 | Python 3.10、3.12 hash-locked no-skip Pilot suite | Target terminal rendering；Windows release 需要 Windows terminal run |
+| Textual TUI core file workflow | Windows／Linux Python 3.10–3.12 支援 | Ubuntu 24.04／Windows 2022 × Python 3.10／3.12 四組 hash-locked no-skip Pilot matrix | Target terminal rendering；Windows release 需要 Windows terminal run |
 | TUI 選用 microphone | Native stack／device 可用時支援 | Bounded recorder unit／Pilot contracts | Target OS 的 `sounddevice`、PortAudio、permission、real device、cleanup |
 | macOS product | 沒有 release gate | 只有個別 portable helper 可能有 tests | 無 project-level desktop／server／client support claim |
 
@@ -160,7 +160,7 @@ output 不足。
 做 supported release claim 前應保留：
 
 - portable Ubuntu／Windows matrix logs；
-- isolated API contract 與 TUI no-skip logs；
+- isolated API contract 與四組 Ubuntu／Windows TUI no-skip logs；
 - root verification、Web build／browser／image smoke、docs、cleanup logs；
 - 發布 Windows binary 時實際上傳 ZIP、digest，以及 hash-install／build／
   relocation／兩個 EXE self-check workflow results；

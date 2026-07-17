@@ -5,7 +5,7 @@
 CapsWriter fork v2 有多個有效入口。請依實際 machine 與 interaction model 選擇
 正確路徑。
 
-![真實 CapsWriter Textual 工作台，包含 server 診斷、檔案輸入、選用麥克風控制與轉錄輸出](../assets/tui-workbench.svg)
+![真實 CapsWriter Textual 工作台；畫面上方是 server 診斷，下方可見檔案輸入與轉錄面板](../assets/tui-workbench.svg)
 
 這張 screenshot 由真實 Textual application 產生，不是 mockup。它示範其中一個
 portable client surface；Windows desktop app、Web Console 與無 GUI CLI 仍是

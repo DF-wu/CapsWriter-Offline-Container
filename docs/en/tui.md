@@ -17,7 +17,9 @@ fully offline setup, point it at your own CapsWriter server.
 This is a real SVG capture of `CapsWriterTui`, mounted headlessly with Textual
 Pilot at 140×46 terminal cells and exported with Textual's SVG renderer. It is
 not a drawn mockup. The capture uses file-only mode so its initial state is
-deterministic and does not open a microphone.
+deterministic and does not open a microphone. Its live clock is disabled and
+external CSS font URLs are removed; the strict suite requires a fresh render to
+match the committed SVG exactly.
 
 Text equivalent: a dark, high-contrast terminal workbench places the API root,
 masked in-memory key, and health/readiness/model diagnostics at the top. A file
@@ -29,7 +31,7 @@ Persistent footer hints expose the primary keyboard commands.
 | Item | Supported behavior |
 |---|---|
 | Operating systems | Windows and Linux in a modern terminal |
-| Python | Lock supports 3.10 through 3.12; CI executes the full suite on 3.10 and 3.12 |
+| Python | Lock supports 3.10 through 3.12; CI runs the complete strict suite in four Ubuntu 24.04/Windows 2022 × Python 3.10/3.12 legs |
 | API | CapsWriter fork v2 `health`, `ready`, `models`, and `audio/transcriptions` routes |
 | Input | Existing local file; optional 16 kHz mono microphone capture |
 | Formats | `text`, `json`, `verbose_json`, `srt`, and `vtt` |
@@ -223,7 +225,8 @@ It validates the supported interpreter range, direct pin and lock parity,
 installed versions, imports, and `pip check`; then it discovers the complete
 TUI unit/Pilot suite. Zero discovered tests, dependency mismatch, import
 failure, test failure, timeout, or even one skipped test fails the command. CI
-runs this consumer independently on Python 3.10 and 3.12.
+runs this consumer independently in four Ubuntu 24.04/Windows 2022 × Python
+3.10/3.12 legs.
 
 Regenerate the real application screenshot after an intentional UI change:
 
@@ -244,7 +247,8 @@ Clean only TUI-owned Python residue:
 
 To update dependencies, change a direct exact pin first, regenerate the
 universal lock from Python 3.10 using the command recorded at its top, and run
-both interpreter gates. Never hand-edit a version or hash in the lock.
+both interpreter gates on Ubuntu and Windows (all four CI legs). Never hand-edit
+a version or hash in the lock.
 
 ## Troubleshooting
 

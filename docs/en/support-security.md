@@ -30,7 +30,7 @@ explicit release evidence outside automated CI.
 
 | Surface | Status | Automated evidence | Required manual/release evidence |
 |---|---|---|---|
-| Windows desktop package | Supported | Windows 2022/Python 3.12 hash-only dependency install, PyInstaller build, relocation/ZIP extraction, reparse-point inspection, and both-EXE import smoke; four-leg source matrix | Tray, shortcuts, microphone, FFmpeg, model/runtime assets, known audio, optional API, CPU/DirectML/GPU profiles, and clean child shutdown on real Windows |
+| Windows desktop package | Supported | Windows 2022/Python 3.12 hash-only dependency install, PyInstaller build, relocation/ZIP extraction, reparse-point inspection, and both-EXE import smoke; four-leg source matrix | Tray, shortcuts, microphone, FFmpeg, model/runtime assets, known audio, optional API, CPU, DirectML, and GPU profiles, plus clean child shutdown on real Windows |
 | Linux X11 desktop shortcuts | Supported with limitations | Backend detection, callback mapping, listener wiring, failure downgrade tests | Real X11 session, keyboard/mouse device, chosen shortcut and text-injection workflow |
 | Linux Wayland global shortcuts | Not supported | Backend reports unavailable and avoids listener construction | Use X11 or non-global-hotkey Web/CLI/TUI/file workflows |
 | Linux headless desktop shortcuts | Not supported | Headless backend reports unavailable | Use container/source server plus non-desktop clients |
@@ -41,7 +41,7 @@ explicit release evidence outside automated CI.
 | OpenAI-compatible transcription subset | Supported when enabled | Dedicated exact-pin API contract job with no skips | Live authenticated deployment and known audio for production release |
 | Web Console | Supported on modern Windows/Linux browsers | Unit/type/build, browser mock smoke, static-image smoke | Target browser, microphone permission/secure context when used, real API/model |
 | No-GUI CLI | Supported on Windows/Linux Python 3.10 and 3.12 | Four-leg OS/Python portability matrix and packaged zipapp smoke | Target local TTS command/voice when `speak` is required |
-| Textual TUI core file workflow | Supported on Windows/Linux Python 3.10–3.12 | Hash-locked no-skip Pilot suite on Python 3.10 and 3.12 | Target terminal rendering; Windows terminal run for a Windows release |
+| Textual TUI core file workflow | Supported on Windows/Linux Python 3.10–3.12 | Four-leg Ubuntu 24.04/Windows 2022 × Python 3.10/3.12 hash-locked no-skip Pilot matrix | Target terminal rendering; Windows terminal run for a Windows release |
 | TUI optional microphone | Supported when native stack/device works | Bounded recorder unit/Pilot contracts | `sounddevice`, PortAudio, permissions, real device and cleanup on target OS |
 | macOS product | Not release-gated | Only isolated portable helpers may have tests | No project-level desktop/server/client support claim |
 
@@ -173,7 +173,7 @@ CI output alone is insufficient.
 Before a supported release claim, retain:
 
 - portable Ubuntu/Windows matrix logs;
-- isolated API contract and TUI no-skip logs;
+- isolated API contract and four-leg Ubuntu/Windows TUI no-skip logs;
 - root verification, Web build/browser/image smoke, docs, and cleanup logs;
 - the exact uploaded Windows ZIP, its digest, and the hash-install/build/
   relocation/both-EXE self-check workflow results when shipping Windows

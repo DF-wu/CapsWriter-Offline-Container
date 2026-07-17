@@ -60,7 +60,8 @@ ApiFactory = Callable[[str, str], ApiSurface]
 @dataclass(frozen=True)
 class DiagnosticLine:
     state: str
-    detail: str
+    detail: str = ""
+    payload: dict[str, Any] | None = None
 
 
 class CapsWriterTui(App[None]):
@@ -353,6 +354,7 @@ class CapsWriterTui(App[None]):
         max_response_bytes: int = DEFAULT_MAX_RESPONSE_BYTES,
         max_recording_seconds: float = DEFAULT_MAX_RECORDING_SECONDS,
         recording_buffer_bytes: int = DEFAULT_MAX_BUFFER_BYTES,
+        show_clock: bool = True,
         api_factory: ApiFactory | None = None,
         recorder: RecorderSurface | None = None,
     ) -> None:
@@ -364,6 +366,7 @@ class CapsWriterTui(App[None]):
         self._diagnostic_timeout = diagnostic_timeout
         self._transcription_timeout = transcription_timeout
         self._max_response_bytes = max_response_bytes
+        self._show_clock = show_clock
         self._api_factory = api_factory or self._default_api_factory
         self._recorder = (
             recorder
@@ -393,6 +396,8 @@ class CapsWriterTui(App[None]):
         self._status_kind = "idle"
         self._status_key = "status_ready"
         self._status_values: dict[str, object] = {}
+        self._network_activity_key: str | None = None
+        self._network_activity_values: dict[str, object] = {}
         self._diagnostics: dict[str, DiagnosticLine] = {}
 
     def _default_api_factory(self, base_url: str, api_key: str) -> ApiSurface:
@@ -410,7 +415,7 @@ class CapsWriterTui(App[None]):
 
     def compose(self) -> ComposeResult:
         t = self.t
-        yield Header(show_clock=True)
+        yield Header(show_clock=self._show_clock)
         with VerticalScroll(id="main-scroll"):
             with Container(id="hero"):
                 yield Static(t("hero_title"), id="hero-title", markup=False)
@@ -540,6 +545,13 @@ class CapsWriterTui(App[None]):
         self._status_kind = kind
         self._status_key = key
         self._status_values = values
+        if kind == "working":
+            self._network_activity_key = key
+            self._network_activity_values = values
+        elif not self._busy:
+            self._network_activity_key = None
+            self._network_activity_values = {}
+        self._update_header_activity()
         if not self._ui_ready("#transcript-status"):
             return
         status = self.query_one("#transcript-status", Static)
@@ -547,13 +559,19 @@ class CapsWriterTui(App[None]):
             status.remove_class(f"state-{state}")
         status.add_class(f"state-{kind}")
         status.update(self.t(key, **values))
-        if kind in {"error", "degraded", "cancelled"}:
+        if kind in {"error", "degraded", "cancelled"} or (
+            kind == "working" and key in {"status_transcribing", "status_saving"}
+        ):
             status.scroll_visible(animate=False)
 
     def _set_recorder_status(self, kind: str, key: str, **values: object) -> None:
+        meaningful_transition = (
+            kind != self._recorder_status_kind or key != self._recorder_status_key
+        )
         self._recorder_status_kind = kind
         self._recorder_status_key = key
         self._recorder_status_values = values
+        self._update_header_activity()
         if not self._ui_ready("#recorder-status"):
             return
         status = self.query_one("#recorder-status", Static)
@@ -561,6 +579,24 @@ class CapsWriterTui(App[None]):
             status.remove_class(f"state-{state}")
         status.add_class(f"state-{kind}")
         status.update(self.t(key, **values))
+        if meaningful_transition:
+            status.scroll_visible(animate=False)
+
+    def _update_header_activity(self) -> None:
+        """Keep active network and microphone work visible above every viewport."""
+
+        if self._recorder_status_kind == "working":
+            self.sub_title = self.t(
+                self._recorder_status_key,
+                **self._recorder_status_values,
+            )
+        elif self._network_activity_key is not None:
+            self.sub_title = self.t(
+                self._network_activity_key,
+                **self._network_activity_values,
+            )
+        else:
+            self.sub_title = ""
 
     def _render_recorder_capability(self) -> None:
         capability = self.query_one("#recorder-capability", Static)
@@ -581,8 +617,12 @@ class CapsWriterTui(App[None]):
 
     def _set_busy(self, busy: bool, *, cancellable: bool = True) -> None:
         self._busy = busy
+        if not busy:
+            self._network_activity_key = None
+            self._network_activity_values = {}
         self._request_cancellable = busy and cancellable
         self._sync_controls()
+        self._update_header_activity()
 
     def _sync_controls(self) -> None:
         if not self._ui_ready("#record-start"):
@@ -622,8 +662,7 @@ class CapsWriterTui(App[None]):
             self._busy or not bool(self._transcript_text)
         )
 
-    @staticmethod
-    def _detail_text(payload: dict[str, Any], *, endpoint: str) -> str:
+    def _detail_text(self, payload: dict[str, Any], *, endpoint: str) -> str:
         if endpoint == "models":
             data = payload.get("data")
             if isinstance(data, list):
@@ -633,7 +672,32 @@ class CapsWriterTui(App[None]):
         for key in ("status", "model", "version", "ready", "task_router_bound"):
             if key in payload and isinstance(payload[key], (str, int, float, bool)):
                 parts.append(f"{key}={payload[key]}")
-        return ", ".join(parts)[:500] or "—"
+
+        checks = payload.get("checks")
+        if isinstance(checks, dict):
+            check_label_keys = {
+                "task_router_bound": "diagnostic_check_task_router_bound",
+                "recognizer_process_alive": "diagnostic_check_recognizer_process_alive",
+                "ffmpeg_available": "diagnostic_check_ffmpeg_available",
+            }
+            ordered_keys = [
+                *check_label_keys,
+                *sorted(key for key in checks if key not in check_label_keys),
+            ]
+            for key in ordered_keys:
+                value = checks.get(key)
+                if not isinstance(value, (str, int, float, bool)):
+                    continue
+                label_key = check_label_keys.get(key)
+                label = self.t(label_key) if label_key else key.replace("_", " ")
+                if isinstance(value, bool):
+                    rendered_value = self.t(
+                        "diagnostic_check_ok" if value else "diagnostic_check_failed"
+                    )
+                else:
+                    rendered_value = str(value)
+                parts.append(f"{label}: {rendered_value}")
+        return "\n  ".join(parts)[:500] or "—"
 
     def _render_diagnostics(self) -> None:
         if not self._diagnostics:
@@ -651,7 +715,11 @@ class CapsWriterTui(App[None]):
                     detail = "—"
                 else:
                     state = self.t(f"diagnostic_{item.state}")
-                    detail = item.detail
+                    detail = (
+                        self._detail_text(item.payload, endpoint=endpoint)
+                        if item.payload is not None
+                        else item.detail
+                    )
                 lines.append(f"{self.t(label_key)} — {state}\n  {detail}")
             rendered = "\n".join(lines)
         self.query_one("#diagnostics", Static).update(rendered)
@@ -746,9 +814,13 @@ class CapsWriterTui(App[None]):
         if self._busy or self._recorder.is_recording or self._recording_control_busy:
             if hasattr(coroutine, "close"):
                 coroutine.close()  # type: ignore[attr-defined]
-            self._set_status("error", "status_failed", error=self.t("error_request_active"))
+            self._report_request_active()
             return
         self.run_worker(coroutine, group=group, exclusive=True, exit_on_error=False)
+
+    def _report_request_active(self) -> None:
+        if self._ui_ready():
+            self.notify(self.t("error_request_active"), severity="warning")
 
     def action_refresh(self) -> None:
         self._start_worker(self._refresh_diagnostics())
@@ -758,9 +830,7 @@ class CapsWriterTui(App[None]):
             if hasattr(coroutine, "close"):
                 coroutine.close()  # type: ignore[attr-defined]
             if self._busy:
-                self._set_status(
-                    "error", "status_failed", error=self.t("error_request_active")
-                )
+                self._report_request_active()
             return
         self._recording_control_busy = True
         self._sync_controls()
@@ -807,6 +877,9 @@ class CapsWriterTui(App[None]):
 
     def action_start_recording(self) -> None:
         if self._recording_control_busy:
+            return
+        if self._busy:
+            self._report_request_active()
             return
         if not self._recorder.available:
             reason = self._recorder.unavailable_reason
@@ -987,7 +1060,7 @@ class CapsWriterTui(App[None]):
                 failed = failed or state != "ok"
                 self._diagnostics[endpoint] = DiagnosticLine(
                     state,
-                    self._detail_text(result.payload, endpoint=endpoint),
+                    payload=result.payload,
                 )
             self._render_diagnostics()
             if failed:
@@ -1055,6 +1128,9 @@ class CapsWriterTui(App[None]):
             self._set_status("cancelled", "status_cancelled")
 
     def action_save(self) -> None:
+        if self._busy or self._recorder.is_recording or self._recording_control_busy:
+            self._report_request_active()
+            return
         if not self._transcript_text:
             self._set_status("error", "status_failed", error=self.t("error_no_transcript"))
             return
@@ -1071,7 +1147,7 @@ class CapsWriterTui(App[None]):
         audio_value = self.query_one("#audio-file", Input).value.strip().strip('"')
         if audio_value:
             source = Path(audio_value).expanduser()
-            if str(target.absolute()).casefold() == str(source.absolute()).casefold():
+            if self._same_path(target, source):
                 self._set_status(
                     "error", "status_failed", error=self.t("error_output_is_audio")
                 )
@@ -1093,8 +1169,8 @@ class CapsWriterTui(App[None]):
             self._set_busy(False)
 
     def action_clear(self) -> None:
-        if self._busy:
-            self._set_status("error", "status_failed", error=self.t("error_request_active"))
+        if self._busy or self._recorder.is_recording or self._recording_control_busy:
+            self._report_request_active()
             return
         self._transcript_text = ""
         self.query_one("#transcript", TextArea).load_text("")

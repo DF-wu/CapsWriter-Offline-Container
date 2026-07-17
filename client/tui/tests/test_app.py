@@ -19,8 +19,22 @@ from client.tui.recorder import (
 
 
 class FakeApi:
-    def __init__(self, *, transcript: str = "Hello, 世界") -> None:
+    def __init__(
+        self,
+        *,
+        transcript: str = "Hello, 世界",
+        readiness_checks: dict[str, bool] | None = None,
+    ) -> None:
         self.transcript = transcript
+        self.readiness_checks = (
+            {
+                "task_router_bound": True,
+                "recognizer_process_alive": True,
+                "ffmpeg_available": True,
+            }
+            if readiness_checks is None
+            else dict(readiness_checks)
+        )
         self.transcribe_started = asyncio.Event()
         self.transcribe_release = asyncio.Event()
         self.slow = False
@@ -31,7 +45,30 @@ class FakeApi:
         return EndpointResult(200, {"status": "ok", "model": "mock-asr"})
 
     async def ready(self) -> EndpointResult:
-        return EndpointResult(200, {"status": "ready", "task_router_bound": True})
+        checks = dict(self.readiness_checks)
+        ready = all(checks.values())
+        return EndpointResult(
+            200 if ready else 503,
+            {
+                "status": "ok" if ready else "degraded",
+                "model": "mock-asr",
+                "version": "test-v2",
+                "checks": checks,
+                "config": {
+                    "auth_enabled": False,
+                    "max_upload_mb": 256,
+                    "max_audio_seconds": 600.0,
+                    "task_timeout": 120.0,
+                    "max_concurrent_requests": 1,
+                    "max_pending_requests": 4,
+                    "max_websocket_connections": 32,
+                    "max_websocket_task_seconds": 120.0,
+                    "cors_enabled": False,
+                    "cors_origins_count": 0,
+                    "log_transcripts": False,
+                },
+            },
+        )
 
     async def models(self) -> EndpointResult:
         return EndpointResult(200, {"object": "list", "data": [{"id": "mock-asr"}]})
@@ -183,6 +220,77 @@ class AppPilotTest(unittest.IsolatedAsyncioTestCase):
             self.assertNotIn("super-secret", diagnostics + status)
         self.assertEqual(calls, [("http://127.0.0.1:6017", "super-secret")])
 
+    async def test_degraded_readiness_renders_nested_checks_bilingually(self) -> None:
+        cases = (
+            (
+                "en",
+                (
+                    "Readiness — DEGRADED",
+                    "Task router bound: OK",
+                    "Recognizer process alive: FAILED",
+                    "FFmpeg available: FAILED",
+                ),
+            ),
+            (
+                "zh-Hant",
+                (
+                    "就緒狀態 — 功能受限",
+                    "任務路由已綁定: 正常",
+                    "辨識程序仍在執行: 失敗",
+                    "FFmpeg 可用: 失敗",
+                ),
+            ),
+        )
+        for locale, expected_details in cases:
+            with self.subTest(locale=locale):
+                fake = FakeApi(
+                    readiness_checks={
+                        "task_router_bound": True,
+                        "recognizer_process_alive": False,
+                        "ffmpeg_available": False,
+                    }
+                )
+                app = CapsWriterTui(
+                    locale=locale,
+                    recorder=UnavailableRecorder("not used"),
+                    api_factory=lambda _url, _key, fake=fake: fake,
+                )
+                async with app.run_test(size=(100, 30)) as pilot:
+                    await pilot.press("f5")
+                    await app.workers.wait_for_complete()
+                    diagnostics = str(app.query_one("#diagnostics", Static).content)
+                    for expected in expected_details:
+                        self.assertIn(expected, diagnostics)
+                    self.assertNotIn("task_router_bound", diagnostics)
+                    self.assertNotIn("recognizer_process_alive", diagnostics)
+
+    async def test_readiness_details_retranslate_after_locale_switch(self) -> None:
+        fake = FakeApi(
+            readiness_checks={
+                "task_router_bound": True,
+                "recognizer_process_alive": False,
+                "ffmpeg_available": False,
+            }
+        )
+        app = CapsWriterTui(
+            locale="en",
+            recorder=UnavailableRecorder("not used"),
+            api_factory=lambda _url, _key: fake,
+        )
+        async with app.run_test(size=(100, 30)) as pilot:
+            await pilot.press("f5")
+            await app.workers.wait_for_complete()
+            english = str(app.query_one("#diagnostics", Static).content)
+            self.assertIn("Task router bound: OK", english)
+
+            await pilot.press("ctrl+l")
+            await pilot.pause()
+            chinese = str(app.query_one("#diagnostics", Static).content)
+            self.assertIn("任務路由已綁定: 正常", chinese)
+            self.assertIn("辨識程序仍在執行: 失敗", chinese)
+            self.assertNotIn("Task router bound", chinese)
+            self.assertNotIn("FAILED", chinese)
+
     async def test_transcribe_display_save_and_clear_flow(self) -> None:
         fake = FakeApi(transcript="A durable transcript.")
         with tempfile.TemporaryDirectory() as directory:
@@ -227,6 +335,40 @@ class AppPilotTest(unittest.IsolatedAsyncioTestCase):
                     "[CANCELLED]", str(app.query_one("#transcript-status", Static).content)
                 )
                 self.assertTrue(app.query_one("#cancel", Button).disabled)
+
+    async def test_rejected_shortcut_preserves_active_request_status(self) -> None:
+        fake = FakeApi(transcript="completed after the rejected refresh")
+        fake.slow = True
+        with tempfile.TemporaryDirectory() as directory:
+            audio = Path(directory, "meeting.wav")
+            audio.write_bytes(b"audio")
+            app = CapsWriterTui(api_factory=lambda _url, _key: fake)
+            async with app.run_test(size=(80, 24)) as pilot:
+                app.query_one("#audio-file", Input).value = str(audio)
+                await pilot.press("ctrl+t")
+                await asyncio.wait_for(fake.transcribe_started.wait(), timeout=1)
+                working_status = str(
+                    app.query_one("#transcript-status", Static).content
+                )
+                self.assertIn("[WORKING]", working_status)
+                self.assertIn("[WORKING]", app.sub_title)
+
+                await pilot.press("f5")
+                await pilot.pause()
+                self.assertEqual(
+                    str(app.query_one("#transcript-status", Static).content),
+                    working_status,
+                )
+                self.assertIn("[WORKING]", app.sub_title)
+                self.assertFalse(fake.cancelled)
+
+                fake.transcribe_release.set()
+                await app.workers.wait_for_complete()
+                self.assertEqual(
+                    app.query_one("#transcript", TextArea).text,
+                    fake.transcript,
+                )
+                self.assertEqual(app.sub_title, "")
 
     async def test_error_reflecting_key_is_redacted_from_status(self) -> None:
         class FailingApi(FakeApi):
@@ -275,6 +417,31 @@ class AppPilotTest(unittest.IsolatedAsyncioTestCase):
                     str(app.query_one("#transcript-status", Static).content),
                 )
 
+    async def test_save_refuses_parent_alias_of_source_audio(self) -> None:
+        fake = FakeApi(transcript="safe output")
+        with tempfile.TemporaryDirectory() as directory:
+            audio = Path(directory, "meeting.wav")
+            audio.write_bytes(b"original audio")
+            existing_subdirectory = Path(directory, "existing")
+            existing_subdirectory.mkdir()
+            aliased_output = existing_subdirectory / ".." / audio.name
+            self.assertNotEqual(str(aliased_output), str(audio))
+            self.assertEqual(aliased_output.resolve(), audio.resolve())
+
+            app = CapsWriterTui(api_factory=lambda _url, _key: fake)
+            async with app.run_test(size=(80, 24)) as pilot:
+                app.query_one("#audio-file", Input).value = str(audio)
+                await pilot.press("ctrl+t")
+                await app.workers.wait_for_complete()
+                app.query_one("#output-file", Input).value = str(aliased_output)
+                await pilot.press("ctrl+s")
+                await app.workers.wait_for_complete()
+                self.assertEqual(audio.read_bytes(), b"original audio")
+                self.assertIn(
+                    "must not overwrite",
+                    str(app.query_one("#transcript-status", Static).content),
+                )
+
     async def test_unavailable_recorder_keeps_file_transcription_working(self) -> None:
         fake = FakeApi()
         with tempfile.TemporaryDirectory() as directory:
@@ -299,11 +466,17 @@ class AppPilotTest(unittest.IsolatedAsyncioTestCase):
         async with app.run_test(size=(80, 24)) as pilot:
             await pilot.press("f8")
             await app.workers.wait_for_complete()
+            await pilot.pause()
             self.assertTrue(recorder.is_recording)
             self.assertTrue(app.query_one("#audio-file", Input).disabled)
             self.assertFalse(app.query_one("#record-stop", Button).disabled)
-            self.assertIn(
-                "[RECORDING]", str(app.query_one("#recorder-status", Static).content)
+            recorder_status = app.query_one("#recorder-status", Static)
+            self.assertIn("[RECORDING]", str(recorder_status.content))
+            self.assertIn("[RECORDING]", app.sub_title)
+            recorder_geometry = app.screen.find_widget(recorder_status)
+            self.assertEqual(
+                recorder_geometry.visible_region,
+                recorder_geometry.region,
             )
 
             await pilot.press("f8")
@@ -319,6 +492,7 @@ class AppPilotTest(unittest.IsolatedAsyncioTestCase):
                 "Press Transcribe once",
                 str(app.query_one("#recorder-status", Static).content),
             )
+            self.assertNotIn("[RECORDING]", app.sub_title)
 
     async def test_recording_transcribes_once_then_deletes_private_wav(self) -> None:
         recorder = MockRecorder()
