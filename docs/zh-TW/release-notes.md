@@ -53,8 +53,9 @@ translation 或完整 OpenAI Audio API。
 
 - Ubuntu 24.04 與 Windows 2022。
 - Python 3.10 與 3.12。
-- 每組 45 個 maintenance tests、compile、Compose／entrypoint validation、focused
-  Ruff／actionlint 與 dependency audit。
+- 每個 matrix leg 都執行完整 maintenance test suite 與 compile checks。
+- Compose／entrypoint validation 只在 Ubuntu 24.04／Python 3.10 validation job
+  執行。
 - Maintenance source baseline 的 duplicate push／PR matrix 全部通過。
 
 ## Stable v1 release 前仍需

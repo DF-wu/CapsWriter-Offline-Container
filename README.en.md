@@ -71,17 +71,21 @@ Enable it in `.env` with a token:
 
 ```dotenv
 CAPSWRITER_HTTP_API_ENABLE=true
-CAPSWRITER_HTTP_API_BIND=127.0.0.1
+CAPSWRITER_HTTP_API_BIND=0.0.0.0
+CAPSWRITER_HTTP_API_HOST_BIND=127.0.0.1
 CAPSWRITER_HTTP_API_PORT=6017
 CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 ```
 
-Uncomment the HTTP `ports:` mapping in `docker-compose.yml` and recreate the
-server. Compatible callers may point their base URL at
-`http://127.0.0.1:6017/v1`; unsupported fields may be rejected.
+Recreate the server after changing `.env`. Compose passes these settings into
+the container and publishes port `6017` on host loopback by default. Keep
+`CAPSWRITER_HTTP_API_HOST_BIND=127.0.0.1` unless a trusted reverse proxy with
+authentication and TLS requires a wider host bind. Compatible callers may
+point their base URL at `http://127.0.0.1:6017/v1`; unsupported fields may be
+rejected.
 
-See [HTTP API reference](docs/HTTP_API.md) for the exact contract, security
-limits, and SDK/curl examples.
+See the [English HTTP API guide](docs/en/http-api.md) for the exact contract,
+security limits, and SDK/curl examples.
 
 ## Legacy Windows desktop client
 
@@ -130,10 +134,10 @@ Policies:
 | Document | Covers |
 |---|---|
 | [v1 Docker server](docs/docker-server.md) | Local source build, models, GPU/CPU, volumes, operations |
-| [HTTP API](docs/HTTP_API.md) | Transcription subset, auth, limits, SDK/curl |
+| [HTTP API](docs/en/http-api.md) | Transcription subset, auth, limits, SDK/curl |
 | [v1 maintenance policy](docs/en/maintenance.md) | Branches, support, qualification, residual risks |
 | [v1 release notes](docs/en/release-notes.md) | RC deliverables, server/client boundary, remaining qualification |
-| [Upstream changelog](docs/CHANGELOG.md) | Upstream-era product history |
+| [Upstream release history](https://github.com/HaujetZhao/CapsWriter-Offline/releases) | Upstream-era product history |
 
 ## Upstream and license
 

@@ -56,8 +56,9 @@ are not implemented.
 
 - Ubuntu 24.04 and Windows 2022.
 - Python 3.10 and 3.12.
-- 45 maintenance tests per matrix leg, compile checks, Compose/entrypoint
-  validation, focused Ruff/actionlint checks, and dependency audits.
+- Every matrix leg runs the full maintenance test suite and compile checks.
+- Compose and entrypoint validation run in the Ubuntu 24.04 / Python 3.10
+  validation job.
 - Duplicate push/PR matrices passed at the maintenance source baseline.
 
 ## Still required before a stable v1 release

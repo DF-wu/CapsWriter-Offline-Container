@@ -68,14 +68,17 @@ HTTP API 與 WebSocket Server 共用 recognizer，但預設關閉。它只實作
 
 ```dotenv
 CAPSWRITER_HTTP_API_ENABLE=true
-CAPSWRITER_HTTP_API_BIND=127.0.0.1
+CAPSWRITER_HTTP_API_BIND=0.0.0.0
+CAPSWRITER_HTTP_API_HOST_BIND=127.0.0.1
 CAPSWRITER_HTTP_API_PORT=6017
 CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 ```
 
-取消 `docker-compose.yml` 內 HTTP `ports:` mapping 的註解後重建 Server。相容 SDK
-caller 可以把 base URL 指向 `http://127.0.0.1:6017/v1`；unsupported field 可能
-被拒絕，不能假設所有 OpenAI feature 都存在。
+修改 `.env` 後重建 Server。Compose 會把設定傳入 container，並預設只在 host
+loopback 發布 `6017`。除非前方已有可信任且具 authentication 與 TLS 的 reverse
+proxy，否則請保留 `CAPSWRITER_HTTP_API_HOST_BIND=127.0.0.1`。相容 SDK caller
+可以把 base URL 指向 `http://127.0.0.1:6017/v1`；unsupported field 可能被拒絕，
+不能假設所有 OpenAI feature 都存在。
 
 完整 contract、安全限制與 curl／SDK 範例見
 [HTTP API reference](docs/HTTP_API.md)。
@@ -129,7 +132,7 @@ release qualification。
 | [HTTP API](docs/HTTP_API.md) | Transcription subset、auth、limits、SDK／curl |
 | [v1 維護政策](docs/zh-TW/maintenance.md) | Branch、support、qualification、residual risk |
 | [v1 Release notes](docs/zh-TW/release-notes.md) | RC 交付內容、Server／Client 邊界、剩餘 qualification |
-| [Upstream changelog](docs/CHANGELOG.md) | Upstream-era product history |
+| [Upstream release history](https://github.com/HaujetZhao/CapsWriter-Offline/releases) | Upstream-era product history |
 
 ## Upstream 與授權
 
