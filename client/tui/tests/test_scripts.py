@@ -102,6 +102,23 @@ class ScriptTest(unittest.TestCase):
                 '<style>src: url("https://example.test/font.woff2")</style>'
             )
 
+    def test_screenshot_normalizes_process_randomized_identifier(self) -> None:
+        source = (
+            '<style>.terminal-987654-matrix { color: white; }</style>'
+            '<g id="terminal-987654-line-0" class="terminal-987654-matrix"/>'
+        )
+
+        result = capture_screenshot.normalize_render_identifier(source)
+
+        self.assertNotIn("terminal-987654", result)
+        self.assertEqual(result.count("terminal-capswriter"), 3)
+
+    def test_screenshot_rejects_ambiguous_render_identifiers(self) -> None:
+        with self.assertRaisesRegex(ValueError, "one Rich terminal identifier"):
+            capture_screenshot.normalize_render_identifier(
+                '<g class="terminal-1-x terminal-2-y"/>'
+            )
+
 
 class ScreenshotCaptureTest(unittest.IsolatedAsyncioTestCase):
     async def test_real_capture_is_current_clock_free_and_offline(self) -> None:

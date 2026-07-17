@@ -31,6 +31,8 @@ RICH_REMOTE_FONT_SOURCE = re.compile(
     r'url\("https://cdnjs\.cloudflare\.com/[^"]+"\)\s*format\("woff"\);'
 )
 REMOTE_CSS_URL = re.compile(r"url\(\s*['\"]?https?://", re.IGNORECASE)
+RICH_TERMINAL_IDENTIFIER = re.compile(r"terminal-[0-9]+")
+STABLE_TERMINAL_IDENTIFIER = "terminal-capswriter"
 
 
 def add_accessibility_metadata(svg: str, description: str) -> str:
@@ -73,6 +75,17 @@ def remove_remote_font_sources(svg: str) -> str:
     return offline
 
 
+def normalize_render_identifier(svg: str) -> str:
+    """Remove Rich's process-randomized terminal identifier from an SVG."""
+
+    identifiers = set(RICH_TERMINAL_IDENTIFIER.findall(svg))
+    if len(identifiers) != 1:
+        raise ValueError(
+            "Textual screenshot export must contain one Rich terminal identifier"
+        )
+    return RICH_TERMINAL_IDENTIFIER.sub(STABLE_TERMINAL_IDENTIFIER, svg)
+
+
 async def capture_svg(*, locale: str, width: int, height: int) -> str:
     """Mount the production app and export its rendered screen through Textual."""
 
@@ -83,8 +96,10 @@ async def capture_svg(*, locale: str, width: int, height: int) -> str:
     )
     async with app.run_test(size=(width, height)) as pilot:
         await pilot.pause()
-        svg = remove_remote_font_sources(
-            app.export_screenshot(title="CapsWriter TUI v2 — Textual workbench")
+        svg = normalize_render_identifier(
+            remove_remote_font_sources(
+                app.export_screenshot(title="CapsWriter TUI v2 — Textual workbench")
+            )
         )
     accessible_svg = add_accessibility_metadata(svg, DEFAULT_DESCRIPTION)
     return "\n".join(line.rstrip() for line in accessible_svg.splitlines()) + "\n"
