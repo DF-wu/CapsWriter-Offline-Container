@@ -2,6 +2,20 @@
 
 > [Documentation home](README.md) · [繁體中文](../zh-TW/release-notes.md) · [Getting started](getting-started.md)
 
+## Unreleased — upstream refresh
+
+On `feat/v2-upstream-settings-20260918`, merge `a1cdd45` incorporates upstream
+through `84912d5`, including the split-token text-loss fix. The fork retains
+Python 3.10–3.12 and its pinned llama.cpp b7798 runtime compatibility rather
+than requiring upstream's Python 3.14/b10621 environment. This branch state
+does not indicate a release, image publication, or production deployment.
+
+A separate v1 PR is preparing the approved one-time full upstream refresh,
+including the `util/` to `core/` migration while preserving v1 server,
+container, and API contracts. `maintenance/v1` keeps its legacy baseline until
+that PR merges; v1 and v2 release channels remain separate. See the current
+[maintenance policy](versioning.md).
+
 ## fork-v2.0.0-rc.1 — cross-platform release candidate
 
 Release-candidate date: **2026-07-18**. `fork-v2.0.0-rc.1` is intended for
@@ -12,12 +26,9 @@ substitute. The GitHub pre-release records those exact run, artifact, checksum,
 image-tag, and digest references. The real-device/model qualification listed
 below remains required before a stable release.
 
-![Fork maintenance flow: released upstream changes enter active v2 while only critical or security fixes are manually backported to isolated v1](../assets/version-tracks.svg)
-
-Text equivalent: upstream releases merge into active fork v2, which passes
-Linux, Windows, API, TUI, Web, and security gates before release. Legacy fork
-v1 never merges v2; a critical/security fix may be manually ported and must pass
-separate legacy container, API, and model-asset checks.
+This candidate's original maintenance policy limited v1 to focused backports.
+The current policy additionally permits the one-time v1 upstream refresh
+described above. Both tracks still require their own checks before release.
 
 ## Release theme
 
@@ -152,7 +163,8 @@ Git history. Treat the migration as a parallel deployment:
 4. point one client at v2;
 5. migrate gradually and keep v1 stopped but recoverable through rollback.
 
-Never merge or bulk cherry-pick v2 into `maintenance/v1`. See the
+The approved one-time v1 refresh imports upstream on its own branch and ports
+v1 integration; it does not merge the v2 product into `maintenance/v1`. See the
 [maintenance policy](versioning.md).
 
 ## Known limitations

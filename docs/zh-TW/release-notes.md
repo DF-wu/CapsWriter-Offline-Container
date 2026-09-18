@@ -2,6 +2,17 @@
 
 > [文件首頁](README.md) · [English](../en/release-notes.md) · [開始使用](getting-started.md)
 
+## 尚未發布 — 上游同步
+
+`feat/v2-upstream-settings-20260918` 上的 merge `a1cdd45` 已整合上游至
+`84912d5`，包含跨分片 token 拼接吞字修正。Fork 保留 Python 3.10–3.12 與
+固定的 llama.cpp b7798 執行環境相容性，不要求採用上游 Python 3.14／b10621
+環境。此功能分支狀態不代表版本發布、image 發布或正式環境部署。
+
+獨立的 v1 PR 正在準備已核准的一次性完整上游同步，包含 `util/` → `core/`
+遷移，並保留 v1 server、容器與 API 契約。該 PR 合併前，`maintenance/v1`
+仍維持舊基線；v1 與 v2 發布管道繼續分開。詳見目前的[維護政策](versioning.md)。
+
 ## fork-v2.0.0-rc.1 — 跨平台 release candidate
 
 Release candidate 日期：**2026-07-18**。`fork-v2.0.0-rc.1` 預定以 GitHub
@@ -11,11 +22,8 @@ workflows；較早的 branch／baseline run 不能替代。GitHub pre-release �
 commit 的 run、artifact、checksum、image tag 與 digest。下方 real-device／model
 qualification 仍須在 stable release 前補齊。
 
-![Fork 維護流程：上游正式變更進入 active v2，只有重大或安全修正才人工回移到隔離 v1](../assets/version-tracks.svg)
-
-文字等價說明：上游 release 會 merge 到 active fork v2，通過 Linux、Windows、
-API、TUI、Web、security gates 後才發布。Legacy fork v1 絕不 merge v2；重大／
-安全修正可人工 port，且必須通過獨立 legacy container、API、model-asset checks。
+此 candidate 原先的維護政策將 v1 限於聚焦 backport。目前政策已另行允許上述
+一次性 v1 上游同步。兩個維護軌仍須各自通過檢查，才能發布。
 
 ## Release 主題
 
@@ -138,7 +146,8 @@ deployment 移轉：
 4. 先把一個 client 指向 v2；
 5. 逐步 migration，rollback window 內讓 v1 停止但可復原。
 
-不可把 v2 merge 或大量 cherry-pick 到 `maintenance/v1`。詳見
+已核准的一次性 v1 同步會在自己的分支導入上游並移植 v1 整合，不會把 v2
+產品合併到 `maintenance/v1`。詳見
 [維護政策](versioning.md)。
 
 ## 已知限制
