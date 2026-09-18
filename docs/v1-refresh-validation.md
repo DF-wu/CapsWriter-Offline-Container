@@ -19,6 +19,11 @@ no external network, a 4 CPU limit and a 12 GiB memory limit.
   wraps streams. **393 tests passed** locally with `PYTHONIOENCODING=cp1252:strict`,
   including two new subprocess regressions for redirected output and GUI builds
   without standard streams. Windows CI must rerun against this follow-up.
+- Subsequent Windows CI passed the maintenance, core/client and HTTP API suites.
+  It then exposed an incorrect CI platform assignment: Linux container bootstrap
+  tests require `O_NOFOLLOW` and `fchmod`. The workflow now runs those tests only
+  on Ubuntu, retaining all three portable suites on Windows and the complete
+  four-suite gate on Linux. Secure downloader behavior is unchanged.
 - Python 3.10 syntax parsing: **348 modules passed**.
 - `uv lock --check --offline`: passed (268 packages resolved).
 - Base, NVIDIA, and Intel/AMD Compose configurations: passed `config --quiet`.

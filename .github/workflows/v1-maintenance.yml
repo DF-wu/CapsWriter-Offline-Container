@@ -34,6 +34,7 @@ jobs:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONNOUSERSITE: "1"
       PYTHONUTF8: "1"
+      CAPSWRITER_LOG_DIR: ${{ runner.temp }}/capswriter-maintenance-logs
 
     steps:
       - name: Check out v1 refresh line
@@ -55,10 +56,19 @@ jobs:
           --only-binary=:all:
           --requirement requirements-maintenance.txt
 
-      - name: Run protocol and server regression tests
-        env:
-          CAPSWRITER_LOG_DIR: ${{ runner.temp }}/capswriter-maintenance-logs
-        run: python scripts/verify_v1.py
+      - name: Run maintenance regression tests
+        run: python -m unittest discover -s tests -p "test_*.py"
+
+      - name: Run core and desktop regression tests
+        run: python -m unittest discover -s scripts/tests -p "test_*.py"
+
+      - name: Run HTTP API regression tests
+        run: python -m unittest discover -s fork_server/http_api/tests -p "test_*.py"
+
+      # Secure container bootstrap deliberately depends on POSIX filesystem APIs.
+      - name: Run Linux container bootstrap regression tests
+        if: runner.os == 'Linux'
+        run: python -m unittest discover -s docker/server/tests -p "test_*.py"
 
       - name: Compile supported entry points
         run: >-

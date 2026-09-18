@@ -68,7 +68,7 @@ providers require separate validation from portable Python tests.
 
 ## Verification
 
-Run the current CI gate in an isolated environment:
+Run the full Linux CI gate in an isolated environment:
 
 ```bash
 python -m pip install -r requirements-maintenance.txt
@@ -77,6 +77,11 @@ python -m compileall -q config_client.py config_server.py start_client.py start_
 bash -n docker/server/entrypoint.sh
 docker compose --env-file .env.example config --quiet
 ```
+
+Windows CI runs the `tests`, `scripts/tests`, and `fork_server/http_api/tests`
+suites individually. The `docker/server/tests` suite is Linux-only: container
+bootstrap deliberately requires POSIX `O_NOFOLLOW`, directory file descriptors,
+and advisory locking. All four suites remain required on Ubuntu.
 
 The workflow file is the authority for its current OS/Python matrix. Record
 actual test results against the exact source revision; historical CI evidence

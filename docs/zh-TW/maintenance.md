@@ -60,7 +60,7 @@ runtime 設定為準；壓縮檔大小限制不能取代解碼音訊限制。未
 
 ## 驗證方式
 
-在隔離環境執行目前 CI gate：
+在隔離環境執行完整 Linux CI gate：
 
 ```bash
 python -m pip install -r requirements-maintenance.txt
@@ -69,6 +69,10 @@ python -m compileall -q config_client.py config_server.py start_client.py start_
 bash -n docker/server/entrypoint.sh
 docker compose --env-file .env.example config --quiet
 ```
+
+Windows CI 分別執行 `tests`、`scripts/tests`、`fork_server/http_api/tests`。
+`docker/server/tests` 僅在 Linux 執行：容器 bootstrap 刻意依賴 POSIX
+`O_NOFOLLOW`、目錄 file descriptor 與 advisory lock。Ubuntu 仍須通過四套測試。
 
 目前 OS／Python 矩陣以 workflow 為準。測試結果必須對應確切 source revision；
 歷史 CI 證據不能代替本次更新驗證。發行前應包含一次性容器 build／bootstrap、

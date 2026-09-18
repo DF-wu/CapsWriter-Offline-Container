@@ -34,7 +34,14 @@ class MaintenanceWorkflowTests(unittest.TestCase):
 
         self.assertIn('- "3.10"', source)
         self.assertIn('- "3.12"', source)
-        self.assertIn("python scripts/verify_v1.py", source)
+        for suite in ("tests", "scripts/tests", "fork_server/http_api/tests"):
+            self.assertIn(f'run: python -m unittest discover -s {suite} -p "test_*.py"', source)
+        self.assertRegex(
+            source,
+            r"name: Run Linux container bootstrap regression tests\n"
+            r"\s+if: runner\.os == 'Linux'\n"
+            r"\s+run: python -m unittest discover -s docker/server/tests",
+        )
 
 
 if __name__ == "__main__":
