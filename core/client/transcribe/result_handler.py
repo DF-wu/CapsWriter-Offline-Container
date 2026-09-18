@@ -13,41 +13,57 @@ class ResultHandler:
     """结果处理器：负责文本格式化和文件保存"""
 
     @staticmethod
-    def smart_split(text: str, min_chars: int = 2) -> str:
+    def count_units(text: str) -> int:
+        """统计切分单位：中日韩字符按字计，其余文本按空格分词计"""
+        cjk = sum(1 for ch in text if '一' <= ch <= '鿿')
+        words = len([w for w in re.split(r'\s+', text)
+                     if w and not all('一' <= c <= '鿿' for c in w)])
+        return cjk + words
+
+    @classmethod
+    def smart_split(cls, text: str, min_units: int = 3) -> str:
         """
-        智能分行功能
-        1. 保留标点符号
-        2. 避免在逗号处切分过短的句子
-        3. 英文标点需后跟空格才切分（避免 3.14 被切分）
+        智能分行功能（两遍处理）
+        1. 保留标点符号；英文标点需后跟空格才切分（避免 3.14 被切分）
+        2. 第一遍只按强标点（。？.?!）切句，缩写点（如 Philip H. 的 H.）不切
+        3. 第二遍在句内按弱标点（，,）分行：两侧片段都超过 min_units 才断，
+           任一侧太短（英文按词、中文按字计数）就并入相邻片段
         """
-        # 使用捕获组保留标点，英文标点需后跟空白符或结尾
-        parts = re.split(r'([，。？]|[.,?!](?:\s+|$))', text)
-        lines = []
-        buffer = ""
-        
-        # 强标点（必须换行）
-        strong_punct = {'。', '？', '.', '?', '!'}
-        punct_chars = set(r'，。？,.?!')
-        
+        # 第一遍：按强标点切句
+        parts = re.split(r'([。？]|[.?!](?:\s+|$))', text)
+        sentences, buffer = [], ""
         for part in parts:
             clean_part = part.strip()
-            # 如果是标点符号（长度为1且在列表中）
-            if clean_part and clean_part in punct_chars and len(clean_part) == 1:
+            if clean_part and clean_part in '。？.?!':
                 buffer += part
-                is_strong = clean_part in strong_punct
-                # 如果是强标点，强制换行
-                # 如果是弱标点，要累积了一定字数才换行
-                if is_strong or len(buffer) > min_chars:
-                    lines.append(buffer)
-                    buffer = ""
+                # 缩写点不切行：单个大写字母（如 Philip H. 的 H.）或常见头衔缩写（如 Dr.）
+                if re.search(r'(?:^|\s)(?:[A-Z]|Dr|Mr|Mrs|Ms|Prof|St|Jr|Sr|vs|etc)\.\s*$', buffer):
+                    continue
+                sentences.append(buffer)
+                buffer = ""
             else:
-                # 是文本
                 buffer += part
-        
-        if buffer:
-            lines.append(buffer)
+        if buffer.strip():
+            sentences.append(buffer)
 
-            
+        # 第二遍：句内按弱标点分行，两侧都够长才断
+        lines = []
+        for sent in sentences:
+            parts = re.split(r'([，,](?:\s+|$))', sent)
+            segs = []
+            for i in range(0, len(parts), 2):
+                segs.append(parts[i] + (parts[i + 1] if i + 1 < len(parts) else ''))
+            for i, seg in enumerate(segs):
+                lines.append(seg)
+                nxt = segs[i + 1] if i + 1 < len(segs) else None
+                if nxt is None or not seg.rstrip().endswith(('，', ',')):
+                    continue  # 句末（强标点结尾）或最后一个片段，已断
+                if cls.count_units(seg) > min_units and cls.count_units(nxt) > min_units:
+                    continue  # 两侧都够长，保持断行
+                # 任一侧太短，并入下一片段
+                segs[i + 1] = seg + segs[i + 1]
+                lines.pop()
+
         return "\n".join(lines)
 
     @classmethod
@@ -89,12 +105,9 @@ class ResultHandler:
         
         # 4. 生成 srt
         if Config.file_save_srt:
-            # 构建 words 信息（无需依赖 json 文件）
-            words = [{'word': token.replace('@', ''), 'start': timestamp, 'end': timestamp + 0.2} 
+            # 构建 words 信息（无需依赖 json 文件；词只有 start，结束时刻在组句时生成）
+            words = [{'word': token.replace('@', ''), 'start': timestamp}
                      for (timestamp, token) in zip(timestamps, tokens)]
-            for i in range(len(words) - 1):
-                words[i]['end'] = min(words[i]['end'], words[i+1]['start'])
-            
             text_lines = text_split.splitlines()
             srt_filename = file.with_suffix('.srt')
 
