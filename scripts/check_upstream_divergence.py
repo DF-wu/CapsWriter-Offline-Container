@@ -59,6 +59,9 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "core/server/engines/qwen_asr_gguf/inference/aligner.py",
         "core/server/engines/qwen_asr_gguf/inference/audio.py",
         "core/server/engines/sensevoice_onnx/inference/audio.py",
+        # Keep all GGUF bindings on the verified b7798 native ABI together.
+        "core/server/engines/llama/llama.py",
+        "core/server/engines/llama/bin/llama.cpp二进制下载到这里.txt",
         "core/server/schema.py",
         "core/server/state.py",
         "core/server/worker/__init__.py",
@@ -74,6 +77,9 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "docs/角色功能如何使用.md",
         "readme.md",
         "requirements-server.txt",
+        # Platform-scoped development groups replace upstream's Windows/3.14 lock.
+        "pyproject.toml",
+        "uv.lock",
         "start_client.py",
         "zip_release.py",
     }

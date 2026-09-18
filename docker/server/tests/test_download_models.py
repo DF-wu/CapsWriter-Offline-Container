@@ -959,6 +959,36 @@ class DownloadModelsTest(unittest.TestCase):
                     <= set(manifest)
                 )
 
+    def test_llama_install_populates_shared_loader_directory(self) -> None:
+        """The v2.6 shared loader must receive verified native libraries too."""
+        with tempfile.TemporaryDirectory() as tmp:
+            original_cwd = Path.cwd()
+            try:
+                os.chdir(tmp)
+                contents = {
+                    name: f"library:{name}".encode()
+                    for name in download_models.LLAMA_REQUIRED_CPU_LIBRARIES
+                }
+                archive = io.BytesIO()
+                with tarfile.open(fileobj=archive, mode="w:gz") as tar:
+                    for name, data in contents.items():
+                        member = tarfile.TarInfo(f"llama/{name}")
+                        member.size = len(data)
+                        tar.addfile(member, io.BytesIO(data))
+                with patch.dict(
+                    download_models.LLAMA_CPP_OFFICIAL_MANIFESTS,
+                    {"cpu": self._manifest_for_contents(contents)},
+                ):
+                    download_models._extract_llama_binaries(archive, backend="cpu")
+                    shared_bin = Path("core/server/engines/llama/bin")
+                    self.assertEqual(
+                        (shared_bin / "libllama.so").read_bytes(),
+                        contents["libllama.so"],
+                    )
+                    self.assertTrue((shared_bin / download_models.LLAMA_READY_MARKER).is_file())
+            finally:
+                os.chdir(original_cwd)
+
     def test_llama_binaries_ready_rejects_unversioned_only_libraries(self) -> None:
         previous_required = [
             "libggml.so",
