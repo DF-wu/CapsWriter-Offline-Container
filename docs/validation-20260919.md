@@ -80,6 +80,14 @@ HTTP authentication, CORS and restart behavior were checked separately above.
 
 ## Limits and cleanup
 
+Subsequent GitHub checks exposed two issues fixed before PR handoff: the TUI
+fault-injection test retained a 10 ms deadline for its healthy follow-up recording,
+and redirected Windows cp1252 output could raise during Chinese status messages.
+The former now scopes its shortened deadlines to the fault; the latter preserves
+the chosen encoding with `backslashreplace` before colorama wraps standard output.
+Two subprocess regressions cover strict cp1252 plain/Rich output and absent GUI
+streams. The documented upstream divergence inventory is consequently 64 paths.
+
 No real Windows microphone, global keyboard hook, foreground text insertion,
 Windows package execution, GPU inference or precision-alignment test was run
 locally. ForcedAligner assets were absent: text inference succeeded through the

@@ -44,7 +44,7 @@ ASR／標點／對齊模型與推論算法仍由 upstream `core/server/engines/*
 
 | | |
 |---|---|
-| 修改或移除的 upstream-tracked 檔案 | **63**；精確集合由 `scripts/check_upstream_divergence.py` 驗證，分組如下 |
+| 修改或移除的 upstream-tracked 檔案 | **64**；精確集合由 `scripts/check_upstream_divergence.py` 驗證，分組如下 |
 | Fork 新增主要目錄 | `fork_server/`、`docker/`、`client/cli/`、`client/web/`、`client/tui/`、`docs/`、`.github/workflows/` |
 | Hook 策略 | Sidecar 子類化／單點 monkey-patch + 已分組的 protocol、worker、engine safety touchpoints |
 | 唯一高漂移點 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 內嵌 upstream `ws_send` loop；HTTP unit test 會做 AST source guard，merge upstream 後若失敗需 re-port |
@@ -65,7 +65,8 @@ ASR／標點／對齊模型與推論算法仍由 upstream `core/server/engines/*
 | Engine privacy logging | 3 | Prompt／context／token／audio-derived detected-hotword redaction；推論語意不變 |
 | Upstream 文件正確性／a11y | 2 | Text-merger 文件對齊與 image alt text |
 | Native ABI 與開發環境相容性 | 4 | llama.cpp b7798 binding／下載說明、Python 3.10–3.12 專案設定，以及移除不適用的上游 Python 3.14 `uv.lock` |
-| **合計** | **63** | 完整路徑與 merge handling 見[架構](architecture.md)與[上游同步指南](upstream-sync-guide.md) |
+| 重導向主控台編碼 | 1 | colorama 前設定 stdout/stderr backslashreplace，防止 Windows cp1252 中文輸出中斷辨識 |
+| **合計** | **64** | 完整路徑與 merge handling 見[架構](architecture.md)與[上游同步指南](upstream-sync-guide.md) |
 
 ---
 

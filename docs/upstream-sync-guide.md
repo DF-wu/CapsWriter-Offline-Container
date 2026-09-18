@@ -1,18 +1,19 @@
 # 對齊上游指南
 
-> 未來要拉上游更新時的標準操作流程。主要功能維持 sidecar，但 63 個已記錄的 upstream-tracked 接觸點仍須依群組 review；不要把 merge 成功等同於同步完成。
+> 未來要拉上游更新時的標準操作流程。主要功能維持 sidecar，但 64 個已記錄的 upstream-tracked 接觸點仍須依群組 review；不要把 merge 成功等同於同步完成。
 
 ## 1. 心智模型
 
 ```
 upstream (HaujetZhao/CapsWriter-Offline)
         │
-        │  fork modifies 63 upstream-tracked files:
+        │  fork modifies 64 upstream-tracked files:
         │    repo/build/release + role/docs safety       (12)
         │    desktop portability and bounded lifecycle  (24)
         │    protocol, WebSocket and worker controls    (13)
         │    engine bounded I/O and privacy logging     (10)
         │    native ABI and development compatibility   (4)
+        │    redirected console encoding               (1)
         │  fork adds:    fork_server/ docker/ client/{cli,web,tui}/
         │                docs/ scripts/ docker-compose*.yml .env.example
         │                .github/workflows/ requirements-server-docker.txt
@@ -21,11 +22,12 @@ upstream (HaujetZhao/CapsWriter-Offline)
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 ```
 
-關鍵：fork 修改 upstream-tracked 檔案數 = **63**。主要產品功能仍優先放在
-fork-owned 新路徑；這 63 檔是需要逐組 rebase/merge review 的明確邊界。
+關鍵：fork 修改 upstream-tracked 檔案數 = **64**。主要產品功能仍優先放在
+fork-owned 新路徑；這 64 檔是需要逐組 rebase/merge review 的明確邊界。
 
 | 群組（數量） | Upstream-tracked 路徑 | Merge 時必須保留／重驗 |
 |---|---|---|
+| 重導向主控台編碼（1） | `core/__init__.py` | 在 colorama 包裝前保留 stdout/stderr 編碼並設定 backslashreplace；重跑 cp1252 plain/Rich 輸出與無標準串流的 GUI 啟動測試，避免中文狀態訊息中斷辨識 |
 | Repository、build、release（7） | `.gitignore`、`CLAUDE.md`、`assets/BUILD_GUIDE.md`、`build.spec`、`readme.md`、`requirements-server.txt`、`zip_release.py` | 合併 upstream metadata/dependencies；保留 universal server packaging、fork README、安全 ignore 與 bounded release cleanup |
 | LLM role 安全預設（3） | `LLM/default.py`、`LLM/大助理.py`、`docs/角色功能如何使用.md` | 保留空 key、disabled network role 與相符文件；同步其他 upstream prompt/template 欄位 |
 | Desktop portability、bounded audio 與 lifecycle（24） | `core/client/audio/{file_manager.py,recorder.py,stream.py}`、`core/client/clipboard/clipboard.py`、`core/client/connection/websocket_manager.py`、`core/client/global_hotkey/{__init__.py,global_hotkey.py}`、`core/client/hotword/{hotword_standalone.py,hotword_standalone.ipynb}`、`core/client/llm/llm_output_typing.py`、`core/client/manager/{file_runner.py,tray_manager.py}`、`core/client/output/{result_processor.py,text_output.py}`、`core/client/shortcut/{emulator.py,key_mapper.py,shortcut_manager.py}`、`core/client/state.py`、`core/client/transcribe/{file_transcriber.py,media_tool.py,srt_adjuster.py}`、`core/tools/window_detector.py`、`core/ui/tray.py`、`start_client.py` | 先同步 upstream Windows 行為，再重套 artifact self-check、headless／pure Wayland lazy input imports、X11/unsupported-session、Windows `keyboard.write`／Linux non-root `pynput` text injection、bounded callback/queue/WebSocket、ordered stream、UUID4 與 concurrent file deadline contract；跑 desktop portability/backpressure regressions |
@@ -52,8 +54,8 @@ Fork 有自己的提交，因此在獨立 feature branch 做 merge 並保留雙�
 測試完成後推至自己的 fork，開 PR 到 `master`；v1 的全面更新仍使用獨立
 分支與 PR 到 `maintenance/v1`，詳見 [版本政策](zh-TW/versioning.md)。
 
-預期結果：衝突應只落在上方 63 個已知 divergent files，並依群組處理；
-任何第 64 個 upstream-tracked 路徑都先視為未記錄 drift。
+預期結果：衝突應只落在上方 64 個已知 divergent files，並依群組處理；
+任何第 65 個 upstream-tracked 路徑都先視為未記錄 drift。
 
 跑驗證：
 
@@ -155,10 +157,10 @@ python -m unittest fork_server.http_api.tests.test_ws_send_with_http -v
 unstaged 的 tracked edit 都不能繞過檢查。預期首行為：
 
 ```text
-Upstream divergence guard passed: 63 upstream-tracked file(s) changed
+Upstream divergence guard passed: 64 upstream-tracked file(s) changed
 ```
 
-後續 63 條路徑必須與本文件第 1 節的十一個群組完全一致；若出現第 64 條，先查
+後續 64 條路徑必須與本文件第 1 節的十二個群組完全一致；若出現第 65 條，先查
 來源與能否移入 fork-owned path，不可只為了讓 CI 綠燈就擴大 allowlist。
 
 ## 4. 隔離 smoke test (建議流程)

@@ -23,6 +23,7 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "LLM/大助理.py",
         "assets/BUILD_GUIDE.md",
         "build.spec",
+        "core/__init__.py",
         "core/client/audio/file_manager.py",
         "core/client/audio/recorder.py",
         "core/client/audio/stream.py",
