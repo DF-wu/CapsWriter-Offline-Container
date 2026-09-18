@@ -68,6 +68,9 @@ SERVER_IMPORTS = COMMON_IMPORTS + (
 )
 CLIENT_IMPORTS = COMMON_IMPORTS + (
     "config_client",
+    "fork_client.settings",
+    "fork_client.settings_ui",
+    "tkinter.ttk",
     "core.client",
     "LLM.default",
     "keyboard",

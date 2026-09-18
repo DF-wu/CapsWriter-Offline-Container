@@ -4,6 +4,8 @@ import type {
   ModelListResponse,
   ReadinessResponse,
   ResponseFormat,
+  ServerSettingsResponse,
+  ServerSettingValue,
   TranscriptionResult,
   VerboseTranscription,
 } from "../types";
@@ -470,4 +472,91 @@ export async function transcribeAudio(
     (response) =>
       parseTranscriptionResponse(response, settings.responseFormat, settings.apiKey),
   );
+}
+
+export class ServerSettingsError extends Error {
+  constructor(message: string, public status: number, public fields: Record<string, string> = {}) {
+    super(message);
+    this.name = "ServerSettingsError";
+  }
+}
+
+async function serverSettingsRequest(
+  settings: ApiSettings,
+  values?: Record<string, ServerSettingValue | null>,
+  revision?: string,
+  signal?: AbortSignal,
+): Promise<ServerSettingsResponse> {
+  const root = normalizeApiRoot(settings.baseUrl);
+  const result = await fetchWithTimeout(
+    `${root}/v1/settings`,
+    {
+      method: values ? "PATCH" : "GET",
+      headers: { ...requestHeaders(settings), ...(values ? { "Content-Type": "application/json" } : {}) },
+      body: values ? JSON.stringify({ values, revision }) : undefined,
+      signal,
+    },
+    DIAGNOSTIC_TIMEOUT_MS,
+    settings.apiKey,
+    async (response) => ({
+      status: response.status,
+      ok: response.ok,
+      body: await readResponseTextWithStatus(response, settings.apiKey),
+    }),
+  );
+  if (!result.ok) {
+    const fields: Record<string, string> = {};
+    try {
+      const payload: unknown = JSON.parse(result.body);
+      if (isJsonObject(payload) && isJsonObject(payload.error) && isJsonObject(payload.error.fields)) {
+        for (const [key, message] of Object.entries(payload.error.fields)) {
+          if (typeof message === "string") fields[key] = safeErrorMessage(message, settings.apiKey);
+        }
+      }
+    } catch { /* The status and bounded body still explain non-JSON failures. */ }
+    throw new ServerSettingsError(
+      `HTTP ${result.status}: ${apiErrorMessage(result.body, settings.apiKey)}`,
+      result.status,
+      fields,
+    );
+  }
+  const payload = parseJsonBody<unknown>(result.body, "/v1/settings", result.status, settings.apiKey);
+  if (!isJsonObject(payload) || typeof payload.enabled !== "boolean" || !Array.isArray(payload.fields) ||
+      (payload.enabled ? typeof payload.revision !== "string" || !payload.revision : payload.revision !== null) ||
+      (payload.available !== undefined && typeof payload.available !== "boolean") ||
+      typeof payload.restart_required !== "boolean") {
+    throw new Error("Server 設定回應格式不正確，請確認 Server 版本。");
+  }
+  const validValue = (value: unknown): boolean => value === null || typeof value === "string" || typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value));
+  const validSource = (source: unknown): boolean => ["environment", "saved", "default"].includes(String(source));
+  const keys = new Set<string>();
+  for (const field of payload.fields) {
+    if (!isJsonObject(field) || typeof field.key !== "string" || !/^[a-z][a-z0-9_]*$/.test(field.key) || keys.has(field.key) || typeof field.label !== "string" ||
+        typeof field.description !== "string" || !["string", "integer", "number", "boolean"].includes(String(field.type)) ||
+        !validValue(field.value) || !validValue(field.saved_value) || !validValue(field.default) ||
+        !validSource(field.source) || typeof field.environment_variable !== "string" ||
+        typeof field.overridden_by_environment !== "boolean" || typeof field.restart_required !== "boolean" ||
+        (field.next_value !== undefined && !validValue(field.next_value)) ||
+        (field.next_source !== undefined && !validSource(field.next_source)) ||
+        (field.minimum !== undefined && (typeof field.minimum !== "number" || !Number.isFinite(field.minimum))) ||
+        (field.maximum !== undefined && (typeof field.maximum !== "number" || !Number.isFinite(field.maximum))) ||
+        (field.choices !== undefined && (!Array.isArray(field.choices) || !field.choices.every((choice) => choice !== null && validValue(choice))))) {
+      throw new Error("Server 設定欄位格式不正確，請確認 Server 版本。");
+    }
+    keys.add(field.key);
+  }
+  return payload as unknown as ServerSettingsResponse;
+}
+
+export function fetchServerSettings(settings: ApiSettings, signal?: AbortSignal): Promise<ServerSettingsResponse> {
+  return serverSettingsRequest(settings, undefined, undefined, signal);
+}
+
+export function saveServerSettings(
+  settings: ApiSettings,
+  values: Record<string, ServerSettingValue | null>,
+  revision: string,
+  signal?: AbortSignal,
+): Promise<ServerSettingsResponse> {
+  return serverSettingsRequest(settings, values, revision, signal);
 }

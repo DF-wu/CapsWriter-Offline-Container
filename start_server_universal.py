@@ -89,6 +89,15 @@ def configure_http_api(
 
         config_cls = ServerConfig
     selected_environ = os.environ if environ is None else environ
+    from config_server import FunASRNanoGGUFArgs
+    from fork_server.settings import SettingsStore
+    store = SettingsStore(selected_environ, defaults={
+        "model_type": getattr(config_cls, "model_type", "qwen_asr"),
+        "format_num": getattr(config_cls, "format_num", True),
+        "format_spell": getattr(config_cls, "format_spell", True),
+        "num_threads": FunASRNanoGGUFArgs.n_threads,
+    }, profile="native")
+    selected_environ = store.environment()
     apply_server_addr_override(selected_environ, config_cls)
     setattr(
         config_cls,
@@ -102,6 +111,13 @@ def configure_http_api(
     )
     settings = parse_http_api_env(selected_environ)
     apply_http_api_settings(settings, config_cls)
+    # Preserve native model/hardware defaults unless the operator selected an override.
+    for key in ("model_type", "format_num", "format_spell"):
+        if store.sources[key] != "default":
+            setattr(config_cls, key, store.effective[key])
+    if store.sources["num_threads"] != "default":
+        FunASRNanoGGUFArgs.n_threads = store.effective["num_threads"]
+    config_cls.settings_store = store
     return settings
 
 

@@ -1,4 +1,6 @@
 # Build artefacts
+.venv-dev/
+settings/
 __pycache__/
 *.pyc
 *.pyo

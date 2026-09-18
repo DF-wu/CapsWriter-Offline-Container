@@ -262,7 +262,7 @@ class ComposeConfigTest(unittest.TestCase):
     def test_entrypoint_full_cpu_fallback_disables_every_gpu_backend(self) -> None:
         entrypoint = ROOT / "docker/server/entrypoint.sh"
         source = entrypoint.read_text(encoding="utf-8")
-        functions, separator, _runtime = source.partition("\nconfigure_backend\n")
+        functions, separator, _runtime = source.partition('\nconfigure_backend "$@"\n')
         self.assertTrue(separator, "entrypoint function/runtime boundary is missing")
         scenario = functions + """
 export CAPSWRITER_LLAMA_BACKEND=vulkan

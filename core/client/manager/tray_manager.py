@@ -71,6 +71,7 @@ class TrayManager:
             icon_path,
             exit_callback=self.app.stop,
             more_options=[
+                ('設定', self._open_settings),
                 ('📋 复制结果', self._copy_last_result),
                 ('📁 日记', self._open_diary),
                 ('📝 上下文', self._add_context),
@@ -98,6 +99,19 @@ class TrayManager:
         if hasattr(self.app, 'stream') and self.app.stream:
             self.app.stream.reopen()
             logger.info("用户请求重启音频")
+
+    def _open_settings(self):
+        """A separate process owns the Tk main loop; recording stays uninterrupted."""
+        if getattr(sys, "frozen", False):
+            command = [sys.executable, '--settings']
+        else:
+            from pathlib import Path
+            entrypoint = Path(__file__).resolve().parents[3] / 'start_client.py'
+            command = [sys.executable, str(entrypoint), '--settings']
+        try:
+            _launch_detached_process(command)
+        except OSError as exc:
+            logger.error(f"無法開啟設定：{exc}")
 
     def _clear_memory(self):
         """清除 LLM 对话历史回调"""

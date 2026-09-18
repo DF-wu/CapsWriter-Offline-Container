@@ -425,7 +425,8 @@ describe("App", () => {
       ),
     ).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Web Console" })).toBeTruthy();
-    expect(screen.getAllByRole("region")).toHaveLength(5);
+    expect(screen.getAllByRole("region")).toHaveLength(6);
+    expect(screen.getByRole("region", { name: "Server 共用設定" })).toBeTruthy();
     expect(screen.getByText("Router").parentElement?.textContent).toBe("Router-");
   });
 

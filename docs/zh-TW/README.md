@@ -14,6 +14,8 @@ CapsWriter 有兩種角色：**ASR Server** 在本機執行模型推論；一個
 
 ## Server 文件
 
+新增：[Windows／Server 日常設定](../settings.md) · [開發環境與常用指令](../development.md)。
+
 | 我需要…… | 請讀 |
 |---|---|
 | 啟動 Docker、Windows native 或 source Server | [部署](deployment.md) |

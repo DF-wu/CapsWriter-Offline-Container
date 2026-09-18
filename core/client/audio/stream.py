@@ -9,7 +9,6 @@
 from __future__ import annotations
 
 import asyncio
-import sys
 import time
 import threading
 from typing import TYPE_CHECKING, Optional
@@ -19,6 +18,7 @@ import sounddevice as sd
 
 from core.client.state import console
 from . import logger
+from config_client import ClientConfig as Config
 
 if TYPE_CHECKING:
     from core.client.state import ClientState
@@ -129,28 +129,29 @@ class AudioStreamManager:
             return self.state.stream
 
         # 检测音频设备
+        selected_device = getattr(Config, 'input_device', None)
         try:
-            device = sd.query_devices(kind='input')
+            device = sd.query_devices(device=selected_device, kind='input')
             self._channels = min(2, device['max_input_channels'])
             device_name = device.get('name', '未知设备')
             console.print(
-                f'使用默认音频设备：[italic]{device_name}，声道数：{self._channels}',
+                f'使用音频设备：[italic]{device_name}，声道数：{self._channels}',
                 end='\n\n'
             )
             logger.info(f"找到音频设备: {device_name}, 声道数: {self._channels}")
         except UnicodeDecodeError:
             logger.warning("无法获取音频设备名称（编码问题）")
-        except sd.PortAudioError:
-            logger.error("未找到麦克风设备")
-            input('按回车键退出')
-            sys.exit(1)
+        except (sd.PortAudioError, ValueError) as exc:
+            logger.error(f"無法開啟麥克風 {selected_device or '系統預設'}：{exc}；請在設定中選擇可用裝置，並檢查 Windows 麥克風權限。")
+            console.print("無法開啟麥克風；請從托盤開啟「設定」，選擇可用裝置後重新啟動 Client。")
+            return None
 
         # 创建音频流
         try:
             stream = sd.InputStream(
                 samplerate=self.SAMPLE_RATE,
                 blocksize=int(self.BLOCK_DURATION * self.SAMPLE_RATE),
-                device=None,
+                device=selected_device,
                 dtype="float32",
                 channels=self._channels,
                 callback=self._audio_callback,

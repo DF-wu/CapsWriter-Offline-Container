@@ -46,6 +46,8 @@ import {
 import { loadVoices, speakText } from "./lib/speech";
 import type { ApiSettings, HealthResponse, ReadinessResponse, ResponseFormat, TranscriptRecord, TranscriptionResult } from "./types";
 
+import ServerSettings from "./ServerSettings";
+
 type StatusKind = "idle" | "working" | "ok" | "degraded" | "error";
 type SpeechState = "idle" | "speaking" | "paused";
 type RecordingState = "idle" | "starting" | "recording" | "stopping";
@@ -627,12 +629,13 @@ export default function App() {
             <h2 id="connection-title">連線</h2>
           </div>
 
+          <p className="settings-help">首次使用：填入 Server 的位址與金鑰，再按「檢查服務」。Server 在 axolotl 時，請使用 Windows 可連線的主機名稱或 IP；localhost 指的是目前這台電腦。</p>
           <label className="field">
             <span>API root</span>
             <input
               value={settings.baseUrl}
               onChange={(event) => updateSettings("baseUrl", event.target.value)}
-              placeholder={DEFAULT_SETTINGS.baseUrl}
+              placeholder="http://axolotl:6017"
               inputMode="url"
               maxLength={WEB_SETTING_LIMITS.baseUrl}
             />
@@ -647,6 +650,7 @@ export default function App() {
               maxLength={WEB_SETTING_LIMITS.apiKey}
             />
           </label>
+          <p className="settings-help">API key 僅供目前頁面使用，不會儲存在瀏覽器。以下模型、語言與格式只影響本次網頁轉錄。</p>
           <div className="field-row">
             <label className="field">
               <span>格式</span>
@@ -1004,6 +1008,7 @@ export default function App() {
           </div>
           </section>
         </div>
+        <ServerSettings key={`${settings.baseUrl}\0${settings.apiKey}`} settings={settings} />
       </main>
     </div>
   );

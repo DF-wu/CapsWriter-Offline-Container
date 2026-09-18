@@ -16,6 +16,11 @@ Windows desktop workflow, and WebSocket protocol. It adds a Linux container,
 an opt-in OpenAI-compatible HTTP API, Web/CLI/TUI clients, a Windows production
 package, and cross-platform release gates.
 
+This update adds [Windows/server daily settings](docs/settings.md) and
+[unified development commands](docs/development.md). Use
+`start_client.exe --settings` to configure the remote server, microphone and
+shortcut. Server management is explicitly opt-in.
+
 ## First understand: server and client are different roles
 
 ```mermaid

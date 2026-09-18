@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import os
+import json
+from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -20,6 +23,9 @@ from fork_server.http_api.runtime_config import ConfigError
 CLASS_ATTRS = {
     ServerConfig: (
         "model_type",
+        "format_num",
+        "format_spell",
+        "settings_store",
         "addr",
         "port",
         "log_level",
@@ -169,6 +175,33 @@ class EnvConfigTest(unittest.TestCase):
             self.assertEqual(Qwen3ASRGGUFArgs.n_batch, value)
         else:
             self.assertFalse(hasattr(Qwen3ASRGGUFArgs, "n_batch"))
+
+    def test_saved_daily_settings_reach_runtime_without_mutating_environment(self):
+        from fork_server.settings_bootstrap import bootstrap_environment
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text(json.dumps({"version": 1, "values": {
+                "model_type": "fun_asr_nano", "num_threads": 3,
+                "format_num": False, "max_upload_mb": 27,
+                "max_websocket_connections": 5,
+            }}))
+            environ = bootstrap_environment({"CAPSWRITER_SETTINGS_PATH": str(path)})
+            # These are hardware choices derived by the container entrypoint.
+            environ.update({"CAPSWRITER_QWEN_USE_CUDA": "false",
+                            "CAPSWRITER_QWEN_VULKAN_ENABLE": "false"})
+            with patch.dict(os.environ, environ, clear=True):
+                before = dict(os.environ)
+                env_config.apply()
+                self.assertEqual(dict(os.environ), before)
+            self.assertEqual(ServerConfig.model_type, "fun_asr_nano")
+            self.assertEqual(FunASRNanoGGUFArgs.n_threads, 3)
+            self.assertFalse(ServerConfig.format_num)
+            self.assertEqual(ServerConfig.http_api_max_upload_mb, 27)
+            self.assertEqual(ServerConfig.max_websocket_connections, 5)
+            self.assertEqual(Qwen3ASRGGUFArgs.onnx_provider, "CPU")
+            self.assertFalse(Qwen3ASRGGUFArgs.llm_use_gpu)
+            self.assertEqual(ServerConfig.settings_store.sources["max_upload_mb"], "saved")
 
     def test_applies_valid_server_and_model_env_values(self) -> None:
         self.apply_env(

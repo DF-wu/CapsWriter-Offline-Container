@@ -15,6 +15,8 @@ not already clear.
 
 ## Server documentation
 
+New: [Client/server daily settings](../settings.md) · [Development commands](../development.md).
+
 | I need to… | Read |
 |---|---|
 | Start Docker, Windows native, or a source server | [Deployment](deployment.md) |
