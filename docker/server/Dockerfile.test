@@ -1,0 +1,11 @@
+# Headless regression environment; never mounts production data or publishes ports.
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION}-slim
+LABEL org.capswriter.test-suite="v1"
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 PYTHONUNBUFFERED=1
+WORKDIR /app
+COPY requirements-api-test.lock requirements-maintenance.txt /app/
+RUN python -m pip install --no-cache-dir --require-hashes -r requirements-api-test.lock \
+    && python -m pip install --no-cache-dir --only-binary=:all: -r requirements-maintenance.txt
+COPY . /app
+CMD ["python", "scripts/verify_v1.py"]

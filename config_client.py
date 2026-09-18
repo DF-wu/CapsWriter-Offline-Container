@@ -3,7 +3,7 @@ from collections.abc import Iterable
 from pathlib import Path
 
 # 版本信息
-__version__ = '2.5-alpha'
+__version__ = '2.6'
 
 # 项目根目录
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +19,7 @@ class ClientConfig:
         {
             'key': 'caps_lock',     # 监听大写锁定键
             'type': 'keyboard',     # 是键盘快捷键
-            'suppress': True,      # 不阻塞按键（但录音结束会补发）
+            'suppress': True,      # 阻塞按键（短按会补发）
             'hold_mode': True,      # 长按模式
             'enabled': True         # 启用此快捷键
         },
@@ -36,13 +36,19 @@ class ClientConfig:
 
     paste        = False        # 是否以写入剪切板然后模拟 Ctrl-V 粘贴的方式输出结果
     restore_clip = True         # 模拟粘贴后是否恢复剪贴板
+    paste_apps   = ['WeiXin.exe', 'Telegram.exe']  # 匹配时强制粘贴
+
+    enter_apps   = [('happ.exe', 0.5), ('hexin.exe', 0.5)]  # (应用名, 延迟秒数) 输出完成后自动回车，如同花顺，输入股票名后，需要回车才能切换
 
     save_audio = True           # 是否保存录音文件
     audio_name_len = 20         # 将录音识别结果的前多少个字存储到录音文件名中，建议不要超过200
     
     context = ''                # 提示词上下文，用于辅助 Fun-ASR-Nano 模型识别（例如输入人名、地名、专业术语等）
+    language = 'auto'           # 识别语言：'auto', 'chinese', 'english', 'japanese' 等（各引擎支持范围不同）
 
     trash_punc = '，。,.'       # 识别结果要消除的末尾标点
+    trash_punc_thresh = 8       # 识别结果的单词数量低于阈值时，强制去除末尾标点
+    trash_punc_apps = ['WeiXin.exe', ]   # 对于指定的应用，强制去除末尾标点
 
     traditional_convert = False     # 是否将识别结果转换为繁体中文
     traditional_locale = 'zh-hant'  # 繁体地区：'zh-hant'（标准繁体）, 'zh-tw'（台湾繁体）, 'zh-hk'（香港繁体）
@@ -50,7 +56,6 @@ class ClientConfig:
     hot = True                 # 是否启用热词替换（统一 RAG 匹配）
     hot_thresh = 0.85           # RAG 替换热词阈值（高阈值，用于实际替换）
     hot_similar = 0.6           # RAG 相似热词阈值（低阈值，用于 LLM 上下文）
-    hot_rectify = 0.6           # 纠错历史 RAG 匹配阈值（低阈值，用于 LLM 上下文）
     hot_rule = True             # 是否启用自定义规则替换（基于正则表达式）
 
     llm_enabled = True          # 是否启用 LLM 润色功能，需要配置 LLM/ 目录下的角色文件
@@ -59,7 +64,7 @@ class ClientConfig:
     enable_tray = True          # 客户端默认启用托盘图标功能
 
     # 日志配置
-    log_level = 'INFO'          # 日志级别：'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
+    log_level = 'DEBUG'          # 日志级别：'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
 
     mic_seg_duration = 60       # 麦克风听写时分段长度：60秒
     mic_seg_overlap = 4         # 麦克风听写时分段重叠：4秒
@@ -72,7 +77,7 @@ class ClientConfig:
     file_save_json = True       # 转录文件时是否保存 json 结果（含原始时间戳）
     file_save_merge = False      # 转录文件时是否保存 merge.txt（未切分的段落长文本）
 
-    udp_broadcast = True                # 是否启用 UDP 广播输出结果
+    udp_broadcast = False               # 是否启用 UDP 广播输出结果
     udp_broadcast_targets = [           # UDP 广播目标地址列表，格式: (地址, 端口)
         ('127.255.255.255', 6017),      # 本地回环广播
         # ('192.168.1.255', 6017),      # 局域网广播（示例，按需启用）
@@ -98,20 +103,17 @@ r"""
 
 可用按键名称：
 
-  字母数字：a - z, 0 - 9（大键盘）, numpad0 - numpad9（小键盘）
+  字母数字：a - z, 0 - 9（大键盘）
 
   符号键：, . / \ ` ' - = [ ] ; '
 
-  小键盘：
-      decimal(小数点), numpad_add(+), numpad_subtract(-),
-      numpad_multiply(*), numpad_divide(/), numpad_enter
 
   功能键：f1 - f24
 
   控制键:
-      ctrl,   ctrl_r,
+      ctrl_l,   ctrl_r,
       shift,  shift_r,
-      alt,    alt_r,
+      alt_l,    alt_gr,
       cmd,    cmd_r
 
   特殊键：

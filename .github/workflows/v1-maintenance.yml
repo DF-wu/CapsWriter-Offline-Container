@@ -3,7 +3,7 @@ name: v1 maintenance checks
 on:
   pull_request:
     branches:
-      - archive/v1-legacy
+      - maintenance/v1
   push:
     branches:
       - maintenance/v1
@@ -35,7 +35,7 @@ jobs:
       PYTHONNOUSERSITE: "1"
 
     steps:
-      - name: Check out legacy maintenance line
+      - name: Check out v1 refresh line
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           persist-credentials: false
@@ -57,15 +57,14 @@ jobs:
       - name: Run protocol and server regression tests
         env:
           CAPSWRITER_LOG_DIR: ${{ runner.temp }}/capswriter-maintenance-logs
-        run: python -m unittest discover -s tests -p "test_*.py" -v
+        run: python scripts/verify_v1.py
 
       - name: Compile supported entry points
         run: >-
           python -m compileall -q
           config_client.py config_server.py
-          core_client.py core_server.py
-          start_client.py start_server.py
-          util docker/server
+          start_client.py start_server.py start_server_universal.py start_server_docker.py
+          core fork_server docker/server
 
       - name: Validate container entrypoint syntax
         if: runner.os == 'Linux' && matrix.python-version == '3.10'

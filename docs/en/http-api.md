@@ -41,6 +41,11 @@ defaults:
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `100` | `100` | Maximum uploaded file size in MiB |
 | `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `600` | `600` | Recognition timeout in seconds |
 
+Non-loopback listeners, including Compose's `0.0.0.0`, require an API key by
+default. `CAPSWRITER_HTTP_API_KEY_FILE` supports a mounted secret. The explicit
+`CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND` override is only for deliberately
+isolated environments.
+
 The native default is loopback-only. In Docker, the process must listen on
 `0.0.0.0` **inside the container** so Docker can forward traffic; Compose then
 publishes that port only on host loopback with
@@ -86,7 +91,7 @@ The native Server already defaults to `127.0.0.1:6017`:
 ```bash
 export CAPSWRITER_HTTP_API_ENABLE=true
 export CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
-python core_server.py
+python start_server_universal.py
 ```
 
 `CAPSWRITER_HTTP_API_HOST_BIND` has no effect outside Compose.
@@ -133,11 +138,14 @@ Send `multipart/form-data` with these fields:
 | Field | Required | Default | v1 behavior |
 |---|---|---|---|
 | `file` | Yes | None | Audio in a format that the Server's FFmpeg can decode |
-| `model` | No | `whisper-1` | Compatibility placeholder; the Server uses `CAPSWRITER_MODEL_TYPE` |
-| `language` | No | None | Does not change recognition; echoed in `verbose_json` |
-| `prompt` | No | None | Its length is logged, but it is not injected into recognizer context |
+| `model` | Yes | None | Must be `whisper-1`; the actual engine uses `CAPSWRITER_MODEL_TYPE` |
+| `language` | No | Auto | Supported language hint passed to recognition; backend capabilities vary |
+| `prompt` | No | None | Passed into recognizer context; its contents are not logged by default |
 | `response_format` | No | `json` | `json`, `text`, `verbose_json`, `srt`, or `vtt` |
-| `temperature` | No | `0.0` | Compatibility placeholder; ignored by the recognizer |
+| `temperature` | No | `0.0` | Validated as a finite number from 0 to 1; does not override engine sampling |
+
+`stream=true`, diarization, logprobs, and unknown fields are rejected. Existing
+callers must explicitly send `model=whisper-1` after this refresh.
 
 When `CAPSWRITER_HTTP_API_KEY` is non-empty, include:
 
@@ -167,6 +175,8 @@ model and can be empty. Do not assume Whisper-identical segmentation.
 | `413` | Uploaded file exceeds `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` |
 | `415` | Transcription request is not `multipart/form-data` |
 | `422` | Multipart field or value fails request validation |
+| `429` | Concurrent and pending request capacity is exhausted |
+| `503` | The recognizer is not ready or has stopped |
 | `500` | FFmpeg is unavailable or recognition fails |
 | `504` | Recognition exceeds `CAPSWRITER_HTTP_API_TASK_TIMEOUT` |
 
@@ -182,6 +192,7 @@ remote deployment should also reject oversized bodies at its reverse proxy.
 curl http://127.0.0.1:6017/v1/audio/transcriptions \
   -H "Authorization: Bearer replace-with-a-long-random-token" \
   -F "file=@meeting.mp3" \
+  -F "model=whisper-1" \
   -F "response_format=text"
 ```
 
@@ -250,9 +261,9 @@ console.log(transcript);
 | Limitation | Practical effect |
 |---|---|
 | Transcription subset only | `/v1/audio/translations` returns `501`; other OpenAI APIs do not exist |
-| `model` and `temperature` are placeholders | They do not change Server inference |
-| `language` does not select or detect a language | It is response metadata only |
-| `prompt` is not recognizer context | Use the Server's supported hotword path or Client-side post-processing instead |
+| Only `model=whisper-1` is accepted | The configured Server engine is used; temperature does not override engine sampling |
+| Language hints depend on the backend | Unsupported languages are not made available by passing a hint |
+| Prompt handling depends on the backend | Context is forwarded, but its effect varies across engines |
 | No HTTP streaming | Use the WebSocket Client protocol when incremental recognition is required |
 | Shared, serial recognizer queue | HTTP and WebSocket jobs can delay each other |
 | Timeout cancellation is not instantaneous | A submitted recognizer task may retain resources until the queue reaches it |
@@ -290,10 +301,10 @@ environment. Recreate the Compose service after changing `.env`.
 
 | File | Server responsibility |
 |---|---|
-| [`util/server/http_api.py`](../../util/server/http_api.py) | FastAPI routes, authentication, upload handling, and task submission |
-| [`util/server/http_limits.py`](../../util/server/http_limits.py) | Bounded upload reads |
-| [`util/server/audio_decoder.py`](../../util/server/audio_decoder.py) | FFmpeg decoding |
-| [`util/server/task_router.py`](../../util/server/task_router.py) | HTTP future and recognizer-result routing |
-| [`util/server/openai_formatter.py`](../../util/server/openai_formatter.py) | JSON, text, SRT, and VTT responses |
-| [`config_server.py`](../../config_server.py) | Native `CAPSWRITER_HTTP_API_*` defaults |
+| [`fork_server/http_api/api.py`](../../fork_server/http_api/api.py) | FastAPI routes, authentication, upload handling, and task submission |
+| [`fork_server/http_api/limits.py`](../../fork_server/http_api/limits.py) | Bounded upload reads |
+| [`fork_server/http_api/audio_decoder.py`](../../fork_server/http_api/audio_decoder.py) | FFmpeg decoding |
+| [`fork_server/http_api/task_router.py`](../../fork_server/http_api/task_router.py) | HTTP future and recognizer-result routing |
+| [`fork_server/http_api/openai_formatter.py`](../../fork_server/http_api/openai_formatter.py) | JSON, text, SRT, and VTT responses |
+| [`fork_server/env_config.py`](../../fork_server/env_config.py) | Native `CAPSWRITER_HTTP_API_*` configuration |
 | [`docker-compose.yml`](../../docker-compose.yml) | Container bind and host publish boundary |

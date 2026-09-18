@@ -37,7 +37,7 @@ class DependencyManifestTests(unittest.TestCase):
             "websockets==16.0",
             "numpy==1.26.4",
             "fastapi==0.139.0",
-            "python-multipart==0.0.31",
+            "python-multipart==0.0.32",
         ):
             with self.subTest(version=version):
                 self.assertIn(version, docker)

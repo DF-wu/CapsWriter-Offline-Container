@@ -10,9 +10,41 @@
 """
 
 import os
+import math
 import subprocess
 from pathlib import Path
 from datetime import datetime
+
+ZIP_RELEASE_TIMEOUT_ENV = "CAPSWRITER_ZIP_RELEASE_TIMEOUT"
+DEFAULT_ZIP_RELEASE_TIMEOUT_SECONDS = 900
+REQUIRED_EMPTY_RELEASE_DIRECTORIES = ("models", "logs")
+
+
+def _format_seconds(value):
+    return f"{value:g}"
+
+
+def _positive_float_env(name, default):
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return default
+
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be a number") from exc
+    if not math.isfinite(value):
+        raise ValueError(f"{name} must be a finite number")
+    if value <= 0:
+        raise ValueError(f"{name} must be > 0")
+    return value
+
+
+def zip_release_timeout_seconds():
+    return _positive_float_env(
+        ZIP_RELEASE_TIMEOUT_ENV,
+        DEFAULT_ZIP_RELEASE_TIMEOUT_SECONDS,
+    )
 
 
 def find_7zip():
@@ -42,15 +74,15 @@ def should_include_file(file_path, is_client_only=False):
     - models/模型名/文件 会被打包（层级深度 == 2）
     - models/模型名/子目录/文件  不会被打包（层级深度 >= 3）
     - 如果是【仅客户端】打包：
-        - 排除 util 目录下的所有 .dll 文件（客户端不需要本地识别引擎）
+        - 排除 core 目录下的所有 .dll 文件（客户端不需要本地识别引擎）
     """
     path = Path(file_path)
     parts = path.parts
 
     # 1. 客户端特殊排除逻辑
     if is_client_only:
-        # 排除 util 中的 dll 文件
-        if 'util' in parts and path.suffix.lower() == '.dll':
+        # 排除 core 中的 dll 文件
+        if 'core' in parts and path.suffix.lower() == '.dll':
             return False
 
     # 2. 检查是否在 models 目录下
@@ -62,6 +94,10 @@ def should_include_file(file_path, is_client_only=False):
         models_index = parts.index('models')
     except ValueError:
         return True
+
+    # 排除 models 目录下的所有 .zip 文件（原始压缩包不打包）
+    if 'models' in parts and path.suffix.lower() == '.zip' or  path.suffix.lower() == '.cfg':
+        return False
 
     # models/模型名/子目录/... 的深度 >= 3 不打包
     depth = len(parts) - models_index
@@ -85,6 +121,21 @@ def create_file_list(dist_folder, output_file='file_list.txt', is_client_only=Fa
     dist_path = Path(dist_folder)
     if not dist_path.exists():
         return files, None
+
+    # The production artifact contract requires these root-level directories
+    # even when they contain no files.  Add only genuinely empty, real
+    # directories: giving 7-Zip a non-empty directory path would recursively
+    # bypass the per-file model exclusions below.
+    for directory_name in REQUIRED_EMPTY_RELEASE_DIRECTORIES:
+        directory = dist_path / directory_name
+        is_junction = getattr(directory, "is_junction", None)
+        if (
+            directory.is_dir()
+            and not directory.is_symlink()
+            and not (is_junction and is_junction())
+            and not any(directory.iterdir())
+        ):
+            files.append(os.path.relpath(directory, dist_path.parent))
 
     for root, dirs, filenames in os.walk(dist_path):
         # 排除不需要打包的文件夹
@@ -110,6 +161,7 @@ def create_file_list(dist_folder, output_file='file_list.txt', is_client_only=Fa
 def package_with_7zip(source_dir, output_zip, file_list_file):
     """使用 7zip 打包目录"""
 
+    timeout = zip_release_timeout_seconds()
     seven_zip = find_7zip()
     if not seven_zip:
         raise FileNotFoundError(
@@ -160,7 +212,8 @@ def package_with_7zip(source_dir, output_zip, file_list_file):
         capture_output=True,
         text=True,
         encoding='utf-8',
-        errors='ignore'
+        errors='ignore',
+        timeout=timeout,
     )
 
     if result.returncode != 0:
@@ -172,13 +225,18 @@ def package_with_7zip(source_dir, output_zip, file_list_file):
     print("\n✅ 打包成功！")
 
     # 显示压缩包信息
-    info_result = subprocess.run(
-        [seven_zip, 'l', str(output_path.absolute())],
-        capture_output=True,
-        text=True,
-        encoding='utf-8',
-        errors='ignore'
-    )
+    try:
+        info_result = subprocess.run(
+            [seven_zip, 'l', str(output_path.absolute())],
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors='ignore',
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        print(f"\n警告: 读取压缩包信息超时（{_format_seconds(timeout)}s）")
+        return
 
     if info_result.returncode == 0:
         # 解析文件数量和大小
@@ -242,6 +300,7 @@ def main():
     # 逐个打包
     success_count = 0
     for idx, pkg in enumerate(packages):
+        list_file = None
         try:
             print(f"\n{'=' * 60}")
             print(f"打包: {pkg['name']}")
@@ -269,15 +328,17 @@ def main():
 
             success_count += 1
 
-            # 删除临时文件列表
-            try:
-                list_file.unlink()
-                print(f"已删除临时文件列表: {list_file}")
-            except Exception as cleanup_error:
-                print(f"警告: 无法删除临时文件列表 {list_file}: {cleanup_error}")
-
         except Exception as e:
             print(f"\n打包失败: {e}")
+
+        finally:
+            # 删除临时文件列表
+            if list_file is not None:
+                try:
+                    list_file.unlink()
+                    print(f"已删除临时文件列表: {list_file}")
+                except Exception as cleanup_error:
+                    print(f"警告: 无法删除临时文件列表 {list_file}: {cleanup_error}")
 
     # 总结
     print(f"\n{'=' * 60}")

@@ -34,7 +34,7 @@ class MaintenanceWorkflowTests(unittest.TestCase):
 
         self.assertIn('- "3.10"', source)
         self.assertIn('- "3.12"', source)
-        self.assertIn("python -m unittest discover -s tests", source)
+        self.assertIn("python scripts/verify_v1.py", source)
 
 
 if __name__ == "__main__":

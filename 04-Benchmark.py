@@ -12,9 +12,9 @@ from typing import Any
 import numpy as np
 
 from config_server import FunASRNanoGGUFArgs, Qwen3ASRGGUFArgs
-from util.fun_asr_gguf import create_asr_engine as create_fun_engine
-from util.qwen_asr_gguf import create_asr_engine as create_qwen_engine
-from util.qwen_asr_gguf.inference.utils import load_audio as load_qwen_audio
+from core.server.engines.fun_asr_gguf import FunASREngine, ASREngineConfig as FunConfig
+from core.server.engines.qwen_asr_gguf.asr_engine import QwenASREngine, ASREngineConfig as QwenConfig
+from core.server.engines.qwen_asr_gguf.inference.audio import load_audio as load_qwen_audio
 
 
 def make_audio(seconds: float, sample_rate: int = 16000) -> np.ndarray:
@@ -85,24 +85,20 @@ def build_qwen_engine(hardware: str, onnx: str | None = None, llama: str | None 
     kwargs = {
         k: v for k, v in Qwen3ASRGGUFArgs.__dict__.items() if not k.startswith("_")
     }
-    if onnx is not None:
-        kwargs["use_cuda"] = onnx == "gpu"
-        kwargs["use_dml"] = False
-    if llama is not None:
-        kwargs["vulkan_enable"] = llama == "gpu"
+    kwargs["onnx_provider"] = "CUDA" if (onnx or hardware) == "gpu" else "CPU"
+    kwargs["llm_use_gpu"] = (llama or hardware) == "gpu"
     kwargs["verbose"] = False
-    return create_qwen_engine(**kwargs)
+    return QwenASREngine(QwenConfig(**kwargs))
 
 
 def build_fun_engine(hardware: str):
     kwargs = {
         k: v for k, v in FunASRNanoGGUFArgs.__dict__.items() if not k.startswith("_")
     }
-    kwargs["use_cuda"] = hardware == "gpu"
-    kwargs["dml_enable"] = False
-    kwargs["vulkan_enable"] = hardware == "gpu"
+    kwargs["onnx_provider"] = "CUDA" if hardware == "gpu" else "CPU"
+    kwargs["llm_use_gpu"] = hardware == "gpu"
     kwargs["verbose"] = False
-    return create_fun_engine(**kwargs)
+    return FunASREngine(FunConfig(**kwargs))
 
 
 def qwen_providers(engine: Any) -> dict[str, list[str]]:
@@ -139,7 +135,7 @@ def benchmark_qwen(
     init_time = time.perf_counter() - t0
 
     print(
-        f"model=qwen_asr hardware={hardware} preset={Qwen3ASRGGUFArgs.preset} onnx={onnx or ('gpu' if Qwen3ASRGGUFArgs.use_cuda else 'cpu')} llama={llama or ('gpu' if Qwen3ASRGGUFArgs.vulkan_enable else 'cpu')}"
+        f"model=qwen_asr hardware={hardware} onnx={onnx or hardware} llama={llama or hardware}"
     )
     print(f"providers={qwen_providers(engine)}")
     print(f"audio_samples={len(audio)}")
@@ -221,11 +217,11 @@ def benchmark_fun(
     align: list[float] = []
 
     for _ in range(runs):
-        stream = engine.create_stream()
-        stream.accept_waveform(engine.sample_rate, audio)
+        stream = engine.pipeline.create_stream()
+        stream.accept_waveform(engine.config.sample_rate, audio)
 
         t_run = time.perf_counter()
-        result = engine.decode_stream(
+        result = engine.pipeline.decode_stream(
             stream,
             language=language,
             context=context,

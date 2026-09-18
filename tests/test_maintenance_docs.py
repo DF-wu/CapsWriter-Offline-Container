@@ -23,7 +23,7 @@ class MaintenanceDocumentationTests(unittest.TestCase):
                 text = path.read_text(encoding="utf-8")
                 self.assertIn("maintenance/v1", text)
                 self.assertIn("archive/v1-legacy", text)
-                self.assertIn("2.5-alpha", text)
+                self.assertIn("`2.6`", text)
                 self.assertIn("Python 3.10", text)
                 self.assertIn("Python 3.12", text)
 
