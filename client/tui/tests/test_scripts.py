@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import html
 import os
 import re
@@ -8,6 +9,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from textual.pilot import Pilot
 from textual.widgets import Footer
 
 from client.tui.scripts import capture_screenshot, clean, verify
@@ -123,6 +125,35 @@ class ScriptTest(unittest.TestCase):
 
 
 class ScreenshotCaptureTest(unittest.IsolatedAsyncioTestCase):
+    async def test_capture_survives_recompose_after_first_layout(self) -> None:
+        original_pause = Pilot.pause
+        recompose = None
+
+        async def pause_then_recompose(pilot, *args, **kwargs):
+            nonlocal recompose
+            await original_pause(pilot, *args, **kwargs)
+            footer = pilot.app.query_one(Footer)
+            keys = list(footer.query("FooterKey"))
+            if recompose is None and keys and all(key.region.width for key in keys):
+                async def recompose_footer():
+                    # Match the context of Footer's scheduled refresh callback.
+                    with footer._context():
+                        await footer.recompose()
+
+                # Run at the next yield, after readiness was observed. The SVG
+                # must not read the compositor halfway through this recompose.
+                recompose = asyncio.create_task(recompose_footer())
+
+        with mock.patch.object(Pilot, "pause", pause_then_recompose):
+            rendered = await capture_screenshot.capture_svg(
+                locale="en", width=140, height=46,
+            )
+        self.assertIsNotNone(recompose)
+        await recompose
+        self.assertEqual(
+            rendered, capture_screenshot.DEFAULT_OUTPUT.read_text(encoding="utf-8")
+        )
+
     async def test_capture_fails_when_footer_never_becomes_ready(self) -> None:
         with mock.patch.object(Footer, "bindings_changed"), \
              mock.patch.object(capture_screenshot, "RENDER_READY_TIMEOUT", 0.2), \

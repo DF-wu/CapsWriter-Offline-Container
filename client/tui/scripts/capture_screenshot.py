@@ -113,20 +113,18 @@ async def capture_svg(*, locale: str, width: int, height: int) -> str:
     app.no_color = False
     async with app.run_test(size=(width, height)) as pilot:
         try:
-            await asyncio.wait_for(wait_for_footer_layout(pilot), RENDER_READY_TIMEOUT)
+            raw_svg = await asyncio.wait_for(
+                export_when_footer_ready(pilot), RENDER_READY_TIMEOUT
+            )
         except asyncio.TimeoutError as exc:
             raise RuntimeError("Screenshot footer bindings did not finish layout") from exc
-        svg = normalize_render_identifier(
-            remove_remote_font_sources(
-                app.export_screenshot(title="CapsWriter TUI v2 — Textual workbench")
-            )
-        )
+        svg = normalize_render_identifier(remove_remote_font_sources(raw_svg))
     accessible_svg = add_accessibility_metadata(svg, DEFAULT_DESCRIPTION)
     return "\n".join(line.rstrip() for line in accessible_svg.splitlines()) + "\n"
 
 
-async def wait_for_footer_layout(pilot: Pilot) -> None:
-    """Wait for the asynchronously recomposed hotkeys, not just the first frame."""
+async def export_when_footer_ready(pilot: Pilot) -> str:
+    """Flush the footer, then check and export without yielding between them."""
 
     # Footer schedules recompose after a refresh; Pilot.pause only drains widgets
     # present when it starts. A first frame may therefore have an empty footer.
@@ -135,6 +133,7 @@ async def wait_for_footer_layout(pilot: Pilot) -> None:
     footer = app.query_one(Footer)
     while True:
         await pilot.pause()
+        await footer.wait_for_refresh()
         expected_actions = {
             binding.action
             for _, binding, _, _ in app.screen.active_bindings.values()
@@ -146,7 +145,10 @@ async def wait_for_footer_layout(pilot: Pilot) -> None:
             and {key.action for key in keys} == expected_actions
             and all(key.region.width > 0 and key.region.height > 0 for key in keys)
         ):
-            return
+            # Returning readiness through wait_for would yield to the event loop:
+            # another recompose could remove these keys before the caller exports.
+            # Keep the compositor read in the same task as the final readiness check.
+            return app.export_screenshot(title="CapsWriter TUI v2 — Textual workbench")
         await asyncio.sleep(0.01)
 
 
