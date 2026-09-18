@@ -13,6 +13,12 @@ no external network, a 4 CPU limit and a 12 GiB memory limit.
 - Linux Python 3.10.20 isolated temporary virtual environment: the same
   **391 tests passed**. A Python 3.10 Docker base-image pull stalled and was
   stopped; this second result is native, not a Python 3.10 container result.
+- Follow-up for Windows CI: redirected cp1252 output exposed a real startup
+  encoding failure in both plain and Rich status messages. Core startup now
+  retains the selected encoding with `backslashreplace` errors before colorama
+  wraps streams. **393 tests passed** locally with `PYTHONIOENCODING=cp1252:strict`,
+  including two new subprocess regressions for redirected output and GUI builds
+  without standard streams. Windows CI must rerun against this follow-up.
 - Python 3.10 syntax parsing: **348 modules passed**.
 - `uv lock --check --offline`: passed (268 packages resolved).
 - Base, NVIDIA, and Intel/AMD Compose configurations: passed `config --quiet`.

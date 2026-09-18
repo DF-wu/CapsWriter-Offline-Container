@@ -33,6 +33,7 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONNOUSERSITE: "1"
+      PYTHONUTF8: "1"
 
     steps:
       - name: Check out v1 refresh line
