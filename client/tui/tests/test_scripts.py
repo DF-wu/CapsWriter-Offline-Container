@@ -8,6 +8,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+from textual.widgets import Footer
+
 from client.tui.scripts import capture_screenshot, clean, verify
 
 
@@ -121,6 +123,28 @@ class ScriptTest(unittest.TestCase):
 
 
 class ScreenshotCaptureTest(unittest.IsolatedAsyncioTestCase):
+    async def test_capture_fails_when_footer_never_becomes_ready(self) -> None:
+        with mock.patch.object(Footer, "bindings_changed"), \
+             mock.patch.object(capture_screenshot, "RENDER_READY_TIMEOUT", 0.2), \
+             mock.patch.object(capture_screenshot.CapsWriterTui, "export_screenshot") as export:
+            with self.assertRaisesRegex(RuntimeError, "footer bindings did not finish layout"):
+                await capture_screenshot.capture_svg(locale="en", width=140, height=46)
+        export.assert_not_called()
+
+    async def test_capture_waits_for_delayed_footer_binding_widgets(self) -> None:
+        original_bindings_changed = Footer.bindings_changed
+
+        def delayed_bindings_changed(footer, screen):
+            footer.set_timer(1, lambda: original_bindings_changed(footer, screen))
+
+        with mock.patch.object(Footer, "bindings_changed", delayed_bindings_changed):
+            rendered = await capture_screenshot.capture_svg(
+                locale="en", width=140, height=46,
+            )
+
+        committed = capture_screenshot.DEFAULT_OUTPUT.read_text(encoding="utf-8")
+        self.assertEqual(rendered, committed)
+
     async def test_real_capture_is_current_clock_free_and_offline(self) -> None:
         with mock.patch.dict(os.environ):
             os.environ.pop("NO_COLOR", None)

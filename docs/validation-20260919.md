@@ -88,6 +88,18 @@ the chosen encoding with `backslashreplace` before colorama wraps standard outpu
 Two subprocess regressions cover strict cp1252 plain/Rich output and absent GUI
 streams. The documented upstream divergence inventory is consequently 64 paths.
 
+The ASGI request fixture now keeps ordinary clients connected until response
+completion and triggers deliberate disconnects with an explicit event. This
+removes a Windows scheduling race that incorrectly turned successful responses
+into 499 errors; all 175 API tests passed after the correction. Screenshot capture
+also waits for the footer's asynchronous binding widgets to finish layout before
+exporting, with a bounded timeout and a delayed-footer regression. Golden SVG
+assertions remain unchanged.
+
+GitHub Windows 2022 production packaging and both executable self-checks passed
+for the redirected-console fix. These checks do not exercise physical devices
+or foreground desktop interaction.
+
 No real Windows microphone, global keyboard hook, foreground text insertion,
 Windows package execution, GPU inference or precision-alignment test was run
 locally. ForcedAligner assets were absent: text inference succeeded through the
