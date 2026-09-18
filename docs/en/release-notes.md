@@ -10,6 +10,13 @@ Python 3.10–3.12 and its pinned llama.cpp b7798 runtime compatibility rather
 than requiring upstream's Python 3.14/b10621 environment. This branch state
 does not indicate a release, image publication, or production deployment.
 
+Windows gains first-run/tray settings for connection, microphone, shortcuts
+and output. The Web console gains opt-in authenticated server settings with
+saved/current values and restart status; see [daily settings](../settings.md).
+[Development commands](../development.md) unify isolated setup, startup, tests
+and builds. [Validation evidence](../validation-20260919.md) records the local
+container checks and the remaining Windows hardware acceptance boundary.
+
 A separate v1 PR is preparing the approved one-time full upstream refresh,
 including the `util/` to `core/` migration while preserving v1 server,
 container, and API contracts. `maintenance/v1` keeps its legacy baseline until
