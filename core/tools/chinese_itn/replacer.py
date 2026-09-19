@@ -20,8 +20,10 @@ from .ranges import is_range_expression, convert_range_expression
 # ============================================================
 
 # 「万」+ 单个数字字：作费率术语（万三=万分之三）或词（万一）时不转换；
-# 仅当「万」前无数字或单位字时才视为术语，否则（一万三、九万一）按数字处理
-_WAN_TERM = re.compile(r'(?<![一二两三四五六七八九零幺十百千万亿])[百千万][一二三四五六七八九]')
+# 只保护完整的万分费率简写，不把「百二十三」「万三千」等数值的前缀当术语。
+_WAN_TERM = re.compile(r'万[一二三四五六七八九](?:点[零幺一二两三四五六七八九]+)?')
+# 动作量词表明「点」是动词；物理单位及「个百分点」前的点仍可为小数点。
+_DOT_VERB = re.compile(r'点[零幺一二两三四五六七八九十百千万]+(?:下|次|遍)')
 
 
 def _all_numeric(tokens):
@@ -254,7 +256,7 @@ def replace(match):
     elif fuzzy_regex.search(original):
         final = original
 
-    elif _WAN_TERM.search(original):
+    elif _WAN_TERM.fullmatch(original):
         final = original
 
     elif (_UNIT_CHARS.issuperset(original)
@@ -262,9 +264,8 @@ def replace(match):
           and not any(c in _DIGIT_CHARS for c in original)):
         final = original
 
-    elif original.startswith('点'):
-        # 表达式以"点"开头 → 是动词"点"(点击/点名/点水), 不是小数点
-        # 小数点必须位于整数部分之后, 不可能作为数值表达式首字符
+    elif _DOT_VERB.match(string, match.start(2)):
+        # 量词可能在正则捕获之外（如「点一下」只捕获「点一」），需看原文。
         final = original
 
     else:

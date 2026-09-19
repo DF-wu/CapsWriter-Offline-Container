@@ -14,10 +14,11 @@ class ResultHandler:
 
     @staticmethod
     def count_units(text: str) -> int:
-        """统计切分单位：中日韩字符按字计，其余文本按空格分词计"""
-        cjk = sum(1 for ch in text if '一' <= ch <= '鿿')
-        words = len([w for w in re.split(r'\s+', text)
-                     if w and not all('一' <= c <= '鿿' for c in w)])
+        """统计切分单位：汉字、假名按字计，其余文本按空格分词，不计标点。"""
+        text = ''.join(ch for ch in text if ch.isalnum() or ch.isspace())
+        cjk_pattern = r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]'
+        cjk = len(re.findall(cjk_pattern, text))
+        words = len(re.sub(cjk_pattern, ' ', text).split())
         return cjk + words
 
     @classmethod
@@ -49,7 +50,7 @@ class ResultHandler:
         # 第二遍：句内按弱标点分行，两侧都够长才断
         lines = []
         for sent in sentences:
-            parts = re.split(r'([，,](?:\s+|$))', sent)
+            parts = re.split(r'(，\s*|,(?:\s+|$))', sent)
             segs = []
             for i in range(0, len(parts), 2):
                 segs.append(parts[i] + (parts[i + 1] if i + 1 < len(parts) else ''))
