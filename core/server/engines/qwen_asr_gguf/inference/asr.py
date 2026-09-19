@@ -54,7 +54,17 @@ class QwenASREngine:
         # 3. 加载识别 LLM
         self.model = llama.LlamaModel(llm_gguf, use_gpu=config.llm_use_gpu)
         self.embedding_table = llama.get_token_embeddings_gguf(llm_gguf)
-        self.ctx = llama.LlamaContext(self.model, n_ctx=config.n_ctx, n_batch=4096, embeddings=False)
+        self.ctx = llama.LlamaContext(
+            self.model,
+            n_ctx=config.n_ctx,
+            n_batch=config.n_batch,
+            n_ubatch=config.n_ubatch,
+            flash_attn=config.flash_attn,
+            offload_kqv=config.offload_kqv,
+            n_threads=config.n_threads,
+            n_threads_batch=config.n_threads_batch,
+            embeddings=False,
+        )
 
         # 缓存 Token ID
         self.ID_IM_START = self.model.token_to_id("<|im_start|>")

@@ -64,7 +64,7 @@ FIELDS = (
     Field("inference_hardware", "CAPSWRITER_INFERENCE_HARDWARE", "容器運算硬體", "僅適用 Docker：auto 自動偵測並允許 CPU 回退，cpu 使用 CPU，gpu 優先嘗試 GPU，失敗時回退 CPU。", "string", "auto", choices=("auto", "cpu", "gpu")),
     Field("model_type", "CAPSWRITER_MODEL_TYPE", "辨識模型", "切換前請先準備該模型檔案。", "string", "qwen_asr", choices=("qwen_asr", "fun_asr_nano", "sensevoice", "paraformer")),
     Field("qwen_preset", "CAPSWRITER_QWEN_PRESET", "Qwen 運算模式", "僅適用 Qwen；進階 CUDA / Vulkan 環境變數仍優先。", "string", "default", choices=("default", "low_vram_gpu", "cpu_only")),
-    Field("num_threads", "CAPSWRITER_NUM_THREADS", "Fun-ASR CPU 執行緒", "僅適用 Fun-ASR；未設定時由模型自動決定。", "integer", None, 1, 256),
+    Field("num_threads", "CAPSWRITER_NUM_THREADS", "CPU 執行緒", "適用 Qwen 與 Fun-ASR 的生成及批次處理；未設定時由模型自動決定。", "integer", None, 1, 256),
     Field("format_num", "CAPSWRITER_FORMAT_NUM", "數字格式化", "將辨識結果的中文數字轉為阿拉伯數字。", "boolean", True),
     Field("format_spell", "CAPSWRITER_FORMAT_SPELL", "中英空格", "調整中英文之間的空格。", "boolean", True),
     Field("max_upload_mb", "CAPSWRITER_HTTP_API_MAX_UPLOAD_MB", "檔案上限 (MB)", "HTTP 單次上傳的大小上限。", "integer", 100, 1, 1024),

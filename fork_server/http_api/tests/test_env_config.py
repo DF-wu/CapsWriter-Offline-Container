@@ -58,6 +58,8 @@ CLASS_ATTRS = {
         "n_ubatch",
         "flash_attn",
         "offload_kqv",
+        "n_threads",
+        "n_threads_batch",
     ),
     FunASRNanoGGUFArgs: (
         "encoder_onnx_path",

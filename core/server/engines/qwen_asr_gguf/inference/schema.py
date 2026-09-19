@@ -90,6 +90,12 @@ class ASREngineConfig:
     verbose: bool = True
     enable_aligner: bool = False
     align_config: Optional[AlignerConfig] = None
+    n_batch: int = 4096
+    n_ubatch: int = 512
+    flash_attn: bool = True
+    offload_kqv: bool = True
+    n_threads: Optional[int] = None
+    n_threads_batch: Optional[int] = None
 
     def __post_init__(self):
         # 如果没有显式设置 Encoder 填充时长，则默认与 LLM 分段识别时长对齐

@@ -180,6 +180,8 @@ class SettingsTest(unittest.TestCase):
 
         with patch.object(Qwen3ASRGGUFArgs, "onnx_provider", "DML"), \
                 patch.object(Qwen3ASRGGUFArgs, "llm_use_gpu", True), \
+                patch.object(Qwen3ASRGGUFArgs, "n_threads", None, create=True), \
+                patch.object(Qwen3ASRGGUFArgs, "n_threads_batch", None, create=True), \
                 patch.object(FunASRNanoGGUFArgs, "n_threads", 7):
             configure_http_api({}, NativeConfig)
             self.assertEqual(NativeConfig.model_type, "sensevoice")
@@ -187,12 +189,16 @@ class SettingsTest(unittest.TestCase):
             self.assertEqual(Qwen3ASRGGUFArgs.onnx_provider, "DML")
             self.assertTrue(Qwen3ASRGGUFArgs.llm_use_gpu)
             self.assertEqual(FunASRNanoGGUFArgs.n_threads, 7)
+            self.assertIsNone(Qwen3ASRGGUFArgs.n_threads)
+            self.assertIsNone(Qwen3ASRGGUFArgs.n_threads_batch)
             self.save({"model_type": "paraformer", "format_num": True, "num_threads": 2})
             configure_http_api(self.env, NativeConfig)
             self.assertEqual(NativeConfig.model_type, "paraformer")
             self.assertTrue(NativeConfig.format_num)
             self.assertFalse(NativeConfig.format_spell)
             self.assertEqual(FunASRNanoGGUFArgs.n_threads, 2)
+            self.assertEqual(Qwen3ASRGGUFArgs.n_threads, 2)
+            self.assertEqual(Qwen3ASRGGUFArgs.n_threads_batch, 2)
             self.assertEqual(Qwen3ASRGGUFArgs.onnx_provider, "DML")
 
     @unittest.skipIf(os.name == "nt", "Docker shell entrypoint is POSIX only")

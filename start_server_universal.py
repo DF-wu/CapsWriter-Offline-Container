@@ -89,7 +89,7 @@ def configure_http_api(
 
         config_cls = ServerConfig
     selected_environ = os.environ if environ is None else environ
-    from config_server import FunASRNanoGGUFArgs
+    from config_server import FunASRNanoGGUFArgs, Qwen3ASRGGUFArgs
     from fork_server.settings import SettingsStore
     store = SettingsStore(selected_environ, defaults={
         "model_type": getattr(config_cls, "model_type", "qwen_asr"),
@@ -117,6 +117,8 @@ def configure_http_api(
             setattr(config_cls, key, store.effective[key])
     if store.sources["num_threads"] != "default":
         FunASRNanoGGUFArgs.n_threads = store.effective["num_threads"]
+        Qwen3ASRGGUFArgs.n_threads = store.effective["num_threads"]
+        Qwen3ASRGGUFArgs.n_threads_batch = store.effective["num_threads"]
     config_cls.settings_store = store
     return settings
 

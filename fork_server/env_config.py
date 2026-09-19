@@ -409,3 +409,5 @@ def _apply() -> None:
          ))
     if (v := _env_optional_int("CAPSWRITER_NUM_THREADS", minimum=1)) is not None:
         _set(FunASRNanoGGUFArgs, "n_threads", v)
+        _set(Qwen3ASRGGUFArgs, "n_threads", v)
+        _set(Qwen3ASRGGUFArgs, "n_threads_batch", v)
