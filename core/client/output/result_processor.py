@@ -265,7 +265,7 @@ class ResultProcessor:
 
         # 自动回车检测
         for app, delay in Config.enter_apps:
-            if app.lower() == process_name:
+            if app.lower() == process_name.lower():
                 asyncio.create_task(_auto_enter(delay))
 
         # LLM 处理和输出

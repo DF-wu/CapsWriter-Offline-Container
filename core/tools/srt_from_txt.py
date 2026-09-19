@@ -33,7 +33,8 @@ def lines_match_words(text_lines: List[str], words: List) -> List[srt.Subtitle]:
 
     词只有 start（模型原始信息）；句末时间在组句时生成：
     句末 end = min(下一行首词 start - 0.1s 间隙, 末词 start + 1s 上限)，
-    最后一行用时长模型兜底（中文按字 0.2s、英文按词 0.35s）。
+    但不早于本行末词 start。最后一行只估算末词尾部时长
+    （汉字、假名按字 0.2s，其余按词 0.35s）。
 
     Args:
         text_lines: 用户修改并分行后的文本列表
@@ -104,12 +105,14 @@ def lines_match_words(text_lines: List[str], words: List) -> List[srt.Subtitle]:
         last_start = words[end_idx]['start']
         if k + 1 < len(line_word_ranges):
             next_start = words[line_word_ranges[k + 1][0]]['start']
-            t2 = min(next_start - 0.1, last_start + 1.0)
+            t2 = max(last_start, min(next_start - 0.1, last_start + 1.0))
         else:
-            # 最后一行：时长模型兜底（中文按字 0.2s、英文按词 0.35s）
-            text = punc_pattern.sub('', line_text)
-            cjk = sum(1 for ch in text if '一' <= ch <= '鿿')
-            en_words = len([w for w in text.split() if w and not all('一' <= c <= '鿿' for c in w)])
+            # 末词之前的时长已由时间戳覆盖，仅补上末词本身的发音时长。
+            text = ''.join(ch for ch in words[end_idx]['word']
+                           if ch.isalnum() or ch.isspace())
+            cjk_pattern = r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]'
+            cjk = len(re.findall(cjk_pattern, text))
+            en_words = len(re.sub(cjk_pattern, ' ', text).split())
             t2 = last_start + max(cjk * 0.2 + en_words * 0.35, 0.1)
         t2 = max(t2, t1 + 0.1)  # 保证 end > start
         subtitle_list.append(srt.Subtitle(
@@ -170,4 +173,3 @@ def main(files: List[Path]):
 if __name__ == '__main__':
     typer.run(main)
         
-

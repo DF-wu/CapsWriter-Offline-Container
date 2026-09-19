@@ -124,7 +124,8 @@ class CapsWriterClient:
         # 注册退出函数
         register_signal(self.stop)
 
-        files = [Path(f) for f in sys.argv[1:] if os.path.exists(f)]
+        # FileRunner reports invalid inputs; supplied paths still select file mode.
+        files = [Path(f) for f in sys.argv[1:]]
 
         if files:
             # 文件转录模式
@@ -137,5 +138,4 @@ class CapsWriterClient:
             self.loop.run_until_complete(runner.run())
         except RuntimeError:
             ...
-
 
