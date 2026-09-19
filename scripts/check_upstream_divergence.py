@@ -47,6 +47,7 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "core/client/hotword/hotword_standalone.py",
         "core/client/llm/llm_output_typing.py",
         "core/client/manager/file_runner.py",
+        "core/client/manager/mic_runner.py",
         "core/client/manager/tray_manager.py",
         "core/client/output/result_processor.py",
         "core/client/output/text_output.py",

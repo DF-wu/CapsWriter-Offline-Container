@@ -9,7 +9,7 @@
 
 | 目標 | 怎麼做到 |
 |---|---|
-| 未來 `git merge origin/master` 可審查 | 主要 fork 加值在獨立目錄 `fork_server/` / `docker/` / `client/{cli,web,tui}/`；64 個 upstream-tracked divergence 由 guard 與同步 SOP 管理 |
+| 未來 `git merge origin/master` 可審查 | 主要 fork 加值在獨立目錄 `fork_server/` / `docker/` / `client/{cli,web,tui}/`；76 個 upstream-tracked divergence 由 guard 與同步 SOP 管理 |
 | 上游更新識別引擎時可持續受惠 | 模型推論算法仍以 upstream 為基線；`core/server/engines/` 只保留已記錄的 bounded I/O 與 privacy logging 接觸點 |
 | 易理解、易維護 | Sidecar hook 使用子類化／module replacement；直接接觸 upstream 的部分則按責任分組並由 regression 固定契約 |
 | 容器啟動可預測 | env 驅動的設定 + 自動模型下載 + GPU 偵測 + CPU fallback |
@@ -80,15 +80,16 @@ requirements-server-docker.lock         ← Docker image runtime transitive depe
 start_server_docker.py                  ← Fork 入口 (與上游 start_server.py 並存)
 ```
 
-**刻意 diverge 的 upstream-tracked 檔案：64 個**。以下用 merge/review
+**刻意 diverge 的 upstream-tracked 檔案：76 個**。以下用 merge/review
 責任分組；括號數量合計即 guard 的完整 allowlist。
 
 | 群組（數量） | Upstream-tracked 路徑 | 保留原因 |
 |---|---|---|
+| 上游更新 review 修正（11） | `build-client.spec`、`core/client/app.py`、`core/client/transcribe/result_handler.py`、`core/logger.py`、`core/server/engines/qwen_asr_gguf/inference/{asr.py,schema.py}`、`core/server/worker/check_model.py`、`core/tools/chinese_itn/{replacer.py,sequence_parser.py}`、`core/tools/signal_handler.py`、`core/tools/srt_from_txt.py` | 保留檔案模式、字幕分行與末詞時間、數字正規化、Qwen native context overrides、SIGTERM 清理、日誌目錄覆寫與非互動錯誤處理；停用未支援的 Win7 client-only junction 打包。這些是已重現的相容性缺陷，重跑對應 review regressions |
 | 重導向主控台編碼（1） | `core/__init__.py` | 保留選定的 stdout/stderr 編碼，在 colorama 前設定 backslashreplace；Windows 重導向 cp1252 時，中文訊息不得中斷辨識處理 |
 | Repository、build、release（7） | `.gitignore`、`CLAUDE.md`、`assets/BUILD_GUIDE.md`、`build.spec`、`readme.md`、`requirements-server.txt`、`zip_release.py` | Fork 視角與 contributor metadata、universal Windows server packaging、可重現 dependency、cache/secret hygiene，以及 bounded release subprocess |
 | LLM role 安全預設（3） | `LLM/default.py`、`LLM/大助理.py`、`docs/角色功能如何使用.md` | 移除 API-key-like placeholder、停用開箱即聯網角色，並讓使用說明與安全預設一致 |
-| Desktop portability、bounded audio 與 lifecycle（24） | `core/client/audio/{file_manager.py,recorder.py,stream.py}`、`core/client/clipboard/clipboard.py`、`core/client/connection/websocket_manager.py`、`core/client/global_hotkey/{__init__.py,global_hotkey.py}`、`core/client/hotword/{hotword_standalone.py,hotword_standalone.ipynb}`、`core/client/llm/llm_output_typing.py`、`core/client/manager/{file_runner.py,tray_manager.py}`、`core/client/output/{result_processor.py,text_output.py}`、`core/client/shortcut/{emulator.py,key_mapper.py,shortcut_manager.py}`、`core/client/state.py`、`core/client/transcribe/{file_transcriber.py,media_tool.py,srt_adjuster.py}`、`core/tools/window_detector.py`、`core/ui/tray.py`、`start_client.py` | 保留 Windows 行為與 artifact self-check，同時讓 headless／pure Wayland 啟動不需載入 `pynput`，並提供 X11/unsupported-session detection、Windows `keyboard.write`／Linux non-root `pynput` text injection、bounded callback/queue/WebSocket、ordered audio、UUID4 task identity、concurrent file receive/deadline，以及所有外部 desktop/media process 的 timeout、detached stdio 與 cleanup guard |
+| Desktop portability、bounded audio 與 lifecycle（25） | `core/client/audio/{file_manager.py,recorder.py,stream.py}`、`core/client/clipboard/clipboard.py`、`core/client/connection/websocket_manager.py`、`core/client/global_hotkey/{__init__.py,global_hotkey.py}`、`core/client/hotword/{hotword_standalone.py,hotword_standalone.ipynb}`、`core/client/llm/llm_output_typing.py`、`core/client/manager/{file_runner.py,mic_runner.py,tray_manager.py}`、`core/client/output/{result_processor.py,text_output.py}`、`core/client/shortcut/{emulator.py,key_mapper.py,shortcut_manager.py}`、`core/client/state.py`、`core/client/transcribe/{file_transcriber.py,media_tool.py,srt_adjuster.py}`、`core/tools/window_detector.py`、`core/ui/tray.py`、`start_client.py` | 保留 Windows 行為與 artifact self-check，同時讓 headless／pure Wayland 啟動不需載入 `pynput`，並提供 X11/unsupported-session detection、Windows `keyboard.write`／Linux non-root `pynput` text injection、bounded callback/queue/WebSocket、ordered audio、UUID4 task identity、concurrent file receive/deadline，以及所有外部 desktop/media process 的 timeout、detached stdio 與 cleanup guard |
 | Protocol 與安全錯誤傳遞（3） | `core/protocol.py`、`core/server/connection/ws_send.py`、`core/server/schema.py` | 在不破壞成功訊息相容性的前提下，傳遞安全的 worker error，並在 `Task` 尾端加入 HTTP privacy/deadline metadata |
 | WebSocket ingress 與 transport controls（2） | `core/server/connection/{server_manager.py,ws_recv.py}` | 依 configured bind 解析 IPv4/IPv6 family；限制 frame/prefetch，嚴格驗證 metadata/PCM/單一 active stream，並在 executor thread 對 bounded worker queue 施加 backpressure |
 | Worker/service resource controls（8） | `core/server/app.py`、`core/server/state.py`、`core/server/worker/{__init__.py,gpu_boost.py,pipeline.py,process_manager.py,task_handler.py,worker.py}` | Task-local transcript privacy、bounded result dispatch/fair scheduling/shutdown、cross-process deadline、safe error result、GPU/stop timeout，以及 parent inference watchdog/fail-stop |
@@ -99,7 +100,7 @@ start_server_docker.py                  ← Fork 入口 (與上游 start_server.
 | Upstream 文件正確性／a11y（2） | `docs/text_merge_algorithm.md`、`docs/显卡加速的若干问题.md` | 對齊目前 text-merger 實作與補上有意義的圖像替代文字 |
 
 `scripts/check_upstream_divergence.py` 以 `origin/master` 直接對工作樹比較，
-因此已提交、staged 與 unstaged 的 tracked 修改都會進入這 64 檔檢查；fork-only
+因此已提交、staged 與 unstaged 的 tracked 修改都會進入這 76 檔檢查；fork-only
 新增路徑與 untracked work-in-progress 不會被誤算成 upstream divergence。
 
 ## 4. Hook 策略
@@ -233,4 +234,4 @@ ForkedCapsWriterServer().start()
 2. **第二選擇**：fork 內 monkey-patch（runtime 替換）
 3. **第三選擇**：直接修改上游檔。這時必須在本文件與 `upstream-sync-guide.md` 的 known divergent files 清單加一筆，說明原因與 merge 時的處理方式。
 
-目前 (2026-09-18) 為止：第三類只包含上方 64 個已知檔案；不要新增未記錄的 upstream divergence。
+目前 (2026-09-18) 為止：第三類只包含上方 76 個已知檔案；不要新增未記錄的 upstream divergence。
