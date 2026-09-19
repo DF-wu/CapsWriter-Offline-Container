@@ -46,6 +46,8 @@ import {
 import { loadVoices, speakText } from "./lib/speech";
 import type { ApiSettings, HealthResponse, ReadinessResponse, ResponseFormat, TranscriptRecord, TranscriptionResult } from "./types";
 
+import ServerSettings, { type ServerSettingsHandle } from "./ServerSettings";
+
 type StatusKind = "idle" | "working" | "ok" | "degraded" | "error";
 type SpeechState = "idle" | "speaking" | "paused";
 type RecordingState = "idle" | "starting" | "recording" | "stopping";
@@ -144,6 +146,7 @@ export default function App() {
   const transcriptionRunRef = useRef(0);
   const diagnosticRunRef = useRef(0);
   const mountedRef = useRef(true);
+  const serverSettingsRef = useRef<ServerSettingsHandle>(null);
 
   useEffect(() => saveSettings(settings), [settings]);
 
@@ -195,6 +198,12 @@ export default function App() {
 
   const updateSettings = <K extends keyof ApiSettings>(key: K, value: ApiSettings[K]) => {
     setSettings((current) => ({ ...current, [key]: value }));
+  };
+
+  const updateConnectionSetting = (key: "baseUrl" | "apiKey", value: string) => {
+    if (settings[key] === value || serverSettingsRef.current?.confirmEndpointChange() !== false) {
+      updateSettings(key, value);
+    }
   };
 
   const setAudio = (audio: BrowserAudio | null) => {
@@ -627,12 +636,13 @@ export default function App() {
             <h2 id="connection-title">連線</h2>
           </div>
 
+          <p className="settings-help">首次使用：填入 Server 的位址與金鑰，再按「檢查服務」。Server 在 axolotl 時，請使用 Windows 可連線的主機名稱或 IP；localhost 指的是目前這台電腦。</p>
           <label className="field">
             <span>API root</span>
             <input
               value={settings.baseUrl}
-              onChange={(event) => updateSettings("baseUrl", event.target.value)}
-              placeholder={DEFAULT_SETTINGS.baseUrl}
+              onChange={(event) => updateConnectionSetting("baseUrl", event.target.value)}
+              placeholder="http://axolotl:6017"
               inputMode="url"
               maxLength={WEB_SETTING_LIMITS.baseUrl}
             />
@@ -641,12 +651,13 @@ export default function App() {
             <span>API key</span>
             <input
               value={settings.apiKey}
-              onChange={(event) => updateSettings("apiKey", event.target.value)}
+              onChange={(event) => updateConnectionSetting("apiKey", event.target.value)}
               type="password"
               autoComplete="off"
               maxLength={WEB_SETTING_LIMITS.apiKey}
             />
           </label>
+          <p className="settings-help">API key 僅供目前頁面使用，不會儲存在瀏覽器。以下模型、語言與格式只影響本次網頁轉錄。</p>
           <div className="field-row">
             <label className="field">
               <span>格式</span>
@@ -1004,6 +1015,7 @@ export default function App() {
           </div>
           </section>
         </div>
+        <ServerSettings ref={serverSettingsRef} settings={settings} />
       </main>
     </div>
   );

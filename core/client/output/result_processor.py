@@ -70,6 +70,9 @@ class ResultProcessor:
         """
         self.app = app
         self._exit_event = asyncio.Event()
+        self._stopped_event = asyncio.Event()
+        self._run_task = None
+        self._receive_task = None
         self._loop = asyncio.get_running_loop()  # 保存事件循环引用
 
     @property
@@ -108,6 +111,21 @@ class ResultProcessor:
         else:
             self._exit_event.set()
             logger.debug("已直接设置退出事件")
+
+    async def stop(self) -> None:
+        """在所属事件循环中停止接收、关闭连接并等待处理循环退出。"""
+        self._exit_event.set()
+        run_task = self._run_task
+        receive_task = self._receive_task
+        if receive_task is not None and not receive_task.done():
+            receive_task.cancel()
+        if run_task is not None and not run_task.done():
+            run_task.cancel()
+        await self.ws.close()
+        if receive_task is not None:
+            await asyncio.gather(receive_task, return_exceptions=True)
+        if not self._stopped_event.is_set():
+            await self._stopped_event.wait()
     
     def _format_llm_result(self, llm_result) -> str:
         """格式化 LLM 结果输出"""
@@ -158,24 +176,45 @@ class ResultProcessor:
     
     async def start(self) -> None:
         """开启工作循环（含自动重联）"""
-        while not self._exit_event.is_set():
-            # 1. 尝试连接，失败则重试
-            if not await self.ws.connect():
-                await asyncio.sleep(2)
-                continue
+        self._run_task = asyncio.current_task()
+        try:
+            try:
+                while not self._exit_event.is_set():
+                    # 1. 尝试连接，失败则等待退出或重试期限。
+                    if not await self.ws.connect():
+                        try:
+                            await asyncio.wait_for(self._exit_event.wait(), timeout=2)
+                        except asyncio.TimeoutError:
+                            pass
+                        continue
 
-            # 2. 消息接收循环
-            while not self._exit_event.is_set():
-                try:
-                    message = await self.ws.receive()
-                    if message is None: break
-                    await self._handle_message(message)
-                except Exception as e:
-                    logger.debug(f"连接异常中断: {e}")
-                    break
+                    # 2. 消息接收循环
+                    while not self._exit_event.is_set():
+                        try:
+                            self._receive_task = asyncio.create_task(self.ws.receive())
+                            message = await self._receive_task
+                            if message is None:
+                                break
+                            await self._handle_message(message)
+                        except asyncio.CancelledError:
+                            if self._exit_event.is_set():
+                                break
+                            raise
+                        except Exception as e:
+                            logger.debug(f"连接异常中断: {e}")
+                            break
+                        finally:
+                            self._receive_task = None
 
-            console.print(f'[bold red]已断开服务端连接[/bold red]\n')
-            self._cleanup()
+                    if not self._exit_event.is_set():
+                        console.print(f'[bold red]已断开服务端连接[/bold red]\n')
+                    self._cleanup()
+            except asyncio.CancelledError:
+                if not self._exit_event.is_set():
+                    raise
+        finally:
+            self._run_task = None
+            self._stopped_event.set()
             
 
     async def _handle_message(self, message: Optional[RecognitionMessage]) -> None:
@@ -257,15 +296,15 @@ class ResultProcessor:
 
         # 窗口兼容性检测
         paste = Config.paste
-        process_name = get_active_window_info().get('process_name', '').lower()
+        process_name = get_active_window_info().get('process_name', '')
         logger.debug(f"当前活动窗口: {process_name}")
-        if any(app.lower() == process_name for app in Config.paste_apps):
+        if any(app.lower() == process_name.lower() for app in Config.paste_apps):
             paste = True
             logger.debug(f"检测到兼容性应用: {process_name}，使用粘贴模式")
 
         # 自动回车检测
         for app, delay in Config.enter_apps:
-            if app.lower() == process_name:
+            if app.lower() == process_name.lower():
                 asyncio.create_task(_auto_enter(delay))
 
         # LLM 处理和输出

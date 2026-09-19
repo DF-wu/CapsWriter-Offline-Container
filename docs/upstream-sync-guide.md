@@ -1,17 +1,20 @@
 # 對齊上游指南
 
-> 未來要拉上游更新時的標準操作流程。主要功能維持 sidecar，但 59 個已記錄的 upstream-tracked 接觸點仍須依群組 review；不要把 merge 成功等同於同步完成。
+> 未來要拉上游更新時的標準操作流程。主要功能維持 sidecar，但 76 個已記錄的 upstream-tracked 接觸點仍須依群組 review；不要把 merge 成功等同於同步完成。
 
 ## 1. 心智模型
 
 ```
 upstream (HaujetZhao/CapsWriter-Offline)
         │
-        │  fork modifies 59 upstream-tracked files:
+        │  fork modifies 76 upstream-tracked files:
         │    repo/build/release + role/docs safety       (12)
-        │    desktop portability and bounded lifecycle  (24)
+        │    desktop portability and bounded lifecycle  (25)
         │    protocol, WebSocket and worker controls    (13)
         │    engine bounded I/O and privacy logging     (10)
+        │    native ABI and development compatibility   (4)
+        │    redirected console encoding               (1)
+        │    upstream review regression fixes           (11)
         │  fork adds:    fork_server/ docker/ client/{cli,web,tui}/
         │                docs/ scripts/ docker-compose*.yml .env.example
         │                .github/workflows/ requirements-server-docker.txt
@@ -20,20 +23,23 @@ upstream (HaujetZhao/CapsWriter-Offline)
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
 ```
 
-關鍵：fork 修改 upstream-tracked 檔案數 = **59**。主要產品功能仍優先放在
-fork-owned 新路徑；這 59 檔是需要逐組 rebase/merge review 的明確邊界。
+關鍵：fork 修改 upstream-tracked 檔案數 = **76**。主要產品功能仍優先放在
+fork-owned 新路徑；這 76 檔是需要逐組 rebase/merge review 的明確邊界。
 
 | 群組（數量） | Upstream-tracked 路徑 | Merge 時必須保留／重驗 |
 |---|---|---|
+| 上游更新 review 修正（11） | `build-client.spec`、`core/client/app.py`、`core/client/transcribe/result_handler.py`、`core/logger.py`、`core/server/engines/qwen_asr_gguf/inference/{asr.py,schema.py}`、`core/server/worker/check_model.py`、`core/tools/chinese_itn/{replacer.py,sequence_parser.py}`、`core/tools/signal_handler.py`、`core/tools/srt_from_txt.py` | 保留檔案模式、字幕分行與末詞時間、數字正規化、Qwen native context overrides、SIGTERM 清理、日誌目錄覆寫與非互動錯誤處理；停用未支援的 Win7 client-only junction 打包。這些是已重現的相容性缺陷，重跑對應 review regressions |
+| 重導向主控台編碼（1） | `core/__init__.py` | 在 colorama 包裝前保留 stdout/stderr 編碼並設定 backslashreplace；重跑 cp1252 plain/Rich 輸出與無標準串流的 GUI 啟動測試，避免中文狀態訊息中斷辨識 |
 | Repository、build、release（7） | `.gitignore`、`CLAUDE.md`、`assets/BUILD_GUIDE.md`、`build.spec`、`readme.md`、`requirements-server.txt`、`zip_release.py` | 合併 upstream metadata/dependencies；保留 universal server packaging、fork README、安全 ignore 與 bounded release cleanup |
 | LLM role 安全預設（3） | `LLM/default.py`、`LLM/大助理.py`、`docs/角色功能如何使用.md` | 保留空 key、disabled network role 與相符文件；同步其他 upstream prompt/template 欄位 |
-| Desktop portability、bounded audio 與 lifecycle（24） | `core/client/audio/{file_manager.py,recorder.py,stream.py}`、`core/client/clipboard/clipboard.py`、`core/client/connection/websocket_manager.py`、`core/client/global_hotkey/{__init__.py,global_hotkey.py}`、`core/client/hotword/{hotword_standalone.py,hotword_standalone.ipynb}`、`core/client/llm/llm_output_typing.py`、`core/client/manager/{file_runner.py,tray_manager.py}`、`core/client/output/{result_processor.py,text_output.py}`、`core/client/shortcut/{emulator.py,key_mapper.py,shortcut_manager.py}`、`core/client/state.py`、`core/client/transcribe/{file_transcriber.py,media_tool.py,srt_adjuster.py}`、`core/tools/window_detector.py`、`core/ui/tray.py`、`start_client.py` | 先同步 upstream Windows 行為，再重套 artifact self-check、headless／pure Wayland lazy input imports、X11/unsupported-session、Windows `keyboard.write`／Linux non-root `pynput` text injection、bounded callback/queue/WebSocket、ordered stream、UUID4 與 concurrent file deadline contract；跑 desktop portability/backpressure regressions |
+| Desktop portability、bounded audio 與 lifecycle（25） | `core/client/audio/{file_manager.py,recorder.py,stream.py}`、`core/client/clipboard/clipboard.py`、`core/client/connection/websocket_manager.py`、`core/client/global_hotkey/{__init__.py,global_hotkey.py}`、`core/client/hotword/{hotword_standalone.py,hotword_standalone.ipynb}`、`core/client/llm/llm_output_typing.py`、`core/client/manager/{file_runner.py,mic_runner.py,tray_manager.py}`、`core/client/output/{result_processor.py,text_output.py}`、`core/client/shortcut/{emulator.py,key_mapper.py,shortcut_manager.py}`、`core/client/state.py`、`core/client/transcribe/{file_transcriber.py,media_tool.py,srt_adjuster.py}`、`core/tools/window_detector.py`、`core/ui/tray.py`、`start_client.py` | 先同步 upstream Windows 行為，再重套 artifact self-check、headless／pure Wayland lazy input imports、X11/unsupported-session、Windows `keyboard.write`／Linux non-root `pynput` text injection、bounded callback/queue/WebSocket、ordered stream、UUID4 與 concurrent file deadline contract；跑 desktop portability/backpressure regressions |
 | Protocol 與安全錯誤傳遞（3） | `core/protocol.py`、`core/server/connection/ws_send.py`、`core/server/schema.py` | 保留 optional error fields 與尾端 HTTP task metadata；重跑 protocol 和 `ws_send_with_http` drift tests |
 | WebSocket ingress 與 transport controls（2） | `core/server/connection/{server_manager.py,ws_recv.py}` | 保留 IPv4/IPv6 bind preflight、bounded frame/prefetch、off-loop queue backpressure、嚴格 metadata/PCM/active-stream policy close；跑 server queue/protocol regressions |
 | Worker/service resource controls（8） | `core/server/app.py`、`core/server/state.py`、`core/server/worker/{__init__.py,gpu_boost.py,pipeline.py,process_manager.py,task_handler.py,worker.py}` | 保留 privacy、deadline、bounded result dispatch／shutdown、公平排程、安全錯誤、GPU command 及 inference watchdog；同步 upstream service/worker lifecycle 後跑 regressions |
 | Engine export I/O（3） | `core/server/engines/{force_aligner_gguf,fun_asr_gguf,qwen_asr_gguf}/export/gguf/utility.py` | 保留 `CAPSWRITER_GGUF_EXPORT_HTTP_TIMEOUT`；同步 upstream export logic |
 | Engine audio decode I/O（4） | `core/server/engines/{force_aligner_gguf,fun_asr_gguf,qwen_asr_gguf,sensevoice_onnx}/inference/audio.py` | 保留 `CAPSWRITER_ENGINE_FFMPEG_TIMEOUT`、kill cleanup、bounded stderr；同步 upstream decode logic |
 | Engine privacy logging（3） | `core/server/engines/{force_aligner_gguf,qwen_asr_gguf}/inference/aligner.py`、`core/server/engines/fun_asr_gguf/inference/prompt_builder.py` | 保留 token／prompt／context／audio-derived detected-hotword 的 task-local redaction，但逐段同步 upstream prompt/alignment 語意；跑 worker privacy regressions |
+| Native ABI 與開發環境相容性（4） | `core/server/engines/llama/llama.py`、`core/server/engines/llama/bin/llama.cpp二进制下载到这里.txt`、`pyproject.toml`、`uv.lock` | llama binding 與已驗證 b7798 runtime 保持相同 struct layout／四參數 penalties；保留 upstream 模型載入失敗即拋錯。Python 3.10–3.12、Windows dependency markers、分角色開發環境與 lock 更新須一起驗證；詳見 [本次同步紀錄](upstream-refresh-20260918.md) |
 | Upstream 文件正確性／a11y（2） | `docs/text_merge_algorithm.md`、`docs/显卡加速的若干问题.md` | 保留與現行 merger 一致的說明及有意義的 image alt text；同步 upstream 其他內容 |
 
 ## 2. 標準同步流程
@@ -42,18 +48,16 @@ fork-owned 新路徑；這 59 檔是需要逐組 rebase/merge review 的明確�
 
 ```bash
 git fetch origin
-git checkout master
-git merge --ff-only origin/master   # 試 fast-forward
-```
-
-如果 `--ff-only` 失敗，代表 fork 有自己的 commits 領先：
-
-```bash
+git switch -c feat/upstream-refresh master
 git merge origin/master
 ```
 
-預期結果：衝突應只落在上方 59 個已知 divergent files，並依群組處理；
-任何第 60 個 upstream-tracked 路徑都先視為未記錄 drift。
+Fork 有自己的提交，因此在獨立 feature branch 做 merge 並保留雙方歷史。
+測試完成後推至自己的 fork，開 PR 到 `master`；v1 的全面更新仍使用獨立
+分支與 PR 到 `maintenance/v1`，詳見 [版本政策](zh-TW/versioning.md)。
+
+預期結果：衝突應只落在上方 76 個已知 divergent files，並依群組處理；
+任何第 77 個 upstream-tracked 路徑都先視為未記錄 drift。
 
 跑驗證：
 
@@ -155,10 +159,10 @@ python -m unittest fork_server.http_api.tests.test_ws_send_with_http -v
 unstaged 的 tracked edit 都不能繞過檢查。預期首行為：
 
 ```text
-Upstream divergence guard passed: 59 upstream-tracked file(s) changed
+Upstream divergence guard passed: 76 upstream-tracked file(s) changed
 ```
 
-後續 59 條路徑必須與本文件第 1 節的十個群組完全一致；若出現第 60 條，先查
+後續 76 條路徑必須與本文件第 1 節的十三個群組完全一致；若出現第 77 條，先查
 來源與能否移入 fork-owned path，不可只為了讓 CI 綠燈就擴大 allowlist。
 
 ## 4. 隔離 smoke test (建議流程)

@@ -24,7 +24,6 @@ RELEASE_DOC_ASSETS = {
     "web-console.md": "../assets/web-console-architecture.svg",
     "troubleshooting.md": "../assets/openai-api-lifecycle.svg",
     "support-security.md": "../assets/verification-pipeline.svg",
-    "release-notes.md": "../assets/version-tracks.svg",
 }
 
 

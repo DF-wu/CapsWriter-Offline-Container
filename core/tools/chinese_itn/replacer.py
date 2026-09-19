@@ -3,6 +3,8 @@
 主替换逻辑和入口函数
 """
 
+import re
+
 from .mappings import idioms, fuzzy_regex, value_mapper
 
 _DIGIT_CHARS = {k for k, v in value_mapper.items() if v <= 9}
@@ -16,6 +18,22 @@ from .ranges import is_range_expression, convert_range_expression
 # ============================================================
 # 辅助工具
 # ============================================================
+
+# 「万」+ 单个数字字：作费率术语（万三=万分之三）或词（万一）时不转换；
+# 只保护完整的万分费率简写，不把「百二十三」「万三千」等数值的前缀当术语。
+_WAN_TERM = re.compile(r'万[一二三四五六七八九](?:点[零幺一二两三四五六七八九]+)?')
+# 「点」后接动作次数，或点餐、点选、点名常用量词时是动词。这里刻意不含
+# 米、克、度、倍等度量词；「个」也不能截断复合单位「个百分点」。
+_DOT_ACTION_COUNTER = (
+    r'(?:下|次|遍|回|轮|'
+    r'个(?!百分点)|位|名|人|只|'
+    r'份|杯|碗|盘|道|客|桌|壶|瓶|罐|盒|包|袋|串|打|'
+    r'项|条|款|种|类|组|队|行|列|张|页|首|本|册|部|集|支|件|套)'
+)
+_DOT_VERB = re.compile(
+    rf'点[零幺一二两三四五六七八九十百千万]+{_DOT_ACTION_COUNTER}'
+)
+
 
 def _all_numeric(tokens):
     """检查所有 Token 是否为基础数值类型"""
@@ -247,9 +265,16 @@ def replace(match):
     elif fuzzy_regex.search(original):
         final = original
 
+    elif _WAN_TERM.fullmatch(original):
+        final = original
+
     elif (_UNIT_CHARS.issuperset(original)
           and len(original) >= 2
           and not any(c in _DIGIT_CHARS for c in original)):
+        final = original
+
+    elif _DOT_VERB.match(string, match.start(2)):
+        # 量词可能在正则捕获之外（如「点一下」只捕获「点一」），需看原文。
         final = original
 
     else:

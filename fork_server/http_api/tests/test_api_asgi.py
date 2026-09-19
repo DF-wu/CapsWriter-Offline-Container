@@ -51,10 +51,12 @@ async def _asgi_post(
     authorization: str | None = None,
     content_length: int | None = None,
     origin: str | None = None,
+    disconnect_event: asyncio.Event | None = None,
 ):
     messages = []
     delivered = False
     receive_calls = 0
+    response_complete = asyncio.Event()
 
     async def receive():
         nonlocal delivered, receive_calls
@@ -62,10 +64,15 @@ async def _asgi_post(
         if not delivered:
             delivered = True
             return {"type": "http.request", "body": body, "more_body": False}
+        # Finishing the upload does not disconnect a real HTTP client. Keep
+        # normal requests connected; cancellation tests provide an explicit gate.
+        await (disconnect_event or response_complete).wait()
         return {"type": "http.disconnect"}
 
     async def send(message):
         messages.append(message)
+        if message["type"] == "http.response.body" and not message.get("more_body", False):
+            response_complete.set()
 
     headers = [
         (b"host", b"testserver"),
@@ -463,6 +470,8 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
         body_override: bytes | None = None,
         boundary_override: str | None = None,
         origin: str | None = None,
+        disconnect_after_registration: bool = False,
+        submission_delay: float = 0.0,
     ):
         from core.server.schema import Result
         from fork_server.http_api import api
@@ -471,6 +480,7 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
             def __init__(self):
                 self.register_calls = 0
                 self.cancel_calls = 0
+                self.disconnect_event = None
 
             def register(self, task_id):
                 self.register_calls += 1
@@ -501,6 +511,8 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
                             ),
                         )
                     )
+                if self.disconnect_event is not None:
+                    self.disconnect_event.set()
                 return future
 
             def cancel(self, task_id):
@@ -526,6 +538,8 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
             boundary = boundary_override
 
         async def run():
+            disconnect_event = asyncio.Event() if disconnect_after_registration else None
+            router.disconnect_event = disconnect_event
             with ExitStack() as stack:
                 for name, value in {
                     "http_api_key": "",
@@ -542,7 +556,10 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
                 stack.enter_context(patch.object(api, "task_router", router))
                 stack.enter_context(patch.object(api, "decode_to_pcm", decode))
                 router.submit = stack.enter_context(
-                    patch.object(api, "_split_and_submit")
+                    patch.object(
+                        api, "_split_and_submit",
+                        side_effect=lambda *args, **kwargs: time.sleep(submission_delay),
+                    )
                 )
                 stack.enter_context(patch.object(api, "log_prompt_context"))
                 stack.enter_context(patch.object(api, "log_transcription_result"))
@@ -556,6 +573,7 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
                             authorization=authorization,
                             content_length=content_length,
                             origin=origin,
+                            disconnect_event=disconnect_event,
                         )
                 else:
                     response = await _asgi_post(
@@ -565,6 +583,7 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
                         authorization=authorization,
                         content_length=content_length,
                         origin=origin,
+                        disconnect_event=disconnect_event,
                     )
                 await asyncio.sleep(0)
                 router.orphan_disconnect_tasks = [
@@ -641,7 +660,9 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
                 ("response_format", "verbose_json"),
                 ("temperature", "0.25"),
                 ("timestamp_granularities[]", "word"),
-            ]
+            ],
+            # Allow the disconnect watcher to run while submission is pending.
+            submission_delay=0.05,
         )
 
         self.assertEqual(status, 200)
@@ -805,6 +826,7 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
         status, _headers, payload, router, _decode, receive_calls = self._request(
             [("model", "whisper-1")],
             result_pending=True,
+            disconnect_after_registration=True,
         )
 
         self.assertEqual(status, 499)
@@ -814,7 +836,7 @@ class TranscriptionAsgiContractTest(unittest.TestCase):
         self.assertEqual(router.cancel_calls, 1)
         self.assertEqual(router.orphan_disconnect_tasks, [])
 
-    def test_completed_result_wins_disconnect_race(self) -> None:
+    def test_completed_result_returns_without_orphan_watcher(self) -> None:
         status, _headers, payload, router, _decode, receive_calls = self._request(
             [("model", "whisper-1"), ("response_format", "verbose_json")]
         )

@@ -108,10 +108,10 @@
 - **日志**: `logs/client_latest.log` & `logs/server_latest.log`（排查问题唯一入口）
 
 ## 打包与部署 (Build)
-- [`build.spec`](build.spec): Server + Client 打包。
-- [`build-client.spec`](build-client.spec): 仅 Client (Win7兼容)。
-- **策略**: 所有 Python 依赖放入 `internal/`。根目录仅保留配置文件、源码入口 ([`start_*.py`](start_server.py))、核心源码 ([`core/`](core/))、模型文件夹 ([`models/`](models/)) 和说明文档。
-- **PyInstaller 6.0+**: 使用现代化打包配置，支持 CUDA provider 可选收集。
+
+- Python 3.10–3.12；Windows 可携式套件使用 [`build.spec`](build.spec)，操作及验证见 [`assets/BUILD_GUIDE.md`](assets/BUILD_GUIDE.md)。
+- `zip_release.py` 仅接受 `dist/CapsWriter-Offline`；旧版 client-only 产物不再归档。
+- `build-client.spec` 已停用；不再支持 Win7／Python 3.8 client-only 套件。
 
 ## 模型支持 (Models)
 

@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import inspect
 from typing import TYPE_CHECKING, Optional
 
 import websockets
@@ -18,6 +19,7 @@ from websockets.exceptions import ConnectionClosedError, ConnectionClosedOK
 
 from config_client import ClientConfig as Config
 from core.protocol import AudioMessage, RecognitionMessage
+from fork_client.settings import websocket_url
 from ..state import console
 from .. import logger
 import asyncio
@@ -103,9 +105,10 @@ class WebSocketManager:
         if self.state.websocket is not None:
             self.state.websocket = None
 
-        url = f"ws://{Config.addr}:{Config.port}"
+        url = f"{Config.addr}:{Config.port}"
 
         try:
+            url = websocket_url(Config.addr, Config.port)
             if not self._connect_fail_logged:
                 logger.debug(f"正在连接服务端 {url}")
 
@@ -114,10 +117,13 @@ class WebSocketManager:
                 subprotocols=["binary"],
                 max_size=CLIENT_WEBSOCKET_MAX_MESSAGE_BYTES,
                 max_queue=CLIENT_WEBSOCKET_MAX_QUEUED_MESSAGES,
+                open_timeout=4,
+                close_timeout=1,
             )
 
-            # websockets>=16.0 默认走代理，本地连接需显式禁用，但 14 才引入这个参数
-            if tuple(int(v) for v in websockets.__version__.split(".")) >= (14,):
+            # Proxy support was added in websockets 15. Detect the parameter
+            # rather than forwarding it to older event-loop socket APIs.
+            if "proxy" in inspect.signature(websockets.connect).parameters:
                 kwargs["proxy"] = None  
             
             self.state.websocket = await websockets.connect(**kwargs)
@@ -130,11 +136,17 @@ class WebSocketManager:
         except (ConnectionRefusedError, TimeoutError):
             if not self._connect_fail_logged:
                 logger.debug(f"连接服务端 {url} 被拒绝或超时")
-                self._connect_fail_logged = True
         except Exception as e:
             if not self._connect_fail_logged:
                 logger.debug(f"连接服务端 {url} 失败: {e}")
-                self._connect_fail_logged = True
+
+        if not self._connect_fail_logged:
+            console.print(
+                f"無法連線至 {url}；將自動重試。請從托盤開啟「設定」測試連線，"
+                "確認 Server 主機、6016 連接埠及防火牆。",
+                markup=False,
+            )
+            self._connect_fail_logged = True
         
         return False
     

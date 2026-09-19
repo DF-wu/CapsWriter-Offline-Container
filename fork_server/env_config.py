@@ -12,6 +12,7 @@ env_config — 把環境變數套用到上游 config_server 的 class 屬性
 
 from __future__ import annotations
 import os
+from contextvars import ContextVar
 from typing import Optional, Type
 
 from fork_server.http_api.runtime_config import (
@@ -34,8 +35,16 @@ SUPPORTED_QWEN_PRESETS = {"default", "low_vram_gpu", "cpu_only"}
 
 # ---------- helpers ----------
 
+_CONFIG_ENV = ContextVar("capswriter_config_env", default=None)
+
+
+def _environment():
+    current = _CONFIG_ENV.get()
+    return os.environ if current is None else current
+
+
 def _env_str(name: str, default: Optional[str] = None) -> Optional[str]:
-    val = os.environ.get(name)
+    val = _environment().get(name)
     if val is None:
         return default
     val = val.strip()
@@ -45,7 +54,7 @@ def _env_str(name: str, default: Optional[str] = None) -> Optional[str]:
 
 
 def _env_bool(name: str, default: bool) -> bool:
-    return parse_bool(os.environ, name, default)
+    return parse_bool(_environment(), name, default)
 
 
 def _env_int(
@@ -56,7 +65,7 @@ def _env_int(
     maximum: int | None = None,
 ) -> int:
     return parse_int_range(
-        os.environ,
+        _environment(),
         name,
         default,
         minimum=minimum,
@@ -73,7 +82,7 @@ def _env_optional_int(
     if _env_str(name) is None:
         return None
     return parse_int_range(
-        os.environ,
+        _environment(),
         name,
         0,
         minimum=minimum,
@@ -88,14 +97,14 @@ def _env_float(
     minimum: float,
     maximum: float | None = None,
 ) -> float:
-    value = parse_float_range(os.environ, name, default, minimum=minimum)
+    value = parse_float_range(_environment(), name, default, minimum=minimum)
     if maximum is not None and value > maximum:
         raise ConfigError(f"{name} must be <= {maximum:g}")
     return value
 
 
 def _env_csv(name: str, default: Optional[list[str]] = None) -> list[str]:
-    raw = os.environ.get(name)
+    raw = _environment().get(name)
     if raw is None or raw == "":
         return list(default or [])
     return [item.strip() for item in raw.split(",") if item.strip()]
@@ -194,6 +203,29 @@ def _absolutize_model_paths() -> None:
 
 
 def apply() -> None:
+    from config_server import ServerConfig, FunASRNanoGGUFArgs
+    from fork_server.settings import SettingsStore
+
+    store = SettingsStore(os.environ, defaults={
+        "model_type": ServerConfig.model_type,
+        "format_num": ServerConfig.format_num,
+        "format_spell": ServerConfig.format_spell,
+        "num_threads": FunASRNanoGGUFArgs.n_threads,
+    })
+    # Keep backend choices resolved by the Docker entrypoint, but retain the
+    # original user environment in the store for provenance and restart status.
+    environment = store.environment()
+    environment.update({key: value for key, value in os.environ.items()
+                        if key not in environment})
+    token = _CONFIG_ENV.set(environment)
+    try:
+        _apply()
+    finally:
+        _CONFIG_ENV.reset(token)
+    ServerConfig.settings_store = store
+
+
+def _apply() -> None:
     """
     Read env vars and patch upstream config classes in-place.
 
@@ -237,12 +269,12 @@ def apply() -> None:
     _set(
         ServerConfig,
         "max_websocket_connections",
-        parse_max_websocket_connections(os.environ),
+        parse_max_websocket_connections(_environment()),
     )
     _set(
         ServerConfig,
         "max_websocket_task_seconds",
-        parse_max_websocket_task_seconds(os.environ),
+        parse_max_websocket_task_seconds(_environment()),
     )
     if _env_str("CAPSWRITER_LOG_LEVEL") is not None:
         _set(
@@ -257,8 +289,11 @@ def apply() -> None:
         from pathlib import Path
         _set(ServerConfig, "hotwords_path", Path(v))
 
+    _set(ServerConfig, "format_num", _env_bool("CAPSWRITER_FORMAT_NUM", ServerConfig.format_num))
+    _set(ServerConfig, "format_spell", _env_bool("CAPSWRITER_FORMAT_SPELL", ServerConfig.format_spell))
+
     # ---- HTTP API (fork-only attributes) ----
-    http_api = parse_http_api_env(os.environ)
+    http_api = parse_http_api_env(_environment())
     _set(ServerConfig, "http_api_enable",
          http_api.enable)
     _set(ServerConfig, "http_api_bind",
@@ -374,3 +409,5 @@ def apply() -> None:
          ))
     if (v := _env_optional_int("CAPSWRITER_NUM_THREADS", minimum=1)) is not None:
         _set(FunASRNanoGGUFArgs, "n_threads", v)
+        _set(Qwen3ASRGGUFArgs, "n_threads", v)
+        _set(Qwen3ASRGGUFArgs, "n_threads_batch", v)

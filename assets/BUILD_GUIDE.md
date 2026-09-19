@@ -11,6 +11,10 @@ runtime behavior and support boundaries, see the paired
 
 ## Release contract / 發布契約
 
+The inherited Win7/Python 3.8 `build-client.spec` recipe is retired and stops
+without building. Use the `build.spec` workflow below; it assembles real runtime
+files and validates the relocated package instead of linking to the checkout.
+
 - Build on 64-bit Windows with CPython 3.12.
 - Bootstrap `pip` and the `setuptools` build backend from
   [`requirements-windows-build-bootstrap.lock`](../requirements-windows-build-bootstrap.lock)

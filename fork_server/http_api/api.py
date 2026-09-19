@@ -887,6 +887,9 @@ def create_app() -> FastAPI:
         ),
     )
 
+    from .settings_routes import settings_router
+    app.include_router(settings_router(Config))
+
     max_upload_bytes, max_upload_mb = upload_limit_bytes(
         getattr(Config, "http_api_max_upload_mb", 100)
     )
@@ -922,7 +925,7 @@ def create_app() -> FastAPI:
             CORSMiddleware,
             allow_origins=cors_origins,
             allow_credentials=False,
-            allow_methods=["GET", "POST", "OPTIONS"],
+            allow_methods=["GET", "POST", "PATCH", "OPTIONS"],
             allow_headers=["Authorization", "Content-Type"],
             max_age=600,
         )

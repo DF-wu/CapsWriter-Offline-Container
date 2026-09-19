@@ -46,7 +46,7 @@ class VerifyApiContractTest(unittest.TestCase):
             <= set(verify_api_contract.REQUIRED_CONTRACT_MODULES)
         )
         discovered = verify_api_contract.load_contract_suite().countTestCases()
-        direct_discovery = unittest.defaultTestLoader.discover(
+        direct_discovery = unittest.TestLoader().discover(
             str(verify_api_contract.CONTRACT_TEST_ROOT),
         ).countTestCases()
         self.assertEqual(discovered, direct_discovery)

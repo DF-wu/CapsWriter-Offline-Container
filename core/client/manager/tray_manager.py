@@ -2,6 +2,7 @@
 import os
 import subprocess
 import sys
+import time
 
 from . import logger
 from config_client import ClientConfig as Config
@@ -70,7 +71,9 @@ class TrayManager:
             icon_path,
             exit_callback=self.app.stop,
             more_options=[
+                ('設定', self._open_settings),
                 ('📋 复制结果', self._copy_last_result),
+                ('📁 日记', self._open_diary),
                 ('📝 上下文', self._add_context),
                 ('✨ 热词', self._add_hotword),
                 ('🧹 清除记忆', self._clear_memory),
@@ -97,12 +100,35 @@ class TrayManager:
             self.app.stream.reopen()
             logger.info("用户请求重启音频")
 
+    def _open_settings(self):
+        """A separate process owns the Tk main loop; recording stays uninterrupted."""
+        if getattr(sys, "frozen", False):
+            command = [sys.executable, '--settings']
+        else:
+            from pathlib import Path
+            entrypoint = Path(__file__).resolve().parents[3] / 'start_client.py'
+            command = [sys.executable, str(entrypoint), '--settings']
+        try:
+            _launch_detached_process(command)
+        except OSError as exc:
+            logger.error(f"無法開啟設定：{exc}")
+
     def _clear_memory(self):
         """清除 LLM 对话历史回调"""
         from ..ui import toast
         if self.app.llm:
             self.app.llm.clear_history()
             toast("清除成功：已清除所有角色的对话历史记录", duration=3000, bg="#075077")
+
+    def _open_diary(self):
+        """用系统默认方式打开当月日记文件夹回调"""
+        try:
+            base = self.app.diary.base_path
+            folder = base / time.strftime('%Y') / time.strftime('%m')
+            folder.mkdir(parents=True, exist_ok=True)
+            _open_with_default_app(str(folder))
+        except Exception as error:
+            logger.warning(f"无法打开日记文件夹: {error}")
 
     def _add_hotword(self):
         """用系统默认方式打开热词文件回调"""

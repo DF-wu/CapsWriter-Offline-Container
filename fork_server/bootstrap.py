@@ -216,8 +216,14 @@ def create_server():
             # 沿用上游 setup
             from core.tools.signal_handler import register_signal
             register_signal(self.stop)
+            if not self.is_alive:
+                return
             self.tray_manager.start()
+            if not self.is_alive:
+                return
             self._print_banner()
+            if not self.is_alive:
+                return
             self.process_manager.start()
             if not self.is_alive:
                 return

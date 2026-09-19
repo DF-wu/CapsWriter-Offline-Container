@@ -99,6 +99,8 @@ ipython_config.py
 __pypackages__/
 
 # Node / browser client local dependencies and caches
+.venv-dev/
+settings/
 node_modules/
 .vite/
 coverage/

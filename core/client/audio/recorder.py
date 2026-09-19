@@ -258,7 +258,9 @@ class AudioRecorder:
 
                         # 获取音频数据
                         if self._cache:
-                            data = np.concatenate(self._cache)
+                            # Include the block that crosses the threshold; it
+                            # has already left queue_in and is not cached yet.
+                            data = np.concatenate([*self._cache, task['data']])
                             self._cache.clear()
                         else:
                             data = task['data']
