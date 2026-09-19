@@ -10,6 +10,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from fork_client.settings import websocket_url
+from fork_client.devices import resolve_input_device
 from scripts.tests.test_client_recorder_cleanup import (
     FakeArray, FakeState, FakeWebSocketManager, load_recorder_class,
 )
@@ -97,7 +98,7 @@ class ClientSettingsRuntimeTest(unittest.IsolatedAsyncioTestCase):
             query_devices=Mock(return_value={"name": "USB microphone", "max_input_channels": 1}),
             InputStream=Mock(return_value=Mock()), PortAudioError=RuntimeError,
         )
-        namespace = {"sd": sounddevice, "Config": SimpleNamespace(input_device="USB microphone"), "console": Mock(), "logger": Mock()}
+        namespace = {"sd": sounddevice, "Config": SimpleNamespace(input_device="USB microphone"), "console": Mock(), "logger": Mock(), "resolve_input_device": resolve_input_device}
         manager_class = load_class("core/client/audio/stream.py", "AudioStreamManager", namespace)
         state = SimpleNamespace(stream=None)
         manager = manager_class(SimpleNamespace(state=state))

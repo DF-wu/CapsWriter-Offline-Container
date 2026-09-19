@@ -67,14 +67,16 @@ class ClientSettingsUITest(unittest.TestCase):
         self.assertEqual(saved[0]["key"], "f12")
 
     def test_device_refresh_populates_choices_without_changing_selection(self):
-        self.window.pending.put(("devices", (["USB Microphone"], "找到 1 個麥克風")))
+        selection = {"name": "USB Microphone", "hostapi": "Windows WASAPI"}
+        label = "USB Microphone [Windows WASAPI]"
+        self.window.pending.put(("devices", ([{"label": label, "value": selection}], "找到 1 個麥克風")))
         self.window.poll()
-        self.assertIn("USB Microphone", self.window.mic.cget("values"))
+        self.assertIn(label, self.window.mic.cget("values"))
         self.assertEqual(self.window.variables["input_device"].get(), "")
         self.assertNotIn("input_device", self.window.touched)
-        self.window.variables["input_device"].set("USB Microphone")
+        self.window.variables["input_device"].set(label)
         self.window.save()
-        self.assertEqual(load_overrides(self.path)["input_device"], "USB Microphone")
+        self.assertEqual(load_overrides(self.path)["input_device"], selection)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ Only explicit overrides are persisted; all other settings follow config_client.p
 from __future__ import annotations
 
 import copy
+from contextlib import contextmanager
 import ipaddress
 import json
 import math
@@ -13,6 +14,8 @@ import os
 from pathlib import Path
 import re
 import tempfile
+
+from .devices import valid_input_device
 
 
 FIELDS = {
@@ -87,8 +90,8 @@ def validate(overrides: object) -> dict:
             if type(value) is not int or not 0 <= value <= 1000:
                 errors[key] = "請填 0–1000 的整數；0 表示不依短句移除標點"
         elif key == "input_device":
-            if value is not None and (not isinstance(value, str) or not value.strip() or len(value) > 500):
-                errors[key] = "請選擇麥克風名稱；null 使用系統預設裝置"
+            if not valid_input_device(value):
+                errors[key] = "請選擇麥克風名稱與音訊介面；null 使用系統預設裝置"
         elif key == "traditional_locale" and value not in ("zh-hant", "zh-tw", "zh-hk"):
             errors[key] = "請選 zh-hant、zh-tw 或 zh-hk"
         elif key in ("context", "language"):
@@ -144,10 +147,54 @@ def load_overrides(path: Path | None = None) -> dict:
         raise SettingsError({"settings": f"無法讀取 {path}：{exc}"}) from exc
 
 
+@contextmanager
+def _settings_lock(path: Path):
+    """Use a persistent sidecar: replacing/deleting a locked inode breaks exclusion."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.with_name(path.name + ".lock").open("a+b") as lock:
+        if os.name == "nt":
+            import msvcrt
+
+            if lock.seek(0, os.SEEK_END) == 0:
+                lock.write(b"\0")
+                lock.flush()
+            lock.seek(0)
+            msvcrt.locking(lock.fileno(), msvcrt.LK_LOCK, 1)
+            try:
+                yield
+            finally:
+                lock.seek(0)
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
+
+
 def save_overrides(overrides: dict, path: Path | None = None) -> None:
+    """Replace all overrides (including explicit reset) under the writer lock."""
     normalized = validate(overrides)
     path = settings_path() if path is None else Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    with _settings_lock(path):
+        _write_overrides(normalized, path)
+
+
+def update_overrides(changes: dict, path: Path | None = None) -> dict:
+    """Merge only edited fields into the latest file; last edit to a field wins."""
+    normalized = validate(changes)
+    path = settings_path() if path is None else Path(path)
+    with _settings_lock(path):
+        current = load_overrides(path)
+        current.update(normalized)
+        _write_overrides(current, path)
+    return current
+
+
+def _write_overrides(normalized: dict, path: Path) -> None:
     temporary = None
     try:
         with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False) as output:

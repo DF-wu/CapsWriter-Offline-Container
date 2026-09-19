@@ -19,6 +19,7 @@ import sounddevice as sd
 from core.client.state import console
 from . import logger
 from config_client import ClientConfig as Config
+from fork_client.devices import resolve_input_device
 
 if TYPE_CHECKING:
     from core.client.state import ClientState
@@ -131,6 +132,7 @@ class AudioStreamManager:
         # 检测音频设备
         selected_device = getattr(Config, 'input_device', None)
         try:
+            selected_device = resolve_input_device(selected_device, sd)
             device = sd.query_devices(device=selected_device, kind='input')
             self._channels = min(2, device['max_input_channels'])
             device_name = device.get('name', '未知设备')

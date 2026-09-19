@@ -9,9 +9,10 @@ import threading
 import tkinter as tk
 from tkinter import messagebox, ttk
 
+from .devices import device_label, input_device_choices
 from .settings import (
     SettingsError, effective_settings, load_overrides, probe_connection,
-    save_overrides, settings_path, validate,
+    save_overrides, settings_path, update_overrides, validate,
 )
 
 
@@ -27,6 +28,7 @@ class SettingsWindow:
         self.variables = {}
         self.errors = {}
         self.touched = set()
+        self.device_choices = {}
         self.shortcut_draft_dirty = False
         self.read_error = None
         try:
@@ -80,6 +82,10 @@ class SettingsWindow:
     def field(self, page, row, key, label, help_text="", choices=None, boolean=False, editable=False):
         ttk.Label(page, text=label).grid(row=row, column=0, sticky="w", padx=(0, 16), pady=(6, 0))
         value = self.effective[key]
+        if key == "input_device":
+            label = device_label(value)
+            self.device_choices[label] = value
+            value = label
         variable = tk.BooleanVar(value=value) if boolean else tk.StringVar(value="" if value is None else str(value))
         self.variables[key] = variable
         if boolean:
@@ -110,7 +116,7 @@ class SettingsWindow:
 
     def recording_page(self):
         page = self.pages["錄音與快捷鍵"]
-        self.mic = self.field(page, 0, "input_device", "麥克風", "留空使用系統預設。名稱不存在時，請重新整理裝置並重新選擇。", choices=("",), editable=True)
+        self.mic = self.field(page, 0, "input_device", "麥克風", "留空使用系統預設。同名同介面以裝置編號區分；編號可能變動，增減裝置後請重新選擇。", choices=("",), editable=True)
         ttk.Button(page, text="重新整理麥克風", command=self.refresh_devices).grid(row=2, column=0, sticky="w")
         self.device_names = tk.StringVar(value="尚未讀取裝置。")
         ttk.Label(page, textvariable=self.device_names, wraplength=480).grid(row=2, column=1, sticky="w")
@@ -221,7 +227,7 @@ class SettingsWindow:
             self.sources.insert("", "end", values=(key, json.dumps(value, ensure_ascii=False), "日常設定" if key in self.overrides else "config_client.py"))
 
     def collect(self):
-        values = copy.deepcopy(self.overrides)
+        values = {}
         errors = {}
         for key in self.touched:
             if key == "shortcuts":
@@ -235,7 +241,7 @@ class SettingsWindow:
                     errors[key] = "請輸入有效數字" if key == "threshold" else "請輸入整數"
                     continue
             if key == "input_device":
-                value = value.strip() or None
+                value = self.device_choices.get(value, value.strip() or None)
             values[key] = value
         if errors:
             raise SettingsError(errors)
@@ -271,11 +277,11 @@ class SettingsWindow:
         if values is None:
             return
         try:
-            save_overrides(values, self.path)
+            self.overrides = update_overrides(values, self.path)
         except (OSError, SettingsError) as exc:
             messagebox.showerror("儲存失敗", str(exc), parent=self.root)
             return
-        self.overrides = values
+        self.reload_fields()
         self.touched.clear()
         self.saved = True
         self.render_sources()
@@ -291,16 +297,23 @@ class SettingsWindow:
             return
         self.read_error = None
         self.overrides = {}
-        self.effective = effective_settings(self.config, {})
-        for key, variable in self.variables.items():
-            value = self.effective[key]
-            variable.set("" if value is None else value)
-        self.shortcuts = copy.deepcopy(self.effective["shortcuts"])
-        self.render_shortcuts()
+        self.reload_fields()
         self.render_sources()
         self.touched.clear()
         self.saved = True
         self.status.set("已恢復 Python 設定；請重新啟動 Client。")
+
+    def reload_fields(self):
+        self.effective = effective_settings(self.config, self.overrides)
+        for key, variable in self.variables.items():
+            value = self.effective[key]
+            if key == "input_device":
+                label = device_label(value)
+                self.device_choices[label] = value
+                value = label
+            variable.set("" if value is None else value)
+        self.shortcuts = copy.deepcopy(self.effective["shortcuts"])
+        self.render_shortcuts()
 
     def test_connection(self):
         try:
@@ -328,8 +341,8 @@ class SettingsWindow:
         def worker():
             try:
                 import sounddevice
-                names = sorted({device["name"] for device in sounddevice.query_devices() if device["max_input_channels"] > 0})
-                result = (names, f"找到 {len(names)} 個麥克風，可從上方清單選擇。" if names else "未找到麥克風；請檢查 Windows 麥克風權限及裝置連線。")
+                choices = input_device_choices(sounddevice)
+                result = (choices, f"找到 {len(choices)} 個麥克風，可從上方清單選擇。" if choices else "未找到麥克風；請檢查 Windows 麥克風權限及裝置連線。")
             except Exception as exc:
                 result = ([], f"無法列出裝置：{exc}。仍可輸入裝置名稱或留空使用預設。")
             self.pending.put(("devices", result))
@@ -349,8 +362,9 @@ class SettingsWindow:
                     self.connection_status.set(result)
                     self.test_button.configure(state="normal")
                 else:
-                    names, message = result
-                    self.mic.configure(values=("", *names))
+                    choices, message = result
+                    self.device_choices.update({item["label"]: item["value"] for item in choices})
+                    self.mic.configure(values=("", *(item["label"] for item in choices)))
                     self.device_names.set(message)
         except queue.Empty:
             pass

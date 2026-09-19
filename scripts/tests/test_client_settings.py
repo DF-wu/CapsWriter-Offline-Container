@@ -46,7 +46,7 @@ class ClientSettingsTest(unittest.TestCase):
                 with self.assertRaises(OSError):
                     save_overrides({"addr": "new-host"}, path)
             self.assertEqual(path.read_bytes(), before)
-            self.assertEqual(list(path.parent.iterdir()), [path])
+            self.assertEqual(set(path.parent.iterdir()), {path, path.with_name("settings.json.lock")})
 
     def test_rejects_corrupt_and_unknown_version_without_rewriting(self):
         with tempfile.TemporaryDirectory() as directory:
