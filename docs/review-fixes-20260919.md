@@ -44,3 +44,18 @@ This round does not rerun native model/GPU inference or physical Windows
 microphone, hotkey, foreground typing or hardware identity checks. The earlier
 real-model evidence remains in each branch's validation record; it is distinct
 from these regression and configuration tests.
+
+## Second review follow-up
+
+- Numeric normalization preserves ordering, selecting and counting phrases such
+  as `我点三个菜` and `请点三个人回答问题`. Action counters are distinguished
+  from physical units and `个百分点`; signed leading-point decimals retain
+  their existing output. An ambiguous phrase such as `点五杯水` is treated as
+  ordering five cups; `零点五杯水` explicitly expresses half a cup.
+- Halfwidth kana and supplementary Han participate in character-based subtitle
+  splitting and final-token duration estimates.
+- Server startup observes shutdown between setup stages and around child
+  creation. Client tray shutdown requests processor exit before closing its
+  transport and completes cleanup on the owning event loop.
+- Retired client-only packaging instructions have been removed. v1's archive
+  command rejects binary releases; v2 ignores stale client-only output.

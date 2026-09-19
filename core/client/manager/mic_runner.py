@@ -59,6 +59,10 @@ class MicRunner:
         
         from ..output import ResultProcessor
         self.processor = ResultProcessor(self.app)
-        await self.processor.start()
+        self.app._result_processor = self.processor
+        try:
+            await self.processor.start()
+        finally:
+            if getattr(self.app, "_result_processor", None) is self.processor:
+                self.app._result_processor = None
             
-

@@ -512,7 +512,15 @@ async def _ws_recv_admitted(websocket, app) -> None:
     sockets_id = state.sockets_id
     socket_id = str(websocket.id)
     sockets[socket_id] = websocket
-    sockets_id.append(socket_id)
+    try:
+        sockets_id.append(socket_id)
+    except (BrokenPipeError, EOFError, OSError, TypeError, ValueError):
+        # Server stop may retire the multiprocessing Manager while an accepted
+        # handler still holds this local proxy. Do not enter the receive loop
+        # when worker-visible connection registration is no longer possible.
+        sockets.pop(socket_id, None)
+        logger.debug(f"共享连接列表已关闭，拒绝客户端: {socket_id}")
+        return
     remote = websocket.remote_address
     console.print(f'[bold green]客户端已连接: {remote[0]}:{remote[1]}[/bold green]\n')
     logger.info(f"新客户端连接: {websocket}, ID: {socket_id}")
@@ -551,8 +559,13 @@ async def _ws_recv_admitted(websocket, app) -> None:
         status_mic.stop()
         status_mic.on = False
         sockets.pop(socket_id, None)
-        if socket_id in sockets_id:
-            sockets_id.remove(socket_id)
+        try:
+            if socket_id in sockets_id:
+                sockets_id.remove(socket_id)
+        except (BrokenPipeError, EOFError, OSError, TypeError, ValueError):
+            # sockets_id is captured before the receive loop. Replacing the
+            # state attribute cannot repair this proxy after Manager shutdown.
+            logger.debug(f"共享连接列表已关闭，跳过移除客户端: {socket_id}")
 
         console.print(f'[bold red]客户端已断开: {remote[0]}:{remote[1]}[/bold red]\n')
 

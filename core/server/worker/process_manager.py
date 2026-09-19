@@ -88,8 +88,13 @@ class ProcessManager:
     """
     def __init__(self, app: CapsWriterServer):
         self._process = None
+        self._manager = None
         self.app = app
         self.is_alive = False
+        self._stop_requested = threading.Event()
+        self._starting_manager = False
+        self._starting_process = False
+        self._lifecycle_lock = threading.RLock()
         self._watchdog_stop = threading.Event()
         self._watchdog_thread = None
         self._fail_stop_lock = threading.Lock()
@@ -102,8 +107,9 @@ class ProcessManager:
         Returns:
             Process: 启动成功的子进程对象
         """
-        # 防连续触发
-        if self.is_alive: return
+        # 防连续触发。stop 请求不可逆，避免较晚返回的启动阶段复活 worker。
+        if self.is_alive or self._stop_requested.is_set():
+            return None
         # Parse explicit startup bounds before creating a Manager or child.
         # Invalid configuration must never leave a spawned recognizer behind.
         model_load_timeout = _model_load_timeout_seconds()
@@ -111,45 +117,111 @@ class ProcessManager:
         self._watchdog_stop.clear()
         self._fail_stop_requested = False
 
-        # 1. 前置检查
-        check_model()
+        try:
+            # 1. 前置检查
+            check_model()
+            if self._startup_cancelled():
+                return self._cancel_startup()
 
-        # 2. 初始化共享资源
-        # 使用 Manager 管理共享列表，用于追踪活动连接
-        state = self.app.state
-        state.sockets_id = Manager().list()
-        state.recognizer_watchdog_failed = False
-        self._reset_active_inference()
-        
-        # 获取标准输入文件描述符，用于 Windows 下的信号传递补丁
-        stdin_fn = sys.stdin.fileno()
-        
-        # 3. 创建并启动进程
-        self._process = Process(
-            target=start_worker,
-            args=(state.queue_in,
-                  state.queue_out,
-                  state.sockets_id, 
-                  stdin_fn,
-                  state.recognizer_active_inference),
-            daemon=True
-        )
-        model_load_deadline = time.monotonic() + model_load_timeout
-        self._process.start()
-        
-        # 存入状态以便其他模块引用
-        state.recognize_process = self._process
-        logger.info(f"识别子进程已拉起 (PID: {self._process.pid})")
+            # 2. 初始化共享资源
+            # 保留 Manager 本体，取消启动或停止后显式回收其辅助进程。
+            state = self.app.state
+            self._starting_manager = True
+            try:
+                manager = Manager()
+                self._manager = manager
+                if not self._startup_cancelled():
+                    state.sockets_id = manager.list()
+            finally:
+                self._starting_manager = False
+            if self._startup_cancelled():
+                return self._cancel_startup()
+            state.recognizer_watchdog_failed = False
+            self._reset_active_inference()
 
-        # 4. 等待模型加载完成 (轮询方式)
-        self._wait_for_models(
-            deadline=model_load_deadline,
-            timeout_seconds=model_load_timeout,
-        )
-        if self.is_alive and self._process and self._process.is_alive():
-            self._start_watchdog()
-        
-        return self._process
+            # 获取标准输入文件描述符，用于 Windows 下的信号传递补丁
+            stdin_fn = sys.stdin.fileno()
+            if self._startup_cancelled():
+                return self._cancel_startup()
+
+            # 3. 创建并启动进程
+            process = Process(
+                target=start_worker,
+                args=(state.queue_in,
+                      state.queue_out,
+                      state.sockets_id,
+                      stdin_fn,
+                      state.recognizer_active_inference),
+                daemon=True
+            )
+            self._process = process
+            if self._startup_cancelled():
+                return self._cancel_startup()
+
+            model_load_deadline = time.monotonic() + model_load_timeout
+            # Process.start() 内有 pid/is_alive 尚不可用的窗口。此时重入的
+            # signal 只记录取消，由启动线程在 start() 返回后立即回收子进程。
+            self._starting_process = True
+            try:
+                if not self._startup_cancelled():
+                    process.start()
+            finally:
+                self._starting_process = False
+            if self._startup_cancelled():
+                return self._cancel_startup()
+
+            # 存入状态以便其他模块引用
+            state.recognize_process = process
+            logger.info(f"识别子进程已拉起 (PID: {process.pid})")
+
+            # 4. 等待模型加载完成 (轮询方式)
+            self._wait_for_models(
+                deadline=model_load_deadline,
+                timeout_seconds=model_load_timeout,
+            )
+            if self._startup_cancelled():
+                return self._cancel_startup()
+            if self._process_is_alive(process):
+                self._start_watchdog()
+
+            return process
+        except BaseException:
+            self.is_alive = False
+            self._force_stop_process()
+            self._shutdown_manager()
+            raise
+
+    def _startup_cancelled(self) -> bool:
+        return self._stop_requested.is_set() or not self.is_alive
+
+    def _cancel_startup(self):
+        self.is_alive = False
+        self._watchdog_stop.set()
+        self._force_stop_process()
+        self._shutdown_manager()
+        return None
+
+    @staticmethod
+    def _process_is_alive(process) -> bool:
+        if process is None:
+            return False
+        try:
+            return process.pid is not None and process.is_alive()
+        except (AssertionError, OSError, ValueError):
+            return False
+
+    def _shutdown_manager(self) -> None:
+        lifecycle_lock = getattr(self, "_lifecycle_lock", None)
+        if lifecycle_lock is None:
+            lifecycle_lock = self._lifecycle_lock = threading.RLock()
+        with lifecycle_lock:
+            manager = getattr(self, "_manager", None)
+            self._manager = None
+        if manager is not None:
+            try:
+                manager.shutdown()
+            except (AttributeError, EOFError, OSError):
+                logger.debug("共享状态 Manager 已退出")
 
     def _wait_for_models(self, *, deadline: float, timeout_seconds: float):
         """轮询队列直到收到模型加载成功 (True) 或发生错误"""
@@ -300,20 +372,14 @@ class ProcessManager:
         process = self._process
         if process is None:
             return
-        try:
-            alive = process.is_alive()
-        except (AssertionError, OSError, ValueError):
-            alive = False
+        alive = self._process_is_alive(process)
         if alive:
             try:
                 process.terminate()
                 process.join(timeout=SERVER_WORKER_KILL_GRACE_SECONDS)
             except (AssertionError, OSError, ValueError):
                 logger.error("watchdog terminate 识别子进程失败")
-        try:
-            alive = process.is_alive()
-        except (AssertionError, OSError, ValueError):
-            alive = False
+        alive = self._process_is_alive(process)
         if alive:
             kill = getattr(process, "kill", None)
             if kill is not None:
@@ -322,10 +388,7 @@ class ProcessManager:
                     process.join(timeout=SERVER_WORKER_KILL_GRACE_SECONDS)
                 except (AssertionError, OSError, ValueError):
                     logger.error("watchdog kill 识别子进程失败")
-        try:
-            alive = process.is_alive()
-        except (AssertionError, OSError, ValueError):
-            alive = False
+        alive = self._process_is_alive(process)
         if alive:
             logger.error(f"watchdog 无法回收识别子进程 (PID: {process.pid})")
 
@@ -354,13 +417,22 @@ class ProcessManager:
     def stop(self):
         """停止子进程"""
 
+        stop_requested = getattr(self, "_stop_requested", None)
+        if stop_requested is None:
+            stop_requested = self._stop_requested = threading.Event()
+        stop_requested.set()
+        self.is_alive = False
         self._stop_watchdog()
 
-        # 防连续触发
-        if not self.is_alive: return
-        self.is_alive = False
+        # start() 尚未取得 pid 时，调用 is_alive() 会抛 AssertionError。
+        # 启动线程会在 Process.start() 返回后观察 stop event 并负责回收。
+        if (
+            getattr(self, "_starting_manager", False)
+            or getattr(self, "_starting_process", False)
+        ):
+            return
 
-        if self._process and self._process.is_alive():
+        if self._process_is_alive(self._process):
             logger.info(f"正在终止识别子进程 (PID: {self._process.pid})...")
             # 发送 None 任务通知优雅退出 (作为兜底)
             try:
@@ -393,3 +465,5 @@ class ProcessManager:
 
             if self._process.is_alive():
                 logger.error(f"识别子进程仍未退出 (PID: {self._process.pid})")
+
+        self._shutdown_manager()
