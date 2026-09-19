@@ -10,6 +10,7 @@ import asyncio
 import functools
 import websockets
 from config_server import ServerConfig as Config
+from core.tools.interactive import pause_on_error
 from .ws_recv import ws_recv
 from .ws_recv import WebSocketConnectionLimiter
 from .ws_send import ws_send
@@ -80,7 +81,7 @@ class SocketManager:
         
         # 0. 启动前自检环境
         if not self._check_port():
-            input("\n按回车键退出...")
+            pause_on_error("\n按回车键退出...")
             return 
 
         self._is_running = True
