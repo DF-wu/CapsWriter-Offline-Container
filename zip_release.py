@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-打包脚本 - 使用 7zip 压缩 dist 目录中的构建产物
+旧版归档工具函数；v1 命令入口已停用，仅支持原始码发行
 
 功能：
 1. 打包 CapsWriter-Offline（服务端+客户端）
-2. 打包 CapsWriter-Offline-Client（仅客户端）
 3. 智能排除模型文件（.onnx, .dll, .json 等），但保留说明文档
 """
 
@@ -248,110 +247,11 @@ def package_with_7zip(source_dir, output_zip, file_list_file):
 
 
 def main():
-    """主函数"""
-    dist_dir = Path('dist')
-
-    # 检查 dist 目录
-    if not dist_dir.exists():
-        print(f"错误: dist 目录不存在")
-        print(f"请先运行 PyInstaller 构建: pyinstaller build.spec")
-        return
-
-    print("=" * 60)
-    print("CapsWriter-Offline 打包脚本")
-    print("=" * 60)
-
-    # 构建输出目录
-    release_dir = Path('release')
-    release_dir.mkdir(exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y%m%d")
-
-    # 打包配置列表
-    packages = []
-
-    # 检查 CapsWriter-Offline（服务端+客户端）
-    server_dist = dist_dir / 'CapsWriter-Offline'
-    if server_dist.exists():
-        packages.append({
-            'source': server_dist,
-            'output': release_dir / f'CapsWriter-Offline-{timestamp}.zip',
-            'name': '服务端+客户端'
-        })
-
-    # 检查 CapsWriter-Offline-Client（仅客户端）
-    client_dist = dist_dir / 'CapsWriter-Offline-Client'
-    if client_dist.exists():
-        packages.append({
-            'source': client_dist,
-            'output': release_dir / f'CapsWriter-Offline-Client-{timestamp}.zip',
-            'name': '仅客户端'
-        })
-
-    if not packages:
-        print(f"\n错误: dist 目录中没有找到构建产物")
-        print(f"请先运行 PyInstaller 构建:")
-        print(f"  pyinstaller build.spec")
-        print(f"  pyinstaller build-client.spec")
-        return
-
-    print(f"\n找到 {len(packages)} 个待打包的构建产物")
-
-    # 逐个打包
-    success_count = 0
-    for idx, pkg in enumerate(packages):
-        list_file = None
-        try:
-            print(f"\n{'=' * 60}")
-            print(f"打包: {pkg['name']}")
-            print(f"{'=' * 60}")
-
-            # 生成唯一的文件列表名（避免冲突）
-            list_file_name = f'file_list_{idx}.txt'
-
-            # 生成文件列表
-            is_client_only = pkg['source'].name == 'CapsWriter-Offline-Client'
-            files, list_file = create_file_list(pkg['source'], list_file_name, is_client_only)
-
-            if not files:
-                print(f"\n警告: 没有找到要打包的文件")
-                continue
-
-            print(f"文件列表: {list_file}")
-
-            # 打包
-            package_with_7zip(
-                pkg['source'],
-                pkg['output'],
-                list_file
-            )
-
-            success_count += 1
-
-        except Exception as e:
-            print(f"\n打包失败: {e}")
-
-        finally:
-            # 删除临时文件列表
-            if list_file is not None:
-                try:
-                    list_file.unlink()
-                    print(f"已删除临时文件列表: {list_file}")
-                except Exception as cleanup_error:
-                    print(f"警告: 无法删除临时文件列表 {list_file}: {cleanup_error}")
-
-    # 总结
-    print(f"\n{'=' * 60}")
-    print(f"打包完成: {success_count}/{len(packages)} 成功")
-    print(f"{'=' * 60}")
-    print(f"\n输出目录: {release_dir.absolute()}")
-
-    # 列出生成的文件
-    if success_count > 0:
-        print(f"\n生成的文件:")
-        for file in sorted(release_dir.glob('*.zip')):
-            size_mb = file.stat().st_size / (1024 * 1024)
-            print(f"  {file.name} ({size_mb:.1f} MB)")
+    """v1 仅发行原始码，不重新归档旧 PyInstaller 产物。"""
+    raise SystemExit(
+        "v1 is source-only on Python 3.10-3.12; binary release packaging is retired. "
+        "See docs/en/maintenance.md."
+    )
 
 
 if __name__ == '__main__':

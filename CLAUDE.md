@@ -109,10 +109,10 @@
 - **日志**: `logs/client_latest.log` & `logs/server_latest.log`（排查问题唯一入口）
 
 ## 打包与部署 (Build)
-- [`build.spec`](build.spec): Server + Client 打包。
-- [`build-client.spec`](build-client.spec): 仅 Client (Win7兼容)。
-- **策略**: 所有 Python 依赖放入 `internal/`。根目录仅保留配置文件、源码入口 ([`start_*.py`](start_server.py))、核心源码 ([`core/`](core/))、模型文件夹 ([`models/`](models/)) 和说明文档。
-- **PyInstaller 6.0+**: 使用现代化打包配置，支持 CUDA provider 可选收集。
+
+- v1 维护分支仅支持 Python 3.10–3.12 原始码发行；部署见 [`docs/en/maintenance.md`](docs/en/maintenance.md)。
+- `build.spec` 不属于合格的 v1 二进制发行流程；`zip_release.py` 拒绝打包旧产物。
+- `build-client.spec` 已停用；不再支持 Win7／Python 3.8 client-only 套件。
 
 ## 模型支持 (Models)
 

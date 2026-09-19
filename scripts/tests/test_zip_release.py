@@ -125,25 +125,24 @@ class ZipReleaseTest(unittest.TestCase):
         find_7zip.assert_not_called()
         run.assert_not_called()
 
-    def test_main_removes_file_list_after_package_failure(self) -> None:
+
+
+    def test_retired_artifacts_are_not_packaged(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            source = root / "dist" / "CapsWriter-Offline"
-            source.mkdir(parents=True)
-            (source / "app.exe").write_text("binary", encoding="utf-8")
+            (root / "dist" / "CapsWriter-Offline-Client").mkdir(parents=True)
             previous_cwd = Path.cwd()
+            output = io.StringIO()
             try:
                 os.chdir(root)
-                with (
-                    patch.object(zip_release, "package_with_7zip", side_effect=RuntimeError("boom")),
-                    redirect_stdout(io.StringIO()),
-                ):
-                    zip_release.main()
+                with patch.object(zip_release, "package_with_7zip") as package, redirect_stdout(output):
+                    (root / "dist" / "CapsWriter-Offline").mkdir()
+                    with self.assertRaisesRegex(SystemExit, "v1 is source-only"):
+                        zip_release.main()
+                    self.assertFalse((root / "release").exists())
+                    package.assert_not_called()
             finally:
                 os.chdir(previous_cwd)
-
-            self.assertFalse((root / "file_list_0.txt").exists())
-
 
 if __name__ == "__main__":
     unittest.main()

@@ -56,6 +56,8 @@ class SubtitleReviewTest(unittest.TestCase):
             ("甲乙丙丁，戊己庚。", "甲乙丙丁，戊己庚。"),
             ("甲乙丙丁，戊己庚辛。", "甲乙丙丁，\n戊己庚辛。"),
             ("あいうえ，カキクケ。", "あいうえ，\nカキクケ。"),
+            ("ｱｲｳｴ，甲乙丙丁。", "ｱｲｳｴ，\n甲乙丙丁。"),
+            ("𠀀𠀁𠀂𠀃，甲乙丙丁。", "𠀀𠀁𠀂𠀃，\n甲乙丙丁。"),
             ("あいう，カキクケ。", "あいう，カキクケ。"),
             ("㐀㐁㐂㐃，甲乙丙丁。", "㐀㐁㐂㐃，\n甲乙丙丁。"),
             ("甲乙ASR，丙丁戊己。", "甲乙ASR，丙丁戊己。"),
@@ -116,6 +118,15 @@ class SubtitleReviewTest(unittest.TestCase):
              {"word": "four words", "start": 0.6}],
             [(1, "We have four words.", 0.0, 1.3)],
         )
+
+    def test_halfwidth_kana_and_supplementary_han_tail(self):
+        for first, last in (("ｱｲ", "ｳｴ"), ("𠀀𠀁", "𠀂𠀃")):
+            with self.subTest(last=last):
+                self.assert_subtitles(
+                    [first + last],
+                    [{"word": first, "start": 0.0}, {"word": last, "start": 0.4}],
+                    [(1, first + last, 0.0, 0.8)],
+                )
 
     def test_final_kana_token_uses_character_duration(self):
         self.assert_subtitles(
