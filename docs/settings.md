@@ -33,6 +33,14 @@ Windows desktop acceptance check.
 `CAPSWRITER_CLIENT_SETTINGS` 指定其他路徑。只有明確覆寫的值會儲存，其他值
 繼續沿用 `config_client.py`。設定檔錯誤會顯示原因，不會靜默覆蓋。
 
+麥克風保存名稱與音訊介面（例如 WASAPI），啟動時解析當前装置編號；同一介面
+內仍有同名裝置時才加存編號。增減裝置後請重新選擇：PortAudio 無法識別
+兩個名稱與介面完全相同、但互換編號的實體麥克風。舊版手填名稱仍可讀取。
+
+多個 Client 設定視窗只合併各自修改的欄位，並以跨程序鎖串行儲存；同一欄位
+以最後儲存為準。「恢復 Python 設定」會清除所有覆寫，舊視窗下次儲存不會
+帶回未修改的舊值。同目錄的 `.lock` 檔為持續保留的鎖，無須手動刪除。
+
 ## Server 圖形設定 / Server settings in the Web console
 
 管理 API 預設關閉。使用本次程式碼建置的 Server 與 Web 後，Docker 可在原有
@@ -74,7 +82,7 @@ open Server settings.
 | UI 設定 | 對應環境變數 |
 |---|---|
 | 模型、硬體、Qwen 模式 | `CAPSWRITER_MODEL_TYPE`、`CAPSWRITER_INFERENCE_HARDWARE`、`CAPSWRITER_QWEN_PRESET` |
-| Fun-ASR CPU 執行緒 | `CAPSWRITER_NUM_THREADS` |
+| Qwen／Fun-ASR CPU 執行緒 | `CAPSWRITER_NUM_THREADS` |
 | 數字與中英空格 | `CAPSWRITER_FORMAT_NUM`、`CAPSWRITER_FORMAT_SPELL` |
 | HTTP 檔案／時長／逾時 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB`、`CAPSWRITER_HTTP_API_MAX_AUDIO_SECONDS`、`CAPSWRITER_HTTP_API_TASK_TIMEOUT` |
 | HTTP 同時處理／等待數 | `CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS`、`CAPSWRITER_HTTP_API_MAX_PENDING_REQUESTS` |
@@ -101,7 +109,8 @@ or edited through this endpoint.
 明確匯出 `CAPSWRITER_SETTINGS_ENABLE=true`、`CAPSWRITER_SETTINGS_PATH` 與
 HTTP API key，並啟用 HTTP API，再啟動 `start_server_universal.py`。
 路徑必須可寫。原生模式不提供容器硬體／Qwen preset 選項，未覆寫的模型、
-格式化與 Fun-ASR 執行緒沿用 `config_server.py`。
+格式化與 CPU 執行緒沿用 `config_server.py`。明確設定的執行緒數也會套用到
+Qwen 的生成與批次處理 context。
 
 Native servers use the same authenticated API with an explicitly configured
 writable settings file. Container-only hardware controls are omitted. Disable

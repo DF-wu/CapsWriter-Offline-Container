@@ -67,7 +67,7 @@ class UpstreamDivergenceGuardTest(unittest.TestCase):
                 guard.changed_paths("origin/master")
 
     def test_allowlist_covers_all_documented_unicode_paths(self) -> None:
-        self.assertEqual(len(guard.ALLOWED_UPSTREAM_DIVERGENCE), 64)
+        self.assertEqual(len(guard.ALLOWED_UPSTREAM_DIVERGENCE), 75)
         self.assertTrue(
             {
                 "LLM/大助理.py",
