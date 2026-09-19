@@ -110,7 +110,7 @@ def lines_match_words(text_lines: List[str], words: List) -> List[srt.Subtitle]:
             # 末词之前的时长已由时间戳覆盖，仅补上末词本身的发音时长。
             text = ''.join(ch for ch in words[end_idx]['word']
                            if ch.isalnum() or ch.isspace())
-            cjk_pattern = r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff]'
+            cjk_pattern = r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\uff66-\uff9d\U00020000-\U0002ee5f\U0002f800-\U0002fa1f\U00030000-\U0003347f]'
             cjk = len(re.findall(cjk_pattern, text))
             en_words = len(re.sub(cjk_pattern, ' ', text).split())
             t2 = last_start + max(cjk * 0.2 + en_words * 0.35, 0.1)
