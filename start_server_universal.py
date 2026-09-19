@@ -20,6 +20,7 @@ from fork_server.http_api.runtime_config import (
     ConfigError,
     HttpApiSettings,
     parse_http_api_env,
+    parse_int_range,
 )
 from fork_server.runtime_limits import (
     parse_max_websocket_connections,
@@ -89,6 +90,15 @@ def configure_http_api(
 
         config_cls = ServerConfig
     selected_environ = os.environ if environ is None else environ
+    if selected_environ.get("CAPSWRITER_NUM_THREADS", "").strip():
+        from config_server import FunASRNanoGGUFArgs, Qwen3ASRGGUFArgs
+
+        threads = parse_int_range(
+            selected_environ, "CAPSWRITER_NUM_THREADS", 1, minimum=1,
+        )
+        FunASRNanoGGUFArgs.n_threads = threads
+        Qwen3ASRGGUFArgs.n_threads = threads
+        Qwen3ASRGGUFArgs.n_threads_batch = threads
     apply_server_addr_override(selected_environ, config_cls)
     setattr(
         config_cls,
