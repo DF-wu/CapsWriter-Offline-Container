@@ -46,7 +46,7 @@ import {
 import { loadVoices, speakText } from "./lib/speech";
 import type { ApiSettings, HealthResponse, ReadinessResponse, ResponseFormat, TranscriptRecord, TranscriptionResult } from "./types";
 
-import ServerSettings from "./ServerSettings";
+import ServerSettings, { type ServerSettingsHandle } from "./ServerSettings";
 
 type StatusKind = "idle" | "working" | "ok" | "degraded" | "error";
 type SpeechState = "idle" | "speaking" | "paused";
@@ -146,6 +146,7 @@ export default function App() {
   const transcriptionRunRef = useRef(0);
   const diagnosticRunRef = useRef(0);
   const mountedRef = useRef(true);
+  const serverSettingsRef = useRef<ServerSettingsHandle>(null);
 
   useEffect(() => saveSettings(settings), [settings]);
 
@@ -197,6 +198,12 @@ export default function App() {
 
   const updateSettings = <K extends keyof ApiSettings>(key: K, value: ApiSettings[K]) => {
     setSettings((current) => ({ ...current, [key]: value }));
+  };
+
+  const updateConnectionSetting = (key: "baseUrl" | "apiKey", value: string) => {
+    if (settings[key] === value || serverSettingsRef.current?.confirmEndpointChange() !== false) {
+      updateSettings(key, value);
+    }
   };
 
   const setAudio = (audio: BrowserAudio | null) => {
@@ -634,7 +641,7 @@ export default function App() {
             <span>API root</span>
             <input
               value={settings.baseUrl}
-              onChange={(event) => updateSettings("baseUrl", event.target.value)}
+              onChange={(event) => updateConnectionSetting("baseUrl", event.target.value)}
               placeholder="http://axolotl:6017"
               inputMode="url"
               maxLength={WEB_SETTING_LIMITS.baseUrl}
@@ -644,7 +651,7 @@ export default function App() {
             <span>API key</span>
             <input
               value={settings.apiKey}
-              onChange={(event) => updateSettings("apiKey", event.target.value)}
+              onChange={(event) => updateConnectionSetting("apiKey", event.target.value)}
               type="password"
               autoComplete="off"
               maxLength={WEB_SETTING_LIMITS.apiKey}
@@ -1008,7 +1015,7 @@ export default function App() {
           </div>
           </section>
         </div>
-        <ServerSettings key={`${settings.baseUrl}\0${settings.apiKey}`} settings={settings} />
+        <ServerSettings ref={serverSettingsRef} settings={settings} />
       </main>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { RefreshCw, Server, Save } from "lucide-react";
 import { fetchServerSettings, saveServerSettings, safeErrorMessage, ServerSettingsError } from "./api/capswriter";
 import type { ApiSettings, ServerSettingField, ServerSettingsResponse, ServerSettingValue } from "./types";
@@ -10,8 +10,13 @@ const initialValue = (field: ServerSettingField): Draft => {
   return typeof value === "number" ? String(value) : value;
 };
 const sourceLabel = (source: string) => source === "environment" ? "環境變數" : source === "saved" ? "設定檔" : "預設值";
+const endpointIdentity = (settings: ApiSettings) => JSON.stringify([settings.baseUrl, settings.apiKey]);
 
-export default function ServerSettings({ settings }: { settings: ApiSettings }) {
+export interface ServerSettingsHandle {
+  confirmEndpointChange: () => boolean;
+}
+
+const ServerSettings = forwardRef<ServerSettingsHandle, { settings: ApiSettings }>(function ServerSettings({ settings }, ref) {
   const [data, setData] = useState<ServerSettingsResponse | null>(null);
   const [edits, setEdits] = useState<Record<string, Draft>>({});
   const [phase, setPhase] = useState<"idle" | "loading" | "saving">("idle");
@@ -21,21 +26,49 @@ export default function ServerSettings({ settings }: { settings: ApiSettings }) 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const request = useRef<AbortController | null>(null);
   const errorSummary = useRef<HTMLDivElement>(null);
+  const endpoint = useRef(endpointIdentity(settings));
+  const latestSettings = useRef(settings);
+  const snapshotSettings = useRef<ApiSettings | null>(null);
+  latestSettings.current = settings;
   const busy = phase !== "idle";
   const dirty = Object.keys(edits).length > 0;
 
+  useImperativeHandle(ref, () => ({
+    confirmEndpointChange: () => {
+      if (!dirty && phase !== "saving") return true;
+      return window.confirm(phase === "saving"
+        ? "Server 設定仍在儲存。切換連線後仍會等待原連線的結果，是否繼續？"
+        : "切換連線將捨棄尚未儲存的 Server 設定，是否繼續？");
+    },
+  }), [dirty, phase]);
+
   useEffect(() => () => request.current?.abort(), []);
   useEffect(() => { if (error) errorSummary.current?.focus(); }, [error]);
+  useEffect(() => {
+    const nextEndpoint = endpointIdentity(settings);
+    if (endpoint.current === nextEndpoint) return;
+    endpoint.current = nextEndpoint;
+    // A write owns the endpoint captured when it began. Its completion clears
+    // the old snapshot and reports the outcome after an accepted switch.
+    if (phase === "saving") return;
+    request.current?.abort(); request.current = null;
+    snapshotSettings.current = null;
+    setData(null); setEdits({}); setPhase("idle"); setError(""); setFieldErrors({}); setConflict(false);
+    setMessage("連線已切換，請重新讀取 Server 設定。");
+  }, [settings.baseUrl, settings.apiKey, phase]);
 
   const load = async () => {
     if (dirty && !window.confirm("重新讀取將捨棄尚未儲存的變更，是否繼續？")) return;
+    const requestSettings = { ...settings };
     request.current?.abort();
     const controller = new AbortController();
     request.current = controller;
+    snapshotSettings.current = null;
     setPhase("loading"); setError(""); setMessage(""); setData(null); setEdits({}); setFieldErrors({}); setConflict(false);
     try {
-      const snapshot = await fetchServerSettings(settings, controller.signal);
+      const snapshot = await fetchServerSettings(requestSettings, controller.signal);
       if (request.current !== controller) return;
+      snapshotSettings.current = requestSettings;
       setData(snapshot);
     } catch (reason) {
       if (request.current !== controller) return;
@@ -63,6 +96,8 @@ export default function ServerSettings({ settings }: { settings: ApiSettings }) 
 
   const save = async () => {
     if (!data?.revision || busy || conflict) return;
+    const requestSettings = snapshotSettings.current;
+    if (!requestSettings) return;
     const values: Record<string, ServerSettingValue | null> = {};
     const invalid: Record<string, string> = {};
     for (const field of data.fields) {
@@ -83,19 +118,30 @@ export default function ServerSettings({ settings }: { settings: ApiSettings }) 
     request.current = controller;
     setPhase("saving"); setError(""); setMessage("");
     try {
-      const snapshot = await saveServerSettings(settings, values, data.revision, controller.signal);
+      const snapshot = await saveServerSettings(requestSettings, values, data.revision, controller.signal);
       if (request.current !== controller) return;
-      setData(snapshot); setEdits({});
-      setMessage(snapshot.restart_required ? "已儲存。請由管理者在適當時間重啟 Server，變更才會生效。" : "已儲存；目前沒有等待重啟的變更。");
+      const switched = endpointIdentity(latestSettings.current) !== endpointIdentity(requestSettings);
+      snapshotSettings.current = switched ? null : requestSettings;
+      setData(switched ? null : snapshot); setEdits({});
+      setMessage(switched
+        ? "切換前的 Server 已儲存設定。連線已切換，請重新讀取目前 Server 的設定。"
+        : snapshot.restart_required ? "已儲存。請由管理者在適當時間重啟 Server，變更才會生效。" : "已儲存；目前沒有等待重啟的變更。");
     } catch (reason) {
       if (request.current !== controller) return;
+      const switched = endpointIdentity(latestSettings.current) !== endpointIdentity(requestSettings);
+      if (switched) {
+        snapshotSettings.current = null;
+        setData(null); setEdits({}); setConflict(false); setFieldErrors({});
+        setError(`${safeErrorMessage(reason, requestSettings.apiKey, "儲存失敗")} 這是切換前 Server 的儲存結果；結果可能不確定。請切回原連線並重新讀取，確認原 Server 是否已儲存；目前連線的設定也需重新讀取。`);
+        return;
+      }
       if (reason instanceof ServerSettingsError && reason.status === 409) {
         setConflict(true);
         setError("設定已由其他使用者或程式更新。您的輸入已保留；請先重新讀取，再確認並套用變更。");
       } else {
         if (reason instanceof ServerSettingsError) setFieldErrors(reason.fields);
         else setConflict(true); // A lost response may follow a completed write; read before retrying.
-        setError(`${safeErrorMessage(reason, settings.apiKey, "儲存失敗")} 請確認設定；連線中斷時請先重新讀取。`);
+        setError(`${safeErrorMessage(reason, requestSettings.apiKey, "儲存失敗")} 請確認設定；連線中斷時請先重新讀取。`);
       }
     } finally {
       if (request.current === controller) { request.current = null; setPhase("idle"); }
@@ -104,7 +150,8 @@ export default function ServerSettings({ settings }: { settings: ApiSettings }) 
 
   const stopWaiting = () => {
     request.current?.abort(); request.current = null;
-    setMessage(phase === "saving" ? "已停止等待。Server 可能已儲存，請重新讀取確認結果。" : "已取消讀取。");
+    snapshotSettings.current = null;
+    setMessage(phase === "saving" ? "已停止等待。發出儲存請求的 Server 可能已儲存；若已切換連線，請切回原連線並重新讀取確認結果。" : "已取消讀取。");
     setData(null); setEdits({}); setPhase("idle");
   };
 
@@ -165,4 +212,6 @@ export default function ServerSettings({ settings }: { settings: ApiSettings }) 
       {busy ? <button className="secondary-action" type="button" onClick={stopWaiting}>{phase === "saving" ? "停止等待儲存" : "取消讀取"}</button> : null}
     </section>
   );
-}
+});
+
+export default ServerSettings;
