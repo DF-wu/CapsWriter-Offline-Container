@@ -126,14 +126,17 @@ class StrictTextTestRunner(unittest.TextTestRunner):
 def load_contract_suite(
     modules: Iterable[str] | None = None,
 ) -> unittest.TestSuite:
+    # Older supported Python versions retain discovery roots on the shared
+    # default loader. Nested verification must not inherit another suite's root.
+    loader = unittest.TestLoader()
     if modules is None:
-        suite = unittest.defaultTestLoader.discover(
+        suite = loader.discover(
             str(CONTRACT_TEST_ROOT),
         )
     else:
         suite = unittest.TestSuite()
         for module_name in modules:
-            tests = unittest.defaultTestLoader.loadTestsFromName(module_name)
+            tests = loader.loadTestsFromName(module_name)
             if tests.countTestCases() == 0:
                 raise RuntimeError(
                     f"contract test module contains no tests: {module_name}"
