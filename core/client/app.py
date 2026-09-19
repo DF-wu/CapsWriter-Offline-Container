@@ -9,6 +9,7 @@ CapsWriter Offline 客户端主程序门面类 (Facade)
 import os
 import sys
 import asyncio
+import threading
 from pathlib import Path
 
 from .state import ClientState
@@ -54,6 +55,11 @@ class CapsWriterClient:
             
         # 初始化状态容器
         self.state = ClientState(app=self)
+        self._result_processor = None
+        self._runner_task = None
+        self._shutdown_future = None
+        self._shutdown_lock = threading.Lock()
+        self._stop_requested = threading.Event()
 
         # 初始化热词管理器
         self.hotword = HotwordManager(
@@ -84,7 +90,21 @@ class CapsWriterClient:
         """
         统一释放所有资源（清理顺序：硬件 -> 托盘 -> WebSocket -> State）
         """
+        if self._stop_requested.is_set():
+            return
+        self._stop_requested.set()
+        # 与 start() 的 finally 串行，确保它不会在 shutdown future 发布前返回。
+        with self._shutdown_lock:
+            self._schedule_stop()
+
+    def _schedule_stop(self) -> None:
+        """停止同步组件，并发布由事件循环执行的最终清理。"""
         logger.info("正在执行 CapsWriterClient 资源释放...")
+
+        processor = self._result_processor
+        if processor is not None:
+            # 退出事件必须先于 close，避免接收循环抢先进入下一次重连。
+            processor.request_exit()
 
         # 1. 停止核心运行组件
         self.udp.stop()
@@ -98,20 +118,57 @@ class CapsWriterClient:
         self.hotword.stop()
         self.llm.stop()
 
-        # 4. 关闭 WebSocket 连接
-        self.ws.close_sync()
-
-        # 5. 重置 State
-        try:
+        # 4. WebSocket 与 receiver 必须由所属事件循环依序关闭。
+        if self.loop.is_running():
+            self._shutdown_future = asyncio.run_coroutine_threadsafe(
+                self._finish_stop(processor),
+                self.loop,
+            )
+        else:
             self.state.reset()
-        except Exception as e:
-            logger.warning(f"重置状态时发生错误: {e}")
-
-        # 6. 停止事件循环（最后一步，确保前面的异步操作已调度）
-        self.loop.stop()
+            self.loop.stop()
 
         logger.info("资源释放完成")
         console.print('[green4]再见！')
+
+    async def _finish_stop(self, processor) -> None:
+        runner_task = self._runner_task
+        try:
+            if processor is not None:
+                await processor.stop()
+            else:
+                if runner_task is not None and not runner_task.done():
+                    runner_task.cancel()
+                await self.ws.close()
+        except Exception as error:
+            logger.warning(f"关闭客户端连接时发生错误: {error}")
+            # close 失败后不再让 reset 调度另一个无法等待的关闭协程。
+            self.state.websocket = None
+        if runner_task is not None and runner_task is not asyncio.current_task():
+            await asyncio.gather(runner_task, return_exceptions=True)
+        try:
+            self.state.reset()
+        except Exception as error:
+            logger.warning(f"重置状态时发生错误: {error}")
+
+    def _drain_shutdown(self) -> None:
+        """在 start() 返回前完成托盘线程提交的异步清理。"""
+        shutdown_lock = getattr(self, "_shutdown_lock", None)
+        if shutdown_lock is None:
+            return
+        with shutdown_lock:
+            shutdown_future = getattr(self, "_shutdown_future", None)
+        if shutdown_future is None:
+            return
+        try:
+            if not shutdown_future.done():
+                self.loop.run_until_complete(
+                    asyncio.wrap_future(shutdown_future, loop=self.loop)
+                )
+            else:
+                shutdown_future.result()
+        except Exception as error:
+            logger.warning(f"等待客户端异步清理时发生错误: {error}")
 
 
     def start(self):
@@ -134,8 +191,17 @@ class CapsWriterClient:
             # 麦克风实时模式
             runner = MicRunner(self)
         
+        self._runner_task = self.loop.create_task(
+            runner.run(),
+            name="capswriter-client-runner",
+        )
         try:
-            self.loop.run_until_complete(runner.run())
+            self.loop.run_until_complete(self._runner_task)
+        except asyncio.CancelledError:
+            if not self._stop_requested.is_set():
+                raise
         except RuntimeError:
             ...
-
+        finally:
+            self._drain_shutdown()
+            self._runner_task = None

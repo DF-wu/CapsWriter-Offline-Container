@@ -100,13 +100,21 @@ class CapsWriterServer:
 
         # 注册退出信号处理
         register_signal(self.stop)
+        if not self.is_alive:
+            return
 
         # 托盘图标
         self.tray_manager.start()
+        if not self.is_alive:
+            return
         self._print_banner()
+        if not self.is_alive:
+            return
 
         # 拉起识别子进程
         self.process_manager.start()
+        if not self.is_alive:
+            return
         
         # 开启网络服务监听 (接管当前线程直至退出)
         try:
