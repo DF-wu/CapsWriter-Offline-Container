@@ -11,6 +11,7 @@ from pathlib import Path
 from config_server import ServerConfig as Config
 from config_server import ModelPaths, ModelDownloadLinks
 from core.server.state import console
+from core.tools.interactive import pause_on_error
 from . import logger
 
 
@@ -69,7 +70,7 @@ def check_model() -> None:
     - 'qwen_asr'
 
         ''', style='bright_red')
-        input('按回车退出')
+        pause_on_error('按回车退出')
         sys.exit(1)
 
     # 检查所有必需的文件
@@ -101,7 +102,7 @@ def check_model() -> None:
         error_msg += '\n'
         
         logger.error(error_msg)
-        input('按回车退出')
+        pause_on_error('按回车退出')
         sys.exit(1)
 
     # 所有必需文件检查通过
