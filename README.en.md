@@ -1,8 +1,8 @@
-# CapsWriter-Offline fork v1 — Legacy Server + Desktop Client
+# CapsWriter-Offline fork v1 — Windows Client + Linux Server
 
-> **v1 is an isolated, best-effort maintenance line.** Its primary deliverable
-> is the Linux/headless ASR server. The same source retains compatibility with
-> the upstream 2.5-alpha-era Windows desktop client.
+> **v1 follows upstream desktop and recognition improvements, with stability first.**
+> Use the Windows desktop client with a Linux/Docker recognition server.
+> Read the [upstream refresh migration guide](docs/v1-upstream-refresh.md) before upgrading.
 >
 > [繁體中文](readme.md) · English
 
@@ -14,7 +14,7 @@
 
 ```mermaid
 flowchart LR
-    C[Legacy Windows desktop client<br/>start_client.py] -->|WebSocket :6016| S[v1 ASR Server<br/>model・FFmpeg・inference]
+    C[Windows desktop client<br/>start_client.py] -->|WebSocket :6016| S[v1 ASR Server<br/>model・FFmpeg・inference]
     O[OpenAI SDK / curl] -->|optional HTTP :6017| S
     S --> R[transcript]
 ```
@@ -22,7 +22,7 @@ flowchart LR
 | Component | v1 content | Release status |
 |---|---|---|
 | **Server** | Linux bare-metal/Docker, WebSocket `6016`, optional transcription-only HTTP `6017`, model bootstrap, GPU preference/CPU fallback | Primary maintained v1 path; GitHub Releases provide source for local builds |
-| **Desktop client** | Upstream-era `start_client.py`: Windows GUI, tray, hotkeys, microphone, clipboard/text injection | Source compatibility only; no v1 Windows EXE unless a release explicitly attaches a real-Windows-qualified artifact |
+| **Desktop client** | `start_client.py`: Windows GUI, tray, hotkeys, microphone, clipboard/text injection | Windows is the first client platform; no v1 Windows EXE unless a release explicitly attaches a real-Windows-qualified artifact |
 | **External API caller** | Compatible SDK/curl code may use the documented `whisper-1` transcription subset | API interface, not a bundled client application |
 
 **v1 does not contain the v2 Web Console, no-GUI CLI, Textual TUI, or universal
@@ -41,11 +41,14 @@ Windows package.** Use v2 when you need those surfaces.
 ## Quick start: v1 Linux server
 
 Prerequisites: Linux, Docker Engine, the Compose plugin, and model storage.
-NVIDIA GPU support is optional; CPU fallback is available.
+NVIDIA GPU support is optional; CPU fallback is available. For CPU-only hosts,
+set `CAPSWRITER_GPU_DEVICE_COUNT=0` and `CAPSWRITER_INFERENCE_HARDWARE=cpu`
+in `.env` before starting.
 
 ```bash
-cp .env.example .env
-cp hot-server.example.txt hot-server.txt
+# Fresh checkout only: preserve existing configuration and hotwords.
+cp -n .env.example .env
+cp -n hot-server.example.txt hot-server.txt
 docker compose build --pull capswriter-server
 docker compose up -d capswriter-server
 docker compose ps
@@ -87,13 +90,19 @@ rejected.
 See the [English HTTP API guide](docs/en/http-api.md) for the exact contract,
 security limits, and SDK/curl examples.
 
-## Legacy Windows desktop client
+## Windows desktop client
 
-v1 source retains the original desktop flow:
+The daily workflow is hold a hotkey, speak, release, and insert the recognized text into the active window:
 
 ```text
-start_server.py  --WebSocket :6016-->  start_client.py
+Windows start_client.py  --WebSocket :6016-->  Linux/Docker server
 ```
+
+Set `ClientConfig.addr` in `config_client.py` to the server hostname or IP
+(for example, `axolotl`), without `ws://`; keep `port` separate. The default
+`127.0.0.1` points to Windows itself, not the remote server. For Taiwan
+Traditional Chinese, set `traditional_convert=True` and `traditional_locale='zh-tw'`.
+Restart the client after editing these values.
 
 The desktop client owns tray, hotkeys, microphone, clipboard, and text
 injection. The server loads the model and performs inference. This is not the
@@ -106,10 +115,10 @@ microphone, clipboard, FFmpeg, model, known-audio, and child-cleanup validation.
 
 | Path | Status | Automated evidence | Remaining real-host evidence |
 |---|---|---|---|
-| Linux Docker server | Primary legacy server path | Ubuntu tests, Compose config, entrypoint shell, protocol/API units | Disposable image build, model load, Mandarin/English known audio, GPU/CPU host |
+| Linux Docker server | Primary server path | Ubuntu tests, Compose config, entrypoint shell, protocol/API units | Disposable image build, model load, Mandarin/English known audio, GPU/CPU host |
 | Linux bare-metal server | Best effort | Python 3.10/3.12 server tests | FFmpeg, native libraries, model, supervision |
-| Windows desktop source | Compatibility-preserved | Windows Python 3.10/3.12 syntax/protocol tests | Tray, hotkeys, microphone, clipboard, PyInstaller artifact |
-| Optional HTTP API | Legacy compatibility | Auth, upload bound, format, routing tests | Live authenticated model-backed transcription |
+| Windows desktop source | First client platform | Portable checks; see CI for the current matrix | Tray, hotkeys, microphone, clipboard, PyInstaller artifact |
+| Optional HTTP API | Optional server interface | Auth, upload bound, format, routing tests | Live authenticated model-backed transcription |
 | macOS | Not release-qualified | No complete gate | No project-level support claim |
 
 Passing CI does not certify model quality, a GPU backend, audio hardware, or a
@@ -120,8 +129,8 @@ Windows desktop release.
 - Development branch: `maintenance/v1`
 - Standing comparison PR base: `archive/v1-legacy`
 - Never merge v1 into `master` or bulk-backport v2 into v1.
-- Only critical security, compatibility, model-asset, and contract fixes belong
-  here.
+- Upstream features, model updates, and necessary refactors are accepted on v1.
+  Preserve daily usability and document migration; v2 product surfaces remain separate.
 - v1 tags use `fork-v1.<minor>.<patch>`; pre-releases may add `-rc.<n>`.
 
 Policies:
@@ -133,6 +142,7 @@ Policies:
 
 | Document | Covers |
 |---|---|
+| [Upstream refresh migration](docs/v1-upstream-refresh.md) | Config, models, entrypoints, rollback, and verification limits |
 | [v1 Docker server](docs/docker-server.md) | Local source build, models, GPU/CPU, volumes, operations |
 | [HTTP API](docs/en/http-api.md) | Transcription subset, auth, limits, SDK/curl |
 | [v1 maintenance policy](docs/en/maintenance.md) | Branches, support, qualification, residual risks |
@@ -141,9 +151,10 @@ Policies:
 
 ## Upstream and license
 
-This line derives from the 2.5-alpha-era desktop/recognition code in
-[HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
-and adds the fork's maintained Linux server, Docker, and HTTP API changes. New
-feature development belongs to fork v2.
+This line integrates [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
+through `84912d5` and retains the fork's Linux server, Docker, and HTTP API work.
+The native llama runtime remains pinned to the compatible `b7798` ABI; upstream
+`b10621` bindings require a coordinated future runtime migration. Python 3.12
+is the native setup baseline; the pinned Docker image uses Python 3.10.
 
 License: [MIT](LICENSE).

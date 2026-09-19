@@ -1,41 +1,91 @@
-.git/
-.github/
-.idea/
-.vscode/
-.sisyphus/
+# Build artefacts
 __pycache__/
-*.py[cod]
-*.so
-*.egg-info/
+*.pyc
+*.pyo
 .pytest_cache/
 .mypy_cache/
-.venv/
-venv/
-env/
-ENV/
+.ruff_cache/
+client/cli/dist/
+client/web/node_modules/
+client/web/dist/
+client/web/coverage/
+client/web/.vite/
+client/web/playwright-report/
+client/web/test-results/
+client/web/.tmp/
+client/web/*.tsbuildinfo
+
+# Fork archive (used for rollback reference, not for runtime)
+.fork-archive-*/
+
+# Local tooling state
+.claude/
+.serena/
+.sisyphus/
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Logs and previous run output
+logs/
+20*/
+
+# Local env and secret files
 .env
 .env.*
+.envrc
+!.env.example
+.npmrc
+.yarnrc
+.yarnrc.yml
+.pnpmrc
+.pypirc
+pip.conf
+.pip/
+.netrc
+.ssh/
+.docker/
+.aws/
+.azure/
+.config/gcloud/
+.config/gh/
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+id_rsa
+id_ed25519
 
-# Mutable operator hotword files must stay out of image layers. Keep only the
-# reviewed onboarding example in the source build context.
+# Models stay outside image (mounted/downloaded at runtime)
+models/
+
+# Local archives and interrupted downloads
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.part
+
+# Client-only assets (server image doesn't need them)
+build-client.spec
+build.spec
+build_hook.py
+zip_release.py
+
+# Benchmarks (test data, not runtime)
+benchmarks/
+
+# Mutable user hotwords never enter the server image
 hot-server.txt
 hot.txt
 hot-rule.txt
 hot-rectify.txt
 !hot-server.example.txt
-
-build/
-dist/
-logs/
-20*/
-release/
-*.zip
-*.mp3
-*.wav
-*.m4a
-
-# 模型体积巨大，镜像只保留下载说明文件，实际模型走 volume
-models/**
-!models/**/*.txt
-!models/**/*.md
-.docker-debug/
+.venv/

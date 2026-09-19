@@ -1,18 +1,49 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-打包脚本 - 使用 7zip 压缩 dist 目录中的构建产物
+旧版归档工具函数；v1 命令入口已停用，仅支持原始码发行
 
 功能：
 1. 打包 CapsWriter-Offline（服务端+客户端）
-2. 打包 CapsWriter-Offline-Client（仅客户端）
 3. 智能排除模型文件（.onnx, .dll, .json 等），但保留说明文档
 """
 
 import os
+import math
 import subprocess
 from pathlib import Path
 from datetime import datetime
+
+ZIP_RELEASE_TIMEOUT_ENV = "CAPSWRITER_ZIP_RELEASE_TIMEOUT"
+DEFAULT_ZIP_RELEASE_TIMEOUT_SECONDS = 900
+REQUIRED_EMPTY_RELEASE_DIRECTORIES = ("models", "logs")
+
+
+def _format_seconds(value):
+    return f"{value:g}"
+
+
+def _positive_float_env(name, default):
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return default
+
+    try:
+        value = float(raw)
+    except ValueError as exc:
+        raise ValueError(f"{name} must be a number") from exc
+    if not math.isfinite(value):
+        raise ValueError(f"{name} must be a finite number")
+    if value <= 0:
+        raise ValueError(f"{name} must be > 0")
+    return value
+
+
+def zip_release_timeout_seconds():
+    return _positive_float_env(
+        ZIP_RELEASE_TIMEOUT_ENV,
+        DEFAULT_ZIP_RELEASE_TIMEOUT_SECONDS,
+    )
 
 
 def find_7zip():
@@ -42,15 +73,15 @@ def should_include_file(file_path, is_client_only=False):
     - models/模型名/文件 会被打包（层级深度 == 2）
     - models/模型名/子目录/文件  不会被打包（层级深度 >= 3）
     - 如果是【仅客户端】打包：
-        - 排除 util 目录下的所有 .dll 文件（客户端不需要本地识别引擎）
+        - 排除 core 目录下的所有 .dll 文件（客户端不需要本地识别引擎）
     """
     path = Path(file_path)
     parts = path.parts
 
     # 1. 客户端特殊排除逻辑
     if is_client_only:
-        # 排除 util 中的 dll 文件
-        if 'util' in parts and path.suffix.lower() == '.dll':
+        # 排除 core 中的 dll 文件
+        if 'core' in parts and path.suffix.lower() == '.dll':
             return False
 
     # 2. 检查是否在 models 目录下
@@ -62,6 +93,10 @@ def should_include_file(file_path, is_client_only=False):
         models_index = parts.index('models')
     except ValueError:
         return True
+
+    # 排除 models 目录下的所有 .zip 文件（原始压缩包不打包）
+    if 'models' in parts and path.suffix.lower() == '.zip' or  path.suffix.lower() == '.cfg':
+        return False
 
     # models/模型名/子目录/... 的深度 >= 3 不打包
     depth = len(parts) - models_index
@@ -85,6 +120,21 @@ def create_file_list(dist_folder, output_file='file_list.txt', is_client_only=Fa
     dist_path = Path(dist_folder)
     if not dist_path.exists():
         return files, None
+
+    # The production artifact contract requires these root-level directories
+    # even when they contain no files.  Add only genuinely empty, real
+    # directories: giving 7-Zip a non-empty directory path would recursively
+    # bypass the per-file model exclusions below.
+    for directory_name in REQUIRED_EMPTY_RELEASE_DIRECTORIES:
+        directory = dist_path / directory_name
+        is_junction = getattr(directory, "is_junction", None)
+        if (
+            directory.is_dir()
+            and not directory.is_symlink()
+            and not (is_junction and is_junction())
+            and not any(directory.iterdir())
+        ):
+            files.append(os.path.relpath(directory, dist_path.parent))
 
     for root, dirs, filenames in os.walk(dist_path):
         # 排除不需要打包的文件夹
@@ -110,6 +160,7 @@ def create_file_list(dist_folder, output_file='file_list.txt', is_client_only=Fa
 def package_with_7zip(source_dir, output_zip, file_list_file):
     """使用 7zip 打包目录"""
 
+    timeout = zip_release_timeout_seconds()
     seven_zip = find_7zip()
     if not seven_zip:
         raise FileNotFoundError(
@@ -160,7 +211,8 @@ def package_with_7zip(source_dir, output_zip, file_list_file):
         capture_output=True,
         text=True,
         encoding='utf-8',
-        errors='ignore'
+        errors='ignore',
+        timeout=timeout,
     )
 
     if result.returncode != 0:
@@ -172,13 +224,18 @@ def package_with_7zip(source_dir, output_zip, file_list_file):
     print("\n✅ 打包成功！")
 
     # 显示压缩包信息
-    info_result = subprocess.run(
-        [seven_zip, 'l', str(output_path.absolute())],
-        capture_output=True,
-        text=True,
-        encoding='utf-8',
-        errors='ignore'
-    )
+    try:
+        info_result = subprocess.run(
+            [seven_zip, 'l', str(output_path.absolute())],
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors='ignore',
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        print(f"\n警告: 读取压缩包信息超时（{_format_seconds(timeout)}s）")
+        return
 
     if info_result.returncode == 0:
         # 解析文件数量和大小
@@ -190,107 +247,11 @@ def package_with_7zip(source_dir, output_zip, file_list_file):
 
 
 def main():
-    """主函数"""
-    dist_dir = Path('dist')
-
-    # 检查 dist 目录
-    if not dist_dir.exists():
-        print(f"错误: dist 目录不存在")
-        print(f"请先运行 PyInstaller 构建: pyinstaller build.spec")
-        return
-
-    print("=" * 60)
-    print("CapsWriter-Offline 打包脚本")
-    print("=" * 60)
-
-    # 构建输出目录
-    release_dir = Path('release')
-    release_dir.mkdir(exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y%m%d")
-
-    # 打包配置列表
-    packages = []
-
-    # 检查 CapsWriter-Offline（服务端+客户端）
-    server_dist = dist_dir / 'CapsWriter-Offline'
-    if server_dist.exists():
-        packages.append({
-            'source': server_dist,
-            'output': release_dir / f'CapsWriter-Offline-{timestamp}.zip',
-            'name': '服务端+客户端'
-        })
-
-    # 检查 CapsWriter-Offline-Client（仅客户端）
-    client_dist = dist_dir / 'CapsWriter-Offline-Client'
-    if client_dist.exists():
-        packages.append({
-            'source': client_dist,
-            'output': release_dir / f'CapsWriter-Offline-Client-{timestamp}.zip',
-            'name': '仅客户端'
-        })
-
-    if not packages:
-        print(f"\n错误: dist 目录中没有找到构建产物")
-        print(f"请先运行 PyInstaller 构建:")
-        print(f"  pyinstaller build.spec")
-        print(f"  pyinstaller build-client.spec")
-        return
-
-    print(f"\n找到 {len(packages)} 个待打包的构建产物")
-
-    # 逐个打包
-    success_count = 0
-    for idx, pkg in enumerate(packages):
-        try:
-            print(f"\n{'=' * 60}")
-            print(f"打包: {pkg['name']}")
-            print(f"{'=' * 60}")
-
-            # 生成唯一的文件列表名（避免冲突）
-            list_file_name = f'file_list_{idx}.txt'
-
-            # 生成文件列表
-            is_client_only = pkg['source'].name == 'CapsWriter-Offline-Client'
-            files, list_file = create_file_list(pkg['source'], list_file_name, is_client_only)
-
-            if not files:
-                print(f"\n警告: 没有找到要打包的文件")
-                continue
-
-            print(f"文件列表: {list_file}")
-
-            # 打包
-            package_with_7zip(
-                pkg['source'],
-                pkg['output'],
-                list_file
-            )
-
-            success_count += 1
-
-            # 删除临时文件列表
-            try:
-                list_file.unlink()
-                print(f"已删除临时文件列表: {list_file}")
-            except Exception as cleanup_error:
-                print(f"警告: 无法删除临时文件列表 {list_file}: {cleanup_error}")
-
-        except Exception as e:
-            print(f"\n打包失败: {e}")
-
-    # 总结
-    print(f"\n{'=' * 60}")
-    print(f"打包完成: {success_count}/{len(packages)} 成功")
-    print(f"{'=' * 60}")
-    print(f"\n输出目录: {release_dir.absolute()}")
-
-    # 列出生成的文件
-    if success_count > 0:
-        print(f"\n生成的文件:")
-        for file in sorted(release_dir.glob('*.zip')):
-            size_mb = file.stat().st_size / (1024 * 1024)
-            print(f"  {file.name} ({size_mb:.1f} MB)")
+    """v1 仅发行原始码，不重新归档旧 PyInstaller 产物。"""
+    raise SystemExit(
+        "v1 is source-only on Python 3.10-3.12; binary release packaging is retired. "
+        "See docs/en/maintenance.md."
+    )
 
 
 if __name__ == '__main__':

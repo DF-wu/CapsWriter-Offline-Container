@@ -13,8 +13,7 @@ LLM 角色模块 - 仅用于角色配置
 
 # 基本信息
 name: str = ""                               # 角色显示名称
-match: bool = True                           # 是否启用前缀匹配
-process: bool = True                         # 是否启用 LLM 处理
+enabled: bool = True                         # 是否启用此角色
 
 # API 配置
 provider: str = 'ollama'                     # API 提供商
@@ -29,7 +28,6 @@ max_context_length: int = 4096               # 最大上下文长度（token 数
 enable_thinking: bool = False                # 是否启用思考（仅 Ollama 支持）
 enable_history: bool = False                 # 是否保留对话历史
 enable_hotwords: bool = False                # 是否读取潜在热词列表
-enable_rectify: bool = False                 # 是否读取潜在纠错记录
 enable_read_selection: bool = False          # 是否读取鼠标所选文字（通过 Ctrl+C）
 selection_max_length: int = 1000             # 选中文字最大长度
 
@@ -57,7 +55,6 @@ extra_options: Dict[str, Any] = field(default_factory=dict)  # 额外的 API 参
 
 # 提示词前缀
 prompt_prefix_hotwords: str = '热词列表：'      # 热词列表前缀
-prompt_prefix_rectify: str = '纠错历史：'       # 纠错历史前缀
 prompt_prefix_selection: str = '选中文字：'     # 选中文字前缀
 prompt_prefix_input: str = '用户输入：'         # 用户输入前缀
 

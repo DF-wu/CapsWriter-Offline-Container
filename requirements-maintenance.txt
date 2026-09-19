@@ -1,8 +1,14 @@
-# Minimal dependencies for protocol/server maintenance tests.
-# Keep this separate from model, audio, UI, and GPU runtime dependencies.
-rich==14.3.3
-websockets==16.0
-numpy==1.26.4
+# Pinned minimal headless regression dependencies (no native ASR assets).
+# Direct inputs for the isolated OpenAI HTTP API contract environment.
+# Docker test builds also install the hashed requirements-api-test.lock.
+colorama==0.4.6
 fastapi==0.139.0
+httpx==0.28.1
+openai==2.45.0
+python-multipart==0.0.32
+rich==14.3.3
+starlette==1.3.1
 uvicorn==0.32.1
-python-multipart==0.0.31
+websockets==16.0
+
+numpy==1.26.4

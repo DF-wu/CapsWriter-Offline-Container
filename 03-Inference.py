@@ -3,7 +3,9 @@ ASR 演示脚本 - 简单直接的使用示例
 """
 
 import os
-from fun_asr_gguf import create_asr_engine
+from config_server import FunASRNanoGGUFArgs
+from core.server.engines.fun_asr_gguf import FunASREngine, ASREngineConfig
+from core.server.engines.qwen_asr_gguf.inference.audio import load_audio
 
 
 # ==================== Vulkan 选项 ====================
@@ -34,11 +36,10 @@ verbose = True
 json_output = False
 
 # 模型文件路径
-model_dir = "models/FunASR-Nano/Fun-ASR-Nano-GGUF"
-encoder_onnx_path = f"{model_dir}/Fun-ASR-Nano-Encoder-Adaptor.fp32.onnx"
-ctc_onnx_path = f"{model_dir}/Fun-ASR-Nano-CTC.int8.onnx"
-decoder_gguf_path = f"{model_dir}/Fun-ASR-Nano-Decoder.q8_0.gguf"
-tokens_path = f"{model_dir}/tokens.txt"
+encoder_onnx_path = FunASRNanoGGUFArgs.encoder_onnx_path
+ctc_onnx_path = FunASRNanoGGUFArgs.ctc_onnx_path
+decoder_gguf_path = FunASRNanoGGUFArgs.decoder_gguf_path
+tokens_path = FunASRNanoGGUFArgs.tokens_path
 hotwords_path = "./hot.txt"  # 可选，留空则不使用热词
 
 # ==================== 语言说明 ====================
@@ -63,23 +64,27 @@ def main():
     print("="*70)
 
     # 创建 ASR 引擎
-    engine = create_asr_engine(
+    engine = FunASREngine(ASREngineConfig(
         encoder_onnx_path=encoder_onnx_path,
         ctc_onnx_path=ctc_onnx_path,
         decoder_gguf_path=decoder_gguf_path,
         tokens_path=tokens_path,
-        hotwords_path=hotwords_path,
         enable_ctc=enable_ctc,
         verbose=verbose,
-    )
+        llm_use_gpu=False,
+    ))
 
     # 转录音频
-    result = engine.transcribe(
-        audio_file, 
-        language=language, 
-        context=context, 
-        verbose=verbose
-    )
+    try:
+        if hotwords_path and os.path.isfile(hotwords_path):
+            with open(hotwords_path, encoding='utf-8') as hotwords:
+                engine.update_hotwords([line.strip() for line in hotwords if line.strip()])
+        stream = engine.create_stream()
+        stream.accept_waveform(16000, load_audio(audio_file, sample_rate=16000))
+        engine.decode_stream(stream, language=language, context=context)
+        result = stream.result
+    finally:
+        engine.cleanup()
 
     # 输出结果
     if json_output:
@@ -87,10 +92,11 @@ def main():
         print("\n" + "="*70)
         print("识别结果 (JSON)")
         print("="*70)
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        from dataclasses import asdict
+        print(json.dumps(asdict(result), ensure_ascii=False, indent=2))
 
-    # 清理资源
-    engine.cleanup()
+    else:
+        print(result.text)
 
     return 0
 

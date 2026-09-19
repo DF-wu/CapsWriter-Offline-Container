@@ -1,7 +1,8 @@
-# CapsWriter-Offline fork v1 — Legacy Server + Desktop Client
+# CapsWriter-Offline fork v1 — Windows Client + Linux Server
 
-> **v1 是隔離的 best-effort 維護線。**主要交付是 Linux/headless ASR Server；
-> 同一份 source 保留 upstream 2.5-alpha 時期的 Windows desktop Client 相容性。
+> **v1 全面吸收上游桌面與辨識更新，以穩定性為優先。**
+> Windows 桌面 Client 連接 Linux／Docker 辨識 Server。
+> 升級前請先閱讀 [上游更新遷移指南](docs/v1-upstream-refresh.md)。
 >
 > 繁體中文 · [English](README.en.md)
 
@@ -13,7 +14,7 @@
 
 ```mermaid
 flowchart LR
-    C[Legacy Windows desktop Client<br/>start_client.py] -->|WebSocket :6016| S[v1 ASR Server<br/>model・FFmpeg・inference]
+    C[Windows desktop Client<br/>start_client.py] -->|WebSocket :6016| S[v1 ASR Server<br/>model・FFmpeg・inference]
     O[OpenAI SDK / curl] -->|選用 HTTP :6017| S
     S --> R[逐字稿]
 ```
@@ -21,7 +22,7 @@ flowchart LR
 | 元件 | v1 內容 | 發行狀態 |
 |---|---|---|
 | **Server** | Linux bare-metal／Docker、WebSocket `6016`、選用 transcription-only HTTP `6017`、model bootstrap、GPU preference／CPU fallback | v1 的主要維護路徑；GitHub Release 提供 source，由使用者在本機 build |
-| **Desktop Client** | Upstream-era `start_client.py`：Windows GUI、tray、hotkey、麥克風、剪貼簿／文字注入 | 只保留 source compatibility；沒有 v1 Windows EXE，除非 release 明確附上經真實 Windows 驗證的 artifact |
+| **Desktop Client** | `start_client.py`：Windows GUI、tray、hotkey、麥克風、剪貼簿／文字注入 | Windows 為第一支援 Client 平台；沒有 v1 Windows EXE，除非 release 明確附上經真實 Windows 驗證的 artifact |
 | **外部 API caller** | 相容 SDK／curl 可使用文件列出的 `whisper-1` transcription subset | API interface，不是本 repository 內附的 Client app |
 
 **v1 不包含 v2 的 Web Console、no-GUI CLI、Textual TUI 或 universal Windows
@@ -39,11 +40,13 @@ package。**需要這些功能請使用 v2。
 ## 快速開始：v1 Linux Server
 
 先決條件：Linux、Docker Engine、Compose plugin，以及 model 所需空間。NVIDIA
-GPU 為選用；CPU fallback 可用。
+GPU 為選用；CPU fallback 可用。CPU-only 主機啟動前請在 `.env` 設定
+`CAPSWRITER_GPU_DEVICE_COUNT=0` 與 `CAPSWRITER_INFERENCE_HARDWARE=cpu`。
 
 ```bash
-cp .env.example .env
-cp hot-server.example.txt hot-server.txt
+# 僅供新 checkout；保留既有設定與熱詞。
+cp -n .env.example .env
+cp -n hot-server.example.txt hot-server.txt
 docker compose build --pull capswriter-server
 docker compose up -d capswriter-server
 docker compose ps
@@ -83,13 +86,18 @@ proxy，否則請保留 `CAPSWRITER_HTTP_API_HOST_BIND=127.0.0.1`。相容 SDK c
 完整 contract、安全限制與 curl／SDK 範例見
 [HTTP API reference](docs/HTTP_API.md)。
 
-## Legacy Windows Desktop Client
+## Windows Desktop Client
 
-v1 source 保留原始 desktop 流程：
+日常流程為按住快捷鍵說話、放開後辨識，再將文字輸入目前視窗：
 
 ```text
-start_server.py  --WebSocket :6016-->  start_client.py
+Windows start_client.py  --WebSocket :6016-->  Linux／Docker Server
 ```
+
+在 `config_client.py` 將 `ClientConfig.addr` 設為 Server 主機名或 IP（例如
+`axolotl`），不加 `ws://`，並分開設定 `port`。預設 `127.0.0.1` 指的是 Windows
+自身，不是遠端 Server。臺灣繁體輸出可設 `traditional_convert=True` 與
+`traditional_locale='zh-tw'`；修改後重新啟動 Client。
 
 Desktop Client 負責 tray、hotkey、mic、clipboard 與 text injection；Server 才會載入
 model 並推論。這不是 v2 universal package，也沒有隨目前 v1 Release 提供 EXE。
@@ -102,10 +110,10 @@ child-process cleanup。
 
 | 路徑 | 狀態 | Automated evidence | 仍需實機驗證 |
 |---|---|---|---|
-| Linux Docker Server | 主要 legacy Server path | Ubuntu tests、Compose config、entrypoint shell、protocol／API units | Disposable image build、model download/load、中英文 known audio、GPU／CPU host |
+| Linux Docker Server | 主要 Server path | Ubuntu tests、Compose config、entrypoint shell、protocol／API units | Disposable image build、model download/load、中英文 known audio、GPU／CPU host |
 | Linux bare-metal Server | Best effort | Python 3.10／3.12 server tests | FFmpeg、native library、model、service supervision |
-| Windows desktop source | Compatibility-preserved | Windows Python 3.10／3.12 syntax／protocol tests | Tray、hotkey、mic、clipboard、PyInstaller artifact |
-| Optional HTTP API | Legacy compatibility | Auth、upload bound、format、routing tests | Live authenticated model-backed transcription |
+| Windows desktop source | 第一支援 Client 平台 | 可攜式檢查；目前矩陣以 CI 為準 | Tray、hotkey、mic、clipboard、PyInstaller artifact |
+| Optional HTTP API | 選用 Server 介面 | Auth、upload bound、format、routing tests | Live authenticated model-backed transcription |
 | macOS | 未列入 release qualification | 無完整 gate | 不做 project-level support claim |
 
 CI 通過不等於 model quality、GPU backend、audio hardware 或 Windows desktop 已通過
@@ -116,7 +124,8 @@ release qualification。
 - 開發 branch：`maintenance/v1`
 - Standing comparison PR base：`archive/v1-legacy`
 - 不可把 v1 merge 到 `master`，也不可把 v2 整體 backport 到 v1。
-- 只接受重大 security、compatibility、model asset 與 contract 修正。
+- 接受上游功能、模型更新與必要重構；保留日常可用性並提供遷移說明。
+  v2 的 Web／CLI／TUI 等產品介面維持分開。
 - v1 tag 使用 `fork-v1.<minor>.<patch>`；pre-release 可加 `-rc.<n>`。
 
 詳細政策：
@@ -128,6 +137,7 @@ release qualification。
 
 | 文件 | 內容 |
 |---|---|
+| [上游更新遷移指南](docs/v1-upstream-refresh.md) | 設定、模型、入口、回復與驗證限制 |
 | [v1 Docker Server](docs/docker-server.md) | Local source build、models、GPU／CPU、volume、ops |
 | [HTTP API](docs/HTTP_API.md) | Transcription subset、auth、limits、SDK／curl |
 | [v1 維護政策](docs/zh-TW/maintenance.md) | Branch、support、qualification、residual risk |
@@ -136,9 +146,9 @@ release qualification。
 
 ## Upstream 與授權
 
-此維護線來自
-[HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
-2.5-alpha 時期的 desktop／recognition code，並加入 fork 的 Linux Server、Docker
-與 HTTP API 維護修正。新功能開發位於 fork v2。
+此路線整合 [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)
+至 `84912d5`，並保留 fork 的 Linux Server、Docker 與 HTTP API。
+原生 llama runtime 保持相容的 `b7798` ABI；上游 `b10621` binding 須待
+runtime 同步遷移。原生環境以 Python 3.12 為基準，固定 Docker image 使用 Python 3.10。
 
 License：[MIT](LICENSE)。
