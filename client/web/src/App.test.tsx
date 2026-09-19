@@ -147,11 +147,33 @@ describe("App", () => {
 
     fireEvent.change(screen.getByLabelText("API root"), { target: { value: "http://other:6017" } });
     expect(fetchMock.mock.calls[1]?.[0]).toBe("http://localhost:6017/v1/settings");
+    expect(fetchMock.mock.calls[1]?.[1]?.signal?.aborted).toBe(false);
 
     await act(async () => { write.resolve(jsonResponse(serverSettingsSnapshot(200))); });
 
     expect(await screen.findByText("切換前的 Server 已儲存設定。連線已切換，請重新讀取目前 Server 的設定。")).toBeTruthy();
     expect(screen.queryByLabelText("檔案上限 (MB)")).toBeNull();
+  });
+
+  it("keeps the endpoint and pending write when switching is rejected", async () => {
+    const write = deferred<Response>();
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+      init?.method === "PATCH" ? write.promise : Promise.resolve(jsonResponse(serverSettingsSnapshot())));
+    vi.stubGlobal("fetch", fetchMock);
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    render(<App />);
+    await userEvent.click(screen.getByRole("button", { name: "讀取 Server 設定" }));
+    fireEvent.change(screen.getByLabelText("檔案上限 (MB)"), { target: { value: "200" } });
+    await userEvent.click(screen.getByRole("button", { name: "儲存 Server 設定" }));
+
+    fireEvent.change(screen.getByLabelText("API root"), { target: { value: "http://other:6017" } });
+    expect(confirm).toHaveBeenCalledOnce();
+    expect((screen.getByLabelText("API root") as HTMLInputElement).value).toBe("http://localhost:6017");
+    expect((screen.getByLabelText("檔案上限 (MB)") as HTMLInputElement).value).toBe("200");
+    expect(fetchMock.mock.calls[1]?.[1]?.signal?.aborted).toBe(false);
+    await act(async () => { write.resolve(jsonResponse(serverSettingsSnapshot(200))); });
+    expect(await screen.findByText("已儲存。請由管理者在適當時間重啟 Server，變更才會生效。")).toBeTruthy();
+    expect(screen.getByLabelText("檔案上限 (MB)")).toBeTruthy();
   });
 
   it("keeps an uncertain write on its original key and explains the reload after switching", async () => {
