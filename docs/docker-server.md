@@ -76,12 +76,13 @@ CAPSWRITER_MODEL_TYPE=fun_asr_nano
 
 ### Qwen preset
 
-`CAPSWRITER_QWEN_PRESET` 目前只保留兩個正式選項：
+`CAPSWRITER_QWEN_PRESET` 接受以下選項：
 
 - `default`：一般使用的主力預設
 - `low_vram_gpu`：保留 ONNX GPU，加上 CPU llama，降低顯存壓力
+- `cpu_only`：ONNX 與 llama 都使用 CPU
 
-舊的 `balanced` / `quality` 目前只作為相容別名，會映射到 `default`。
+舊的 `balanced` / `quality` 不再接受；遷移時請改為 `default`。
 
 ### Inference hardware 策略
 
@@ -89,14 +90,11 @@ CAPSWRITER_MODEL_TYPE=fun_asr_nano
 - `CAPSWRITER_INFERENCE_HARDWARE=gpu`：仍然會先嘗試 GPU；若 runtime 不可見，會回退 CPU，不讓服務直接失敗。
 - `CAPSWRITER_INFERENCE_HARDWARE=cpu`：強制 CPU。
 
-這份 compose 檔已經把 GPU request 定義在同一個檔案裡；`auto` 會在 GPU 可見時走 Vulkan，不可用時回退 CPU。
-
-如果你要用同一份 compose 直接走 CPU-only 啟動，把 `CAPSWRITER_GPU_DEVICE_COUNT=0`；若要請求 GPU，維持預設 `all` 即可。
-
-Compose 層額外提供 `CAPSWRITER_GPU_DEVICE_COUNT`：
-
-- `all`：向容器請求 GPU（預設）
-- `0`：不向容器請求 GPU，適合 CPU-only 啟動
+基礎 Compose 不請求 GPU，CPU-only 主機可直接啟動。NVIDIA 主機使用
+`docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d`；
+Intel／AMD 使用 `docker-compose.igpu.yml` override（需有 `/dev/dri`）。
+`CAPSWRITER_GPU_DEVICE_COUNT` 僅影響 NVIDIA override，預設 `all`。
+強制 CPU 時省略 GPU override，並設 `CAPSWRITER_INFERENCE_HARDWARE=cpu`。
 
 不需要額外的 helper service。啟動 `capswriter-server` 時，容器會自動下載缺失模型與 backend。
 

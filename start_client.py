@@ -1,18 +1,22 @@
 # coding: utf-8
-
-
-"""
-这个文件仅仅是为了 PyInstaller 打包用
-"""
+from __future__ import annotations
 
 import sys
-import typer
-from core_client import init_file, init_mic
+
+
+def main(argv: list[str] | None = None) -> int | None:
+    selected_args = sys.argv[1:] if argv is None else argv
+    if selected_args == ["--artifact-self-check"]:
+        from artifact_self_check import run_artifact_self_check
+
+        return run_artifact_self_check("client")
+
+    from core.client import CapsWriterClient
+
+    # 直接实例化并启动门面类即可；环境初始化职责已下放至 CapsWriterClient。
+    CapsWriterClient().start()
 
 if __name__ == "__main__":
-    # 如果参数传入文件，那就转录文件
-    # 如果没有多余参数，就从麦克风输入
-    if sys.argv[1:]:
-        typer.run(init_file)
-    else:
-        init_mic()
+    status = main()
+    if status is not None:
+        raise SystemExit(status)

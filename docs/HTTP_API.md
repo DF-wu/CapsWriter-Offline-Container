@@ -51,6 +51,10 @@ executable。
 | `CAPSWRITER_HTTP_API_MAX_UPLOAD_MB` | `100` | `100` | 單次 upload 上限（MiB） |
 | `CAPSWRITER_HTTP_API_TASK_TIMEOUT` | `600` | `600` | 單次 recognition timeout（秒） |
 
+非 loopback listener（包含 Compose 的 `0.0.0.0`）必須設定 API key，否則預設
+拒絕啟動。只有明確了解隔離環境時才使用 `CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND`。
+另可透過 `CAPSWRITER_HTTP_API_KEY_FILE` 讀取 mounted secret。
+
 Native default 只監聽 loopback。Docker process 必須在 **container 內** bind
 `0.0.0.0`，Docker 才能 forward；Compose 再用
 `CAPSWRITER_HTTP_API_HOST_BIND=127.0.0.1` 把 host publish 限制在 loopback。這兩個
@@ -86,7 +90,7 @@ docker compose logs -f capswriter-server | grep "HTTP API 监听"
 ```bash
 export CAPSWRITER_HTTP_API_ENABLE=true
 export CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
-python core_server.py
+python start_server_universal.py
 ```
 
 啟動後 log 會出現：
@@ -132,11 +136,14 @@ OpenAI Whisper 規格的多模態 multipart 端點。
 | 欄位 | 必填 | 預設 | 說明 |
 |---|---|---|---|
 | `file` | ✅ | — | 音訊檔案；任何 ffmpeg 能解的格式都可（mp3/wav/m4a/flac/ogg/webm/...） |
-| `model` | — | `whisper-1` | OpenAI 相容占位，**實際模型由 `CAPSWRITER_MODEL_TYPE` 決定**，本欄位被忽略 |
-| `language` | — | _(無)_ | 不影響識別，僅在 `verbose_json` 回填 |
-| `prompt` | — | _(無)_ | 目前僅 log，**未注入** recognizer context（見 §7 已知限制） |
+| `model` | ✅ | — | 必須為 `whisper-1`；實際引擎由 `CAPSWRITER_MODEL_TYPE` 決定 |
+| `language` | — | 自動 | 支援的語言提示會傳入識別引擎；實際能力依 backend 而異 |
+| `prompt` | — | _(無)_ | 傳入 recognizer context；內容預設不寫入 log |
 | `response_format` | — | `json` | 五選一：`json` / `text` / `verbose_json` / `srt` / `vtt` |
-| `temperature` | — | `0.0` | OpenAI 相容占位，被忽略 |
+| `temperature` | — | `0.0` | 驗證為有限的 0–1 數字；不覆寫引擎 sampling 設定 |
+
+`stream=true`、diarization、logprobs 與未知欄位會被拒絕。此相容子集僅支援非串流
+`whisper-1` 轉錄；升級前請確認 caller 明確傳入 `model=whisper-1`。
 
 **Headers：**
 
@@ -188,6 +195,8 @@ Whisper 完全相同。
 | `413` | 上傳超過 `MAX_UPLOAD_MB` |
 | `415` | Transcription request 不是 `multipart/form-data` |
 | `422` | Multipart field 或 value 未通過 request validation |
+| `429` | 已達同時執行及等待請求上限 |
+| `503` | recognizer 尚未就緒或已停止 |
 | `500` | 伺服器找不到 `ffmpeg`；或識別子進程異常 |
 | `504` | 任務超過 `TASK_TIMEOUT` |
 
@@ -198,16 +207,16 @@ Whisper 完全相同。
 ### 4.3 `GET /health`
 
 ```json
-{"status": "ok", "model": "qwen_asr", "version": "2.5-alpha"}
+{"status": "ok", "model": "qwen_asr", "version": "2.6"}
 ```
 
 ### 4.4 `GET /v1/models`
 
-OpenAI SDK 在某些初始化路徑會呼叫此端點。回應一筆「本服務當前 model」紀錄：
+OpenAI SDK 在某些初始化路徑會呼叫此端點。驗證通過後回應相容 model ID：
 
 ```json
 {"object": "list", "data": [{
-  "id": "qwen_asr",
+  "id": "whisper-1",
   "object": "model",
   "owned_by": "capswriter-offline",
   "created": 0
@@ -246,12 +255,14 @@ for seg in r.segments:
 # 最小：拿 plain text
 curl -X POST http://localhost:6017/v1/audio/transcriptions \
   -F file=@meeting.mp3 \
+  -F model=whisper-1 \
   -F response_format=text
 
 # 完整：verbose JSON + 認證
 curl -X POST https://your-host:6017/v1/audio/transcriptions \
   -H "Authorization: Bearer sk-your-token" \
   -F file=@meeting.mp3 \
+  -F model=whisper-1 \
   -F response_format=verbose_json
 ```
 
@@ -310,11 +321,11 @@ console.log(r);
 
 ### 6.1 共用 recognizer
 
-整個服務只有**一個** recognizer 子進程，由 [`util/server/service.py`](../util/server/service.py) 啟動。WebSocket 與 HTTP 任務都丟同一個 `multiprocessing.Queue` (`Cosmic.queue_in`)。模型只載入一次，記憶體不重複。
+整個服務只有**一個** recognizer 子進程，由 [`core/server/worker/process_manager.py`](../core/server/worker/process_manager.py) 啟動。WebSocket 與 HTTP 任務都丟同一個 `multiprocessing.Queue` (`ServerState.queue_in`)。模型只載入一次，記憶體不重複。
 
 ### 6.2 結果回流
 
-`recognizer` 把 `Result` 丟回 `Cosmic.queue_out`。[`util/server/server_ws_send.py`](../util/server/server_ws_send.py) 從 queue 拉結果時：
+`recognizer` 把 `Result` 丟回 `ServerState.queue_out`。[`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 從 queue 拉結果時：
 
 1. 先讓 `task_router.try_resolve(result)` 攔截 HTTP 任務（中間/最終結果都會被吸收）。
 2. 若不是 HTTP 任務，走原本的 WebSocket 派發路徑。
@@ -324,7 +335,7 @@ serial recognizer queue，仍可能互相增加等待時間。
 
 ### 6.3 合成 socket_id
 
-HTTP 任務使用合成 socket_id `http:<task_id>` 並加入 `Cosmic.sockets_id`（跨進程 `Manager().list()`）。這是因為 recognizer 子進程在處理任務前會檢查 `task.socket_id not in sockets_id` 來判定上游是否還在；合成的 socket_id 滿足這個檢查、讓 HTTP 任務不會被丟棄。任務完成或取消時，TaskRouter 會把這個 socket_id 移除。
+HTTP 任務使用合成 socket_id `http:<task_id>` 並加入 `ServerState.sockets_id`（跨進程 `Manager().list()`）。這是因為 recognizer 子進程在處理任務前會檢查 `task.socket_id not in sockets_id` 來判定上游是否還在；合成的 socket_id 滿足這個檢查、讓 HTTP 任務不會被丟棄。任務完成或取消時，TaskRouter 會把這個 socket_id 移除。
 
 ### 6.4 並發
 
@@ -338,9 +349,9 @@ HTTP 任務使用合成 socket_id `http:<task_id>` 並加入 `Cosmic.sockets_id`
 
 | 限制 | 原因 | 影響 |
 |---|---|---|
-| `prompt` 僅 log，未注入 recognizer context | 不同識別後端（FunASR / SenseVoice / Qwen）對 prompt 支援方式差異大；統一處理會破壞穩定性 | 想做 hot-word/上下文引導請改用 WebSocket 客戶端模式，或在客戶端側做 post-processing |
-| `model` / `temperature` 為占位 | 本服務由 `CAPSWRITER_MODEL_TYPE` 決定模型；無 sampling 概念 | OpenAI SDK 寫什麼都不影響行為 |
-| 不做語言自動偵測 | 本服務的中文模型輸出語言固定 | `language` 欄位只回填，不影響識別 |
+| `prompt` 效果依 backend 而異 | context 會傳入識別引擎 | 不保證所有引擎都支援相同引導方式 |
+| `model` 必須為 `whisper-1`；`temperature` 僅驗證 | 實際引擎由 `CAPSWRITER_MODEL_TYPE` 決定 | 不支援每次請求切換引擎或 sampling 設定 |
+| 語言提示依 backend 能力生效 | `language` 傳入識別引擎 | 不保證模型能辨識未支援語言 |
 | 無 streaming（SSE）回應 | OpenAI Whisper API 本身亦無 streaming；需要 streaming 請改用 WebSocket | 對長音訊請設較大的 `TASK_TIMEOUT` |
 | `/v1/audio/translations` 永不實作 | 本地模型不做語種翻譯 | 客戶端如使用 `translate()`，請改 `transcribe()` |
 | HTTP timeout 中止的任務不會立刻釋放 recognizer 資源 | recognizer 子進程要走完佇列才會跳過 cancelled 任務；與 WebSocket 客戶端中斷行為一致 | 短時間記憶體佔用略有殘留，不影響正確性 |
@@ -432,13 +443,13 @@ curl -H "Authorization: Bearer sk-token" ...
 
 | 檔案 | 職責 |
 |---|---|
-| [`util/server/http_api.py`](../util/server/http_api.py) | FastAPI app、端點實作、上傳處理、分段提交 |
-| [`util/server/task_router.py`](../util/server/task_router.py) | task_id ↔ asyncio.Future 路由；合成 socket_id 管理 |
-| [`util/server/audio_decoder.py`](../util/server/audio_decoder.py) | FFmpeg subprocess 解碼到 16k/f32/mono PCM |
-| [`util/server/openai_formatter.py`](../util/server/openai_formatter.py) | 5 種 `response_format` 輸出格式化 |
-| [`util/server/server_ws_send.py`](../util/server/server_ws_send.py) | 結果分派；HTTP 攔截點 `try_resolve` |
-| [`config_server.py`](../config_server.py) | `CAPSWRITER_HTTP_API_*` 環境變數綁定 |
-| [`core_server.py`](../core_server.py) | 與 WebSocket 共用 event loop 啟動 |
+| [`fork_server/http_api/api.py`](../fork_server/http_api/api.py) | FastAPI app、端點實作、上傳處理、分段提交 |
+| [`fork_server/http_api/task_router.py`](../fork_server/http_api/task_router.py) | task_id ↔ asyncio.Future 路由；合成 socket_id 管理 |
+| [`fork_server/http_api/audio_decoder.py`](../fork_server/http_api/audio_decoder.py) | FFmpeg subprocess 解碼到 16k/f32/mono PCM |
+| [`fork_server/http_api/openai_formatter.py`](../fork_server/http_api/openai_formatter.py) | 5 種 `response_format` 輸出格式化 |
+| [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) | 結果分派；HTTP 攔截點 `try_resolve` |
+| [`fork_server/env_config.py`](../fork_server/env_config.py) | `CAPSWRITER_HTTP_API_*` 環境變數綁定 |
+| [`start_server_universal.py`](../start_server_universal.py) | 與 WebSocket 共用 event loop 啟動 |
 
 ---
 

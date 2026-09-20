@@ -1,4 +1,29 @@
-# fork-v1.0.0-rc.1 release notes
+# v1 release notes
+
+## Unreleased — upstream refresh (2026-09-18)
+
+- Integrates upstream through `84912d5`, including the `core/` architecture,
+  recording/hotkey/cancellation improvements, and transcription/subtitle fixes.
+- Preserves the fork Linux/Docker server and HTTP API with the current model
+  architecture. Windows remains the first desktop client platform.
+- Replaces the critical-fixes-only policy with full upstream integration,
+  while keeping daily usability and stability first.
+- Keeps source-only release boundaries and the local v1 image default;
+  no Windows executable or public v1 image is implied by this change.
+- Uses native Python 3.12 as the setup baseline, retaining 3.10–3.12 compatibility
+  and the pinned Python 3.10 Docker runtime. Python 3.14 is not qualified here.
+- Keeps the compatible `b7798` native llama binding/runtime pair. Upstream
+  `b10621` ABI adoption is deferred until both sides can migrate together.
+
+Read the [migration guide](../v1-upstream-refresh.md) before updating config,
+entrypoints, or model mounts. This is a source change, not an axolotl production
+upgrade. Current validation must be recorded against this revision separately;
+the historical rc.1 evidence below does not certify the refresh. Real Windows
+integration and real-model inference are not claimed without their own results.
+
+---
+
+## Historical: fork-v1.0.0-rc.1 release notes
 
 > [Maintenance policy](maintenance.md) · [繁體中文](../zh-TW/release-notes.md) · [Project README](../../README.en.md)
 

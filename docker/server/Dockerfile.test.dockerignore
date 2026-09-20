@@ -1,0 +1,85 @@
+# Build artefacts
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+client/cli/dist/
+client/web/node_modules/
+client/web/dist/
+client/web/coverage/
+client/web/.vite/
+client/web/playwright-report/
+client/web/test-results/
+client/web/.tmp/
+client/web/*.tsbuildinfo
+
+# Fork archive (used for rollback reference, not for runtime)
+.fork-archive-*/
+
+# Local tooling state
+.claude/
+.serena/
+.sisyphus/
+.vscode/
+.idea/
+
+# Git
+.git/
+
+# Logs and previous run output
+logs/
+20*/
+
+# Local env and secret files
+.env
+.env.*
+.envrc
+!.env.example
+.npmrc
+.yarnrc
+.yarnrc.yml
+.pnpmrc
+.pypirc
+pip.conf
+.pip/
+.netrc
+.ssh/
+.docker/
+.aws/
+.azure/
+.config/gcloud/
+.config/gh/
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+id_rsa
+id_ed25519
+
+# Models stay outside image (mounted/downloaded at runtime)
+models/
+
+# Local archives and interrupted downloads
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.part
+
+# Client-only assets (server image doesn't need them)
+
+# Benchmarks (test data, not runtime)
+benchmarks/
+
+# Mutable user hotwords never enter the server image
+hot-server.txt
+hot.txt
+hot-rule.txt
+hot-rectify.txt
+!hot-server.example.txt
+.venv/

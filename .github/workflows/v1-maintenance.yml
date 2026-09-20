@@ -3,7 +3,7 @@ name: v1 maintenance checks
 on:
   pull_request:
     branches:
-      - archive/v1-legacy
+      - maintenance/v1
   push:
     branches:
       - maintenance/v1
@@ -33,9 +33,10 @@ jobs:
     env:
       PYTHONDONTWRITEBYTECODE: "1"
       PYTHONNOUSERSITE: "1"
+      PYTHONUTF8: "1"
 
     steps:
-      - name: Check out legacy maintenance line
+      - name: Check out v1 refresh line
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           persist-credentials: false
@@ -54,18 +55,34 @@ jobs:
           --only-binary=:all:
           --requirement requirements-maintenance.txt
 
-      - name: Run protocol and server regression tests
+      - name: Run maintenance regression tests
+        run: python -m unittest discover -s tests -p "test_*.py"
         env:
           CAPSWRITER_LOG_DIR: ${{ runner.temp }}/capswriter-maintenance-logs
-        run: python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Run core and desktop regression tests
+        run: python -m unittest discover -s scripts/tests -p "test_*.py"
+        env:
+          CAPSWRITER_LOG_DIR: ${{ runner.temp }}/capswriter-maintenance-logs
+
+      - name: Run HTTP API regression tests
+        run: python -m unittest discover -s fork_server/http_api/tests -p "test_*.py"
+        env:
+          CAPSWRITER_LOG_DIR: ${{ runner.temp }}/capswriter-maintenance-logs
+
+      # Secure container bootstrap deliberately depends on POSIX filesystem APIs.
+      - name: Run Linux container bootstrap regression tests
+        if: runner.os == 'Linux'
+        run: python -m unittest discover -s docker/server/tests -p "test_*.py"
+        env:
+          CAPSWRITER_LOG_DIR: ${{ runner.temp }}/capswriter-maintenance-logs
 
       - name: Compile supported entry points
         run: >-
           python -m compileall -q
           config_client.py config_server.py
-          core_client.py core_server.py
-          start_client.py start_server.py
-          util docker/server
+          start_client.py start_server.py start_server_universal.py start_server_docker.py
+          core fork_server docker/server
 
       - name: Validate container entrypoint syntax
         if: runner.os == 'Linux' && matrix.python-version == '3.10'

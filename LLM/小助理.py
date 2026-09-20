@@ -4,21 +4,19 @@
 
 # ==================== 基本信息 ====================
 name = '小助理'                         # 角色名称（留空表示默认）
-match = True                            # 是否启用前缀匹配
-process = True                          # 是否启用 LLM 处理
+enabled = True                           # 是否启用此角色
 
 # ==================== API 配置 ====================
-provider = 'ollama'                     # API 提供商：'ollama', 'openai', 'deepseek', 'moonshot', 'zhipu', 'claude', 'gemini'
+provider = 'lmstudio'                   # API 提供商：'ollama', 'openai', 'deepseek', 'moonshot', 'zhipu', 'claude', 'gemini'
 api_url = ''                            # 留空则自动使用 provider 对应的默认值
 api_key = ''                            # API Key
-model = 'gemma3:4b'                     # 模型名称
+model = 'local-model'                   # 模型名称
 
 # ==================== 上下文管理 ====================
 max_context_length = 4096               # 最大上下文长度（token 数）
 
 # ==================== 功能配置 ====================
 enable_hotwords = False                 # 是否启用热词
-enable_rectify = False                  # 是否读取潜在纠错记录
 enable_thinking = False                 # 是否启用思考（仅 Ollama）
 enable_history = True                   # 是否保留对话历史
 enable_read_selection = True            # 是否启用获取选中文字（通过 Ctrl+C）
@@ -48,7 +46,6 @@ extra_options = {}                      # 额外的 API 参数（JSON 格式）
 
 # ==================== 提示词前缀 ====================
 prompt_prefix_hotwords = '热词列表：'    # 热词列表前缀
-prompt_prefix_rectify = '纠错历史：'     # 纠错历史前缀
 prompt_prefix_selection = '选中文字：'   # 选中文字前缀
 prompt_prefix_input = '用户输入：'       # 用户输入前缀
 

@@ -1,4 +1,27 @@
-# fork-v1.0.0-rc.1 Release notes
+# v1 Release notes
+
+## 尚未發行 — 上游更新（2026-09-18）
+
+- 整合上游至 `84912d5`，包含 `core/` 架構、錄音／快捷鍵／取消改善，以及
+  轉錄與字幕修正。
+- 保留 fork Linux／Docker Server 與 HTTP API，採用目前模型架構；Windows
+  維持第一支援桌面 Client 平台。
+- 以完整上游整合取代只收重大修正的政策，日常可用與穩定性仍優先。
+- 保留 source-only 發行邊界與本機 v1 image 預設；此變更不代表已提供 Windows
+  executable 或公開 v1 image。
+- 原生環境以 Python 3.12 為安裝基準，保留 3.10–3.12 相容性；固定 Docker
+  runtime 仍為 Python 3.10。不宣稱 Python 3.14 已通過驗證。
+- 保留相容的 `b7798` llama binding／runtime 組合；上游 `b10621` ABI 待兩邊
+  能同步遷移時再採用。
+
+更新設定、入口或模型 mount 前請先閱讀 [遷移指南](../v1-upstream-refresh.md)。
+這是 source 更新，不是 axolotl 正式部署升級。本次驗證須對應此次 revision 另行
+記錄；下方 rc.1 歷史證據不能代替本次驗證。沒有獨立結果時，不宣稱 Windows
+整合或真實模型推論已完成驗證。
+
+---
+
+## Historical: fork-v1.0.0-rc.1 Release notes
 
 > [維護政策](maintenance.md) · [English](../en/release-notes.md) · [專案 README](../../readme.md)
 

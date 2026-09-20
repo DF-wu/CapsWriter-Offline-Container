@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04@sha256:85fb7ac694079fff1061a0140fd5b5a641997880e12112d92589c3bbb1e8b7ca
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -14,16 +14,20 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CAPSWRITER_INTERACTIVE_ERRORS=false
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 python3-venv python3-pip python3-tk tini libgomp1 libvulkan1 ca-certificates ffmpeg \
+    && apt-get install -y --no-install-recommends python3 python3-venv python3-pip python3-tk tini libgomp1 libvulkan1 mesa-vulkan-drivers ca-certificates ffmpeg \
     && python3 -m venv /opt/venv \
-    && /opt/venv/bin/python -m pip install --upgrade pip setuptools wheel \
+    && /opt/venv/bin/python -m pip install \
+        packaging==26.2 \
+        pip==26.1.2 \
+        setuptools==83.0.0 \
+        wheel==0.47.0 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY requirements-server-docker.txt /app/requirements-server-docker.txt
+COPY requirements-server-docker.txt requirements-server-docker.lock /app/
 
-RUN python -m pip install -r /app/requirements-server-docker.txt
+RUN python -m pip install --require-hashes --no-build-isolation -r /app/requirements-server-docker.lock
 
 COPY . /app
 
@@ -34,7 +38,7 @@ RUN mkdir -p /app/logs /app/models \
 
 USER appuser
 
-EXPOSE 6016
+EXPOSE 6016 6017
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20m --retries=5 \
   CMD ["python", "docker/server/healthcheck.py"]
