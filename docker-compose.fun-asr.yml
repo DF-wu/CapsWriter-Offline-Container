@@ -16,7 +16,5 @@ services:
     environment:
       CAPSWRITER_MODEL_TYPE: fun_asr_nano
 
-      # Fun-ASR-Nano 推薦加速設定
-      CAPSWRITER_FUNASR_USE_CUDA: ${CAPSWRITER_FUNASR_USE_CUDA:-true}
-      CAPSWRITER_FUNASR_VULKAN_ENABLE: ${CAPSWRITER_FUNASR_VULKAN_ENABLE:-true}
+      # Backend selection still follows CAPSWRITER_INFERENCE_HARDWARE in entrypoint.sh.
       CAPSWRITER_FUNASR_ENABLE_CTC: ${CAPSWRITER_FUNASR_ENABLE_CTC:-true}

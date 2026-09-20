@@ -1,148 +1,46 @@
 import os
 from pathlib import Path
-from typing import Optional, cast
 
 # 版本信息
-__version__ = "2.5-alpha"
+__version__ = '2.6'
 
 # 项目根目录
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def _env_str(name: str, default: str) -> str:
-    value = os.getenv(name)
-    if value is None:
-        return default
-    value = value.strip()
-    return value if value else default
-
-
-def _env_bool(name: str, default: bool) -> bool:
-    value = os.getenv(name)
-    if value is None:
-        return default
-    value = value.strip().lower()
-    if value in {"1", "true", "yes", "on"}:
-        return True
-    if value in {"0", "false", "no", "off"}:
-        return False
-    return default
-
-
-def _env_optional_int(name: str, default: Optional[int]) -> Optional[int]:
-    value = os.getenv(name)
-    if value is None:
-        return default
-    value = value.strip()
-    if not value:
-        return default
-    return int(value)
-
-
-def _env_present(name: str) -> bool:
-    value = os.getenv(name)
-    return value is not None and bool(value.strip())
-
-
-def _env_optional_float(name: str, default: Optional[float]) -> Optional[float]:
-    value = os.getenv(name)
-    if value is None:
-        return default
-    value = value.strip()
-    if not value:
-        return default
-    return float(value)
-
-
-def _qwen_preset_name() -> str:
-    value = _env_str("CAPSWRITER_QWEN_PRESET", "default").lower()
-    if value in {"balanced", "quality"}:
-        return "default"
-    return value
-
-
-def _qwen_preset_defaults() -> dict[str, object]:
-    preset = _qwen_preset_name()
-    presets = {
-        "default": {
-            "n_ctx": 2048,
-            "chunk_size": 40.0,
-            "memory_num": 1,
-            "pad_to": 30,
-            "n_predict": 512,
-            "llama_n_batch": 4096,
-            "llama_n_ubatch": 512,
-            "llama_flash_attn": True,
-            "llama_offload_kqv": True,
-        },
-        "low_vram_gpu": {
-            "n_ctx": 2048,
-            "chunk_size": 40.0,
-            "memory_num": 1,
-            "pad_to": 30,
-            "n_predict": 512,
-            "llama_n_batch": 4096,
-            "llama_n_ubatch": 512,
-            "llama_flash_attn": True,
-            "llama_offload_kqv": False,
-        },
-    }
-    return presets.get(preset, presets["default"])
-
-
-def _qwen_preset_int(env_name: str, preset_key: str, fallback: int) -> int:
-    if _env_present(env_name):
-        return _env_optional_int(env_name, fallback) or fallback
-    return int(cast(int, _qwen_preset_defaults().get(preset_key, fallback)))
-
-
-def _qwen_preset_float(env_name: str, preset_key: str, fallback: float) -> float:
-    if _env_present(env_name):
-        return _env_optional_float(env_name, fallback) or fallback
-    return float(cast(float, _qwen_preset_defaults().get(preset_key, fallback)))
-
-
-def _qwen_preset_bool(env_name: str, preset_key: str, fallback: bool) -> bool:
-    if _env_present(env_name):
-        return _env_bool(env_name, fallback)
-    return bool(cast(bool, _qwen_preset_defaults().get(preset_key, fallback)))
-
-
 # 服务端配置
 class ServerConfig:
-    addr = _env_str("CAPSWRITER_SERVER_ADDR", "0.0.0.0")
-    port = _env_str("CAPSWRITER_SERVER_PORT", "6016")
+    addr = '0.0.0.0'
+    port = '6016'
 
-    # 语音模型选择：'fun_asr_nano', 'sensevoice', 'paraformer', 'qwen_asr'
-    model_type = _env_str("CAPSWRITER_MODEL_TYPE", "qwen_asr")
+    # 语音模型选择：'qwen_asr', 'fun_asr_nano', 'sensevoice', 'paraformer'
+    model_type = 'qwen_asr'
 
-    format_num = True  # 输出时是否将中文数字转为阿拉伯数字
-    format_spell = True  # 输出时是否调整中英之间的空格
+    format_num = True       # 输出时是否将中文数字转为阿拉伯数字
+    format_spell = True     # 输出时是否调整中英之间的空格
 
-    enable_tray = _env_bool("CAPSWRITER_ENABLE_TRAY", True)  # 是否启用托盘图标功能
+    enable_tray = True        # 是否启用托盘图标功能
+    hotwords_path = Path() / 'hot-server.txt' # 全局热词配置文件路径
 
     # 日志配置
-    log_dir = _env_str("CAPSWRITER_LOG_DIR", os.path.join(BASE_DIR, "logs"))
-    log_level = _env_str(
-        "CAPSWRITER_LOG_LEVEL", "INFO"
-    )  # 日志级别：'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
+    log_level = 'DEBUG'        # 日志级别：'DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'
+    aligner_idle_timeout = 10  # 对齐引擎空闲多少秒后自动释放显存 (0 表示不释放)
 
-    # OpenAI 兼容 HTTP API 配置
-    # 启动后可通过 POST {bind}:{port}/v1/audio/transcriptions 调用,
-    # OpenAI Python SDK 设 base_url 即可直接使用 (详见 docs/HTTP_API.md)。
-    http_api_enable = _env_bool("CAPSWRITER_HTTP_API_ENABLE", False)
-    http_api_bind = _env_str(
-        "CAPSWRITER_HTTP_API_BIND", "127.0.0.1"
-    )  # 默认仅本机, 暴露公网请显式改为 0.0.0.0 并设置 api_key
-    http_api_port = _env_str("CAPSWRITER_HTTP_API_PORT", "6017")
-    http_api_key = _env_str("CAPSWRITER_HTTP_API_KEY", "")  # 空字串 = 不启用 Bearer 鉴权
-    http_api_max_upload_mb = int(_env_str("CAPSWRITER_HTTP_API_MAX_UPLOAD_MB", "100"))
-    http_api_task_timeout = float(_env_str("CAPSWRITER_HTTP_API_TASK_TIMEOUT", "600"))
+    # GPU 预加速配置（有识别任务时，提前调高显存频率，降低延迟，需管理员权限运行）
+    gpu_boost_enabled = False                   # 总开关，默认关闭
+    gpu_boost_cmd = 'nvidia-smi -lmc 9000'      # GPU 预加速命令，锁定显存频率到9000MHz（根据实际 GPU 调整）
+    gpu_unboost_cmd = 'nvidia-smi -rmc'         # GPU 取消预加速命令，恢复显存到默认频率
+    gpu_unboost_timeout = 1                     # 空闲多少秒后取消加速
+
+    # 集成显卡兼容性补丁
+    # os.environ["GGML_VK_DISABLE_COOPMAT"] = "1"   # AMD集显无法加载 GGUF 模型时尝试
+    # os.environ["GGML_VK_DISABLE_F16"] = "1"       # 集成显卡解码有误，强制熔断时尝试
+
+
 
 
 class ModelDownloadLinks:
     """模型下载链接配置"""
-
     # 统一导向 GitHub Release 模型页面
     models_page = "https://github.com/HaujetZhao/CapsWriter-Offline/releases/tag/models"
 
@@ -151,57 +49,43 @@ class ModelPaths:
     """模型文件路径配置"""
 
     # 基础目录
-    model_dir = Path() / "models"
+    model_dir = Path() / 'models'
 
     # Paraformer 模型路径
-    paraformer_dir = (
-        model_dir
-        / "Paraformer"
-        / "speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-onnx"
-    )
-    paraformer_model = paraformer_dir / "model.onnx"
-    paraformer_tokens = paraformer_dir / "tokens.txt"
+    paraformer_dir = model_dir / 'Paraformer' / "speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-onnx"
+    paraformer_model = paraformer_dir / 'model.onnx'
+    paraformer_tokens = paraformer_dir / 'tokens.txt'
 
     # 标点模型路径
-    punc_model_dir = (
-        model_dir
-        / "Punct-CT-Transformer"
-        / "sherpa-onnx-punct-ct-transformer-zh-en-vocab272727-2024-04-12"
-        / "model.onnx"
-    )
+    punc_model_dir = model_dir / 'Punct-CT-Transformer' / 'sherpa-onnx-punct-ct-transformer-zh-en-vocab272727-2024-04-12' / 'model.onnx'
 
     # SenseVoice 模型路径，自带标点
-    sensevoice_dir = (
-        model_dir
-        / "SenseVoice-Small"
-        / "sherpa-onnx-sense-voice-zh-en-ja-ko-yue-2024-07-17"
-    )
-    sensevoice_model = sensevoice_dir / "model.onnx"
-    sensevoice_tokens = sensevoice_dir / "tokens.txt"
+    sensevoice_dir = model_dir / 'SenseVoice-Small' / 'Sensevoice-Small-ONNX'
+    sensevoice_encoder = sensevoice_dir / 'SenseVoice-Encoder.fp16.onnx'
+    sensevoice_decoder = sensevoice_dir / 'SenseVoice-CTC.fp16.onnx'
+    sensevoice_tokenizer = sensevoice_dir / 'tokenizer.bpe.model'
+
 
     # Fun-ASR-Nano 模型路径，自带标点
-    # 與 upstream 57430df 對齊: ONNX 改用 fp16 (实测 int8 在 CPU 上比 fp32 还慢)
-    fun_asr_nano_gguf_dir = model_dir / "Fun-ASR-Nano" / "Fun-ASR-Nano-GGUF"
-    fun_asr_nano_gguf_encoder_adaptor = (
-        fun_asr_nano_gguf_dir / "Fun-ASR-Nano-Encoder-Adaptor.fp16.onnx"
-    )
-    fun_asr_nano_gguf_ctc = fun_asr_nano_gguf_dir / "Fun-ASR-Nano-CTC.fp16.onnx"
-    fun_asr_nano_gguf_llm_decode = (
-        fun_asr_nano_gguf_dir / "Fun-ASR-Nano-Decoder.q5_k.gguf"
-    )
-    fun_asr_nano_gguf_token = fun_asr_nano_gguf_dir / "tokens.txt"
-    fun_asr_nano_gguf_hotwords = Path() / "hot-server.txt"
+    fun_asr_nano_gguf_dir = model_dir / 'Fun-ASR-Nano' / 'Fun-ASR-Nano-GGUF'
+    fun_asr_nano_gguf_encoder_adaptor = fun_asr_nano_gguf_dir / 'Fun-ASR-Nano-Encoder-Adaptor.fp16.onnx'
+    fun_asr_nano_gguf_ctc = fun_asr_nano_gguf_dir / 'Fun-ASR-Nano-CTC.fp16.onnx'
+    fun_asr_nano_gguf_llm_decode = fun_asr_nano_gguf_dir / 'Fun-ASR-Nano-Decoder.q5_k.gguf'
+    fun_asr_nano_gguf_token = fun_asr_nano_gguf_dir / 'tokens.txt'
+    fun_asr_nano_gguf_hotwords = Path() / 'hot-server.txt'
 
     # Qwen3-ASR 模型路径，自带标点
-    # 與 upstream 980a941 對齊: 檔名去掉量化字串, 不分精度版本都能直接吃
-    qwen3_asr_gguf_dir = model_dir / "Qwen3-ASR" / "Qwen3-ASR-1.7B"
-    qwen3_asr_gguf_encoder_frontend = (
-        qwen3_asr_gguf_dir / "qwen3_asr_encoder_frontend.onnx"
-    )
-    qwen3_asr_gguf_encoder_backend = (
-        qwen3_asr_gguf_dir / "qwen3_asr_encoder_backend.onnx"
-    )
-    qwen3_asr_gguf_llm_decode = qwen3_asr_gguf_dir / "qwen3_asr_llm.gguf"
+    qwen3_asr_gguf_dir = model_dir / 'Qwen3-ASR' / 'Qwen3-ASR-1.7B'
+    qwen3_asr_gguf_encoder_frontend = qwen3_asr_gguf_dir / 'qwen3_asr_encoder_frontend.onnx'
+    qwen3_asr_gguf_encoder_backend = qwen3_asr_gguf_dir / 'qwen3_asr_encoder_backend.onnx'
+    qwen3_asr_gguf_llm_decode = qwen3_asr_gguf_dir / 'qwen3_asr_llm.gguf'
+
+    # Force-Aligner 模型路径
+    force_aligner_gguf_dir = model_dir / 'Qwen3-ForcedAligner' / 'Qwen3-ForcedAligner-0.6B'
+    force_aligner_gguf_encoder_frontend = force_aligner_gguf_dir / 'qwen3_aligner_encoder_frontend.int4.onnx'
+    force_aligner_gguf_encoder_backend = force_aligner_gguf_dir / 'qwen3_aligner_encoder_backend.int4.onnx'
+    force_aligner_gguf_llm_decode = force_aligner_gguf_dir / 'qwen3_aligner_llm.q5_k.gguf'
+
 
 
 class ParaformerArgs:
@@ -209,24 +93,24 @@ class ParaformerArgs:
 
     paraformer = ModelPaths.paraformer_model.as_posix()
     tokens = ModelPaths.paraformer_tokens.as_posix()
-    num_threads = _env_optional_int("CAPSWRITER_NUM_THREADS", 4)
+    num_threads = 4
     sample_rate = 16000
     feature_dim = 80
-    decoding_method = "greedy_search"
-    provider = "cpu"
+    decoding_method = 'greedy_search'
+    provider = 'cpu'
     debug = False
 
 
 class SenseVoiceArgs:
     """SenseVoice 模型参数配置"""
 
-    model = ModelPaths.sensevoice_model.as_posix()
-    tokens = ModelPaths.sensevoice_tokens.as_posix()
-    use_itn = True
-    language = "zh"
-    num_threads = _env_optional_int("CAPSWRITER_NUM_THREADS", 4)
-    provider = "cpu"
-    debug = False
+    encoder_path = ModelPaths.sensevoice_encoder.as_posix()
+    decoder_path = ModelPaths.sensevoice_decoder.as_posix()
+    tokenizer_path = ModelPaths.sensevoice_tokenizer.as_posix()
+    itn = True                  # 原生输出阿拉伯数字
+    onnx_provider = 'CPU'       # ONNX 推理后端 (CPU, DML)
+    top_k = 8                   # 热词检索的 CTC 空间大小
+    dml_pad_to = 30             # 开启 DirectML 加速时，短音频统一填充到指定长度，有加速效果
 
 
 class FunASRNanoGGUFArgs:
@@ -237,42 +121,20 @@ class FunASRNanoGGUFArgs:
     ctc_onnx_path = ModelPaths.fun_asr_nano_gguf_ctc.as_posix()
     decoder_gguf_path = ModelPaths.fun_asr_nano_gguf_llm_decode.as_posix()
     tokens_path = ModelPaths.fun_asr_nano_gguf_token.as_posix()
-    hotwords_path = ModelPaths.fun_asr_nano_gguf_hotwords.as_posix()
-
-    use_cuda = _env_bool("CAPSWRITER_FUNASR_USE_CUDA", False)
 
     # 显卡加速
-    dml_enable = _env_bool(
-        "CAPSWRITER_FUNASR_DML_ENABLE", False
-    )  # 是否启用 DirectML 加速 ONNX 模型，实测 AMD 显卡上会慢，因此默认关闭，建议N卡开启
-    vulkan_enable = _env_bool(
-        "CAPSWRITER_FUNASR_VULKAN_ENABLE", True
-    )  # 是否启用 Vulkan 加速 GGUF 模型
-    vulkan_force_fp32 = _env_bool(
-        "CAPSWRITER_FUNASR_VULKAN_FORCE_FP32", False
-    )  # 是否强制 FP32 计算（如果 GPU 是 Intel 集显且出现精度溢出，可设为 True）
-
+    onnx_provider = 'CPU'       # ONNX 推理后端 (CPU, DML)
+    llm_use_gpu = True          # 是否启用 GPU 加速 GGUF 模型
+    vulkan_force_fp32 = False   # 是否强制 FP32 计算（如果 GPU 是 Intel 集显且出现精度溢出，可设为 True）
+    
     # 模型细节
-    enable_ctc = _env_bool(
-        "CAPSWRITER_FUNASR_ENABLE_CTC", True
-    )  # 是否启用 CTC 热词检索
-    n_predict = (
-        _env_optional_int("CAPSWRITER_FUNASR_N_PREDICT", 512) or 512
-    )  # LLM 最大生成 token 数
-    n_threads = _env_optional_int(
-        "CAPSWRITER_NUM_THREADS", None
-    )  # 线程数，None 表示自动
-    similar_threshold = float(
-        os.getenv("CAPSWRITER_FUNASR_SIMILAR_THRESHOLD", "0.6")
-    )  # 热词相似度阈值
-    max_hotwords = (
-        _env_optional_int("CAPSWRITER_FUNASR_MAX_HOTWORDS", 20) or 20
-    )  # 每次替换的最大热词数
-    pad_to = (
-        _env_optional_int("CAPSWRITER_FUNASR_PAD_TO", 30) or 30
-    )  # GPU/DML 预热填充长度（秒）
+    enable_ctc = True           # 是否启用 CTC 热词检索
+    n_predict = 512             # LLM 最大生成 token 数
+    n_threads = None            # 线程数，None 表示自动
+    similar_threshold = 0.6     # 热词相似度阈值，超过阈值的热词会被传入 llm decoder 的上下文
+    max_hotwords = 20           # 传入上下文的热词数量上限
+    dml_pad_to = 30             # 开启 DirectML 加速时，短音频统一填充到指定长度，有加速效果
     verbose = False
-
 
 class Qwen3ASRGGUFArgs:
     """Qwen3-ASR-GGUF 模型参数配置"""
@@ -283,50 +145,32 @@ class Qwen3ASRGGUFArgs:
     encoder_backend_fn = ModelPaths.qwen3_asr_gguf_encoder_backend.name
     llm_fn = ModelPaths.qwen3_asr_gguf_llm_decode.name
 
-    preset = _qwen_preset_name()
+    # 显卡加速
+    onnx_provider = 'CPU'       # ONNX 推理后端 (CPU, DML)
+    llm_use_gpu = True          # 是否启用 GPU 加速 GGUF 模型
+    
+    # 模型细节
+    n_ctx = 2048                # 上下文窗口大小
+    chunk_size = 80.0           # 分段长度（秒）
+    memory_num = 1              # 记忆段数
+    dml_pad_to = 30             # 开启 DirectML 加速时，短音频统一填充到指定长度，有加速效果
+    verbose = False
 
-    use_cuda = _env_bool("CAPSWRITER_QWEN_USE_CUDA", False)
+
+class ForceAlignerGGUFArgs:
+    """Force-Aligner-GGUF 模型参数配置"""
+
+    # 模型路径
+    model_dir = ModelPaths.force_aligner_gguf_dir.as_posix()
+    encoder_frontend_fn = ModelPaths.force_aligner_gguf_encoder_frontend.name
+    encoder_backend_fn = ModelPaths.force_aligner_gguf_encoder_backend.name
+    llm_fn = ModelPaths.force_aligner_gguf_llm_decode.name
 
     # 显卡加速
-    use_dml = _env_bool(
-        "CAPSWRITER_QWEN_USE_DML", False
-    )  # 是否启用 DirectML 加速 ONNX 模型，实测 AMD 显卡上会慢，因此默认关闭，建议N卡开启
-    vulkan_enable = _env_bool(
-        "CAPSWRITER_QWEN_VULKAN_ENABLE", True
-    )  # 是否启用 Vulkan 加速 GGUF 模型
-    vulkan_force_fp32 = _env_bool(
-        "CAPSWRITER_QWEN_VULKAN_FORCE_FP32", False
-    )  # 是否强制 FP32 计算（如果 GPU 是 Intel 集显且出现精度溢出，可设为 True）
+    onnx_provider = 'CPU'       # ONNX 推理后端 (CPU, DML)
+    llm_use_gpu = False          # 是否启用 GPU 加速 GGUF 模型
+    
+    # 对齐细节
+    n_ctx = 4096                # 上下文窗口大小
+    dml_pad_to = 30             # 开启 DirectML 加速时，短音频统一填充到指定长度，有加速效果
 
-    # 模型细节
-    n_predict = (
-        _qwen_preset_int("CAPSWRITER_QWEN_N_PREDICT", "n_predict", 512) or 512
-    )  # LLM 最大生成 token 数
-    n_threads = _env_optional_int(
-        "CAPSWRITER_NUM_THREADS", None
-    )  # 线程数，None 表示自动
-    n_ctx = (
-        _qwen_preset_int("CAPSWRITER_QWEN_N_CTX", "n_ctx", 2048) or 2048
-    )  # 上下文窗口大小
-    chunk_size = _qwen_preset_float(
-        "CAPSWRITER_QWEN_CHUNK_SIZE", "chunk_size", 80.0
-    )  # 分段长度（秒）
-    memory_num = (
-        _qwen_preset_int("CAPSWRITER_QWEN_MEMORY_NUM", "memory_num", 1) or 1
-    )  # 参与拼接的历史记忆片段数
-    pad_to = (
-        _qwen_preset_int("CAPSWRITER_QWEN_PAD_TO", "pad_to", 30) or 30
-    )  # GPU/DML 预热填充长度（秒）
-    llama_n_batch = _qwen_preset_int(
-        "CAPSWRITER_QWEN_LLAMA_N_BATCH", "llama_n_batch", 4096
-    )
-    llama_n_ubatch = _qwen_preset_int(
-        "CAPSWRITER_QWEN_LLAMA_N_UBATCH", "llama_n_ubatch", 512
-    )
-    llama_flash_attn = _qwen_preset_bool(
-        "CAPSWRITER_QWEN_LLAMA_FLASH_ATTN", "llama_flash_attn", True
-    )
-    llama_offload_kqv = _qwen_preset_bool(
-        "CAPSWRITER_QWEN_LLAMA_OFFLOAD_KQV", "llama_offload_kqv", True
-    )
-    verbose = False

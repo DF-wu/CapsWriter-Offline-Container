@@ -171,8 +171,6 @@ logs/
 .vscode
 .agent
 
-LLM/大助理.py
-LLM/高级翻译.py
 diag*.py
 test_*.py 
 test_*.ipynb 
@@ -188,3 +186,11 @@ file_*.txt
 release
 *.dll 
 *.exe
+
+models/**/*.cfg
+
+# Keep maintained regression suites despite upstream scratch-test patterns.
+!tests/test_*.py
+!scripts/tests/test_*.py
+!fork_server/http_api/tests/test_*.py
+!docker/server/tests/test_*.py
