@@ -145,5 +145,21 @@ class ZipReleaseTest(unittest.TestCase):
             self.assertFalse((root / "file_list_0.txt").exists())
 
 
+    def test_retired_artifacts_are_not_packaged(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "dist" / "CapsWriter-Offline-Client").mkdir(parents=True)
+            previous_cwd = Path.cwd()
+            output = io.StringIO()
+            try:
+                os.chdir(root)
+                with patch.object(zip_release, "package_with_7zip") as package, redirect_stdout(output):
+                    zip_release.main()
+                    self.assertNotIn("pyinstaller build-client.spec", output.getvalue())
+                    self.assertIn("跳过已停用", output.getvalue())
+                    package.assert_not_called()
+            finally:
+                os.chdir(previous_cwd)
+
 if __name__ == "__main__":
     unittest.main()

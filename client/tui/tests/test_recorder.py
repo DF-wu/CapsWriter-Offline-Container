@@ -430,15 +430,18 @@ class SoundDeviceRecorderTest(unittest.TestCase):
             try:
                 with mock.patch.object(
                     recorder_module.wave, "open", side_effect=delayed_first_open
-                ), mock.patch.object(
-                    recorder_module, "WRITER_READY_TIMEOUT", 0.01
-                ), mock.patch.object(
-                    recorder_module, "WRITER_STOP_TIMEOUT", 0.01
                 ):
-                    with self.assertRaisesRegex(
-                        RecorderDeviceError, "failed to initialize"
+                    # Only the deliberately blocked writer needs short deadlines.
+                    # The next recording exercises recovery with normal limits.
+                    with mock.patch.object(
+                        recorder_module, "WRITER_READY_TIMEOUT", 0.01
+                    ), mock.patch.object(
+                        recorder_module, "WRITER_STOP_TIMEOUT", 0.01
                     ):
-                        recorder.start()
+                        with self.assertRaisesRegex(
+                            RecorderDeviceError, "failed to initialize"
+                        ):
+                            recorder.start()
                     self.assertTrue(entered.is_set())
                     failed_paths = set(Path(root).rglob("*.wav"))
                     self.assertEqual(len(failed_paths), 1)

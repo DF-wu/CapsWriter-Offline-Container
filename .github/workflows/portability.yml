@@ -51,6 +51,11 @@ jobs:
           python -m unittest -v
           scripts.tests.test_artifact_self_check
           scripts.tests.test_desktop_portability
+          scripts.tests.test_client_settings
+          scripts.tests.test_client_settings_runtime
+          scripts.tests.test_client_settings_devices
+          scripts.tests.test_client_settings_concurrency
+          scripts.tests.test_client_review
           scripts.tests.test_protocol
           scripts.tests.test_requirements
           scripts.tests.test_github_workflows

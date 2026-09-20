@@ -31,7 +31,7 @@ RUN python -m pip install --require-hashes --no-build-isolation -r /app/requirem
 
 COPY . /app
 
-RUN mkdir -p /app/logs /app/models \
+RUN mkdir -p /app/logs /app/models /app/settings \
     && useradd --create-home --shell /bin/bash appuser \
     && chmod +x /app/docker/server/entrypoint.sh \
     && chown -R appuser:appuser /app

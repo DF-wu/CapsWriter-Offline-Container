@@ -81,7 +81,7 @@ class Logger:
         # 确定日志目录
         if log_dir is None:
             from config_client import BASE_DIR
-            log_dir = os.path.join(BASE_DIR, 'logs')
+            log_dir = os.environ.get('CAPSWRITER_LOG_DIR') or os.path.join(BASE_DIR, 'logs')
 
         # 创建日志目录
         Path(log_dir).mkdir(parents=True, exist_ok=True)

@@ -93,21 +93,11 @@ class KeyMapper:
         """获取 pynput 特殊键对象（延迟初始化）"""
         if cls._SPECIAL_KEY_OBJECTS is None:
             keyboard = _get_keyboard_module()
+            # 直接从 pynput keyboard.Key 枚举构建 name -> key 映射，
+            # 覆盖全部特殊键（含 insert/home/end/方向键/page_up 等），避免手工枚举遗漏
             cls._SPECIAL_KEY_OBJECTS = {
-                'caps_lock': keyboard.Key.caps_lock,
-                'space': keyboard.Key.space,
-                'tab': keyboard.Key.tab,
-                'enter': keyboard.Key.enter,
-                'esc': keyboard.Key.esc,
-                'delete': keyboard.Key.delete,
-                'backspace': keyboard.Key.backspace,
-                'shift': keyboard.Key.shift,
-                'ctrl': keyboard.Key.ctrl,
-                'alt': keyboard.Key.alt,
-                'cmd': keyboard.Key.cmd,
-                'f1': keyboard.Key.f1, 'f2': keyboard.Key.f2, 'f3': keyboard.Key.f3, 'f4': keyboard.Key.f4,
-                'f5': keyboard.Key.f5, 'f6': keyboard.Key.f6, 'f7': keyboard.Key.f7, 'f8': keyboard.Key.f8,
-                'f9': keyboard.Key.f9, 'f10': keyboard.Key.f10, 'f11': keyboard.Key.f11, 'f12': keyboard.Key.f12,
+                key.name: key
+                for key in keyboard.Key
             }
         return cls._SPECIAL_KEY_OBJECTS
 

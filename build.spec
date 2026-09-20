@@ -119,6 +119,12 @@ datas += sentencepiece_datas
 binaries += sentencepiece_binaries
 hiddenimports += sentencepiece_hiddenimports
 
+# The settings window is loaded on demand from the tray or --settings.
+# Collect it explicitly so the frozen client can open it before ASR startup.
+require_importable('fork_client')
+hiddenimports += collect_submodules('fork_client')
+hiddenimports += ['tkinter', 'tkinter.ttk', 'tkinter.messagebox']
+
 # Fork server runtime. The Windows distribution uses the universal entrypoint:
 # it selects the exact upstream server lifecycle by default and the fork server
 # only when the optional OpenAI-compatible API is enabled. Collect the complete

@@ -1,10 +1,22 @@
 # Fork 現況（State of Fork）
 
-> **更新時間**：2026-07-18
+> **更新時間**：2026-09-19
 >
-> **上游基底**：`7d7fac3`（upstream v2.6）
+> **目前功能分支上游基底**：`84912d5`（merge `a1cdd45`）
 >
-> **v2 產品合併點**：`master` merge commit `afc8c58`（PR #2）
+> **目前工作分支**：`feat/v2-upstream-settings-20260918`；尚未表示已合併至 `master`、發布或部署
+>
+> **歷史 v2 產品合併點**：`afc8c58`（PR #2）；下方既有驗證紀錄屬於該基線
+
+此次 v2 同步已整合上游跨分片 token 拼接吞字修正等變更，並保留 Python
+3.10–3.12 與固定的 llama.cpp b7798 ABI 相容性，不直接採用上游 Python 3.14／
+b10621 假設。後續功能與完整驗證仍以目前工作分支的最終 commit 為準。
+
+v1 另以獨立 PR 準備已核准的**一次性完整上游同步至 `84912d5`**，包含
+`util/` → `core/` 遷移並保留 v1 server、容器與 API 契約。PR 合併前，
+`maintenance/v1` 仍在舊基線；`archive/v1-legacy` 與
+`fork-pre-reset-20260525-1411` 保持不可變。此工作不包含正式環境部署或發布，
+兩軌發布管道仍然獨立，詳見[雙軌維護政策](zh-TW/versioning.md)。
 
 ---
 
@@ -32,7 +44,7 @@ ASR／標點／對齊模型與推論算法仍由 upstream `core/server/engines/*
 
 | | |
 |---|---|
-| 修改的 upstream-tracked 檔案 | **59**；精確集合由 `scripts/check_upstream_divergence.py` 驗證，分組如下 |
+| 修改或移除的 upstream-tracked 檔案 | **64**；精確集合由 `scripts/check_upstream_divergence.py` 驗證，分組如下 |
 | Fork 新增主要目錄 | `fork_server/`、`docker/`、`client/cli/`、`client/web/`、`client/tui/`、`docs/`、`.github/workflows/` |
 | Hook 策略 | Sidecar 子類化／單點 monkey-patch + 已分組的 protocol、worker、engine safety touchpoints |
 | 唯一高漂移點 | [`fork_server/http_api/ws_send_with_http.py`](../fork_server/http_api/ws_send_with_http.py) 內嵌 upstream `ws_send` loop；HTTP unit test 會做 AST source guard，merge upstream 後若失敗需 re-port |
@@ -52,7 +64,9 @@ ASR／標點／對齊模型與推論算法仍由 upstream `core/server/engines/*
 | Engine audio decode I/O | 4 | Bounded `ffmpeg` timeout、kill cleanup 與 stderr preview |
 | Engine privacy logging | 3 | Prompt／context／token／audio-derived detected-hotword redaction；推論語意不變 |
 | Upstream 文件正確性／a11y | 2 | Text-merger 文件對齊與 image alt text |
-| **合計** | **59** | 完整路徑與 merge handling 見[架構](architecture.md)與[上游同步指南](upstream-sync-guide.md) |
+| Native ABI 與開發環境相容性 | 4 | llama.cpp b7798 binding／下載說明、Python 3.10–3.12 專案設定，以及移除不適用的上游 Python 3.14 `uv.lock` |
+| 重導向主控台編碼 | 1 | colorama 前設定 stdout/stderr backslashreplace，防止 Windows cp1252 中文輸出中斷辨識 |
+| **合計** | **64** | 完整路徑與 merge handling 見[架構](architecture.md)與[上游同步指南](upstream-sync-guide.md) |
 
 ---
 
@@ -139,10 +153,11 @@ ASR／標點／對齊模型與推論算法仍由 upstream `core/server/engines/*
 
 ---
 
-## 4. 已跑驗證
+## 4. 歷史基線已跑驗證
 
 `afc8c58` v2 合併基線已跑過以下 gate，且執行後確認無
-build/cache/Docker 殘留：
+build/cache/Docker 殘留。這些數字是歷史紀錄，不能替代目前 `a1cdd45` 及後續
+變更的驗證，也不代表本次同步已發布或部署：
 
 | Gate | 結果 |
 |---|---|
@@ -179,8 +194,8 @@ python scripts/verify_all.py \
 |---|---|
 | CI 不下載模型 | 預期設計；CI 驗證協議、格式、build、Docker smoke。模型品質由 `--http-audio` release gate 補足 |
 | Browser TTS 可用性依賴瀏覽器 / OS voice | Web Console 文件已標明；不走雲端 TTS |
-| `ws_send_with_http.py` 需人工追 upstream | 已對齊 `origin/master @ 7d7fac3`；HTTP unit test 會偵測未 re-port 的 upstream loop drift，失敗時仍需人工搬回上游修改 |
-| 公開 image 發布 | `afc8c58` 合併後 server／Web workflow 的 verify、publish、promote 全部成功；`sha-afc8c58...` 與 `latest` 已指向相同 verified digest，並附 SPDX SBOM／SLSA provenance |
+| `ws_send_with_http.py` 需人工追 upstream | 同步基底目前為 `84912d5`；HTTP unit test 會偵測未 re-port 的 upstream loop drift，失敗時仍需人工搬回上游修改 |
+| 公開 image 發布 | 歷史紀錄：`afc8c58` 合併後 server／Web workflow 的 verify、publish、promote 全部成功，當時 `sha-afc8c58...` 與 `latest` 指向相同 verified digest，附 SPDX SBOM／SLSA provenance。這不是目前 moving tag 狀態的查證，也不是本次功能分支的發布證據 |
 
 ---
 

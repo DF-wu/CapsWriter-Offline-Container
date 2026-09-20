@@ -19,6 +19,33 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
+const serverSettingsSnapshot = (savedValue: number | null = null) => ({
+  enabled: true,
+  revision: "revision-one",
+  restart_required: savedValue !== null,
+  fields: [{
+    key: "max_upload_mb",
+    label: "檔案上限 (MB)",
+    description: "HTTP 單次上傳的大小上限。",
+    type: "integer",
+    value: 100,
+    saved_value: savedValue,
+    default: 100,
+    source: "default",
+    next_value: savedValue ?? 100,
+    next_source: savedValue === null ? "default" : "saved",
+    minimum: 1,
+    maximum: 1024,
+    restart_required: savedValue !== null,
+    environment_variable: "CAPSWRITER_HTTP_API_MAX_UPLOAD_MB",
+    overridden_by_environment: false,
+  }],
+});
+
+const jsonResponse = (body: unknown) => new Response(JSON.stringify(body), {
+  headers: { "Content-Type": "application/json" },
+});
+
 describe("App", () => {
   const originalMediaDevices = Object.getOwnPropertyDescriptor(navigator, "mediaDevices");
   const originalClipboard = Object.getOwnPropertyDescriptor(navigator, "clipboard");
@@ -67,6 +94,118 @@ describe("App", () => {
     expect((screen.getByLabelText("語言") as HTMLInputElement).maxLength).toBe(WEB_SETTING_LIMITS.language);
     expect((screen.getByLabelText("模型") as HTMLInputElement).maxLength).toBe(WEB_SETTING_LIMITS.model);
     expect((screen.getByLabelText("Prompt") as HTMLTextAreaElement).maxLength).toBe(WEB_SETTING_LIMITS.prompt);
+  });
+
+  it.each([
+    ["API root", "http://localhost:6017", "http://other:6017"],
+    ["API key", "", "replacement-key"],
+  ])("guards dirty Server settings when changing %s", async (label, original, replacement) => {
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse(serverSettingsSnapshot())));
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    render(<App />);
+    await userEvent.click(screen.getByRole("button", { name: "讀取 Server 設定" }));
+    fireEvent.change(screen.getByLabelText("檔案上限 (MB)"), { target: { value: "200" } });
+
+    fireEvent.change(screen.getByLabelText(label), { target: { value: replacement } });
+
+    expect(confirm).toHaveBeenCalledWith("切換連線將捨棄尚未儲存的 Server 設定，是否繼續？");
+    expect((screen.getByLabelText(label) as HTMLInputElement).value).toBe(original);
+    expect((screen.getByLabelText("檔案上限 (MB)") as HTMLInputElement).value).toBe("200");
+
+    confirm.mockReturnValue(true);
+    fireEvent.change(screen.getByLabelText(label), { target: { value: replacement } });
+
+    expect((screen.getByLabelText(label) as HTMLInputElement).value).toBe(replacement);
+    expect(await screen.findByText("連線已切換，請重新讀取 Server 設定。")).toBeTruthy();
+    expect(screen.queryByLabelText("檔案上限 (MB)")).toBeNull();
+  });
+
+  it("resets a clean Server snapshot without confirmation when the endpoint changes", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse(serverSettingsSnapshot())));
+    const confirm = vi.spyOn(window, "confirm");
+    render(<App />);
+    await userEvent.click(screen.getByRole("button", { name: "讀取 Server 設定" }));
+    expect(screen.getByLabelText("檔案上限 (MB)")).toBeTruthy();
+
+    fireEvent.change(screen.getByLabelText("API root"), { target: { value: "http://other:6017" } });
+
+    expect(await screen.findByText("連線已切換，請重新讀取 Server 設定。")).toBeTruthy();
+    expect(screen.queryByLabelText("檔案上限 (MB)")).toBeNull();
+    expect(confirm).not.toHaveBeenCalled();
+  });
+
+  it("finishes an in-flight write against its original root before requiring a reload", async () => {
+    const write = deferred<Response>();
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) =>
+      init?.method === "PATCH" ? write.promise : Promise.resolve(jsonResponse(serverSettingsSnapshot())));
+    vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    render(<App />);
+    await userEvent.click(screen.getByRole("button", { name: "讀取 Server 設定" }));
+    fireEvent.change(screen.getByLabelText("檔案上限 (MB)"), { target: { value: "200" } });
+    await userEvent.click(screen.getByRole("button", { name: "儲存 Server 設定" }));
+
+    fireEvent.change(screen.getByLabelText("API root"), { target: { value: "http://other:6017" } });
+    expect(fetchMock.mock.calls[1]?.[0]).toBe("http://localhost:6017/v1/settings");
+    expect(fetchMock.mock.calls[1]?.[1]?.signal?.aborted).toBe(false);
+
+    await act(async () => { write.resolve(jsonResponse(serverSettingsSnapshot(200))); });
+
+    expect(await screen.findByText("切換前的 Server 已儲存設定。連線已切換，請重新讀取目前 Server 的設定。")).toBeTruthy();
+    expect(screen.queryByLabelText("檔案上限 (MB)")).toBeNull();
+  });
+
+  it("keeps the endpoint and pending write when switching is rejected", async () => {
+    const write = deferred<Response>();
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) =>
+      init?.method === "PATCH" ? write.promise : Promise.resolve(jsonResponse(serverSettingsSnapshot())));
+    vi.stubGlobal("fetch", fetchMock);
+    const confirm = vi.spyOn(window, "confirm").mockReturnValue(false);
+    render(<App />);
+    await userEvent.click(screen.getByRole("button", { name: "讀取 Server 設定" }));
+    fireEvent.change(screen.getByLabelText("檔案上限 (MB)"), { target: { value: "200" } });
+    await userEvent.click(screen.getByRole("button", { name: "儲存 Server 設定" }));
+
+    fireEvent.change(screen.getByLabelText("API root"), { target: { value: "http://other:6017" } });
+    expect(confirm).toHaveBeenCalledOnce();
+    expect((screen.getByLabelText("API root") as HTMLInputElement).value).toBe("http://localhost:6017");
+    expect((screen.getByLabelText("檔案上限 (MB)") as HTMLInputElement).value).toBe("200");
+    expect(fetchMock.mock.calls[1]?.[1]?.signal?.aborted).toBe(false);
+    await act(async () => { write.resolve(jsonResponse(serverSettingsSnapshot(200))); });
+    expect(await screen.findByText("已儲存。請由管理者在適當時間重啟 Server，變更才會生效。")).toBeTruthy();
+    expect(screen.getByLabelText("檔案上限 (MB)")).toBeTruthy();
+  });
+
+  it("keeps an uncertain write on its original key and explains the reload after switching", async () => {
+    localStorage.setItem("capswriter.web.settings", JSON.stringify({
+      baseUrl: "http://localhost:6017",
+      model: "",
+      language: "",
+      prompt: "",
+      responseFormat: "text",
+    }));
+    const write = deferred<Response>();
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) =>
+      init?.method === "PATCH" ? write.promise : Promise.resolve(jsonResponse(serverSettingsSnapshot())));
+    vi.stubGlobal("fetch", fetchMock);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    render(<App />);
+    fireEvent.change(screen.getByLabelText("API key"), { target: { value: "original-key" } });
+    await userEvent.click(screen.getByRole("button", { name: "讀取 Server 設定" }));
+    fireEvent.change(screen.getByLabelText("檔案上限 (MB)"), { target: { value: "200" } });
+    await userEvent.click(screen.getByRole("button", { name: "儲存 Server 設定" }));
+
+    fireEvent.change(screen.getByLabelText("API key"), { target: { value: "replacement-key" } });
+    expect(fetchMock.mock.calls[1]?.[1]).toMatchObject({ headers: { Authorization: "Bearer original-key" } });
+
+    await act(async () => { write.reject(new TypeError("response lost")); });
+
+    const alert = await screen.findByRole("alert");
+    expect(alert.textContent).toContain("response lost");
+    expect(alert.textContent).toContain("這是切換前 Server 的儲存結果；結果可能不確定。");
+    expect(alert.textContent).toContain("請切回原連線並重新讀取，確認原 Server 是否已儲存");
+    expect((screen.getByLabelText("API key") as HTMLInputElement).value).toBe("replacement-key");
+    expect(screen.queryByLabelText("檔案上限 (MB)")).toBeNull();
   });
 
   it("requires confirmation before irreversibly clearing transcript history", async () => {
@@ -425,7 +564,8 @@ describe("App", () => {
       ),
     ).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Web Console" })).toBeTruthy();
-    expect(screen.getAllByRole("region")).toHaveLength(5);
+    expect(screen.getAllByRole("region")).toHaveLength(6);
+    expect(screen.getByRole("region", { name: "Server 共用設定" })).toBeTruthy();
     expect(screen.getByText("Router").parentElement?.textContent).toBe("Router-");
   });
 

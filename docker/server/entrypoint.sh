@@ -10,6 +10,11 @@ configure_full_cpu_backend() {
 }
 
 configure_backend() {
+  # Resolve persisted model/hardware before downloads and backend probing.
+  if [ "${CAPSWRITER_SETTINGS_BOOTSTRAPPED:-}" != "1" ]; then
+    exec python -m fork_server.settings_bootstrap "$0" "$@"
+  fi
+
   inference_hardware="${CAPSWRITER_INFERENCE_HARDWARE:-${CAPSWRITER_GPU_MODE:-auto}}"
   model_type="${CAPSWRITER_MODEL_TYPE:-qwen_asr}"
   qwen_preset="${CAPSWRITER_QWEN_PRESET:-default}"
@@ -86,7 +91,7 @@ prepare_and_probe_cpu_fallback() {
   fi
 }
 
-configure_backend
+configure_backend "$@"
 
 if [ "$#" -gt 0 ]; then
   exec "$@"

@@ -1,0 +1,40 @@
+[project]
+name = "capswriter-offline"
+version = "2.5.0a0"
+description = "CapsWriter-Offline 離線語音輸入工具"
+requires-python = ">=3.10,<3.13"
+# Bare uv run/sync must not download ASR or desktop packages.
+dependencies = []
+
+[tool.uv]
+package = false
+default-groups = []
+
+# Optional source-development inputs. For reproducible environments use
+# scripts/dev.py setup: it installs the reviewed requirements-*.lock files.
+[dependency-groups]
+dev = []
+desktop = [
+    "rich", "typer", "colorama", "markdown", "keyboard", "pynput",
+    "pyclip", "sounddevice", "watchdog", "websockets", "openai", "ollama",
+    "httpx", "numpy", "numba", "pypinyin", "srt", "rapidfuzz",
+    "pystray", "Pillow", "tkhtmlview", "requests",
+    "pywin32; sys_platform == 'win32'",
+]
+server = [
+    "sherpa-onnx", "numpy", "gguf", "sentencepiece==0.2.2", "soundfile==0.13.1",
+    "onnxruntime-directml; sys_platform == 'win32'",
+    "onnxruntime-gpu; sys_platform == 'linux'",
+    "onnxruntime; sys_platform == 'darwin'",
+    "rich", "websockets", "watchdog", "pypinyin", "Pillow", "markdown",
+    "tkhtmlview", "srt", "colorama",
+    "fastapi==0.139.0", "starlette==1.3.1", "uvicorn[standard]==0.32.1",
+    "python-multipart==0.0.32",
+]
+api = [
+    "colorama==0.4.6", "fastapi==0.139.0", "httpx==0.28.1", "openai==2.45.0",
+    "python-multipart==0.0.32", "rich==14.3.3", "starlette==1.3.1",
+    "uvicorn==0.32.1", "websockets==16.0",
+]
+tui = ["textual==8.2.8", "httpx==0.28.1"]
+build = ["pyinstaller"]

@@ -433,6 +433,7 @@ LLAMA_CPP_ASSETS = {
 }
 
 LLAMA_TARGET_DIRS = [
+    Path("core") / "server" / "engines" / "llama" / "bin",
     Path("core") / "server" / "engines" / "qwen_asr_gguf" / "inference" / "bin",
     Path("core") / "server" / "engines" / "fun_asr_gguf" / "inference" / "bin",
     Path("core") / "server" / "engines" / "force_aligner_gguf" / "inference" / "bin",

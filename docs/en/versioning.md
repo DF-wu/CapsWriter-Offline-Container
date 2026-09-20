@@ -6,25 +6,25 @@ This fork maintains two product generations. The names **fork v1** and
 **fork v2** describe this fork's generations; they are not the upstream
 `v1.0` and `v2.x` tags.
 
-![CapsWriter fork maintenance flow: upstream releases merge into v2, while only critical fixes are manually backported to the isolated v1 branch](../assets/version-tracks.svg)
-
-Text equivalent: released upstream commits flow into v2, where Linux,
-Windows, API, TUI, Web, and security gates must pass. Legacy v1 never merges
-v2. A critical or security fix may be manually backported to v1 and must pass
-its separate container, API, and model-asset checks before a v1-only release.
+Upstream changes normally enter v2. A separately approved, one-time **full
+upstream refresh through `84912d5`** is also being prepared for v1, including
+the `util/` to `core/` migration. This does not merge the two product tracks:
+v1 retains its own server, container, and API contracts and release channel.
 
 ## Tracks and authoritative refs
 
 | Track | Authoritative branch | Upstream lineage | Change policy |
 |---|---|---|---|
-| fork v1 | `maintenance/v1` | Logical snapshot of upstream `v2.5-alpha` plus the hotword optimization at `3419171` | Critical security, compatibility, and model-asset fixes only |
-| fork v2 | `master`; PR #2 product merge at `afc8c58` | Includes upstream master `7d7fac3` (v2.6 plus all later merged commits as of 2026-07-16) | Active cross-platform product development; use short-lived branches and merge-based upstream sync |
+| fork v1 | `maintenance/v1` | Still the legacy `v2.5-alpha` plus `3419171` baseline until the separate refresh PR merges | One-time full upstream refresh approved; preserve v1 server/container/API behavior, then resume focused maintenance |
+| fork v2 | `master`; current work on `feat/v2-upstream-settings-20260918` | Feature-branch merge `a1cdd45` includes upstream `84912d5`; this is not yet a `master` release | Active cross-platform product development; use short-lived branches and merge-based upstream sync |
 | v1 audit snapshot | `archive/v1-legacy` and tag `fork-pre-reset-20260525-1411` | Last pre-reset v1 tree, `b46ca74` | Immutable recovery/audit point; do not develop directly |
 
 The v1 and v2 Git histories diverged before upstream's large `util/` to
-`core/` refactor. A merge or bulk cherry-pick between them is unsupported.
-Backports are small, reviewed ports with tests written against the target
-generation.
+`core/` refactor. The approved v1 refresh imports upstream changes on a
+separate branch and ports the v1 integration to `core/`; it is not a bulk
+import of the v2 product. Until that PR merges, `maintenance/v1` remains on
+its legacy architecture. Routine backports target the architecture actually
+present on the receiving branch and include generation-specific checks.
 
 ## Support matrix
 
@@ -36,30 +36,35 @@ generation.
 | Scriptable CLI | Legacy scripts only | Supported on Windows and Linux |
 | Interactive TUI | Not backported | Supported on Windows and Linux |
 | Browser console | Not backported | Supported on modern Windows/Linux browsers |
-| OpenAI-style transcription API | Legacy compatibility; security fixes only | Tested `whisper-1` transcription contract with explicit capability errors |
-| New features | No | Yes |
+| OpenAI-style transcription API | Preserve the existing v1 contract through the refresh | Tested `whisper-1` transcription contract with explicit capability errors |
+| New features | Upstream changes included in the approved one-time refresh; otherwise focused maintenance | Yes |
 
 “Supported” means that the documented entrypoint has an automated gate for its
 portable logic. Hardware-, terminal-, and model-backed release evidence is
 listed separately; one Linux container test is never used as proof of Windows
 runtime behavior.
 
-## Backport rules for v1
+## Refresh and backport rules for v1
 
-A v1 change must meet every rule below:
+The approved full refresh through `84912d5` may migrate architecture and
+dependencies where needed to integrate upstream. It must retain the v1
+server/container/API behavior, pass separate v1 checks, and land through its
+own PR. It does not authorize a production deployment or release.
+
+Outside this one-time refresh, a v1 change must meet every rule below:
 
 1. It fixes a critical/security issue, restores a model asset, or preserves a
    documented external contract.
-2. It is implemented against the v1 `util/` architecture. Do not copy a v2
-   module wholesale.
+2. It is implemented against the current v1 architecture (`util/` before the
+   refresh, `core/` after it). Do not copy a v2 product module wholesale.
 3. It includes a focused regression test or an isolated executable smoke test.
 4. It does not change v1 defaults unless the old default is unsafe.
 5. It is released under a v1-only Git tag. An image may be published only by
    a separate, explicitly reviewed v1 workflow/tag; no such image automation
    is configured in the current v2 tree.
 
-Feature work, UI redesigns, dependency migrations, and broad upstream merges
-belong to v2.
+Ongoing product feature work and UI redesigns belong to v2. Future broad v1
+upstream refreshes require a new explicit scope decision.
 
 ## Version and image names
 
@@ -95,5 +100,8 @@ release notes. Never copy a v1 Python source tree over v2.
 
 Only commits merged into upstream `master` are candidates for the regular v2
 sync. Large unmerged pull requests are reviewed as design input, not treated
-as releases. See [the upstream synchronization guide](../upstream-sync-guide.md)
+as releases. The current v2 refresh keeps Python 3.10–3.12 and the pinned
+llama.cpp b7798 ABI compatibility; upstream's Python 3.14 and b10621 runtime
+assumptions are not adopted automatically. See
+[the upstream synchronization guide](../upstream-sync-guide.md)
 for the divergence guard and merge procedure.

@@ -5,7 +5,6 @@
 
 功能：
 1. 打包 CapsWriter-Offline（服务端+客户端）
-2. 打包 CapsWriter-Offline-Client（仅客户端）
 3. 智能排除模型文件（.onnx, .dll, .json 等），但保留说明文档
 """
 
@@ -279,20 +278,14 @@ def main():
             'name': '服务端+客户端'
         })
 
-    # 检查 CapsWriter-Offline-Client（仅客户端）
-    client_dist = dist_dir / 'CapsWriter-Offline-Client'
-    if client_dist.exists():
-        packages.append({
-            'source': client_dist,
-            'output': release_dir / f'CapsWriter-Offline-Client-{timestamp}.zip',
-            'name': '仅客户端'
-        })
+    # 旧 client-only 目录可能来自过往构建，不可重新包装成当前发行。
+    if (dist_dir / 'CapsWriter-Offline-Client').exists():
+        print("跳过已停用的 client-only 产物；请使用当前 build.spec 完整构建。")
 
     if not packages:
         print(f"\n错误: dist 目录中没有找到构建产物")
         print(f"请先运行 PyInstaller 构建:")
         print(f"  pyinstaller build.spec")
-        print(f"  pyinstaller build-client.spec")
         return
 
     print(f"\n找到 {len(packages)} 个待打包的构建产物")
@@ -310,8 +303,7 @@ def main():
             list_file_name = f'file_list_{idx}.txt'
 
             # 生成文件列表
-            is_client_only = pkg['source'].name == 'CapsWriter-Offline-Client'
-            files, list_file = create_file_list(pkg['source'], list_file_name, is_client_only)
+            files, list_file = create_file_list(pkg['source'], list_file_name)
 
             if not files:
                 print(f"\n警告: 没有找到要打包的文件")

@@ -14,6 +14,10 @@
 WebSocket protocol，並新增 Linux container、選用 OpenAI 相容 HTTP API、Web、
 CLI、TUI、Windows production package 與完整的跨平臺驗證。
 
+本次更新新增 [Windows／Server 日常設定介面](docs/settings.md)與
+[統一開發指令](docs/development.md)。Windows 可用 `start_client.exe --settings`
+設定遠端 Server、麥克風與快捷鍵；Server 管理介面需明確啟用。
+
 ## 先理解：Server 與 Client 是兩件事
 
 ```mermaid

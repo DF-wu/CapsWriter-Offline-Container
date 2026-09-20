@@ -198,11 +198,13 @@ def _build_number(tokens, i):
             consumed += 1
             j += 1
 
-    # 万/亿/千 后累加低位
+    # 万/亿/千，以及省略开头「一」的百，后累加低位
     if value >= 10000:
         limit = 10000
     elif value >= 1000:
         limit = 1000
+    elif tokens[i].type == 'HUNDRED':
+        limit = 100
     else:
         limit = None
 

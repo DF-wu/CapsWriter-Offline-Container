@@ -85,3 +85,33 @@ export interface TranscriptRecord {
   text: string;
   raw: TranscriptionResult["raw"];
 }
+
+export type ServerSettingValue = string | number | boolean;
+
+export interface ServerSettingField {
+  key: string;
+  label: string;
+  description: string;
+  type: "string" | "integer" | "number" | "boolean";
+  value: ServerSettingValue | null;
+  saved_value: ServerSettingValue | null;
+  next_value?: ServerSettingValue | null;
+  next_source?: string;
+  default: ServerSettingValue | null;
+  source: string;
+  choices?: ServerSettingValue[];
+  minimum?: number;
+  maximum?: number;
+  restart_required: boolean;
+  environment_variable: string;
+  overridden_by_environment: boolean;
+}
+
+export interface ServerSettingsResponse {
+  enabled: boolean;
+  available?: boolean;
+  reason?: string;
+  restart_required: boolean;
+  revision: string | null;
+  fields: ServerSettingField[];
+}
