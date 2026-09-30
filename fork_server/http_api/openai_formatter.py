@@ -7,6 +7,7 @@ json / text / verbose_json / srt / vtt。
 """
 
 from __future__ import annotations
+import difflib
 import re
 import math
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -16,6 +17,8 @@ from core.server.schema import Result
 
 # 句末標點 (中/英)。匹配到時切出一個 segment。
 _SENT_END = re.compile(r"[。！？!?]+|[.](?:\s|$)|[，、;；,]\s")
+# 由最終文字重建 token: 前導空白 + (英數詞 | 單一非空白字元)
+_TEXT_UNIT = re.compile(r"\s*(?:[A-Za-z0-9]+(?:[.'’\-][A-Za-z0-9]+)*|\S)")
 _TIMESTAMP_GRANULARITIES = frozenset({"segment", "word"})
 UNDETECTED_LANGUAGE_SENTINEL = "auto"
 
@@ -68,6 +71,65 @@ def _segment_payload(
         "compression_ratio": 0.0,
         "no_speech_prob": 0.0,
     }
+
+
+def _align_tokens_to_text(
+    tokens: List[str],
+    timestamps: List[float],
+    text: str,
+) -> Tuple[List[str], List[float]]:
+    """讓 token 序列與最終文字一致, 時間戳沿用原 token。
+
+    無原生時間戳的引擎會以去空白的逐字元 token 回退, 且 token 不含格式化後的
+    標點／ITN／空格; 直接拼接會產生 "Thetribalchief" 之類的字幕。此時以最終
+    文字重建 token, 並透過字元對齊把原時間戳映射過去。
+    """
+    if not tokens or len(tokens) != len(timestamps) or not text.strip():
+        return tokens, timestamps
+    if "".join(tokens) == text:
+        return tokens, timestamps
+
+    raw_chars: List[str] = []
+    raw_times: List[float] = []
+    for token, timestamp in zip(tokens, _monotonic_timestamps(timestamps)):
+        for char in token:
+            raw_chars.append(char)
+            raw_times.append(timestamp)
+    if not raw_chars:
+        return tokens, timestamps
+
+    char_times: List[Optional[float]] = [None] * len(text)
+    matcher = difflib.SequenceMatcher(None, "".join(raw_chars), text)
+    for op, r1, r2, t1, t2 in matcher.get_opcodes():
+        if op == "equal":
+            for offset in range(t2 - t1):
+                char_times[t1 + offset] = raw_times[r1 + offset]
+        elif op == "replace":
+            span = r2 - r1
+            for offset in range(t2 - t1):
+                source = r1 + min(span - 1, offset * span // (t2 - t1))
+                char_times[t1 + offset] = raw_times[source]
+        elif op == "insert" and r1 < len(raw_times):
+            # 插入內容 (標點、空格) 歸屬於下一個原始字元之前的位置
+            for offset in range(t2 - t1):
+                char_times[t1 + offset] = raw_times[r1 - 1] if r1 else raw_times[r1]
+
+    previous = raw_times[0]
+    for index, value in enumerate(char_times):
+        if value is None:
+            char_times[index] = previous
+        else:
+            previous = value
+
+    units: List[str] = []
+    unit_times: List[float] = []
+    for match in _TEXT_UNIT.finditer(text):
+        first = match.start() + (len(match.group()) - len(match.group().lstrip()))
+        units.append(match.group())
+        unit_times.append(char_times[first])
+    if not units:
+        return tokens, timestamps
+    return units, unit_times
 
 
 def _segments_from_tokens(
@@ -133,7 +195,10 @@ def _words_from_tokens(
             end = normalized_timestamps[i + 1]
         else:
             end = max(start, _safe_timestamp(total_duration))
-        out.append({"word": tok, "start": start, "end": end})
+        word = tok.strip()
+        if not any(char.isalnum() for char in word):
+            continue  # 空白與獨立標點不是 word
+        out.append({"word": word, "start": start, "end": end})
     return out
 
 
@@ -189,14 +254,17 @@ def format_response(
     """
     text = _final_text(result)
     fmt = response_format.lower()
+    tokens, timestamps = _align_tokens_to_text(
+        list(result.tokens or []), list(result.timestamps or []), text
+    )
 
     if fmt == "text":
         return text, "text/plain; charset=utf-8"
 
     if fmt in ("srt", "vtt"):
         segments = _segments_from_tokens(
-            result.tokens,
-            result.timestamps,
+            tokens,
+            timestamps,
             result.duration,
             temperature,
         )
@@ -243,8 +311,8 @@ def format_response(
         }
         if "segment" in granularities:
             segments = _segments_from_tokens(
-                result.tokens,
-                result.timestamps,
+                tokens,
+                timestamps,
                 result.duration,
                 temperature,
             )
@@ -261,8 +329,8 @@ def format_response(
             body["segments"] = segments
         if "word" in granularities:
             body["words"] = _words_from_tokens(
-                result.tokens,
-                result.timestamps,
+                tokens,
+                timestamps,
                 result.duration,
             )
         return body, "application/json"
