@@ -2,26 +2,68 @@
 
 > [Documentation home](README.md) · [繁體中文](../zh-TW/release-notes.md) · [Getting started](getting-started.md)
 
-## Unreleased — upstream refresh
+## fork-v2.0.0 — stable release
 
-On `feat/v2-upstream-settings-20260918`, merge `a1cdd45` incorporates upstream
-through `84912d5`, including the split-token text-loss fix. The fork retains
-Python 3.10–3.12 and its pinned llama.cpp b7798 runtime compatibility rather
-than requiring upstream's Python 3.14/b10621 environment. This branch state
-does not indicate a release, image publication, or production deployment.
+Release date: **2026-09-30**. This is the first stable fork v2 release and
+supersedes `fork-v2.0.0-rc.1`. The tag points at the `master` commit that passed
+CI, portability/Windows-package, server-image and Web-image workflows; the GitHub
+Release attaches that commit's Windows ZIP, `SHA256SUMS` and image references.
 
-Windows gains first-run/tray settings for connection, microphone, shortcuts
-and output. The Web console gains opt-in authenticated server settings with
-saved/current values and restart status; see [daily settings](../settings.md).
-[Development commands](../development.md) unify isolated setup, startup, tests
-and builds. [Validation evidence](../validation-20260919.md) records the local
-container checks and the remaining Windows hardware acceptance boundary.
+### Highlights
 
-A separate v1 PR is preparing the approved one-time full upstream refresh,
-including the `util/` to `core/` migration while preserving v1 server,
-container, and API contracts. `maintenance/v1` keeps its legacy baseline until
-that PR merges; v1 and v2 release channels remain separate. See the current
-[maintenance policy](versioning.md).
+- **Upstream synced through `84912d5`**: upstream v2.6 (GPU pre-boost, short-phrase
+  punctuation, delayed Enter, tray Diary/Restart, ITN improvements) plus the later
+  split-token text-loss fix, two-pass subtitle line breaking and sentence end times.
+  The fork keeps Python 3.10–3.12 and the pinned llama.cpp b7798 ABI instead of
+  upstream's Python 3.14/b10621 environment.
+- **Daily settings UI**: a first-run/tray settings window for the Windows client
+  (connection, microphone, shortcuts, output) and an opt-in, authenticated server
+  settings page in the Web Console. See [daily settings](../settings.md).
+- **Unified development commands**: `scripts/dev.py` sets up, runs, tests and builds
+  in isolated environments; see [development](../development.md).
+- **Subtitle fix**: for engines without native timestamps (such as Qwen3-ASR), HTTP
+  `srt`/`vtt`/`verbose_json` segments now use the final formatted text, so English
+  keeps its spaces and Chinese keeps punctuation and number formatting.
+- **Reliability**: startup cancellation and tray shutdown wait for completion, the
+  server terminates gracefully, redirected Windows console encoding errors no longer
+  interrupt recognition, and concurrent settings edits no longer clobber each other.
+- **Documentation**: rewritten READMEs, a new [illustrated usage guide](usage.md) and
+  real Web/CLI/TUI captures.
+
+### Changes to note
+
+- Fork dependency locks moved to `requirements/` (for example
+  `requirements-tui.lock` → `requirements/tui.lock`). Update custom install scripts;
+  upstream's `requirements-client.txt` and `requirements-server.txt` stay at the root.
+- Dated validation/review records moved to `docs/reports/`.
+- Settings window and Web Console hints no longer suggest a specific host name.
+
+### Evidence for this release
+
+- GitHub Actions: CI, the portability matrix (Ubuntu 24.04/Windows 2022 × Python
+  3.10/3.12), the Windows package job (hash-locked build, relocation, ZIP round trip,
+  reparse-point rejection, `--artifact-self-check` for both EXEs) and server/Web image
+  publication.
+- A full local `verify_all` run: upstream divergence guard, documentation, CLI 63,
+  HTTP API 178, Docker bootstrap 64, scripts 398 and Web 118 tests.
+- Real model: Linux x86-64, Qwen3-ASR 1.7B on CPU (`cpu_only` preset) from the source
+  runtime. `/health` and `/ready` returned ok; a known 5.6-second Chinese clip
+  transcribed over HTTP as 開放時間：早上九點至下午五點。 and an English clip was
+  correct in `text`, `srt`, `vtt` and `verbose_json`. The Web Console, CLI and TUI were
+  driven against the same server for the screenshots. Earlier in-container WebSocket,
+  HTTP and settings-lifecycle checks are in the
+  [validation record](../reports/validation-20260919.md).
+
+### Not covered by this release's evidence
+
+These were not accepted on real hardware for this release; please confirm them in
+your environment and report results:
+
+- Windows physical microphone, global hotkeys, tray, foreground text insertion and
+  model inference on Windows.
+- NVIDIA/Vulkan/DirectML GPU inference and performance.
+- Linux X11 desktop hotkeys.
+- Upgrade/rollback rehearsal from rc.1 or fork v1.
 
 ## fork-v2.0.0-rc.1 — cross-platform release candidate
 
@@ -193,7 +235,7 @@ v1 integration; it does not merge the v2 product into `maintenance/v1`. See the
 - The local API intentionally implements a bounded transcription subset, not
   streaming, diarization, translation, or every current OpenAI Audio feature.
 
-## Qualification still required before stable fork-v2.0.0
+## Pre-stable qualification listed at rc.1
 
 - Green portable Ubuntu/Windows matrix and isolated API/TUI jobs.
 - Root verification, documentation, cleanup, Web browser/image smoke, and

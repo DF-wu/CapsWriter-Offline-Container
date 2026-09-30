@@ -83,8 +83,8 @@ TUI_LOCK_REQUIREMENTS = {
 }
 DOCKERFILE = ROOT / "docker" / "server" / "Dockerfile"
 WINDOWS_BUILD_SPEC = ROOT / "build.spec"
-WINDOWS_BUILD_LOCK = ROOT / "requirements-windows-build.lock"
-WINDOWS_BUILD_BOOTSTRAP_LOCK = ROOT / "requirements-windows-build-bootstrap.lock"
+WINDOWS_BUILD_LOCK = ROOT / "requirements" / "windows-build.lock"
+WINDOWS_BUILD_BOOTSTRAP_LOCK = ROOT / "requirements" / "windows-build-bootstrap.lock"
 WINDOWS_BUILD_BOOTSTRAP_REQUIREMENTS = {
     "pip": (
         "26.1.2",
@@ -174,7 +174,7 @@ class RequirementsTest(unittest.TestCase):
         self.assertEqual(observed, WINDOWS_BUILD_BOOTSTRAP_REQUIREMENTS)
 
     def test_server_requirements_include_http_api_runtime(self) -> None:
-        for filename in ("requirements-server.txt", "requirements-server-docker.txt"):
+        for filename in ("requirements-server.txt", "requirements/server-docker.txt"):
             with self.subTest(filename=filename):
                 names = requirement_names(ROOT / filename)
                 self.assertTrue(
@@ -189,8 +189,8 @@ class RequirementsTest(unittest.TestCase):
     def test_supported_http_stack_is_explicitly_pinned_everywhere(self) -> None:
         for filename in (
             "requirements-server.txt",
-            "requirements-server-docker.txt",
-            "requirements-api-test.txt",
+            "requirements/server-docker.txt",
+            "requirements/api-test.txt",
         ):
             with self.subTest(filename=filename):
                 versions = dict(
@@ -204,7 +204,7 @@ class RequirementsTest(unittest.TestCase):
                 )
 
     def test_api_contract_test_requirements_are_complete_and_pinned(self) -> None:
-        path = ROOT / "requirements-api-test.txt"
+        path = ROOT / "requirements" / "api-test.txt"
         self.assertEqual(requirement_names(path), HTTP_API_TEST_REQUIREMENTS)
         for entry in requirement_entries(path):
             with self.subTest(entry=entry):
@@ -214,7 +214,7 @@ class RequirementsTest(unittest.TestCase):
                 )
 
     def test_api_contract_lock_is_complete_hashed_python312_linux(self) -> None:
-        path = ROOT / "requirements-api-test.lock"
+        path = ROOT / "requirements" / "api-test.lock"
         source = path.read_text(encoding="utf-8")
         entries = requirement_entries(path)
         versions = dict(
@@ -226,7 +226,7 @@ class RequirementsTest(unittest.TestCase):
         self.assertEqual(versions, API_TEST_LOCK_REQUIREMENTS)
         direct_versions = dict(
             item
-            for entry in requirement_entries(ROOT / "requirements-api-test.txt")
+            for entry in requirement_entries(ROOT / "requirements" / "api-test.txt")
             if (item := pinned_version(entry)) is not None
         )
         self.assertEqual(
@@ -252,7 +252,7 @@ class RequirementsTest(unittest.TestCase):
                     )
 
     def test_tui_direct_requirements_are_complete_and_pinned(self) -> None:
-        path = ROOT / "requirements-tui.txt"
+        path = ROOT / "requirements" / "tui.txt"
         versions = dict(
             item
             for entry in requirement_entries(path)
@@ -268,7 +268,7 @@ class RequirementsTest(unittest.TestCase):
                 )
 
     def test_tui_lock_is_complete_hashed_and_python_310_312_compatible(self) -> None:
-        path = ROOT / "requirements-tui.lock"
+        path = ROOT / "requirements" / "tui.lock"
         source = path.read_text(encoding="utf-8")
         entries = requirement_entries(path)
         versions = dict(
@@ -301,10 +301,10 @@ class RequirementsTest(unittest.TestCase):
                     )
 
     def test_docker_server_lock_is_pinned_and_used_by_image_build(self) -> None:
-        lock_path = ROOT / "requirements-server-docker.lock"
+        lock_path = ROOT / "requirements" / "server-docker.lock"
         lock_entries = requirement_entries(lock_path)
         lock_names = requirement_names(lock_path)
-        declared_names = requirement_names(ROOT / "requirements-server-docker.txt")
+        declared_names = requirement_names(ROOT / "requirements" / "server-docker.txt")
         lock_versions = dict(
             item
             for entry in lock_entries
@@ -312,7 +312,7 @@ class RequirementsTest(unittest.TestCase):
         )
         declared_versions = dict(
             item
-            for entry in requirement_entries(ROOT / "requirements-server-docker.txt")
+            for entry in requirement_entries(ROOT / "requirements" / "server-docker.txt")
             if (item := pinned_version(entry)) is not None
         )
 
@@ -342,9 +342,9 @@ class RequirementsTest(unittest.TestCase):
                     )
 
         dockerfile = DOCKERFILE.read_text(encoding="utf-8")
-        self.assertIn("COPY requirements-server-docker.txt requirements-server-docker.lock /app/", dockerfile)
+        self.assertIn("COPY requirements/server-docker.txt requirements/server-docker.lock /app/requirements/", dockerfile)
         self.assertIn(
-            "python -m pip install --require-hashes --no-build-isolation -r /app/requirements-server-docker.lock",
+            "python -m pip install --require-hashes --no-build-isolation -r /app/requirements/server-docker.lock",
             dockerfile,
         )
 
@@ -379,7 +379,7 @@ class RequirementsTest(unittest.TestCase):
         self.assertIn("--generate-hashes", source)
         self.assertIn("--only-binary=:all:", source)
         self.assertIn("--no-binary=srt", source)
-        self.assertIn("--output-file requirements-windows-build.lock", source)
+        self.assertIn("--output-file requirements/windows-build.lock", source)
 
         for entry in entries:
             with self.subTest(entry=entry.splitlines()[0]):

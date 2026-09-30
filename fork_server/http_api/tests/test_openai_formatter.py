@@ -198,6 +198,93 @@ class OpenAIFormatterTimestampTest(unittest.TestCase):
                 self.assertGreaterEqual(item["end"], item["start"])
                 previous_end = item["end"]
 
+    def test_subtitles_keep_final_text_spacing_when_tokens_are_bare_chars(self) -> None:
+        # Engines without native timestamps fall back to whitespace-free
+        # character tokens; subtitles must still use the formatted text.
+        openai_formatter = load_formatter()
+        text = "The tribal chief called. He smiled."
+        chars = list(text.replace(" ", ""))
+        result = Result(
+            task_id="task-bare",
+            socket_id="http:task-bare",
+            type="file",
+            duration=float(len(chars)) / 10,
+            text=text,
+            text_accu=text,
+            tokens=chars,
+            timestamps=[index / 10 for index in range(len(chars))],
+        )
+
+        srt, _ = openai_formatter.format_response(result, "srt")
+        vtt, _ = openai_formatter.format_response(result, "vtt")
+        body, _ = openai_formatter.format_response(
+            result, "verbose_json", timestamp_granularities=("segment", "word")
+        )
+
+        self.assertEqual(
+            [segment["text"] for segment in body["segments"]],
+            ["The tribal chief called.", "He smiled."],
+        )
+        self.assertIn("\nThe tribal chief called.\n", srt)
+        self.assertIn("\nHe smiled.\n", vtt)
+        second_start = chars.index("H") / 10
+        self.assertAlmostEqual(body["segments"][1]["start"], second_start)
+        self.assertAlmostEqual(body["segments"][0]["end"], second_start)
+        self.assertEqual(
+            [word["word"] for word in body["words"]],
+            ["The", "tribal", "chief", "called", "He", "smiled"],
+        )
+        self.assertAlmostEqual(body["words"][1]["start"], chars.index("r") / 10 - 0.1)
+
+    def test_subtitles_follow_formatted_punctuation_and_numbers(self) -> None:
+        openai_formatter = load_formatter()
+        raw = "開放時間早上九點"
+        result = Result(
+            task_id="task-itn",
+            socket_id="http:task-itn",
+            type="file",
+            duration=0.8,
+            text_accu="開放時間：早上9點。",
+            tokens=list(raw),
+            timestamps=[index / 10 for index in range(len(raw))],
+        )
+
+        body, _ = openai_formatter.format_response(
+            result, "verbose_json", timestamp_granularities=("segment", "word")
+        )
+
+        self.assertEqual(
+            [segment["text"] for segment in body["segments"]],
+            ["開放時間：早上9點。"],
+        )
+        words = {word["word"]: word["start"] for word in body["words"]}
+        self.assertNotIn("：", words)
+        self.assertAlmostEqual(words["9"], raw.index("九") / 10)
+
+    def test_matching_tokens_are_left_unchanged(self) -> None:
+        openai_formatter = load_formatter()
+        result = Result(
+            task_id="task-same",
+            socket_id="http:task-same",
+            type="file",
+            duration=1.0,
+            text="hello world",
+            tokens=["hello", " world"],
+            timestamps=[0.0, 0.6],
+        )
+
+        body, _ = openai_formatter.format_response(
+            result, "verbose_json", timestamp_granularities=("word",)
+        )
+
+        self.assertEqual(
+            body["words"],
+            [
+                {"word": "hello", "start": 0.0, "end": 0.6},
+                {"word": "world", "start": 0.6, "end": 1.0},
+            ],
+        )
+
     def test_verbose_json_rejects_unknown_granularity(self) -> None:
         openai_formatter = load_formatter()
         result = Result(

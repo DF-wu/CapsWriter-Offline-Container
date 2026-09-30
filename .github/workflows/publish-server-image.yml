@@ -62,7 +62,7 @@ jobs:
           --disable-pip-version-check
           --require-hashes
           --only-binary=:all:
-          --requirement requirements-api-test.lock
+          --requirement requirements/api-test.lock
 
       - name: Verify API contract before publication
         env:

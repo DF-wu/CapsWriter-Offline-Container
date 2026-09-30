@@ -210,7 +210,7 @@ class DocumentationTest(unittest.TestCase):
             encoding="utf-8"
         )
         for required in (
-            "requirements-windows-build.lock",
+            "requirements/windows-build.lock",
             "--require-hashes",
             "--only-binary=:all:",
             "--no-binary=srt",
@@ -250,7 +250,7 @@ class DocumentationTest(unittest.TestCase):
             )
             combined = desktop + support
             with self.subTest(language=language):
-                self.assertIn("requirements-windows-build.lock", desktop)
+                self.assertIn("requirements/windows-build.lock", desktop)
                 self.assertIn("windows-package", desktop)
                 self.assertIn("--artifact-self-check", desktop)
                 self.assertIn("reparse", combined.casefold())
@@ -292,7 +292,7 @@ class DocumentationTest(unittest.TestCase):
         for filename in ("README.en.md", "readme.md"):
             source = (ROOT / filename).read_text(encoding="utf-8")
             with self.subTest(filename=filename):
-                self.assertIn("requirements-windows-build.lock", (
+                self.assertIn("requirements/windows-build.lock", (
                     ROOT / "docs" / ("en" if filename == "README.en.md" else "zh-TW") /
                     "desktop-portability.md"
                 ).read_text(encoding="utf-8"))

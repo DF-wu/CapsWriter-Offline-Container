@@ -17,10 +17,10 @@ files and validates the relocated package instead of linking to the checkout.
 
 - Build on 64-bit Windows with CPython 3.12.
 - Bootstrap `pip` and the `setuptools` build backend from
-  [`requirements-windows-build-bootstrap.lock`](../requirements-windows-build-bootstrap.lock)
+  [`requirements/windows-build-bootstrap.lock`](../requirements/windows-build-bootstrap.lock)
   with exact wheel hashes and no dependencies.
 - Install the complete client/server build graph from
-  [`requirements-windows-build.lock`](../requirements-windows-build.lock) with
+  [`requirements/windows-build.lock`](../requirements/windows-build.lock) with
   hash checking. Every resolved package is pinned and hashed.
 - Build both `start_server.exe` and `start_client.exe` with
   [`build.spec`](../build.spec).
@@ -95,14 +95,14 @@ py -3.12 -m venv $venv
   --require-hashes `
   --only-binary=:all: `
   --no-deps `
-  --requirement requirements-windows-build-bootstrap.lock
+  --requirement requirements/windows-build-bootstrap.lock
 
 & "$venv\Scripts\python.exe" -m pip install `
   --require-hashes `
   --only-binary=:all: `
   --no-binary=srt `
   --no-build-isolation `
-  --requirement requirements-windows-build.lock
+  --requirement requirements/windows-build.lock
 
 & "$venv\Scripts\python.exe" -m PyInstaller --clean --noconfirm build.spec
 ```
@@ -202,7 +202,7 @@ UV_CACHE_DIR=/tmp/capswriter-windows-lock-cache uv pip compile \
   --only-binary=:all: \
   --no-binary=srt \
   --no-emit-index-url \
-  --output-file requirements-windows-build.lock
+  --output-file requirements/windows-build.lock
 ```
 
 Review the dependency/version diff, run the lock/source-contract tests, and let

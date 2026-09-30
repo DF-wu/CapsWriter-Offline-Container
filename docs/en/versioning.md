@@ -6,24 +6,24 @@ This fork maintains two product generations. The names **fork v1** and
 **fork v2** describe this fork's generations; they are not the upstream
 `v1.0` and `v2.x` tags.
 
-Upstream changes normally enter v2. A separately approved, one-time **full
-upstream refresh through `84912d5`** is also being prepared for v1, including
-the `util/` to `core/` migration. This does not merge the two product tracks:
-v1 retains its own server, container, and API contracts and release channel.
+Upstream changes normally enter v2. PR #5 completed v1's separately approved,
+one-time **full upstream refresh through `84912d5`**, including the `util/` to
+`core/` migration. This does not merge the two product tracks: v1 retains its own
+server, container, and API contracts and release channel.
 
 ## Tracks and authoritative refs
 
 | Track | Authoritative branch | Upstream lineage | Change policy |
 |---|---|---|---|
-| fork v1 | `maintenance/v1` | Still the legacy `v2.5-alpha` plus `3419171` baseline until the separate refresh PR merges | One-time full upstream refresh approved; preserve v1 server/container/API behavior, then resume focused maintenance |
-| fork v2 | `master`; current work on `feat/v2-upstream-settings-20260918` | Feature-branch merge `a1cdd45` includes upstream `84912d5`; this is not yet a `master` release | Active cross-platform product development; use short-lived branches and merge-based upstream sync |
+| fork v1 | `maintenance/v1` | PR #5 refreshed upstream through `84912d5` and migrated to `core/` | One-time full upstream refresh complete; preserve v1 server/container/API behavior and resume focused maintenance |
+| fork v2 | `master` | Includes upstream `84912d5` (PR #4); `fork-v2.0.0` is released from here | Active cross-platform product development; use short-lived branches and merge-based upstream sync |
 | v1 audit snapshot | `archive/v1-legacy` and tag `fork-pre-reset-20260525-1411` | Last pre-reset v1 tree, `b46ca74` | Immutable recovery/audit point; do not develop directly |
 
 The v1 and v2 Git histories diverged before upstream's large `util/` to
-`core/` refactor. The approved v1 refresh imports upstream changes on a
-separate branch and ports the v1 integration to `core/`; it is not a bulk
-import of the v2 product. Until that PR merges, `maintenance/v1` remains on
-its legacy architecture. Routine backports target the architecture actually
+`core/` refactor. The completed v1 refresh imported upstream changes on a
+separate branch and ported the v1 integration to `core/`; it was not a bulk
+import of the v2 product. Since PR #5 merged, `maintenance/v1` also uses the
+`core/` architecture. Routine backports target the architecture actually
 present on the receiving branch and include generation-specific checks.
 
 ## Support matrix

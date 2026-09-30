@@ -17,7 +17,7 @@ upstream (HaujetZhao/CapsWriter-Offline)
         │    upstream review regression fixes           (11)
         │  fork adds:    fork_server/ docker/ client/{cli,web,tui}/
         │                docs/ scripts/ docker-compose*.yml .env.example
-        │                .github/workflows/ requirements-server-docker.txt
+        │                .github/workflows/ requirements/server-docker.txt
         │
         ▼
 fork (DF-wu/CapsWriter-Offline-Container) master/feat/*
@@ -39,7 +39,7 @@ fork-owned 新路徑；這 76 檔是需要逐組 rebase/merge review 的明確�
 | Engine export I/O（3） | `core/server/engines/{force_aligner_gguf,fun_asr_gguf,qwen_asr_gguf}/export/gguf/utility.py` | 保留 `CAPSWRITER_GGUF_EXPORT_HTTP_TIMEOUT`；同步 upstream export logic |
 | Engine audio decode I/O（4） | `core/server/engines/{force_aligner_gguf,fun_asr_gguf,qwen_asr_gguf,sensevoice_onnx}/inference/audio.py` | 保留 `CAPSWRITER_ENGINE_FFMPEG_TIMEOUT`、kill cleanup、bounded stderr；同步 upstream decode logic |
 | Engine privacy logging（3） | `core/server/engines/{force_aligner_gguf,qwen_asr_gguf}/inference/aligner.py`、`core/server/engines/fun_asr_gguf/inference/prompt_builder.py` | 保留 token／prompt／context／audio-derived detected-hotword 的 task-local redaction，但逐段同步 upstream prompt/alignment 語意；跑 worker privacy regressions |
-| Native ABI 與開發環境相容性（4） | `core/server/engines/llama/llama.py`、`core/server/engines/llama/bin/llama.cpp二进制下载到这里.txt`、`pyproject.toml`、`uv.lock` | llama binding 與已驗證 b7798 runtime 保持相同 struct layout／四參數 penalties；保留 upstream 模型載入失敗即拋錯。Python 3.10–3.12、Windows dependency markers、分角色開發環境與 lock 更新須一起驗證；詳見 [本次同步紀錄](upstream-refresh-20260918.md) |
+| Native ABI 與開發環境相容性（4） | `core/server/engines/llama/llama.py`、`core/server/engines/llama/bin/llama.cpp二进制下载到这里.txt`、`pyproject.toml`、`uv.lock` | llama binding 與已驗證 b7798 runtime 保持相同 struct layout／四參數 penalties；保留 upstream 模型載入失敗即拋錯。Python 3.10–3.12、Windows dependency markers、分角色開發環境與 lock 更新須一起驗證；詳見 [本次同步紀錄](reports/upstream-refresh-20260918.md) |
 | Upstream 文件正確性／a11y（2） | `docs/text_merge_algorithm.md`、`docs/显卡加速的若干问题.md` | 保留與現行 merger 一致的說明及有意義的 image alt text；同步 upstream 其他內容 |
 
 ## 2. 標準同步流程

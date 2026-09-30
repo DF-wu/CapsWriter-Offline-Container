@@ -75,7 +75,7 @@ def validate(overrides: object) -> dict:
         elif key in BOOLEAN_FIELDS and type(value) is not bool:
             errors[key] = "請使用 true 或 false"
         elif key == "addr" and not _valid_host(value):
-            errors[key] = "請填主機名稱或 IP，例如 axolotl；不要包含 ws://、連接埠或路徑"
+            errors[key] = "請填主機名稱或 IP，例如 192.168.1.20 或 nas.local；不要包含 ws://、連接埠或路徑"
         elif key == "port":
             if (type(value) not in (int, str) or not str(value).isascii()
                     or not 1 <= len(str(value)) <= 5

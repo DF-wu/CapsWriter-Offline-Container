@@ -23,10 +23,10 @@ REQUIRED_CONTRACT_MODULES = {
 class VerifyApiContractTest(unittest.TestCase):
     def test_verifier_consumes_every_pinned_dependency_and_required_suite(self) -> None:
         direct_pins = verify_api_contract.load_pins(
-            ROOT / "requirements-api-test.txt"
+            ROOT / "requirements" / "api-test.txt"
         )
         lock_pins = verify_api_contract.load_pins(
-            ROOT / "requirements-api-test.lock"
+            ROOT / "requirements" / "api-test.lock"
         )
 
         self.assertEqual(

@@ -1,5 +1,5 @@
 # Runtime lifecycle regression dependencies; NumPy hashes from the server lock.
--r requirements-api-test.lock
+-r api-test.lock
 numpy==1.26.4 \
     --hash=sha256:03a8c78d01d9781b28a6989f6fa1bb2c4f2d51201cf99d3dd875df6fbd96b23b \
     --hash=sha256:08beddf13648eb95f8d867350f6a018a4be2e5ad54c8d8caed89ebca558b2818 \

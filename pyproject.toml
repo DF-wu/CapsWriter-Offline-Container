@@ -11,7 +11,7 @@ package = false
 default-groups = []
 
 # Optional source-development inputs. For reproducible environments use
-# scripts/dev.py setup: it installs the reviewed requirements-*.lock files.
+# scripts/dev.py setup: it installs the reviewed requirements/*.lock files.
 [dependency-groups]
 dev = []
 desktop = [

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="t d">
+  <title id="t">CapsWriter v2 架構總覽</title>
+  <desc id="d">左側五種 Client（桌面、Web、CLI、TUI、OpenAI SDK）透過 WebSocket 6016 或 HTTP 6017 連到右側的 CapsWriter Server；Server 在本機載入 ASR 模型並輸出文字、字幕與 JSON。</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 0 10 5 0 10z" fill="#64748b"/>
+    </marker>
+    <style>
+      text{font-family:"Segoe UI","Noto Sans CJK TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;fill:#0f172a}
+      .h{font-size:22px;font-weight:700}
+      .s{font-size:14px;fill:#475569}
+      .l{font-size:17px;font-weight:600}
+      .m{font-size:13px;fill:#475569}
+      .tag{font-size:12.5px;font-weight:600}
+      .mono{font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace}
+    </style>
+  </defs>
+  <rect width="1200" height="560" rx="18" fill="#f8fafc"/>
+  <rect x="0.5" y="0.5" width="1199" height="559" rx="18" fill="none" stroke="#e2e8f0"/>
+
+  <text x="40" y="52" class="h">Client：收音、操作、顯示結果</text>
+  <text x="40" y="76" class="s">不含模型，可以裝在任何一台電腦</text>
+  <text x="770" y="52" class="h">Server：模型與推論</text>
+  <text x="770" y="76" class="s">音訊只在你的機器／區網內處理</text>
+
+  <!-- clients -->
+  <g>
+    <rect x="40" y="100" width="380" height="74" rx="12" fill="#ffffff" stroke="#6366f1" stroke-width="2"/>
+    <text x="62" y="131" class="l">桌面 Client（Windows／Linux X11）</text>
+    <text x="62" y="156" class="m">按住 CapsLock 說話 → 放開自動打字、托盤、檔案轉錄</text>
+
+    <rect x="40" y="186" width="380" height="64" rx="12" fill="#ffffff" stroke="#0ea5e9" stroke-width="2"/>
+    <text x="62" y="214" class="l">Web Console</text>
+    <text x="62" y="236" class="m">瀏覽器錄音／上傳、五種格式下載</text>
+
+    <rect x="40" y="262" width="380" height="64" rx="12" fill="#ffffff" stroke="#0ea5e9" stroke-width="2"/>
+    <text x="62" y="290" class="l">CLI（無 GUI）</text>
+    <text x="62" y="312" class="m">腳本、SSH、批次轉錄，只需 Python 標準函式庫</text>
+
+    <rect x="40" y="338" width="380" height="64" rx="12" fill="#ffffff" stroke="#0ea5e9" stroke-width="2"/>
+    <text x="62" y="366" class="l">Textual TUI</text>
+    <text x="62" y="388" class="m">終端機裡的鍵盤操作工作台</text>
+
+    <rect x="40" y="414" width="380" height="64" rx="12" fill="#ffffff" stroke="#0ea5e9" stroke-width="2"/>
+    <text x="62" y="442" class="l">OpenAI SDK／curl</text>
+    <text x="62" y="464" class="m">把現有程式指向本機 whisper-1 轉錄端點</text>
+  </g>
+
+  <!-- arrows -->
+  <path d="M424 137 L 762 205" stroke="#6366f1" stroke-width="3" fill="none" marker-end="url(#a)"/>
+  <rect x="520" y="140" width="170" height="28" rx="14" fill="#eef2ff" stroke="#6366f1"/>
+  <text x="605" y="159" text-anchor="middle" class="tag mono" fill="#3730a3">WebSocket :6016</text>
+
+  <path d="M424 218 L 762 300" stroke="#0ea5e9" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <path d="M424 294 L 762 318" stroke="#0ea5e9" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <path d="M424 370 L 762 336" stroke="#0ea5e9" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <path d="M424 446 L 762 354" stroke="#0ea5e9" stroke-width="2.5" fill="none" marker-end="url(#a)"/>
+  <rect x="520" y="392" width="190" height="28" rx="14" fill="#e0f2fe" stroke="#0ea5e9"/>
+  <text x="615" y="411" text-anchor="middle" class="tag mono" fill="#075985">HTTP :6017（選用）</text>
+
+  <!-- server -->
+  <rect x="770" y="100" width="390" height="378" rx="16" fill="#ffffff" stroke="#16a34a" stroke-width="2.5"/>
+  <text x="794" y="136" class="l">CapsWriter Server</text>
+  <text x="794" y="160" class="m">Windows EXE、Linux Docker 或 source 啟動</text>
+
+  <text x="794" y="196" class="tag" fill="#166534">離線 ASR 模型（擇一）</text>
+  <rect x="794" y="206" width="160" height="30" rx="8" fill="#dcfce7"/><text x="874" y="226" text-anchor="middle" class="tag">Qwen3-ASR 1.7B</text>
+  <rect x="966" y="206" width="170" height="30" rx="8" fill="#dcfce7"/><text x="1051" y="226" text-anchor="middle" class="tag">Fun-ASR-Nano</text>
+  <rect x="794" y="244" width="160" height="30" rx="8" fill="#f1f5f9"/><text x="874" y="264" text-anchor="middle" class="tag">SenseVoice</text>
+  <rect x="966" y="244" width="170" height="30" rx="8" fill="#f1f5f9"/><text x="1051" y="264" text-anchor="middle" class="tag">Paraformer</text>
+
+  <text x="794" y="304" class="tag" fill="#166534">處理流程</text>
+  <text x="794" y="328" class="m">FFmpeg 解碼 → 切片 → 推論 → 拼接去重</text>
+  <text x="794" y="350" class="m">→ 標點／數字 ITN → 服務端熱詞</text>
+  <text x="794" y="372" class="m">CPU 可用；NVIDIA／Intel／AMD GPU 選用加速</text>
+
+  <text x="794" y="408" class="tag" fill="#166534">輸出</text>
+  <rect x="794" y="418" width="64" height="28" rx="7" fill="#f1f5f9"/><text x="826" y="437" text-anchor="middle" class="tag mono">text</text>
+  <rect x="866" y="418" width="64" height="28" rx="7" fill="#f1f5f9"/><text x="898" y="437" text-anchor="middle" class="tag mono">srt</text>
+  <rect x="938" y="418" width="64" height="28" rx="7" fill="#f1f5f9"/><text x="970" y="437" text-anchor="middle" class="tag mono">vtt</text>
+  <rect x="1010" y="418" width="126" height="28" rx="7" fill="#f1f5f9"/><text x="1073" y="437" text-anchor="middle" class="tag mono">json／verbose</text>
+
+  <text x="40" y="524" class="s">桌面 Client 預設走 WebSocket，不需要 HTTP API；Web／CLI／TUI／SDK 需要在 Server 明確啟用 HTTP API（建議搭配 API key）。</text>
+</svg>

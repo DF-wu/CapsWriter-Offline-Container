@@ -17,8 +17,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 class VerifyTuiTest(unittest.TestCase):
     def test_verifier_consumes_every_direct_tui_pin(self) -> None:
-        pins = verify_tui.load_direct_pins(ROOT / "requirements-tui.txt")
-        locked = verify_tui.load_locked_versions(ROOT / "requirements-tui.lock")
+        pins = verify_tui.load_direct_pins(ROOT / "requirements" / "tui.txt")
+        locked = verify_tui.load_locked_versions(ROOT / "requirements" / "tui.lock")
 
         self.assertEqual(set(pins), set(verify_tui.REQUIRED_IMPORTS))
         self.assertEqual(verify_tui.configuration_errors(pins, locked), [])

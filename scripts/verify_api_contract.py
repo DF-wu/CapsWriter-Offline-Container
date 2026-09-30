@@ -14,8 +14,8 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-INPUT_REQUIREMENTS = ROOT / "requirements-api-test.txt"
-REQUIREMENTS = ROOT / "requirements-api-test.lock"
+INPUT_REQUIREMENTS = ROOT / "requirements" / "api-test.txt"
+REQUIREMENTS = ROOT / "requirements" / "api-test.lock"
 PIN_PATTERN = re.compile(
     r"(?P<name>[A-Za-z0-9_.-]+)==(?P<version>[A-Za-z0-9_.!+~-]+)"
 )

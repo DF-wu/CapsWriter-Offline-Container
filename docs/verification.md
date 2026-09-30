@@ -38,7 +38,7 @@ for version in 3.10 3.12; do
   "python${version}" -m venv "${venv}"
   "${venv}/bin/python" -m pip install \
     --require-hashes --only-binary=:all: \
-    --requirement requirements-tui.lock
+    --requirement requirements/tui.lock
   PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1 \
     "${venv}/bin/python" scripts/verify_tui.py
 done
@@ -232,7 +232,7 @@ the same command also catches staged or unstaged tracked drift during local revi
 
 The same workflow has an unconditional four-leg `tui` matrix for Ubuntu 24.04
 and Windows 2022 with Python 3.10 and 3.12. Each isolated job creates its own
-checkout-local `.venv-tui`, installs `requirements-tui.lock` with
+checkout-local `.venv-tui`, installs `requirements/tui.lock` with
 `--require-hashes --only-binary=:all:`, and runs `scripts/verify_tui.py` with
 user-site packages and bytecode writes disabled. The matrix does not infer TUI
 support from the dependency-light root job.
@@ -241,7 +241,7 @@ support from the dependency-light root job.
 gates. `core-cli` runs the dependency-light desktop/package/CLI contracts on
 Ubuntu 24.04 and Windows 2022 with Python 3.10 and 3.12. `windows-package` runs
 on Windows 2022 with Python 3.12, installs
-`requirements-windows-build.lock` with hashes and the wheel-only policy (apart
+`requirements/windows-build.lock` with hashes and the wheel-only policy (apart
 from the documented `srt` exception), builds both executables, copies the
 distribution outside the checkout, ZIP-round-trips it, rejects reparse points
 and nonempty mutable directories, runs bounded `--artifact-self-check` through

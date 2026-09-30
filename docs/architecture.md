@@ -73,8 +73,8 @@ docker-compose.fun-asr.yml              ← Fun-ASR override
 docker-compose.example.yml              ← 範例
 .env.example                            ← env 變數一覽
 .dockerignore
-requirements-server-docker.txt          ← Linux GPU 版 top-level 依賴
-requirements-server-docker.lock         ← Docker image runtime transitive dependency version/hash lock
+requirements/server-docker.txt          ← Linux GPU 版 top-level 依賴
+requirements/server-docker.lock         ← Docker image runtime transitive dependency version/hash lock
 .github/workflows/publish-server-image.yml  ← GHCR 自動發 image
 
 start_server_docker.py                  ← Fork 入口 (與上游 start_server.py 並存)
@@ -96,7 +96,7 @@ start_server_docker.py                  ← Fork 入口 (與上游 start_server.
 | Engine export I/O（3） | `core/server/engines/{force_aligner_gguf,fun_asr_gguf,qwen_asr_gguf}/export/gguf/utility.py` | Remote safetensor `GET`/`HEAD` 使用 bounded timeout |
 | Engine audio decode I/O（4） | `core/server/engines/{force_aligner_gguf,fun_asr_gguf,qwen_asr_gguf,sensevoice_onnx}/inference/audio.py` | Direct file decode 的 `ffmpeg` 使用 bounded timeout、kill cleanup 與 stderr preview |
 | Engine privacy logging（3） | `core/server/engines/{force_aligner_gguf,qwen_asr_gguf}/inference/aligner.py`、`core/server/engines/fun_asr_gguf/inference/prompt_builder.py` | Privacy-off HTTP task 不把 token、prompt、context 或 audio-derived detected hotword 寫入 log；模型數學與輸出語意不變 |
-| Native ABI 與開發環境相容性（4） | `core/server/engines/llama/llama.py`、`core/server/engines/llama/bin/llama.cpp二进制下载到这里.txt`、`pyproject.toml`、`uv.lock` | 維持共享 b7798 runtime 的結構與 sampler ABI；分角色、跨平台的 Python 3.10–3.12 lock 取代上游 Windows/Python 3.14 lock。理由與測試見 [同步紀錄](upstream-refresh-20260918.md) |
+| Native ABI 與開發環境相容性（4） | `core/server/engines/llama/llama.py`、`core/server/engines/llama/bin/llama.cpp二进制下载到这里.txt`、`pyproject.toml`、`uv.lock` | 維持共享 b7798 runtime 的結構與 sampler ABI；分角色、跨平台的 Python 3.10–3.12 lock 取代上游 Windows/Python 3.14 lock。理由與測試見 [同步紀錄](reports/upstream-refresh-20260918.md) |
 | Upstream 文件正確性／a11y（2） | `docs/text_merge_algorithm.md`、`docs/显卡加速的若干问题.md` | 對齊目前 text-merger 實作與補上有意義的圖像替代文字 |
 
 `scripts/check_upstream_divergence.py` 以 `origin/master` 直接對工作樹比較，

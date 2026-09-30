@@ -12,7 +12,7 @@
 | Base image | `nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04@sha256:85fb7ac694079fff1061a0140fd5b5a641997880e12112d92589c3bbb1e8b7ca` |
 | Python | 3.10 (venv at `/opt/venv`) |
 | Python bootstrap tooling | `packaging==26.2`, `pip==26.1.2`, `setuptools==83.0.0`, `wheel==0.47.0` |
-| Python runtime dependencies | [`requirements-server-docker.lock`](../requirements-server-docker.lock) pins the Docker image's transitive runtime versions and package hashes |
+| Python runtime dependencies | [`requirements/server-docker.lock`](../requirements/server-docker.lock) pins the Docker image's transitive runtime versions and package hashes |
 | 入口 | [`docker/server/entrypoint.sh`](../docker/server/entrypoint.sh) → `start_server_docker.py` |
 | 模型策略 | 容器啟動時自動下載缺失模型；預設保存於 `capswriter-server-models` named volume，host bind mount 為明確 opt in |
 | GPU 策略 | Base Compose 不暴露 device；加入 NVIDIA／Intel／AMD override 後，`auto` 優先 GPU；GPU bootstrap 或 probe 失敗時必須重新準備並 probe 完整 CPU fallback |

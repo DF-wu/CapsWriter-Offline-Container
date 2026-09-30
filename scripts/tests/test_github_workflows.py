@@ -119,7 +119,7 @@ class GitHubWorkflowTest(unittest.TestCase):
         )
         self.assertIn("--require-hashes", contract)
         self.assertIn("--only-binary=:all:", contract)
-        self.assertIn("--requirement requirements-api-test.lock", contract)
+        self.assertIn("--requirement requirements/api-test.lock", contract)
         self.assertIn(
             '"$RUNNER_TEMP/api-contract/bin/python" scripts/verify_api_contract.py',
             contract,
@@ -154,14 +154,14 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertIn("python -m pip install", job)
         self.assertIn("--no-deps", job)
         self.assertIn(
-            "--requirement requirements-windows-build-bootstrap.lock",
+            "--requirement requirements/windows-build-bootstrap.lock",
             job,
         )
         self.assertIn("--require-hashes", job)
         self.assertIn("--only-binary=:all:", job)
         self.assertIn("--no-binary=srt", job)
         self.assertIn("--no-build-isolation", job)
-        self.assertIn("--requirement requirements-windows-build.lock", job)
+        self.assertIn("--requirement requirements/windows-build.lock", job)
         self.assertIn("python -m PyInstaller --clean --noconfirm build.spec", job)
         self.assertIn("$env:RUNNER_TEMP", job)
         self.assertIn("Compress-Archive", job)
@@ -204,7 +204,7 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertIn("${{ matrix.venv_python }} -m pip install", tui)
         self.assertIn("--require-hashes", tui)
         self.assertIn("--only-binary=:all:", tui)
-        self.assertIn("--requirement requirements-tui.lock", tui)
+        self.assertIn("--requirement requirements/tui.lock", tui)
         self.assertIn(
             "run: ${{ matrix.venv_python }} scripts/verify_tui.py",
             tui,
@@ -364,7 +364,7 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertIn('python -m venv "$RUNNER_TEMP/api-contract"', verify)
         self.assertIn("--require-hashes", verify)
         self.assertIn("--only-binary=:all:", verify)
-        self.assertIn("--requirement requirements-api-test.lock", verify)
+        self.assertIn("--requirement requirements/api-test.lock", verify)
         self.assertIn("scripts/verify_api_contract.py", verify)
         self.assertIn('PYTHONNOUSERSITE: "1"', verify)
         self.assertIn("Verify pushed server image digest", publish)

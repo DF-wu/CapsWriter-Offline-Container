@@ -274,13 +274,13 @@ python -m unittest discover -s fork_server/http_api/tests -v
 ```
 
 真實 multipart 與官方 SDK tests 以
-[`requirements-api-test.txt`](../../requirements-api-test.txt) 作為精簡 direct input，
+[`requirements/api-test.txt`](../../requirements/api-test.txt) 作為精簡 direct input，
 執行時使用完整解析的 Python 3.12/Linux
-[`requirements-api-test.lock`](../../requirements-api-test.lock)：
+[`requirements/api-test.lock`](../../requirements/api-test.lock)：
 
 ```bash
 python -m pip install --require-hashes --only-binary=:all: \
-  -r requirements-api-test.lock
+  -r requirements/api-test.lock
 python scripts/verify_api_contract.py
 ```
 

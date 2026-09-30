@@ -293,13 +293,13 @@ python -m unittest discover -s fork_server/http_api/tests -v
 ```
 
 The real multipart and official-SDK tests use
-[`requirements-api-test.txt`](../../requirements-api-test.txt) as their concise
+[`requirements/api-test.txt`](../../requirements/api-test.txt) as their concise
 direct input and the fully resolved Python 3.12/Linux
-[`requirements-api-test.lock`](../../requirements-api-test.lock) for execution:
+[`requirements/api-test.lock`](../../requirements/api-test.lock) for execution:
 
 ```bash
 python -m pip install --require-hashes --only-binary=:all: \
-  -r requirements-api-test.lock
+  -r requirements/api-test.lock
 python scripts/verify_api_contract.py
 ```
 

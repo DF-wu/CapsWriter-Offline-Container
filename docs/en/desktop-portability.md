@@ -54,13 +54,13 @@ py -3.12 -m venv "$env:TEMP\capswriter-build"
   --require-hashes `
   --only-binary=:all: `
   --no-deps `
-  --requirement requirements-windows-build-bootstrap.lock
+  --requirement requirements/windows-build-bootstrap.lock
 & "$env:TEMP\capswriter-build\Scripts\python.exe" -m pip install `
   --require-hashes `
   --only-binary=:all: `
   --no-binary=srt `
   --no-build-isolation `
-  --requirement requirements-windows-build.lock
+  --requirement requirements/windows-build.lock
 & "$env:TEMP\capswriter-build\Scripts\python.exe" -m PyInstaller --clean --noconfirm build.spec
 ```
 

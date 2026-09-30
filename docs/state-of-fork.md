@@ -1,22 +1,21 @@
 # Fork 現況（State of Fork）
 
-> **更新時間**：2026-09-19
+> **更新時間**：2026-09-30
 >
-> **目前功能分支上游基底**：`84912d5`（merge `a1cdd45`）
+> **`master` 上游基底**：`84912d5`（merge `a1cdd45`，PR #4）
 >
-> **目前工作分支**：`feat/v2-upstream-settings-20260918`；尚未表示已合併至 `master`、發布或部署
+> **最新發布**：`fork-v2.0.0`（見 [release notes](zh-TW/release-notes.md)）
 >
 > **歷史 v2 產品合併點**：`afc8c58`（PR #2）；下方既有驗證紀錄屬於該基線
 
 此次 v2 同步已整合上游跨分片 token 拼接吞字修正等變更，並保留 Python
 3.10–3.12 與固定的 llama.cpp b7798 ABI 相容性，不直接採用上游 Python 3.14／
-b10621 假設。後續功能與完整驗證仍以目前工作分支的最終 commit 為準。
+b10621 假設。
 
-v1 另以獨立 PR 準備已核准的**一次性完整上游同步至 `84912d5`**，包含
-`util/` → `core/` 遷移並保留 v1 server、容器與 API 契約。PR 合併前，
-`maintenance/v1` 仍在舊基線；`archive/v1-legacy` 與
-`fork-pre-reset-20260525-1411` 保持不可變。此工作不包含正式環境部署或發布，
-兩軌發布管道仍然獨立，詳見[雙軌維護政策](zh-TW/versioning.md)。
+v1 已透過 PR #5 完成**一次性完整上游同步至 `84912d5`**，包含
+`util/` → `core/` 遷移並保留 v1 server、容器與 API 契約；`archive/v1-legacy` 與
+`fork-pre-reset-20260525-1411` 保持不可變。兩軌發布管道仍然獨立，詳見
+[雙軌維護政策](zh-TW/versioning.md)。
 
 ---
 

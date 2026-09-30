@@ -191,7 +191,7 @@ a real model or microphone.
 
 | Symptom | Action |
 |---|---|
-| Verifier reports dependency mismatch | Recreate the venv and install `requirements-tui.lock` with `--require-hashes --only-binary=:all:` |
+| Verifier reports dependency mismatch | Recreate the venv and install `requirements/tui.lock` with `--require-hashes --only-binary=:all:` |
 | **FILE ONLY** | Core operation is healthy; optional `sounddevice`/PortAudio/device stack is unavailable |
 | F5 health works but model is degraded | Read each diagnostic line; do not transcribe until readiness/model state is understood |
 | Audio path rejected | Use an existing file visible to the TUI process; container paths and host paths are different |

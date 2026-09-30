@@ -1,0 +1,124 @@
+<svg class="rich-terminal" viewBox="0 0 1238 489.2" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cli-shot-title cli-shot-desc"><title id="cli-shot-title">CapsWriter CLI 真實輸出</title><desc id="cli-shot-desc">終端機依序執行 health、將中文音檔轉成文字、將英文音檔轉成 SRT 字幕，以及把兩個音檔批次輸出為 VTT；所有輸出皆來自連到本機 Qwen3-ASR Server 的實際執行。</desc>
+    <!-- Generated with Rich https://www.textualize.io -->
+    <style>
+
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Regular");
+        font-style: normal;
+        font-weight: 400;
+    }
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Bold");
+        font-style: bold;
+        font-weight: 700;
+    }
+
+    .terminal-capswriter-cli-matrix {
+        font-family: Fira Code, monospace;
+        font-size: 20px;
+        line-height: 24.4px;
+        font-variant-east-asian: full-width;
+    }
+
+    .terminal-capswriter-cli-title {
+        font-size: 18px;
+        font-weight: bold;
+        font-family: arial;
+    }
+
+    .terminal-capswriter-cli-r1 { fill: #98a84b;font-weight: bold }
+.terminal-capswriter-cli-r2 { fill: #c5c8c6;font-weight: bold }
+.terminal-capswriter-cli-r3 { fill: #c5c8c6 }
+    </style>
+
+    <defs>
+    <clipPath id="terminal-capswriter-cli-clip-terminal">
+      <rect x="0" y="0" width="1219.0" height="438.2" />
+    </clipPath>
+    <clipPath id="terminal-capswriter-cli-line-0">
+    <rect x="0" y="1.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-1">
+    <rect x="0" y="25.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-2">
+    <rect x="0" y="50.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-3">
+    <rect x="0" y="74.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-4">
+    <rect x="0" y="99.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-5">
+    <rect x="0" y="123.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-6">
+    <rect x="0" y="147.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-7">
+    <rect x="0" y="172.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-8">
+    <rect x="0" y="196.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-9">
+    <rect x="0" y="221.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-10">
+    <rect x="0" y="245.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-11">
+    <rect x="0" y="269.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-12">
+    <rect x="0" y="294.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-13">
+    <rect x="0" y="318.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-14">
+    <rect x="0" y="343.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-15">
+    <rect x="0" y="367.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-capswriter-cli-line-16">
+    <rect x="0" y="391.9" width="1220" height="24.65"/>
+            </clipPath>
+    </defs>
+
+    <rect fill="#292929" stroke="rgba(255,255,255,0.35)" stroke-width="1" x="1" y="1" width="1236" height="487.2" rx="8"/><text class="terminal-capswriter-cli-title" fill="#c5c8c6" text-anchor="middle" x="618" y="27">CapsWriter&#160;CLI&#160;·&#160;真實輸出&#160;/&#160;real&#160;output</text>
+            <g transform="translate(26,22)">
+            <circle cx="0" cy="0" r="7" fill="#ff5f57"/>
+            <circle cx="22" cy="0" r="7" fill="#febc2e"/>
+            <circle cx="44" cy="0" r="7" fill="#28c840"/>
+            </g>
+
+    <g transform="translate(9, 41)" clip-path="url(#terminal-capswriter-cli-clip-terminal)">
+
+    <g class="terminal-capswriter-cli-matrix">
+    <text class="terminal-capswriter-cli-r1" x="0" y="20" textLength="24.4" clip-path="url(#terminal-capswriter-cli-line-0)">$&#160;</text><text class="terminal-capswriter-cli-r2" x="24.4" y="20" textLength="378.2" clip-path="url(#terminal-capswriter-cli-line-0)">python&#160;capswriter_cli.py&#160;health</text><text class="terminal-capswriter-cli-r3" x="1220" y="20" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-0)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="44.4" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-1)">{</text><text class="terminal-capswriter-cli-r3" x="1220" y="44.4" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-1)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="68.8" textLength="207.4" clip-path="url(#terminal-capswriter-cli-line-2)">&#160;&#160;&quot;status&quot;:&#160;&quot;ok&quot;,</text><text class="terminal-capswriter-cli-r3" x="1220" y="68.8" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-2)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="93.2" textLength="268.4" clip-path="url(#terminal-capswriter-cli-line-3)">&#160;&#160;&quot;model&quot;:&#160;&quot;qwen_asr&quot;,</text><text class="terminal-capswriter-cli-r3" x="1220" y="93.2" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-3)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="117.6" textLength="219.6" clip-path="url(#terminal-capswriter-cli-line-4)">&#160;&#160;&quot;version&quot;:&#160;&quot;2.6&quot;</text><text class="terminal-capswriter-cli-r3" x="1220" y="117.6" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-4)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="142" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-5)">}</text><text class="terminal-capswriter-cli-r3" x="1220" y="142" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-5)">
+</text><text class="terminal-capswriter-cli-r3" x="1220" y="166.4" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-6)">
+</text><text class="terminal-capswriter-cli-r1" x="0" y="190.8" textLength="24.4" clip-path="url(#terminal-capswriter-cli-line-7)">$&#160;</text><text class="terminal-capswriter-cli-r2" x="24.4" y="190.8" textLength="683.2" clip-path="url(#terminal-capswriter-cli-line-7)">python&#160;capswriter_cli.py&#160;transcribe&#160;zh.wav&#160;--format&#160;text</text><text class="terminal-capswriter-cli-r3" x="1220" y="190.8" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-7)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="215.2" textLength="183" clip-path="url(#terminal-capswriter-cli-line-8)">開放時間：早上九點至下午五點。</text><text class="terminal-capswriter-cli-r3" x="1220" y="215.2" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-8)">
+</text><text class="terminal-capswriter-cli-r3" x="1220" y="239.6" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-9)">
+</text><text class="terminal-capswriter-cli-r1" x="0" y="264" textLength="24.4" clip-path="url(#terminal-capswriter-cli-line-10)">$&#160;</text><text class="terminal-capswriter-cli-r2" x="24.4" y="264" textLength="671" clip-path="url(#terminal-capswriter-cli-line-10)">python&#160;capswriter_cli.py&#160;transcribe&#160;en.wav&#160;--format&#160;srt</text><text class="terminal-capswriter-cli-r3" x="1220" y="264" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-10)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="288.4" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-11)">1</text><text class="terminal-capswriter-cli-r3" x="1220" y="288.4" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-11)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="312.8" textLength="353.8" clip-path="url(#terminal-capswriter-cli-line-12)">00:00:00,000&#160;--&gt;&#160;00:00:07,152</text><text class="terminal-capswriter-cli-r3" x="1220" y="312.8" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-12)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="337.2" textLength="1037" clip-path="url(#terminal-capswriter-cli-line-13)">The&#160;tribal&#160;chieftain&#160;called&#160;for&#160;the&#160;boy,&#160;and&#160;presented&#160;him&#160;with&#160;fifty&#160;pieces&#160;of&#160;gold.</text><text class="terminal-capswriter-cli-r3" x="1220" y="337.2" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-13)">
+</text><text class="terminal-capswriter-cli-r3" x="1220" y="361.6" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-14)">
+</text><text class="terminal-capswriter-cli-r1" x="0" y="386" textLength="24.4" clip-path="url(#terminal-capswriter-cli-line-15)">$&#160;</text><text class="terminal-capswriter-cli-r2" x="24.4" y="386" textLength="976" clip-path="url(#terminal-capswriter-cli-line-15)">python&#160;capswriter_cli.py&#160;transcribe&#160;zh.wav&#160;en.wav&#160;--format&#160;vtt&#160;--output-dir&#160;subs</text><text class="terminal-capswriter-cli-r3" x="1220" y="386" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-15)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="410.4" textLength="207.4" clip-path="url(#terminal-capswriter-cli-line-16)">Wrote&#160;subs/zh.vtt</text><text class="terminal-capswriter-cli-r3" x="1220" y="410.4" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-16)">
+</text><text class="terminal-capswriter-cli-r3" x="0" y="434.8" textLength="207.4" clip-path="url(#terminal-capswriter-cli-line-17)">Wrote&#160;subs/en.vtt</text><text class="terminal-capswriter-cli-r3" x="1220" y="434.8" textLength="12.2" clip-path="url(#terminal-capswriter-cli-line-17)">
+</text>
+    </g>
+    </g>
+</svg>

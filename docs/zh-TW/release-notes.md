@@ -2,22 +2,61 @@
 
 > [文件首頁](README.md) · [English](../en/release-notes.md) · [開始使用](getting-started.md)
 
-## 尚未發布 — 上游同步
+## fork-v2.0.0 — 穩定版
 
-`feat/v2-upstream-settings-20260918` 上的 merge `a1cdd45` 已整合上游至
-`84912d5`，包含跨分片 token 拼接吞字修正。Fork 保留 Python 3.10–3.12 與
-固定的 llama.cpp b7798 執行環境相容性，不要求採用上游 Python 3.14／b10621
-環境。此功能分支狀態不代表版本發布、image 發布或正式環境部署。
+發布日期：**2026-09-30**。這是 fork v2 的第一個穩定版，取代
+`fork-v2.0.0-rc.1`。Tag 指向通過 CI、portability／Windows-package、server-image
+與 Web-image workflow 的 `master` commit；GitHub Release 附上該 commit 的
+Windows ZIP、`SHA256SUMS` 與 image 參照。
 
-Windows 新增首次啟動／托盤設定，可調整連線、麥克風、快捷鍵與輸出。
-Web 新增需明確啟用並驗證身分的 Server 設定，區分已儲存值、目前值與
-重啟需求；見[日常設定指南](../settings.md)。[統一開發指令](../development.md)
-涵蓋隔離環境安裝、啟動、測試與建置；本次容器驗證與 Windows 實機驗收
-邊界記於[驗證紀錄](../validation-20260919.md)。
+### 重點
 
-獨立的 v1 PR 正在準備已核准的一次性完整上游同步，包含 `util/` → `core/`
-遷移，並保留 v1 server、容器與 API 契約。該 PR 合併前，`maintenance/v1`
-仍維持舊基線；v1 與 v2 發布管道繼續分開。詳見目前的[維護政策](versioning.md)。
+- **上游同步至 `84912d5`**：包含 upstream v2.6（GPU 預加速、短句標點、延遲回車、
+  托盤「日記」「重啟」、ITN 強化）與之後的跨分片 token 吞字修正、字幕兩遍式
+  分行與句末時間。Fork 保留 Python 3.10–3.12 與固定的 llama.cpp b7798 ABI，
+  不採用上游 Python 3.14／b10621 環境。
+- **日常設定介面**：Windows Client 首次啟動／托盤「設定」視窗（連線、麥克風、
+  快捷鍵、輸出）；Web Console 可選用、需驗證的 Server 設定頁。見
+  [日常設定](../settings.md)。
+- **統一開發指令**：`scripts/dev.py` 以隔離環境安裝、啟動、測試與建置；見
+  [開發流程](../development.md)。
+- **字幕修正**：無原生時間戳的引擎（例如 Qwen3-ASR）經 HTTP 輸出
+  `srt`／`vtt`／`verbose_json` 時，segment 文字改以最終格式化文字為準，英文不再
+  黏成一串、中文保留標點與數字轉換。
+- **可靠性**：啟動取消與托盤關閉會等待完成、Server 可正常終止、Windows 重導向
+  主控台的編碼錯誤不再中斷辨識、設定並行編輯不互相覆蓋。
+- **文件**：重寫 README，新增[圖文使用教學](usage.md)與真實 Web／CLI／TUI 截圖。
+
+### 需要注意的變更
+
+- Fork 的依賴鎖定檔移到 `requirements/`（例如 `requirements-tui.lock` →
+  `requirements/tui.lock`）。自行撰寫的安裝腳本請更新路徑；upstream 的
+  `requirements-client.txt`、`requirements-server.txt` 仍在根目錄。
+- 日期標記的驗證／審查紀錄移到 `docs/reports/`。
+- 設定視窗與 Web Console 的提示文字不再預設特定主機名稱。
+
+### 本版驗證證據
+
+- GitHub Actions：CI、portability matrix（Ubuntu 24.04／Windows 2022 ×
+  Python 3.10／3.12）、Windows package（hash-lock 建置、搬移、ZIP 往返、拒絕
+  reparse point、兩個 EXE `--artifact-self-check`）、server／Web image 發布。
+- 本機完整 `verify_all`：upstream divergence guard、文件、CLI 63、HTTP API 178、
+  Docker bootstrap 64、scripts 398、Web 118 項測試。
+- 真實模型：Linux x86-64、Qwen3-ASR 1.7B CPU（`cpu_only` preset）以 source
+  runtime 執行；`/health`、`/ready` 皆為 ok，已知 5.6 秒中文音檔經 HTTP 轉出
+  「開放時間：早上九點至下午五點。」，英文音檔的 `text`／`srt`／`vtt`／
+  `verbose_json` 皆正確；Web Console、CLI、TUI 以同一 Server 實際操作並截圖。
+  先前在 container 內的 WebSocket／HTTP 與設定生命週期驗證見
+  [驗證紀錄](../reports/validation-20260919.md)。
+
+### 未涵蓋於本版證據
+
+下列項目沒有在本版執行實機驗收；在你的環境使用前請自行確認，並歡迎回報結果：
+
+- Windows 實體麥克風、全域快捷鍵、托盤、前景視窗文字輸入與 Windows 上的模型推論。
+- NVIDIA／Vulkan／DirectML GPU 推論與效能。
+- Linux X11 桌面快捷鍵。
+- 從 rc.1 或 fork v1 的升級／回滾演練。
 
 ## fork-v2.0.0-rc.1 — 跨平台 release candidate
 
@@ -175,7 +214,7 @@ deployment 移轉：
 - Local API 刻意只實作 bounded transcription subset，不含 streaming、
   diarization、translation 或所有現行 OpenAI Audio features。
 
-## Stable fork-v2.0.0 前仍需的 qualification
+## rc.1 當時列出的 stable 前 qualification
 
 - Green portable Ubuntu／Windows matrix 與 isolated API／TUI jobs。
 - Root verification、documentation、cleanup、Web browser／image smoke、
