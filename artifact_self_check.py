@@ -27,7 +27,7 @@ REQUIRED_ROOT_FILES = (
     "hot-server.txt",
     "hot-rule.txt",
     "readme.md",
-    "README.en.md",
+    "README.zh-TW.md",
     "LICENSE",
 )
 PACKAGED_DIRECTORIES = ("internal",)

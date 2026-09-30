@@ -144,7 +144,7 @@ jobs:
           $required = @(
             'internal', 'core', 'LLM', 'assets', 'docs', 'models', 'logs',
             'config_client.py', 'config_server.py', 'hot.txt', 'hot-server.txt',
-            'hot-rule.txt', 'readme.md', 'README.en.md', 'LICENSE',
+            'hot-rule.txt', 'readme.md', 'README.zh-TW.md', 'LICENSE',
             'start_server.exe', 'start_client.exe'
           )
           foreach ($relative in $required) {

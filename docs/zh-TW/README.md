@@ -1,6 +1,6 @@
 # CapsWriter fork v2 文件首頁
 
-> 繁體中文 · [English](../en/README.md) · [專案 README](../../readme.md)
+> 繁體中文 · [English](../en/README.md) · [專案 README](../../README.zh-TW.md)
 
 CapsWriter 有兩種角色：**ASR Server** 在本機執行模型推論；一個或多個
 **Client** 收音／選檔並呈現逐字稿。若這個差異還不清楚，請先讀

@@ -29,12 +29,12 @@ RELEASE_DOC_ASSETS = {
 
 class DocumentationTest(unittest.TestCase):
     def test_root_readmes_present_the_cross_platform_product_truthfully(self) -> None:
-        english = (ROOT / "README.en.md").read_text(encoding="utf-8")
-        traditional = (ROOT / "readme.md").read_text(encoding="utf-8")
+        english = (ROOT / "readme.md").read_text(encoding="utf-8")
+        traditional = (ROOT / "README.zh-TW.md").read_text(encoding="utf-8")
 
         for filename, source in (
-            ("README.en.md", english),
-            ("readme.md", traditional),
+            ("readme.md", english),
+            ("README.zh-TW.md", traditional),
         ):
             with self.subTest(filename=filename):
                 folded = source.casefold()
@@ -76,7 +76,7 @@ class DocumentationTest(unittest.TestCase):
 
     def test_readmes_make_every_major_user_path_discoverable(self) -> None:
         expected = {
-            "README.en.md": (
+            "readme.md": (
                 "docs/en/README.md",
                 "docs/en/getting-started.md",
                 "docs/en/deployment.md",
@@ -87,7 +87,7 @@ class DocumentationTest(unittest.TestCase):
                 "docs/en/openai-api.md",
                 "docs/en/tui.md",
             ),
-            "readme.md": (
+            "README.zh-TW.md": (
                 "docs/zh-TW/README.md",
                 "docs/zh-TW/getting-started.md",
                 "docs/zh-TW/deployment.md",
@@ -107,8 +107,8 @@ class DocumentationTest(unittest.TestCase):
 
     def test_entry_docs_separate_server_and_client_roles(self) -> None:
         entry_docs = (
-            ROOT / "README.en.md",
             ROOT / "readme.md",
+            ROOT / "README.zh-TW.md",
             ROOT / "docs" / "en" / "README.md",
             ROOT / "docs" / "zh-TW" / "README.md",
             ROOT / "docs" / "en" / "server-and-clients.md",
@@ -124,23 +124,23 @@ class DocumentationTest(unittest.TestCase):
                 self.assertIn("6016", source)
                 self.assertIn("6017", source)
 
-        for filename in ("README.en.md", "readme.md"):
+        for filename in ("readme.md", "README.zh-TW.md"):
             source = (ROOT / filename).read_text(encoding="utf-8")
             self.assertIn(
                 "docs/en/server-and-clients.md"
-                if filename == "README.en.md"
+                if filename == "readme.md"
                 else "docs/zh-TW/server-and-clients.md",
                 source,
             )
 
     def test_english_readme_uses_locked_web_dependency_install(self) -> None:
-        source = (ROOT / "README.en.md").read_text(encoding="utf-8")
+        source = (ROOT / "readme.md").read_text(encoding="utf-8")
 
         self.assertIn("npm ci --no-audit --no-fund", source)
         self.assertIsNone(re.search(r"(?m)^\s*npm install\s*$", source))
 
     def test_readmes_point_http_api_users_to_compose_port_mapping(self) -> None:
-        for filename in ("readme.md", "README.en.md"):
+        for filename in ("README.zh-TW.md", "readme.md"):
             with self.subTest(filename=filename):
                 source = (ROOT / filename).read_text(encoding="utf-8")
                 self.assertIn("ports:", source)
@@ -148,7 +148,7 @@ class DocumentationTest(unittest.TestCase):
                 self.assertNotIn("Expose port `6017`", source)
 
     def test_http_client_quick_starts_include_required_runtime_values(self) -> None:
-        for filename in ("readme.md", "README.en.md"):
+        for filename in ("README.zh-TW.md", "readme.md"):
             with self.subTest(filename=filename):
                 source = (ROOT / filename).read_text(encoding="utf-8")
                 self.assertIn(
@@ -289,11 +289,11 @@ class DocumentationTest(unittest.TestCase):
                 self.assertIn("npm run dev", source)
 
     def test_root_readmes_claim_packaged_windows_evidence_not_source_only(self) -> None:
-        for filename in ("README.en.md", "readme.md"):
+        for filename in ("readme.md", "README.zh-TW.md"):
             source = (ROOT / filename).read_text(encoding="utf-8")
             with self.subTest(filename=filename):
                 self.assertIn("requirements/windows-build.lock", (
-                    ROOT / "docs" / ("en" if filename == "README.en.md" else "zh-TW") /
+                    ROOT / "docs" / ("en" if filename == "readme.md" else "zh-TW") /
                     "desktop-portability.md"
                 ).read_text(encoding="utf-8"))
                 self.assertIn("PyInstaller", source)

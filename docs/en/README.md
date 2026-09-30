@@ -1,6 +1,6 @@
 # CapsWriter fork v2 documentation
 
-> English · [繁體中文](../zh-TW/README.md) · [Project README](../../README.en.md)
+> English · [繁體中文](../zh-TW/README.md) · [Project README](../../readme.md)
 
 CapsWriter has two roles: an **ASR server** performs local model inference, and
 one or more **clients** capture/select audio and present transcripts. Start
