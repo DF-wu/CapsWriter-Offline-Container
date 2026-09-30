@@ -164,7 +164,7 @@ const ServerSettings = forwardRef<ServerSettingsHandle, { settings: ApiSettings 
         </button>
       </div>
       <p className="settings-help">調整上方連線所指向的 Server，供所有 Client 共用。儲存後需重啟 Server；進階參數仍使用設定檔。</p>
-      {!data && !error && !message && !busy ? <p className="settings-help">先填入 axolotl 的 API 位址與 API key，再讀取共用設定。Windows 快捷鍵、麥克風及文字輸出請在桌面 Client 設定。</p> : null}
+      {!data && !error && !message && !busy ? <p className="settings-help">先填入 Server 的 API 位址與 API key，再讀取共用設定。Windows 快捷鍵、麥克風及文字輸出請在桌面 Client 設定。</p> : null}
       {error ? <div className="settings-notice error" role="alert" tabIndex={-1} ref={errorSummary}>
         <p>{error}</p>
         {Object.entries(fieldErrors).length ? <ul>{Object.entries(fieldErrors).map(([key, detail]) => <li key={key}><a href={`#server-setting-${key}`}>{data?.fields.find((field) => field.key === key)?.label ?? key}：{detail}</a></li>)}</ul> : null}

@@ -1,7 +1,7 @@
 # Development workflow / 開發流程
 
 Windows is the first supported desktop platform. The server runs separately on
-Linux (for example axolotl); the Web frontend and CLI use its HTTP API. The
+Linux (for example a NAS or home server); the Web frontend and CLI use its HTTP API. The
 Windows hotkey client uses its WebSocket endpoint. Starting the frontend alone
 does not start an ASR server.
 
@@ -37,13 +37,13 @@ python scripts/dev.py client --settings
 python scripts/dev.py client
 ```
 
-Set axolotl's WebSocket address, microphone and shortcut in the settings window.
+Set the server WebSocket address, microphone and shortcut in the settings window.
 This profile installs only the desktop runtime, without ASR engines or PyInstaller.
 It uses `requirements/desktop-dev.lock`, constrained to the reviewed Windows
 release versions. Windows microphone, shortcut and foreground text insertion
 still require a real Windows session for acceptance testing.
 
-設定視窗填入 axolotl 的 WebSocket 位址，選擇麥克風與快捷鍵。此環境只裝桌面執行
+設定視窗填入 Server 的 WebSocket 位址，選擇麥克風與快捷鍵。此環境只裝桌面執行
 依賴；快捷鍵、實際錄音、輸入目前視窗需在 Windows 實機驗收。
 
 ## Tests / 測試
@@ -102,7 +102,7 @@ documented Docker configuration. Use separate ports, model/cache locations and
 containers when testing on a machine with an existing deployment. For GPU system
 libraries and server image builds, use the existing
 [deployment guide](zh-TW/deployment.md). These commands do not upgrade
-or restart an existing axolotl service.
+or restart an existing server deployment.
 
 ## Builds / 建置
 

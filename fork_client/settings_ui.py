@@ -47,7 +47,7 @@ class SettingsWindow:
         outer = ttk.Frame(root, padding=20)
         outer.pack(fill="both", expand=True)
         ttk.Label(outer, text="讓說話成為輸入", font=("Microsoft JhengHei UI", 18, "bold")).pack(anchor="w")
-        ttk.Label(outer, text="按住快捷鍵說話 → axolotl 辨識 → 輸入目前視窗", padding=(0, 8)).pack(anchor="w")
+        ttk.Label(outer, text="按住快捷鍵說話 → Server 辨識 → 輸入目前視窗", padding=(0, 8)).pack(anchor="w")
         self.status = tk.StringVar(value="所有變更皆於重新啟動 Client 後生效。")
         self.notebook = ttk.Notebook(outer)
         self.notebook.pack(fill="both", expand=True, pady=12)
@@ -72,7 +72,7 @@ class SettingsWindow:
             self.status.set("設定檔有錯誤；修正原檔後重開，或選擇「恢復 Python 設定」。")
             root.after_idle(lambda: messagebox.showerror("設定檔無法讀取", self.read_error, parent=root))
         elif not self.path.exists():
-            self.status.set("首次使用：請確認 Server 主機為 axolotl 或其 IP，測試連線，再儲存設定。Windows 不需安裝辨識模型。")
+            self.status.set("首次使用：填入 Server 的主機名稱或 IP，測試連線，再儲存設定。Windows 不需安裝辨識模型。")
         self.widgets["addr"].focus_set()
 
     def mark_dirty(self, key):
@@ -105,7 +105,7 @@ class SettingsWindow:
 
     def connection_page(self):
         page = self.pages["連線"]
-        self.field(page, 0, "addr", "Server 主機", "填 axolotl 或其 IP；127.0.0.1 指這台 Windows，不是遠端 Server。")
+        self.field(page, 0, "addr", "Server 主機", "Server 的主機名稱或 IP；Server 在同一台電腦時填 127.0.0.1。")
         self.field(page, 2, "port", "WebSocket 連接埠", "預設 6016。HTTP／Web 轉錄服務使用不同連接埠。")
         self.test_button = ttk.Button(page, text="測試 Server 連線", command=self.test_connection)
         self.test_button.grid(row=4, column=0, columnspan=2, sticky="w", pady=12)

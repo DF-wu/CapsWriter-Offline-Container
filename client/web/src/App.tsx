@@ -636,13 +636,13 @@ export default function App() {
             <h2 id="connection-title">連線</h2>
           </div>
 
-          <p className="settings-help">首次使用：填入 Server 的位址與金鑰，再按「檢查服務」。Server 在 axolotl 時，請使用 Windows 可連線的主機名稱或 IP；localhost 指的是目前這台電腦。</p>
+          <p className="settings-help">首次使用：填入 Server 的位址與金鑰，再按「檢查服務」。Server 在其他主機時，請使用這台電腦連得到的主機名稱或 IP；localhost 指的是目前這台電腦。</p>
           <label className="field">
             <span>API root</span>
             <input
               value={settings.baseUrl}
               onChange={(event) => updateConnectionSetting("baseUrl", event.target.value)}
-              placeholder="http://axolotl:6017"
+              placeholder="http://192.168.1.20:6017"
               inputMode="url"
               maxLength={WEB_SETTING_LIMITS.baseUrl}
             />

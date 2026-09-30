@@ -17,7 +17,7 @@ The existing Python configuration files remain available for advanced options.
 python scripts/dev.py client --settings
 ```
 
-1. 主機填 `axolotl` 或其可連線 IP，連接埠預設 `6016`；主機欄不含 `ws://`
+1. 主機填 Server 的主機名稱或可連線 IP（同一台電腦填 `127.0.0.1`），連接埠預設 `6016`；主機欄不含 `ws://`
    或 HTTP 路徑。按連線測試確認 WebSocket handshake。
 2. 選擇麥克風與快捷鍵，設定按住／切換錄音、繁體轉換、貼上與剪貼簿還原。
 3. 儲存後開啟／重新啟動 Client，按快捷鍵說話，確認文字輸入目標視窗。
@@ -60,8 +60,8 @@ JSON 設定。GPU 裝置掛載仍保留。
 此設定 overlay 會啟用 HTTP API 與設定管理，將 HTTP port 預設發布至 host
 loopback，並以 `capswriter-server-settings` volume 保存 `/app/settings`。
 遠端瀏覽器的 API base URL 必須是瀏覽器能連到的 Server 位址；部署方式見
-[部署指南](zh-TW/deployment.md)。上述命令是維運操作範例，本次開發不會升級
-axolotl 的既有服務。
+[部署指南](zh-TW/deployment.md)。上述命令是維運操作範例，不會自動升級
+既有服務。
 
 Settings management is opt-in and requires the HTTP Bearer API key. Apply the
 settings Compose override after any hardware/model overrides. It preserves
