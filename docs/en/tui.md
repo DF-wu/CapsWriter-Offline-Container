@@ -56,7 +56,7 @@ python3.12 -m venv .venv-tui
   --disable-pip-version-check \
   --require-hashes \
   --only-binary=:all: \
-  --requirement requirements-tui.lock
+  --requirement requirements/tui.lock
 .venv-tui/bin/python -m client.tui --help
 ```
 
@@ -68,14 +68,14 @@ py -3.12 -m venv .venv-tui
   --disable-pip-version-check `
   --require-hashes `
   --only-binary=:all: `
-  --requirement requirements-tui.lock
+  --requirement requirements/tui.lock
 & .\.venv-tui\Scripts\python.exe -m client.tui --help
 ```
 
 Python 3.10 consumes the same lock and installs the marked `exceptiongroup`
-backport; Python 3.12 omits it. [`requirements-tui.txt`](../../requirements-tui.txt)
+backport; Python 3.12 omits it. [`requirements/tui.txt`](../../requirements/tui.txt)
 contains only the reviewed direct pins, while
-[`requirements-tui.lock`](../../requirements-tui.lock) resolves every core
+[`requirements/tui.lock`](../../requirements/tui.lock) resolves every core
 transitive dependency and SHA-256 hash. The core lock intentionally preserves
 file-only operation without a native audio stack.
 

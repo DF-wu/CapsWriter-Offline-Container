@@ -68,7 +68,7 @@ class DevelopmentWorkflowTests(unittest.TestCase):
                  patch.object(dev, "run") as run:
                 dev.setup("tui")
             commands = [call.args[0] for call in run.call_args_list]
-            bootstrap = str(dev.ROOT / "requirements-windows-build-bootstrap.lock")
+            bootstrap = str(dev.ROOT / "requirements" / "windows-build-bootstrap.lock")
             self.assertTrue(any(bootstrap in command for command in commands))
             self.assertTrue((root / "tui" / ".capswriter-ready").exists())
 

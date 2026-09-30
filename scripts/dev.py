@@ -17,11 +17,11 @@ WEB_ROOT = ROOT / "client" / "web"
 ENV_ROOT = ROOT / ".venv-dev"
 PROFILES = ("dev", "desktop", "server", "api", "tui", "build", "web")
 LOCKS = {
-    "desktop": "requirements-desktop-dev.lock",
-    "server": "requirements-server-docker.lock",
-    "api": "requirements-api-test.lock",
-    "tui": "requirements-tui.lock",
-    "build": "requirements-windows-build.lock",
+    "desktop": "requirements/desktop-dev.lock",
+    "server": "requirements/server-docker.lock",
+    "api": "requirements/api-test.lock",
+    "tui": "requirements/tui.lock",
+    "build": "requirements/windows-build.lock",
 }
 TIMEOUT = 1800
 
@@ -112,7 +112,7 @@ def setup(profile: str) -> None:
         run([
             uv, "pip", "install", "--no-config", "--python", python,
             "--require-hashes", "--only-binary=:all:", "--no-deps",
-            "-r", str(ROOT / "requirements-windows-build-bootstrap.lock"),
+            "-r", str(ROOT / "requirements" / "windows-build-bootstrap.lock"),
         ])
     if profile in LOCKS:
         args = [uv, "pip", "install", "--no-config", "--python", python, "--require-hashes", "--only-binary=:all:"]

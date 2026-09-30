@@ -20,7 +20,7 @@
 <rect x="48" y="176" width="192" height="80" rx="40" fill="#F5F5F5" stroke="#333333" stroke-width="2"/>
 <text x="144" y="216" text-anchor="middle" dominant-baseline="central" font-family="Arial,Microsoft JhengHei,Noto Sans CJK TC" font-size="14" fill="#000000"><tspan x="144" dy="-9.8">Source checkout ready</tspan><tspan x="144" dy="19.6">原始碼 checkout 就緒</tspan></text>
 <rect x="304" y="176" width="256" height="80" rx="4" fill="#E5E5E5" stroke="#000000" stroke-width="2"/>
-<text x="432" y="216" text-anchor="middle" dominant-baseline="central" font-family="Arial,Microsoft JhengHei,Noto Sans CJK TC" font-size="14" fill="#000000"><tspan x="432" dy="-9.8">Install requirements-tui.lock</tspan><tspan x="432" dy="19.6">以雜湊鎖定依賴建立隔離環境</tspan></text>
+<text x="432" y="216" text-anchor="middle" dominant-baseline="central" font-family="Arial,Microsoft JhengHei,Noto Sans CJK TC" font-size="14" fill="#000000"><tspan x="432" dy="-9.8">Install requirements/tui.lock</tspan><tspan x="432" dy="19.6">以雜湊鎖定依賴建立隔離環境</tspan></text>
 <rect x="624" y="176" width="288" height="80" rx="4" fill="#E5E5E5" stroke="#000000" stroke-width="2"/>
 <text x="768" y="216" text-anchor="middle" dominant-baseline="central" font-family="Arial,Microsoft JhengHei,Noto Sans CJK TC" font-size="14" fill="#000000"><tspan x="768" dy="-9.8">Set API root + memory-only key</tspan><tspan x="768" dy="19.6">設定 API 根網址與僅存記憶體的金鑰</tspan></text>
 <polygon points="1120,168 1264,216 1120,264 976,216" fill="#FFF3D4" stroke="#8B6914" stroke-width="2"/>

@@ -182,7 +182,7 @@ HTTP API 會拒絕 unsupported capability，不會靜默忽略。提出 server b
 
 | 症狀 | 處理 |
 |---|---|
-| Verifier 回 dependency mismatch | 重建 venv，以 `--require-hashes --only-binary=:all:` 安裝 `requirements-tui.lock` |
+| Verifier 回 dependency mismatch | 重建 venv，以 `--require-hashes --only-binary=:all:` 安裝 `requirements/tui.lock` |
 | **僅檔案模式** | Core operation 正常；選用 `sounddevice`／PortAudio／device stack unavailable |
 | F5 health 正常、model degraded | 逐行讀 diagnostic；readiness／model state 未理解前不要轉錄 |
 | Audio path rejected | 使用 TUI process 可見的既有 file；container path 與 host path 不同 |

@@ -14,7 +14,7 @@ Windows gains first-run/tray settings for connection, microphone, shortcuts
 and output. The Web console gains opt-in authenticated server settings with
 saved/current values and restart status; see [daily settings](../settings.md).
 [Development commands](../development.md) unify isolated setup, startup, tests
-and builds. [Validation evidence](../validation-20260919.md) records the local
+and builds. [Validation evidence](../reports/validation-20260919.md) records the local
 container checks and the remaining Windows hardware acceptance boundary.
 
 A separate v1 PR is preparing the approved one-time full upstream refresh,

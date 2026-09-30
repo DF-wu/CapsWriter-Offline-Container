@@ -66,7 +66,7 @@ jobs:
           --disable-pip-version-check
           --require-hashes
           --only-binary=:all:
-          --requirement requirements-api-test.lock
+          --requirement requirements/api-test.lock
 
       - name: Verify API contract
         run: >-
@@ -89,7 +89,7 @@ jobs:
           python-version: "3.12"
       - name: Install lifecycle dependencies and display
         run: |
-          python -m pip install --require-hashes --only-binary=:all: -r requirements-lifecycle-test.lock
+          python -m pip install --require-hashes --only-binary=:all: -r requirements/lifecycle-test.lock
           sudo apt-get update
           sudo apt-get install -y xvfb xauth
       - name: Verify shutdown races and native settings UI without skips
@@ -144,7 +144,7 @@ jobs:
           --disable-pip-version-check
           --require-hashes
           --only-binary=:all:
-          --requirement requirements-tui.lock
+          --requirement requirements/tui.lock
 
       - name: Verify TUI without skips
         run: ${{ matrix.venv_python }} scripts/verify_tui.py

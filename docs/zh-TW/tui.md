@@ -51,7 +51,7 @@ python3.12 -m venv .venv-tui
   --disable-pip-version-check \
   --require-hashes \
   --only-binary=:all: \
-  --requirement requirements-tui.lock
+  --requirement requirements/tui.lock
 .venv-tui/bin/python -m client.tui --help
 ```
 
@@ -63,13 +63,13 @@ py -3.12 -m venv .venv-tui
   --disable-pip-version-check `
   --require-hashes `
   --only-binary=:all: `
-  --requirement requirements-tui.lock
+  --requirement requirements/tui.lock
 & .\.venv-tui\Scripts\python.exe -m client.tui --help
 ```
 
 Python 3.10 讀取同一份 lock，會依 marker 安裝 `exceptiongroup` backport；Python
-3.12 則略過它。[`requirements-tui.txt`](../../requirements-tui.txt) 只列已審查的
-direct exact pin；[`requirements-tui.lock`](../../requirements-tui.lock) 則解析所有
+3.12 則略過它。[`requirements/tui.txt`](../../requirements/tui.txt) 只列已審查的
+direct exact pin；[`requirements/tui.lock`](../../requirements/tui.lock) 則解析所有
 core transitive dependency 與 SHA-256 hash。Core lock 刻意不要求 native audio
 stack，因此沒有麥克風也能使用 file-only mode。
 

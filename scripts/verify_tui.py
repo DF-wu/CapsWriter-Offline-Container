@@ -16,8 +16,8 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-REQUIREMENTS = ROOT / "requirements-tui.txt"
-LOCK = ROOT / "requirements-tui.lock"
+REQUIREMENTS = ROOT / "requirements" / "tui.txt"
+LOCK = ROOT / "requirements" / "tui.lock"
 TESTS = ROOT / "client" / "tui" / "tests"
 PIN_PATTERN = re.compile(
     r"(?P<name>[A-Za-z0-9_.-]+)==(?P<version>[A-Za-z0-9_.!+~-]+)"

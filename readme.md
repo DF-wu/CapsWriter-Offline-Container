@@ -179,7 +179,7 @@ TUI：
 python3.12 -m venv .venv-tui
 .venv-tui/bin/python -m pip install \
   --require-hashes --only-binary=:all: \
-  --requirement requirements-tui.lock
+  --requirement requirements/tui.lock
 .venv-tui/bin/python -m client.tui --base-url http://127.0.0.1:6017
 ```
 

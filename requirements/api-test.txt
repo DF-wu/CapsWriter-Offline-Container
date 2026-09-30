@@ -1,5 +1,5 @@
 # Direct inputs for the isolated OpenAI HTTP API contract environment.
-# CI installs the fully resolved, hashed requirements-api-test.lock instead.
+# CI installs the fully resolved, hashed requirements/api-test.lock instead.
 colorama==0.4.6
 fastapi==0.139.0
 httpx==0.28.1

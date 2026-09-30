@@ -39,7 +39,7 @@ python scripts/dev.py client
 
 Set axolotl's WebSocket address, microphone and shortcut in the settings window.
 This profile installs only the desktop runtime, without ASR engines or PyInstaller.
-It uses `requirements-desktop-dev.lock`, constrained to the reviewed Windows
+It uses `requirements/desktop-dev.lock`, constrained to the reviewed Windows
 release versions. Windows microphone, shortcut and foreground text insertion
 still require a real Windows session for acceptance testing.
 
@@ -129,7 +129,7 @@ CLI output is in `client/cli/dist`; Web output is in `client/web/dist`.
 `pyproject.toml` has empty default dependencies and opt-in `desktop`, `server`,
 `api`, `tui`, `dev`, `build` groups for source exploration. There is deliberately
 no second universal `uv.lock`: the reproducible setup commands use the reviewed
-`requirements-*.lock` files. Plain `uv sync --group ...` resolves a fresh local
+`requirements/*.lock` files. Plain `uv sync --group ...` resolves a fresh local
 environment and is not a substitute for release or acceptance verification.
 Changing a group does not silently alter a locked profile. Review and regenerate
 the corresponding lock when changing dependencies.
@@ -137,7 +137,7 @@ the corresponding lock when changing dependencies.
 To regenerate the focused desktop lock after reviewing Windows release pins:
 
 ```sh
-uv pip compile --group desktop --constraint requirements-windows-build.lock --python-version 3.12 --python-platform x86_64-pc-windows-msvc --generate-hashes --only-binary=:all: --no-binary=srt --no-annotate --output-file requirements-desktop-dev.lock
+uv pip compile --group desktop --constraint requirements/windows-build.lock --python-version 3.12 --python-platform x86_64-pc-windows-msvc --generate-hashes --only-binary=:all: --no-binary=srt --no-annotate --output-file requirements/desktop-dev.lock
 ```
 
 The wrapper removes inherited Python/uv environment-selection overrides so an
