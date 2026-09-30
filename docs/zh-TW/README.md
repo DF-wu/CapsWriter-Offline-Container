@@ -6,11 +6,12 @@ CapsWriter 有兩種角色：**ASR Server** 在本機執行模型推論；一個
 **Client** 收音／選檔並呈現逐字稿。若這個差異還不清楚，請先讀
 [Server 與 Client 分工](server-and-clients.md)。
 
-## 新使用者：依三個步驟開始
+## 新使用者：依四個步驟開始
 
 1. **認識元件：**[Server 與 Client 分工](server-and-clients.md)。
 2. **選擇 Server 執行位置：**[開始使用](getting-started.md)。
 3. **選擇 Client：**從下表選 desktop、Web、CLI、TUI 或 SDK。
+4. **開始使用：**[使用教學](usage.md)（聽寫、設定、熱詞、轉錄、各 Client 圖文說明）。
 
 ## Server 文件
 

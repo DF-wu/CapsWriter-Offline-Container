@@ -7,11 +7,12 @@ one or more **clients** capture/select audio and present transcripts. Start
 with [Server and client roles](server-and-clients.md) if that distinction is
 not already clear.
 
-## New user: follow these three steps
+## New user: follow these four steps
 
 1. **Understand the components:** [Server and client roles](server-and-clients.md).
 2. **Choose where the server runs:** [Getting started](getting-started.md).
 3. **Choose a client:** desktop, Web, CLI, TUI, or SDK from the table below.
+4. **Use it:** the [usage guide](usage.md) (dictation, settings, hotwords, transcription and every client, with screenshots).
 
 ## Server documentation
 

@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="300" viewBox="0 0 1200 300" role="img" aria-labelledby="t d">
+  <title id="t">桌面聽寫四步驟</title>
+  <desc id="d">一、把游標放進任何輸入框；二、按住 CapsLock 說話，超過 0.3 秒開始錄音；三、放開按鍵；四、辨識結果經熱詞、規則與選用 LLM 處理後自動輸入。短按 CapsLock 仍保留原本的大小寫切換。</desc>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 10 5 0 10z" fill="#94a3b8"/>
+    </marker>
+    <style>
+      text{font-family:"Segoe UI","Noto Sans CJK TC","Microsoft JhengHei","PingFang TC",system-ui,sans-serif;fill:#0f172a}
+      .n{font-size:15px;font-weight:700;fill:#ffffff}
+      .l{font-size:18px;font-weight:700}
+      .m{font-size:13.5px;fill:#475569}
+      .k{font-family:"Cascadia Code","JetBrains Mono",Consolas,monospace;font-size:15px;font-weight:700}
+    </style>
+  </defs>
+  <rect width="1200" height="300" rx="18" fill="#f8fafc"/>
+  <rect x="0.5" y="0.5" width="1199" height="299" rx="18" fill="none" stroke="#e2e8f0"/>
+
+  <!-- step 1 -->
+  <rect x="30" y="30" width="255" height="200" rx="14" fill="#fff" stroke="#cbd5e1"/>
+  <circle cx="58" cy="58" r="16" fill="#6366f1"/><text x="58" y="63" text-anchor="middle" class="n">1</text>
+  <text x="84" y="64" class="l">點進任何輸入框</text>
+  <rect x="54" y="92" width="207" height="44" rx="8" fill="#f1f5f9" stroke="#94a3b8"/>
+  <line x1="70" y1="102" x2="70" y2="126" stroke="#0f172a" stroke-width="2"/>
+  <text x="54" y="170" class="m">記事本、瀏覽器、聊天軟體、</text>
+  <text x="54" y="192" class="m">IDE……任何能打字的地方</text>
+
+  <path d="M290 130 H 318" stroke="#94a3b8" stroke-width="3" marker-end="url(#a)"/>
+
+  <!-- step 2 -->
+  <rect x="325" y="30" width="255" height="200" rx="14" fill="#fff" stroke="#6366f1" stroke-width="2"/>
+  <circle cx="353" cy="58" r="16" fill="#6366f1"/><text x="353" y="63" text-anchor="middle" class="n">2</text>
+  <text x="379" y="64" class="l">按住 CapsLock 說話</text>
+  <rect x="349" y="88" width="120" height="50" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="2"/>
+  <text x="409" y="119" text-anchor="middle" class="k" fill="#3730a3">Caps Lock</text>
+  <g fill="#6366f1">
+    <rect x="486" y="106" width="6" height="14" rx="3"/><rect x="498" y="96" width="6" height="34" rx="3"/>
+    <rect x="510" y="90" width="6" height="46" rx="3"/><rect x="522" y="100" width="6" height="26" rx="3"/>
+    <rect x="534" y="94" width="6" height="38" rx="3"/><rect x="546" y="104" width="6" height="18" rx="3"/>
+  </g>
+  <text x="349" y="170" class="m">按住超過 0.3 秒開始錄音；</text>
+  <text x="349" y="192" class="m">也可用滑鼠側鍵 X2</text>
+
+  <path d="M585 130 H 613" stroke="#94a3b8" stroke-width="3" marker-end="url(#a)"/>
+
+  <!-- step 3 -->
+  <rect x="620" y="30" width="255" height="200" rx="14" fill="#fff" stroke="#cbd5e1"/>
+  <circle cx="648" cy="58" r="16" fill="#6366f1"/><text x="648" y="63" text-anchor="middle" class="n">3</text>
+  <text x="674" y="64" class="l">放開按鍵</text>
+  <rect x="644" y="88" width="120" height="50" rx="8" fill="#f1f5f9" stroke="#94a3b8"/>
+  <text x="704" y="119" text-anchor="middle" class="k" fill="#475569">Caps Lock</text>
+  <text x="782" y="120" class="m">↑ 放開</text>
+  <text x="644" y="170" class="m">Server 在本機辨識，</text>
+  <text x="644" y="192" class="m">短句通常一瞬間完成</text>
+
+  <path d="M880 130 H 908" stroke="#94a3b8" stroke-width="3" marker-end="url(#a)"/>
+
+  <!-- step 4 -->
+  <rect x="915" y="30" width="255" height="200" rx="14" fill="#fff" stroke="#16a34a" stroke-width="2"/>
+  <circle cx="943" cy="58" r="16" fill="#16a34a"/><text x="943" y="63" text-anchor="middle" class="n">4</text>
+  <text x="969" y="64" class="l">文字自動輸入</text>
+  <rect x="939" y="92" width="207" height="44" rx="8" fill="#f0fdf4" stroke="#16a34a"/>
+  <text x="953" y="120" style="font-size:15px">今天下午三點開會。</text>
+  <text x="939" y="170" class="m">經過熱詞、規則替換，</text>
+  <text x="939" y="192" class="m">以及選用的 LLM 潤色</text>
+
+  <text x="30" y="270" class="m">小技巧：短按 CapsLock（少於 0.3 秒）仍是原本的大小寫切換；快捷鍵、麥克風、繁體轉換都能在「設定」視窗調整。</text>
+</svg>
