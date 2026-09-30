@@ -403,7 +403,7 @@ class RequirementsTest(unittest.TestCase):
         self.assertNotIn("['start_server_docker.py']", source)
         self.assertIn("hiddenimports=server_hiddenimports", source)
         self.assertIn("'soundfile'", source)
-        self.assertIn("'README.en.md'", source)
+        self.assertIn("'README.zh-TW.md'", source)
         self.assertIn("filter=lambda name: '.tests' not in name", source)
         for package in (
             "fork_server",

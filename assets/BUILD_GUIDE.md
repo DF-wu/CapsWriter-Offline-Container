@@ -46,7 +46,7 @@ hot.txt
 hot-server.txt
 hot-rule.txt
 readme.md
-README.en.md
+README.zh-TW.md
 LICENSE
 ```
 
@@ -138,7 +138,7 @@ dist/CapsWriter-Offline/
 ├── hot-server.txt
 ├── hot-rule.txt
 ├── readme.md
-├── README.en.md
+├── README.zh-TW.md
 └── LICENSE
 ```
 

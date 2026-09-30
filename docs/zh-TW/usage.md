@@ -1,6 +1,6 @@
 # 使用教學
 
-> [文件首頁](README.md) · 繁體中文 · [English](../en/usage.md) · [專案 README](../../readme.md)
+> [文件首頁](README.md) · 繁體中文 · [English](../en/usage.md) · [專案 README](../../README.zh-TW.md)
 
 這份教學假設 Server 已經啟動（還沒有的話，請先看[開始使用](getting-started.md)）。
 內容依「每天會做的事」排列，每一節都可以單獨閱讀。

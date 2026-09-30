@@ -1,6 +1,6 @@
 # Usage guide
 
-> [Docs home](README.md) · English · [繁體中文](../zh-TW/usage.md) · [Project README](../../README.en.md)
+> [Docs home](README.md) · English · [繁體中文](../zh-TW/usage.md) · [Project README](../../readme.md)
 
 This guide assumes a server is already running (if not, start with
 [Getting started](getting-started.md)). It is organised by everyday tasks; every

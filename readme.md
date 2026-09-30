@@ -1,161 +1,167 @@
 <div align="center">
 
-<img src="docs/assets/logo.png" width="84" alt="CapsWriter 圖示">
+<img src="docs/assets/logo.png" width="84" alt="CapsWriter icon">
 
 # CapsWriter-Offline v2
 
-**按住 CapsLock 說話，放開就打字。全程離線的語音輸入法，也是可以放在 NAS 上共享的語音轉文字服務。**
+**Hold CapsLock, speak, release — your words are typed. A fully offline voice input tool that can also run as a shared speech-to-text service on your NAS.**
 
-繁體中文 · [English](README.en.md)
+English · [繁體中文](README.zh-TW.md)
 
 [![Release](https://img.shields.io/github/v/release/DF-wu/CapsWriter-Offline-Container?include_prereleases&label=release)](https://github.com/DF-wu/CapsWriter-Offline-Container/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-334155)](docs/zh-TW/desktop-portability.md)
+[![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux-334155)](docs/en/desktop-portability.md)
 [![Docker](https://img.shields.io/badge/docker-ready-2496ED?logo=docker&logoColor=white)](docker-compose.yml)
-[![OpenAI compatible](https://img.shields.io/badge/OpenAI%20audio-compatible-10A37F)](docs/zh-TW/openai-api.md)
+[![OpenAI compatible](https://img.shields.io/badge/OpenAI%20audio-compatible-10A37F)](docs/en/openai-api.md)
 
 </div>
 
-![CapsWriter v2 架構：桌面、Web、CLI、TUI、OpenAI SDK 五種 Client 連到本機的 CapsWriter Server](docs/assets/overview.svg)
+![CapsWriter v2 architecture: desktop, Web, CLI, TUI and OpenAI SDK clients connect to a local CapsWriter Server](docs/assets/overview.svg)
 
-## 目錄
+<sub>Diagrams and screenshots use the Traditional Chinese UI; every label is explained in the text.</sub>
 
-- [它能做什麼](#它能做什麼)
-- [先搞懂兩個角色：Server 與 Client](#先搞懂兩個角色server-與-client)
-- [我該選哪一種安裝方式？](#我該選哪一種安裝方式)
-- [快速開始 A：Windows 桌面語音輸入](#快速開始-awindows-桌面語音輸入)
-- [快速開始 B：Linux Docker Server](#快速開始-blinux-docker-server)
-- [快速開始 C：Web／CLI／TUI／SDK Client](#快速開始-cwebclituisdk-client)
-- [日常使用](#日常使用)
-- [模型怎麼選](#模型怎麼選)
-- [文件導覽](#文件導覽)
-- [常見問題](#常見問題)
-- [版本、Upstream 與授權](#版本upstream-與授權)
+## Contents
 
-## 它能做什麼
+- [What it does](#what-it-does)
+- [Two roles: Server and Client](#two-roles-server-and-client)
+- [Which setup should I use?](#which-setup-should-i-use)
+- [Quick start A: Windows desktop dictation](#quick-start-a-windows-desktop-dictation)
+- [Quick start B: Linux Docker server](#quick-start-b-linux-docker-server)
+- [Quick start C: Web, CLI, TUI and SDK clients](#quick-start-c-web-cli-tui-and-sdk-clients)
+- [Everyday use](#everyday-use)
+- [Choosing a model](#choosing-a-model)
+- [Documentation map](#documentation-map)
+- [FAQ](#faq)
+- [Versions, upstream and license](#versions-upstream-and-license)
 
-| | 功能 | 說明 |
+## What it does
+
+| | Feature | Details |
 |---|---|---|
-| 🎙️ | **聽寫輸入** | 在任何輸入框按住 CapsLock（或滑鼠側鍵）說話，放開後文字自動輸入。短按仍是原本的 CapsLock。 |
-| 🔒 | **完全離線** | ASR、標點、數字轉換都在本機執行；音訊不會送到雲端。LLM 潤色是選用功能，可接本機 Ollama／LM Studio。 |
-| 📁 | **檔案轉字幕** | 把音訊／影片拖到 Client 上，產生 `.srt`、`.txt`、`.json`；HTTP Client 另支援 `.vtt`。 |
-| 🔥 | **熱詞與規則** | `hot.txt` 以音素模糊比對修正專有名詞；`hot-rule.txt` 支援正則替換。 |
-| 🤖 | **LLM 角色** | 說「翻譯……」「助理……」等前綴，交給 LLM 翻譯、潤色或回答。 |
-| 🐳 | **Docker Server** | Linux 一行指令啟動，模型自動下載；CPU 可用，NVIDIA／Intel／AMD GPU 選用加速。 |
-| 🔌 | **OpenAI 相容 API** | `POST /v1/audio/transcriptions`（`whisper-1`），現有 OpenAI SDK 改個 base URL 就能用。 |
-| 🖥️ | **多種 Client** | Windows／Linux X11 桌面、瀏覽器 Web Console、無 GUI CLI、Textual TUI。 |
+| 🎙️ | **Dictation** | Hold CapsLock (or a mouse side button) in any text field, speak, release — the text is typed. A short press is still a normal CapsLock. |
+| 🔒 | **Fully offline** | ASR, punctuation and number formatting run locally; audio never leaves your machine. LLM polishing is optional and can use local Ollama / LM Studio. |
+| 📁 | **Files to subtitles** | Drop audio/video on the client to get `.srt`, `.txt`, `.json`; HTTP clients also get `.vtt`. |
+| 🔥 | **Hotwords and rules** | `hot.txt` fixes names and jargon by phoneme similarity; `hot-rule.txt` applies regex replacements. |
+| 🤖 | **LLM roles** | Start a sentence with a trigger word such as "translate" or "assistant" to translate, polish or answer. |
+| 🐳 | **Docker server** | One command on Linux, models download automatically; CPU works, NVIDIA / Intel / AMD GPUs are optional. |
+| 🔌 | **OpenAI-compatible API** | `POST /v1/audio/transcriptions` (`whisper-1`) — point an existing OpenAI SDK at a new base URL. |
+| 🖥️ | **Many clients** | Windows / Linux X11 desktop, browser Web Console, no-GUI CLI, Textual TUI. |
 
 <p align="center">
-  <img src="assets/demo.png" width="860" alt="Windows 上的 CapsWriter：左邊是 Server 視窗顯示模型輸出，右邊是 Client 視窗顯示每次錄音的時長、延遲與辨識結果">
-  <br><sub>Windows 實機畫面（取自 upstream）：左為 Server、右為 Client；短句轉錄延遲約 0.1–0.2 秒。</sub>
+  <img src="assets/demo.png" width="860" alt="CapsWriter on Windows: the server window on the left shows model output; the client window on the right shows duration, latency and result for each recording">
+  <br><sub>Real Windows session (from upstream): server on the left, client on the right; short-phrase latency is about 0.1–0.2 s.</sub>
 </p>
 
-## 先搞懂兩個角色：Server 與 Client
+## Two roles: Server and Client
 
-CapsWriter 一定由兩個程式合作：
+CapsWriter always consists of two cooperating programs:
 
-| 元件 | 負責 | 不負責 |
+| Component | Owns | Does not own |
 |---|---|---|
-| **Server** | 載入 ASR 模型、解碼音訊、套用服務端熱詞、排程推論、產生逐字稿與字幕、回報健康狀態 | 不提供瀏覽器／終端機介面，也不操作使用者的剪貼簿或全域快捷鍵 |
-| **Client** | 錄音或選檔、送出音訊、顯示／儲存結果；桌面 Client 另有托盤、快捷鍵、文字輸入 | 不載入模型、不做 ASR 推論 |
+| **Server** | Loads ASR models, decodes audio, applies server hotwords, schedules inference, produces transcripts/subtitles, reports health | No browser/terminal UI; never touches the user's clipboard or global shortcuts |
+| **Client** | Records or picks files, sends audio, shows/saves results; the desktop client also owns tray, hotkeys and typing | Does not load models or run ASR inference |
 
-Server 提供兩個介面，給不同的 Client 使用：
+The server exposes two interfaces for different clients:
 
-| 介面 | 預設 | 誰在用 |
+| Interface | Default | Used by |
 |---|---:|---|
-| WebSocket `ws://127.0.0.1:6016` | 開啟 | Windows／Linux X11 桌面 Client |
-| OpenAI 相容 HTTP `http://127.0.0.1:6017` | **關閉，需明確啟用** | Web Console、CLI、TUI、OpenAI SDK、curl |
-| Web Console `http://127.0.0.1:8080` | 選用 | 只提供網頁；推論仍由 `:6017` 後面的 Server 執行 |
+| WebSocket `ws://127.0.0.1:6016` | On | Windows / Linux X11 desktop client |
+| OpenAI-compatible HTTP `http://127.0.0.1:6017` | **Off; explicit opt-in** | Web Console, CLI, TUI, OpenAI SDK, curl |
+| Web Console `http://127.0.0.1:8080` | Optional | UI only; inference still runs on the server behind `:6017` |
 
 > [!TIP]
-> Web、CLI、TUI **不是**另一套辨識引擎，它們都要連到「已啟用 HTTP API」的
-> CapsWriter Server。桌面 Client 直接走 WebSocket，一般不需要開 HTTP API。
-> 詳見 [Server 與 Client 分工](docs/zh-TW/server-and-clients.md)。
+> Web, CLI and TUI are **not** separate recognition engines — they all need a
+> CapsWriter server with the HTTP API enabled. The desktop client talks WebSocket
+> and normally needs no HTTP API. See
+> [Server and client roles](docs/en/server-and-clients.md).
 
-## 我該選哪一種安裝方式？
+## Which setup should I use?
 
-| 我想要…… | Server 裝在 | Client 用 | 從這裡開始 |
+| I want to… | Server runs on | Client | Start here |
 |---|---|---|---|
-| 在自己的 Windows 電腦用語音打字 | 同一台 Windows（`start_server.exe`） | 桌面 Client（`start_client.exe`） | [快速開始 A](#快速開始-awindows-桌面語音輸入) |
-| 家裡／公司有一台 Linux 主機或 NAS，多台電腦共用 | Linux Docker | 各電腦的桌面 Client、Web、CLI | [快速開始 B](#快速開始-blinux-docker-server) → [C](#快速開始-cwebclituisdk-client) |
-| 用瀏覽器錄音或上傳檔案轉文字 | 任一已開 HTTP 的 Server | Web Console | [快速開始 C](#快速開始-cwebclituisdk-client) |
-| 在腳本／SSH／CI 裡批次轉錄 | 任一已開 HTTP 的 Server | CLI | [CLI 指南](docs/zh-TW/cli-client.md) |
-| 把現有 OpenAI Whisper 程式改成本機 | 任一已開 HTTP 的 Server | OpenAI SDK／curl | [API 指南](docs/zh-TW/openai-api.md) |
-| Linux 桌面語音輸入 | 同一台 Linux（source） | Linux X11 桌面 Client | [開始使用：Linux X11](docs/zh-TW/getting-started.md#路徑-blinux-x11-desktop) |
+| Dictate on my own Windows PC | The same PC (`start_server.exe`) | Desktop client (`start_client.exe`) | [Quick start A](#quick-start-a-windows-desktop-dictation) |
+| Share one Linux box / NAS with several computers | Linux Docker | Desktop clients, Web, CLI | [Quick start B](#quick-start-b-linux-docker-server) → [C](#quick-start-c-web-cli-tui-and-sdk-clients) |
+| Record or upload in a browser | Any server with HTTP enabled | Web Console | [Quick start C](#quick-start-c-web-cli-tui-and-sdk-clients) |
+| Batch-transcribe from scripts / SSH / CI | Any server with HTTP enabled | CLI | [CLI guide](docs/en/cli-client.md) |
+| Move existing OpenAI Whisper code on-prem | Any server with HTTP enabled | OpenAI SDK / curl | [API guide](docs/en/openai-api.md) |
+| Dictate on a Linux desktop | The same Linux machine (source) | Linux X11 desktop client | [Getting started: Linux X11](docs/en/getting-started.md) |
 
-## 快速開始 A：Windows 桌面語音輸入
+## Quick start A: Windows desktop dictation
 
-### 1. 下載並解壓
+### 1. Download and extract
 
-到 [GitHub Releases](https://github.com/DF-wu/CapsWriter-Offline-Container/releases)
-下載 `CapsWriter-Offline-windows-x86_64.zip`，**整個資料夾**解壓到一般路徑（例如
-`D:\CapsWriter-Offline`）。可先用附帶的 `SHA256SUMS` 驗證檔案。
+Download `CapsWriter-Offline-windows-x86_64.zip` from
+[GitHub Releases](https://github.com/DF-wu/CapsWriter-Offline-Container/releases) and
+extract the **whole folder** to a normal path such as `D:\CapsWriter-Offline`. Verify
+it with the attached `SHA256SUMS` if you like.
 
-資料夾內有兩個程式，角色不能互換，也不要單獨搬出其中一個 EXE：
+It contains two programs with different jobs — never move one EXE out on its own:
 
 ```text
 CapsWriter-Offline/
-├─ start_server.exe      ← Server：載入模型、辨識
-├─ start_client.exe      ← Client：托盤、快捷鍵、錄音、打字
-├─ config_server.py      ← Server 進階設定（模型、連接埠……）
-├─ config_client.py      ← Client 進階設定（快捷鍵、熱詞、LLM……）
+├─ start_server.exe      ← Server: loads the model, recognizes speech
+├─ start_client.exe      ← Client: tray, hotkeys, recording, typing
+├─ config_server.py      ← advanced server settings (model, ports…)
+├─ config_client.py      ← advanced client settings (hotkeys, hotwords, LLM…)
 ├─ hot.txt / hot-rule.txt / hot-server.txt
-├─ LLM/                  ← LLM 角色
-└─ models/               ← 模型放這裡（ZIP 內是空的）
+├─ LLM/                  ← LLM roles
+└─ models/               ← put models here (empty in the ZIP)
 ```
 
-### 2. 放入模型與 GGUF runtime
+### 2. Add the model and GGUF runtime
 
-為了控制檔案大小與授權，ZIP 內**不含**模型、llama.cpp DLL 與 FFmpeg。預設模型
-Qwen3-ASR 需要兩個檔案（都有固定 SHA-256）：
+To keep the download small, the ZIP does **not** include models, llama.cpp DLLs or
+FFmpeg. The default Qwen3-ASR model needs two SHA-256-pinned downloads:
 
-| 下載 | 解壓到 |
+| Download | Extract to |
 |---|---|
-| [`Qwen3-ASR-1.7B-q5_k.zip`](https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q5_k.zip)（約 1.8 GB） | `models/Qwen3-ASR/`，結果為 `models/Qwen3-ASR/Qwen3-ASR-1.7B/` |
-| [`llama-b7798-bin-win-vulkan-x64.zip`](https://github.com/ggml-org/llama.cpp/releases/download/b7798/llama-b7798-bin-win-vulkan-x64.zip) | 其中的 `*.dll` 複製到 `core/server/engines/llama/bin/` |
+| [`Qwen3-ASR-1.7B-q5_k.zip`](https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q5_k.zip) (~1.8 GB) | `models/Qwen3-ASR/`, giving `models/Qwen3-ASR/Qwen3-ASR-1.7B/` |
+| [`llama-b7798-bin-win-vulkan-x64.zip`](https://github.com/ggml-org/llama.cpp/releases/download/b7798/llama-b7798-bin-win-vulkan-x64.zip) | copy its `*.dll` files into `core/server/engines/llama/bin/` |
 
-[桌面可攜性指南](docs/zh-TW/desktop-portability.md#準備下載的-windows-package)
-有一段可直接貼到 PowerShell 的指令，會自動下載、驗 hash、解壓到正確位置。
-要轉錄影片／音檔，再把可信來源的 `ffmpeg.exe`（與 `ffprobe.exe`）放進 `PATH` 或
-資料夾根目錄；只用麥克風聽寫則不需要。
+The [desktop portability guide](docs/en/desktop-portability.md#prepare-a-downloaded-windows-package)
+has a PowerShell block that downloads, verifies and places both for you. For file
+transcription, add a trusted `ffmpeg.exe` (and `ffprobe.exe`) to `PATH` or the
+package root; microphone dictation does not need it.
 
-### 3. 先開 Server，再開 Client
+### 3. Start the server, then the client
 
-1. 雙擊 `start_server.exe`，等畫面出現「開始服務」與模型載入完成。
-2. 雙擊 `start_client.exe`，右下角托盤會出現 CapsWriter 圖示。
+1. Double-click `start_server.exe` and wait until the model has loaded ("开始服务").
+2. Double-click `start_client.exe`; the CapsWriter icon appears in the tray.
 
-第一次使用或要改設定時，執行 `start_client.exe --settings`，或在托盤右鍵選
-**設定**：
+On first use, or whenever you want to change something, run
+`start_client.exe --settings` or choose **設定 (Settings)** from the tray menu:
 
 <table>
   <tr>
-    <td width="50%"><img src="docs/assets/desktop-settings-connection.png" alt="設定視窗的「連線」頁：Server 主機 127.0.0.1、WebSocket 連接埠 6016、測試 Server 連線按鈕、辨識語言 auto"></td>
-    <td width="50%"><img src="docs/assets/desktop-settings-recording.png" alt="設定視窗的「錄音與快捷鍵」頁：麥克風選單、長按觸發時間 0.3 秒、快捷鍵表格列出 caps_lock 與滑鼠 x2"></td>
+    <td width="50%"><img src="docs/assets/desktop-settings-connection.png" alt="Settings, Connection tab: server host 127.0.0.1, WebSocket port 6016, a Test server connection button, recognition language auto"></td>
+    <td width="50%"><img src="docs/assets/desktop-settings-recording.png" alt="Settings, Recording and shortcuts tab: microphone picker, 0.3 s hold threshold, shortcut table listing caps_lock and mouse x2"></td>
   </tr>
   <tr>
-    <td><b>連線</b>：Server 在本機填 <code>127.0.0.1</code>；在其他主機就填它的 IP，按「測試 Server 連線」。</td>
-    <td><b>錄音與快捷鍵</b>：選麥克風、調整長按時間、新增或停用快捷鍵（鍵盤或滑鼠側鍵）。</td>
+    <td><b>Connection</b>: use <code>127.0.0.1</code> when the server is on this PC, otherwise its IP or hostname; click the connection test.</td>
+    <td><b>Recording &amp; shortcuts</b>: choose a microphone, tune the hold time, add or disable keyboard / mouse shortcuts.</td>
   </tr>
 </table>
 
-<sub>以上為同一個 Tk 設定視窗在 Linux（Xvfb）上的實際渲染；Windows 上會套用系統原生外觀與字型。</sub>
+<sub>Real rendering of the same Tk settings window on Linux (Xvfb); Windows uses its native theme and fonts.</sub>
 
-儲存後重新啟動 Client 即生效。設定存在 `%LOCALAPPDATA%\CapsWriter\client-settings.json`，
-只記錄你改過的欄位，其餘沿用 `config_client.py`。詳見[日常設定指南](docs/settings.md)。
+Save and restart the client. Settings live in
+`%LOCALAPPDATA%\CapsWriter\client-settings.json` and only store the fields you changed;
+everything else comes from `config_client.py`. See [daily settings](docs/settings.md).
 
-### 4. 開始說話
+### 4. Talk
 
-![聽寫四步驟：點進輸入框、按住 CapsLock 說話、放開、文字自動輸入](docs/assets/dictation-flow.svg)
+![Four dictation steps: click into a text field, hold CapsLock and speak, release, text is typed](docs/assets/dictation-flow.svg)
 
 > [!NOTE]
-> 發行 ZIP 由 GitHub Actions 的 `windows-package` job 以 hash lock 建置
-> PyInstaller 套件，搬離 checkout 後壓縮／解壓、拒絕 reparse point，並讓兩個
-> EXE 各自通過 `--artifact-self-check`。真實麥克風、托盤、快捷鍵、模型與 GPU
-> 仍請在你的電腦上確認；想自行建置請看 [BUILD_GUIDE](assets/BUILD_GUIDE.md)。
+> The release ZIP is built by the GitHub Actions `windows-package` job: a hash-locked
+> PyInstaller build that is moved out of the checkout, zipped and re-extracted with
+> reparse points rejected, then both EXEs pass `--artifact-self-check`. Please still
+> confirm microphone, tray, hotkeys, model and GPU on your own PC. To build it
+> yourself, see [BUILD_GUIDE](assets/BUILD_GUIDE.md).
 
-## 快速開始 B：Linux Docker Server
+## Quick start B: Linux Docker server
 
-需求：`linux/amd64`、Docker Engine 與 Compose plugin，以及數 GB 的模型空間。GPU 為選用。
+Requirements: `linux/amd64`, Docker Engine with the Compose plugin, and a few GB for models. GPUs are optional.
 
 ```bash
 git clone https://github.com/DF-wu/CapsWriter-Offline-Container.git
@@ -163,25 +169,25 @@ cd CapsWriter-Offline-Container
 cp .env.example .env
 cp hot-server.example.txt hot-server.txt
 docker compose up -d capswriter-server
-docker compose logs -f capswriter-server   # 第一次會下載模型，請耐心等候
+docker compose logs -f capswriter-server   # the first start downloads the model
 ```
 
-啟動完成後，WebSocket `:6016` 就能給桌面 Client 使用（在設定視窗填這台主機的 IP）。
+WebSocket `:6016` is now ready for desktop clients (enter this host's IP in their settings).
 
-| 想要 | 追加的 Compose 檔 |
+| For | Add this Compose file |
 |---|---|
 | NVIDIA GPU | `-f docker-compose.gpu.yml` |
-| Intel／AMD 內顯（Vulkan） | `-f docker-compose.igpu.yml` |
-| 較低延遲、較小的 Fun-ASR-Nano 模型 | `-f docker-compose.fun-asr.yml` |
-| 自己管理 `./models` 目錄 | `-f docker-compose.models-bind.yml` |
-| 在 Web 上管理 Server 設定 | `-f docker-compose.settings.yml`（見[日常設定](docs/settings.md)） |
+| Intel / AMD iGPU (Vulkan) | `-f docker-compose.igpu.yml` |
+| Lower-latency, smaller Fun-ASR-Nano model | `-f docker-compose.fun-asr.yml` |
+| Managing `./models` yourself | `-f docker-compose.models-bind.yml` |
+| Server settings in the Web UI | `-f docker-compose.settings.yml` (see [daily settings](docs/settings.md)) |
 
-例如 NVIDIA：`docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d capswriter-server`。
-完整說明、升級與備份請看[部署指南](docs/zh-TW/deployment.md)。
+Example for NVIDIA: `docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d capswriter-server`.
+Upgrades, backups and details are in the [deployment guide](docs/en/deployment.md).
 
-### 啟用 HTTP API（給 Web／CLI／TUI／SDK）
+### Enable the HTTP API (for Web / CLI / TUI / SDK)
 
-在 `.env` 設定：
+Set in `.env`:
 
 ```dotenv
 CAPSWRITER_HTTP_API_ENABLE=true
@@ -191,7 +197,7 @@ CAPSWRITER_HTTP_API_PORT=6017
 CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080,http://127.0.0.1:5173,http://localhost:5173
 ```
 
-再到 [`docker-compose.yml`](docker-compose.yml) 取消第二個 port mapping 的註解：
+Then uncomment the second port mapping in [`docker-compose.yml`](docker-compose.yml):
 
 ```yaml
 ports:
@@ -199,7 +205,7 @@ ports:
   - "127.0.0.1:6017:6017"
 ```
 
-重建並檢查：`/health` 只代表程序活著，`/ready` 才代表模型已可接收音訊。
+Recreate and check. `/health` only means the process is alive; `/ready` means the model can accept audio.
 
 ```bash
 docker compose up -d --force-recreate capswriter-server
@@ -208,39 +214,40 @@ curl http://127.0.0.1:6017/ready
 ```
 
 > [!WARNING]
-> 對區網或網際網路開放 HTTP 時，一定要保留 API key，並放在 TLS reverse proxy
-> 或私有 overlay network（如 Tailscale）後面。見[支援與安全](docs/zh-TW/support-security.md)。
+> When exposing HTTP beyond loopback, keep the API key and put the server behind a
+> TLS reverse proxy or a private overlay network (e.g. Tailscale). See
+> [support and security](docs/en/support-security.md).
 
-## 快速開始 C：Web／CLI／TUI／SDK Client
+## Quick start C: Web, CLI, TUI and SDK clients
 
-以下假設 Server 的 HTTP API 在 `http://127.0.0.1:6017`，key 為
-`replace-with-a-long-random-token`。
+These examples assume the HTTP API is at `http://127.0.0.1:6017` with the key
+`replace-with-a-long-random-token`.
 
-### Web Console：瀏覽器錄音或上傳
+### Web Console: record or upload in a browser
 
 ```bash
 CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017 \
   docker compose -f docker-compose.web.yml up -d --build capswriter-web
 ```
 
-開啟 `http://127.0.0.1:8080`，在 API 欄位確認 `http://127.0.0.1:6017`，於遮罩欄位
-貼上 key，就可以錄音或拖入檔案，並下載 text／json／srt／vtt。
+Open `http://127.0.0.1:8080`, confirm the API root `http://127.0.0.1:6017`, paste the
+key into the masked field, then record or drop a file and download text/json/srt/vtt.
 
-![Web Console 實機截圖：左欄連線設定與 Server 診斷（Health、Ready、Router、FFmpeg 皆為 ok），中欄已上傳 zh.wav 並轉錄出「開放時間：早上九點至下午五點。」，右欄為 TTS 與歷史](docs/assets/web-console.png)
+![Real Web Console: connection settings and server diagnostics (Health, Ready, Router, FFmpeg all ok) on the left, an uploaded zh.wav transcribed to 開放時間：早上九點至下午五點。 in the middle, TTS and history on the right](docs/assets/web-console.png)
 
-<sub>真實截圖：連到本機 Qwen3-ASR 1.7B（CPU）Server，轉錄 5.6 秒的中文測試音檔。</sub>
+<sub>Real capture against a local Qwen3-ASR 1.7B (CPU) server transcribing a 5.6-second Chinese test clip.</sub>
 
-想改前端時用開發模式（需 Node.js 24）：
+Development mode for frontend work (Node.js 24):
 
 ```bash
 cd client/web
 npm ci --no-audit --no-fund
-npm run dev      # 開啟 http://127.0.0.1:5173
+npm run dev      # open http://127.0.0.1:5173
 ```
 
-### CLI：腳本與批次
+### CLI: scripts and batches
 
-只需要 Python 3.10+ 標準函式庫：
+Needs only the Python 3.10+ standard library:
 
 ```bash
 export CAPSWRITER_API_BASE=http://127.0.0.1:6017
@@ -250,9 +257,9 @@ python client/cli/capswriter_cli.py transcribe meeting.wav --format text
 python client/cli/capswriter_cli.py transcribe audio/*.mp3 --format srt --output-dir subs/
 ```
 
-![CLI 實機輸出：health 回報 qwen_asr、中文音檔轉成文字、英文音檔轉成 SRT、兩個檔案批次輸出 VTT](docs/assets/cli-demo.svg)
+![Real CLI output: health reports qwen_asr, a Chinese clip as text, an English clip as SRT, and a two-file VTT batch](docs/assets/cli-demo.svg)
 
-### TUI：終端機工作台
+### TUI: a terminal workbench
 
 ```bash
 python3.12 -m venv .venv-tui
@@ -262,10 +269,10 @@ python3.12 -m venv .venv-tui
 .venv-tui/bin/python -m client.tui --base-url http://127.0.0.1:6017
 ```
 
-在「API key（只存於記憶體）」欄位貼上 key，按 **F5** 檢查 Server，輸入檔案路徑後
-按 **Ctrl+T** 轉錄、**Ctrl+S** 儲存。
+Paste the key into the memory-only API key field, press **F5** to check the server,
+enter a file path, **Ctrl+T** to transcribe and **Ctrl+S** to save.
 
-![真實 CapsWriter TUI：上方 Server 診斷全部正常，左下為 zh.wav 與參數，右下為轉錄結果「開放時間：早上九點至下午五點。」](docs/assets/tui-transcript.svg)
+![Real CapsWriter TUI: server diagnostics all OK at the top, zh.wav and options bottom-left, the transcript 開放時間：早上九點至下午五點。 bottom-right](docs/assets/tui-transcript.svg)
 
 ### OpenAI SDK
 
@@ -277,101 +284,107 @@ with open("meeting.wav", "rb") as f:
     print(client.audio.transcriptions.create(model="whisper-1", file=f).text)
 ```
 
-支援 `text`、`json`、`verbose_json`、`srt`、`vtt`；不支援 translation、streaming、
-diarization。完整範圍見 [OpenAI 相容 API](docs/zh-TW/openai-api.md)。
+Formats: `text`, `json`, `verbose_json`, `srt`, `vtt`. Translation, streaming and
+diarization are not supported. See the [OpenAI-compatible API](docs/en/openai-api.md).
 
-## 日常使用
+## Everyday use
 
-完整圖文教學：**[使用教學](docs/zh-TW/usage.md)**。重點如下：
+Full illustrated walkthrough: **[Usage guide](docs/en/usage.md)**. Highlights:
 
-| 我想…… | 怎麼做 |
+| I want to… | Do this |
 |---|---|
-| 語音打字 | 按住 CapsLock 或滑鼠側鍵 X2 說話，放開即輸入；短按仍是原本功能 |
-| 轉錄影片成字幕 | 把檔案拖到 `start_client.exe` 圖示上，同資料夾產生 `.srt`／`.txt`／`.json` |
-| 修正字幕錯字 | 改好 `.txt` 後再拖回 Client，會沿用原時間軸重新產生 `.srt` |
-| 讓專有名詞更準 | 在 `hot.txt` 每行寫一個詞，存檔 3 秒內自動生效 |
-| 固定替換 | 在 `hot-rule.txt` 寫 `毫安時 = mAh` 或正則規則 |
-| 說話前加「翻譯」 | 觸發 LLM 角色（需在 `LLM/*.py` 設定 provider 與 key） |
-| 輸出繁體中文 | 設定視窗「輸出」頁勾選「轉為繁體中文」，可選 `zh-tw`／`zh-hk` |
-| 看今天說過什麼 | 托盤右鍵 **日記**，依日期存成 Markdown 並附錄音 |
-| 暫停 LLM 輸出 | 按 `Esc` |
+| Dictate | Hold CapsLock or mouse X2, speak, release; a short press keeps its normal function |
+| Turn a video into subtitles | Drop the file on `start_client.exe`; `.srt` / `.txt` / `.json` appear next to it |
+| Fix subtitle typos | Edit the `.txt` and drop it back; a new `.srt` is aligned to the original timing |
+| Get names right | Add one term per line to `hot.txt`; it reloads within ~3 s |
+| Always replace something | Add `pattern = replacement` (regex) to `hot-rule.txt` |
+| Translate by voice | Start with the role's trigger word, e.g. "翻译…" (configure `LLM/*.py` first) |
+| Output Traditional Chinese | Settings → Output → convert to Traditional (`zh-tw` / `zh-hk` available) |
+| Review what I said today | Tray → **日记 (Diary)**: daily Markdown with recordings |
+| Stop LLM output | Press `Esc` |
 
-托盤右鍵選單：**設定**、複製結果、日記、上下文、熱詞、清除記憶、重開音訊、重啟、退出。
+Tray menu: **Settings**, copy result, diary, context, hotwords, clear memory, restart audio, restart, exit.
 
-## 模型怎麼選
+## Choosing a model
 
-| 模型（`model_type`） | 大小 | 特色 | Docker 自動下載 |
+| Model (`model_type`) | Size | Notes | Docker auto-download |
 |---|---:|---|:---:|
-| **Qwen3-ASR 1.7B**（`qwen_asr`，預設） | 1.3–1.8 GB | 準確率最高，中英混說佳；可用 Vulkan／CUDA 加速 | ✅ |
-| **Fun-ASR-Nano**（`fun_asr_nano`） | 約 0.8 GB | 延遲低、支援服務端熱詞；CPU 也順 | ✅ |
-| SenseVoice（`sensevoice`） | 約 0.4 GB | 輕量，多語（中英日韓粵） | 手動 |
-| Paraformer（`paraformer`） | 約 0.5 GB（含標點模型） | 輕量中文 | 手動 |
+| **Qwen3-ASR 1.7B** (`qwen_asr`, default) | 1.3–1.8 GB | Most accurate, good with mixed Chinese/English; Vulkan/CUDA acceleration | ✅ |
+| **Fun-ASR-Nano** (`fun_asr_nano`) | ~0.8 GB | Low latency, server hotwords, smooth on CPU | ✅ |
+| SenseVoice (`sensevoice`) | ~0.4 GB | Light, multilingual (zh/en/ja/ko/yue) | manual |
+| Paraformer (`paraformer`) | ~0.5 GB incl. punctuation | Light, Chinese | manual |
 
-Docker 以 `CAPSWRITER_MODEL_TYPE` 選模型；Windows 版改 `config_server.py` 的
-`model_type`。模型來自 [upstream model release](https://github.com/HaujetZhao/CapsWriter-Offline/releases/tag/models)；
-GPU 相關問題見 [显卡加速的若干问题](docs/显卡加速的若干问题.md)。
+Docker selects with `CAPSWRITER_MODEL_TYPE`; Windows uses `model_type` in
+`config_server.py`. Models come from the
+[upstream model release](https://github.com/HaujetZhao/CapsWriter-Offline/releases/tag/models).
 
-## 文件導覽
+## Documentation map
 
-| 讀者 | 文件 |
+| Reader | Documents |
 |---|---|
-| 第一次使用 | [Server 與 Client 分工](docs/zh-TW/server-and-clients.md) → [開始使用](docs/zh-TW/getting-started.md) → [使用教學](docs/zh-TW/usage.md) |
-| Windows 使用者 | [桌面可攜性](docs/zh-TW/desktop-portability.md) · [日常設定](docs/settings.md) · [常見問題（upstream）](docs/常见问题.md) |
-| 熱詞／角色／轉錄 | [熱詞](docs/热词功能如何使用.md) · [LLM 角色](docs/角色功能如何使用.md) · [檔案轉錄](docs/文件转录功能如何使用.md) · [辨識語言](docs/识别语言如何配置.md) |
-| Server 維運 | [部署](docs/zh-TW/deployment.md) · [支援與安全](docs/zh-TW/support-security.md) · [疑難排解](docs/zh-TW/troubleshooting.md) |
-| Client | [Web Console](docs/zh-TW/web-console.md) · [CLI](docs/zh-TW/cli-client.md) · [TUI](docs/zh-TW/tui.md) · [OpenAI 相容 API](docs/zh-TW/openai-api.md) |
-| 版本與發行 | [Release notes](docs/zh-TW/release-notes.md) · [v1／v2 維護政策](docs/zh-TW/versioning.md) · [驗證](docs/verification.md) |
-| 開發者 | [開發流程](docs/development.md) · [架構](docs/architecture.md) · [上游同步](docs/upstream-sync-guide.md) · [文件首頁](docs/zh-TW/README.md) |
+| New users | [Server and client roles](docs/en/server-and-clients.md) → [Getting started](docs/en/getting-started.md) → [Usage guide](docs/en/usage.md) |
+| Windows users | [Desktop portability](docs/en/desktop-portability.md) · [Daily settings](docs/settings.md) |
+| Server operators | [Deployment](docs/en/deployment.md) · [Support and security](docs/en/support-security.md) · [Troubleshooting](docs/en/troubleshooting.md) |
+| Clients | [Web Console](docs/en/web-console.md) · [CLI](docs/en/cli-client.md) · [TUI](docs/en/tui.md) · [OpenAI-compatible API](docs/en/openai-api.md) |
+| Releases | [Release notes](docs/en/release-notes.md) · [v1/v2 policy](docs/en/versioning.md) · [Verification](docs/verification.md) |
+| Developers | [Development](docs/development.md) · [Architecture](docs/architecture.md) · [Upstream sync](docs/upstream-sync-guide.md) · [Docs home](docs/en/README.md) |
 
-## 常見問題
+Upstream's own guides for hotwords, LLM roles and file transcription are in
+Simplified Chinese under [`docs/`](docs/).
+
+## FAQ
 
 <details>
-<summary><b>按了 CapsLock 沒反應？</b></summary>
+<summary><b>Nothing happens when I hold CapsLock</b></summary>
 
-先確認 Server 視窗已顯示模型載入完成，再看 Client 視窗是否顯示「已連接服務端」。
-要在以系統管理員身分執行的程式（例如工作管理員、部分遊戲）中輸入，Client 也要以
-系統管理員身分執行。日誌在 `logs/client_latest.log` 與 `logs/server_latest.log`。
+Check that the server window shows the model loaded and the client window says it
+connected ("已连接服务端"). To type into programs running as administrator (Task Manager,
+some games) the client must also run as administrator. Logs: `logs/client_latest.log`
+and `logs/server_latest.log`.
 </details>
 
 <details>
-<summary><b>Docker 一直停在 starting？</b></summary>
+<summary><b>Docker stays in "starting"</b></summary>
 
-第一次啟動會下載模型（1–2 GB），healthcheck 預留 20 分鐘。用
-`docker compose logs -f capswriter-server` 看進度；若啟用了 HTTP，`/ready` 會列出
-還沒就緒的元件。見[疑難排解](docs/zh-TW/troubleshooting.md)。
+The first start downloads 1–2 GB of models; the healthcheck allows 20 minutes. Follow
+`docker compose logs -f capswriter-server`; with HTTP enabled, `/ready` lists what is
+not ready yet. See [troubleshooting](docs/en/troubleshooting.md).
 </details>
 
 <details>
-<summary><b>Web Console 顯示 CORS 或 401？</b></summary>
+<summary><b>The Web Console reports CORS or 401</b></summary>
 
-CORS：把 Web 的來源（如 `http://127.0.0.1:8080`）加進
-`CAPSWRITER_HTTP_API_CORS_ORIGINS` 後重建 Server。401：Web 輸入的 key 必須與
-Server 的 `CAPSWRITER_HTTP_API_KEY` 相同。
+CORS: add the Web origin (e.g. `http://127.0.0.1:8080`) to
+`CAPSWRITER_HTTP_API_CORS_ORIGINS` and recreate the server. 401: the key entered in the
+Web UI must match the server's `CAPSWRITER_HTTP_API_KEY`.
 </details>
 
 <details>
-<summary><b>Linux 桌面可以用快捷鍵嗎？</b></summary>
+<summary><b>Do hotkeys work on Linux?</b></summary>
 
-可以，但只支援 X11；Wayland 與 headless 沒有可靠的全域快捷鍵。X11 下無法只攔截
-單一按鍵，所以 CapsLock 仍會切換大小寫，建議改用 F12 或滑鼠側鍵。
+On X11 only; Wayland and headless sessions have no reliable global hotkeys. X11 cannot
+suppress a single key, so CapsLock will still toggle — F12 or a mouse side button works
+better.
 </details>
 
 <details>
-<summary><b>一定要 GPU 嗎？</b></summary>
+<summary><b>Do I need a GPU?</b></summary>
 
-不用。CPU 就能執行；Qwen3-ASR 在 CPU 上短句約數秒，想要 0.1–0.3 秒延遲再加 GPU，
-或改用 Fun-ASR-Nano。
+No. CPU works; Qwen3-ASR takes a few seconds per short phrase on CPU. For 0.1–0.3 s
+latency add a GPU or use Fun-ASR-Nano.
 </details>
 
-## 版本、Upstream 與授權
+## Versions, upstream and license
 
-- **fork v2**（本分支 `master`）是持續開發的版本，release tag 為 `fork-v2.x.y`；
-  **fork v1** 是另一條只做安全／相容性維護的分支。見[版本政策](docs/zh-TW/versioning.md)。
-- Server／Web image 以不可變的 `sha-<commit>` tag 發布到 GHCR，並附 SBOM／provenance；
-  `latest` 只指向通過檢查的 `master`。
-- 本 fork 基於 [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)，
-  模型、推論演算法與桌面體驗來自 upstream；fork 增加的是跨平台部署、HTTP API、
-  多種 Client、安全邊界與發行流程。喜歡這個專案，也請支持
-  [upstream 作者](https://github.com/HaujetZhao/CapsWriter-Offline)。
+- **fork v2** (`master`) is the actively developed line, tagged `fork-v2.x.y`;
+  **fork v1** is a separate security/compatibility maintenance line. See the
+  [versioning policy](docs/en/versioning.md).
+- Server and Web images are published to GHCR with immutable `sha-<commit>` tags plus
+  SBOM/provenance; `latest` only follows a `master` commit that passed the gates.
+- This fork is based on [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline).
+  Models, inference algorithms and the desktop experience come from upstream; the fork
+  adds cross-platform deployment, the HTTP API, extra clients, safety limits and the
+  release pipeline. If you like it, please support
+  [the upstream author](https://github.com/HaujetZhao/CapsWriter-Offline) too.
 
-授權：[MIT](LICENSE)。
+License: [MIT](LICENSE).
