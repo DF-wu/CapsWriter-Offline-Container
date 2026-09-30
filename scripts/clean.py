@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 WEB_ROOT = ROOT / "client" / "web"
 PRESERVED_DIRS = {
     ROOT / ".git",
+    ROOT / ".venv-dev",
     ROOT / "client" / "web" / "node_modules",
     ROOT / "models",
 }
@@ -51,6 +52,7 @@ TIMEOUT_EXIT_CODE = 124
 def preserved_dirs_for(root: Path) -> set[Path]:
     return {
         root / ".git",
+        root / ".venv-dev",
         root / "client" / "web" / "node_modules",
         root / "models",
     }

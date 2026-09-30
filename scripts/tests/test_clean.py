@@ -56,6 +56,20 @@ class CleanTraversalTest(unittest.TestCase):
             )
             self.assertFalse(clean.should_prune(root / "client/web/src", preserved))
 
+    def test_default_preserved_dirs_keep_isolated_dev_environments(self) -> None:
+        # dev.py 的隔離環境與 node_modules 相同，屬於安裝結果而非驗證殘留
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            venv_cache = root / ".venv-dev/api/lib/python3.12/site-packages/__pycache__"
+            venv_cache.mkdir(parents=True)
+            (venv_cache / "module.pyc").write_bytes(b"pyc")
+
+            artifacts = list(
+                clean.iter_python_cache_artifacts(root, clean.preserved_dirs_for(root))
+            )
+
+        self.assertEqual(artifacts, [])
+
     def test_cleanup_residue_reports_generated_artifacts(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
