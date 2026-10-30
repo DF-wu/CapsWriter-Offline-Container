@@ -66,7 +66,7 @@ running mount/readiness are confirmed; retain the parent and `hot-server.txt`.
 | Canonical source / image-workflow / release repository | `DF-wu/CapsWriter-Offline-Container` (old `DF-wu/CapsWriter-Offline` name redirects here) |
 | Separate deployment recipe repository | `myServices`; tracked branch/revision PENDING |
 | Release date / final or RC tag | PENDING; no tag created by preparation |
-| Reviewed PR URL / branch head SHA | PENDING |
+| Reviewed implementation / PR | [Draft PR #10](https://github.com/DF-wu/CapsWriter-Offline-Container/pull/10); reviewed implementation `312a8866135707855138034846f8e620e9c88675`; final head is recorded in the PR |
 | Full 40-character merge SHA / intended tag target | PENDING |
 | CI run URL / exact SHA / result | PENDING |
 | Portability matrix + Windows package run URLs / exact SHA | PENDING |
@@ -79,7 +79,7 @@ running mount/readiness are confirmed; retain the parent and `hot-server.txt`.
 | Windows ZIP artifact URL / SHA256SUMS / relocation self-check | PENDING |
 | Local validation commands / results | [Candidate validation record](validation-fork-v2.1.0.md); exact head SHA recorded in the draft PR |
 | Hardware qualification record / GPU-driver-OS / known audio | PENDING; no hardware acceptance claimed |
-| Separate `myServices` recipe candidate | [Draft PR #18](https://github.com/DF-wu/myServices/pull/18), `feat/capswriter-v2.1-recipe`; Portainer tracked-branch merge and live rollout remain PENDING |
+| Separate `myServices` recipe candidate | [Draft PR #18](https://github.com/DF-wu/myServices/pull/18), `feat/capswriter-v2.1-recipe`, `9184841f5adef68fef32b855c62af9aa275b07e8`; Portainer tracked-branch merge and live rollout remain PENDING |
 
 ## Publication and acceptance checklist
 

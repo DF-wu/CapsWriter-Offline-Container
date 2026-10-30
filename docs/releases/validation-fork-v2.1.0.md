@@ -37,8 +37,12 @@
 第一輪沒有候選準備阻擋項；提出 CPU fallback 不應鎖頻及 spawn 測試未跨程序
 兩點，已補上實作與回歸。第二輪提出 TensorRT selector 漏列，已按引擎接受的
 `TRT`／`TENSORRT` 補齊與回歸。第三輪指出 ORT 的 runtime CPU fallback
-仍會沿用配置資格，已新增載入後判斷與回歸；第四輪結果及精確 head SHA
-記錄於草稿 PR。
+仍會沿用配置資格，已新增載入後判斷與回歸。第四輪審查實作提交
+`312a8866135707855138034846f8e620e9c88675`，沒有新增問題；獨立跑過
+64 項 focused tests，全部通過、沒有略過。配對 recipe 審查提交為
+`9184841f5adef68fef32b855c62af9aa275b07e8`。後續文件提交與最終 head
+記錄於[原始碼草稿 PR #10](https://github.com/DF-wu/CapsWriter-Offline-Container/pull/10)，
+recipe 位於[草稿 PR #18](https://github.com/DF-wu/myServices/pull/18)。
 
 ## 尚未驗證／未執行
 
