@@ -2,6 +2,38 @@
 
 > [Documentation home](README.md) · [繁體中文](../zh-TW/release-notes.md) · [Getting started](getting-started.md)
 
+## fork-v2.1.0 — unreleased preparation
+
+This is an **unreleased candidate**, not a published tag/image or a hardware
+acceptance claim. The latest published release remains **fork-v2.0.0** below.
+Upstream stays **v2.6 / `84912d5`**, with Python 3.10–3.12 and llama.cpp b7798.
+
+- Fork runtime/package metadata becomes `2.1.0`. `/health` and `/ready` add
+  `fork_version: "2.1.0"`; existing upstream `version: "2.6"` stays unchanged.
+- Opt-in NVIDIA pre-boost adds validated enabled/device/memory-clock/idle controls
+  to Docker env and saved settings. Environment values take priority and restart
+  is required; command timeout remains expert env-only. Native universal startup
+  accepts explicit boost env and otherwise preserves existing Python defaults.
+- Worker boost covers HTTP, file and microphone inference, keeps the early mic
+  hint, refreshes after inference, and attempts idle/normal-shutdown reset.
+  Failures are nonfatal with bounded timeout/retry; enabled graceful-stop budgets
+  account for command timeout.
+- Defaults remain `appuser` and boost disabled. The optional
+  `docker-compose.nvidia-boost.yml` follows `docker-compose.gpu.yml` and explicitly
+  grants root/capabilities with 150-second stop grace. It does not itself enable
+  boost: explicit `true` and a supported positive MHz value are required.
+
+See [NVIDIA boost](../nvidia-boost.md) for all ranges, privileges, single-device
+selection and recovery. Hardware support is not universal; Hopper deferred clocks
+are outside this runtime feature. SIGKILL, host power loss and watchdog forced
+kills cannot guarantee reset. No candidate latency measurement is claimed.
+
+The NFS model UID mismatch and pending remote `myServices` named-volume recipe
+are separate deployment work; the actual stack is untouched. Source/image
+publication and pushing the Portainer-tracked recipe are separate deliveries.
+The [concrete draft/checklist](../releases/fork-v2.1.0.md) leaves merge SHA,
+CI URLs, image digests and hardware evidence pending actual verification.
+
 ## fork-v2.0.0 — stable release
 
 Release date: **2026-09-30**. This is the first stable fork v2 release and

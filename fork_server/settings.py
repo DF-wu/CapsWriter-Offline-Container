@@ -64,6 +64,10 @@ FIELDS = (
     Field("inference_hardware", "CAPSWRITER_INFERENCE_HARDWARE", "容器運算硬體", "僅適用 Docker：auto 自動偵測並允許 CPU 回退，cpu 使用 CPU，gpu 優先嘗試 GPU，失敗時回退 CPU。", "string", "auto", choices=("auto", "cpu", "gpu")),
     Field("model_type", "CAPSWRITER_MODEL_TYPE", "辨識模型", "切換前請先準備該模型檔案。", "string", "qwen_asr", choices=("qwen_asr", "fun_asr_nano", "sensevoice", "paraformer")),
     Field("qwen_preset", "CAPSWRITER_QWEN_PRESET", "Qwen 運算模式", "僅適用 Qwen；進階 CUDA / Vulkan 環境變數仍優先。", "string", "default", choices=("default", "low_vram_gpu", "cpu_only")),
+    Field("gpu_boost_enabled", "CAPSWRITER_GPU_BOOST_ENABLED", "NVIDIA 預加速", "辨識前鎖定選定 GPU 的顯存頻率；需裝置支援與執行權限，失敗仍繼續辨識。", "boolean", False),
+    Field("gpu_boost_device", "CAPSWRITER_GPU_BOOST_DEVICE", "NVIDIA 裝置索引", "nvidia-smi 在目前執行環境中顯示的 GPU 索引。", "integer", 0, 0, 1023),
+    Field("gpu_boost_memory_clock_mhz", "CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ", "顯存頻率 (MHz)", "請填顯卡支援的頻率；0 表示尚未設定，不能啟用預加速。", "integer", 0, 0, 100000),
+    Field("gpu_boost_idle_seconds", "CAPSWRITER_GPU_BOOST_IDLE_SECONDS", "預加速閒置秒數", "停止辨識多久後還原顯存頻率。", "number", 1.0, 0.1, 3600),
     Field("num_threads", "CAPSWRITER_NUM_THREADS", "CPU 執行緒", "適用 Qwen 與 Fun-ASR 的生成及批次處理；未設定時由模型自動決定。", "integer", None, 1, 256),
     Field("format_num", "CAPSWRITER_FORMAT_NUM", "數字格式化", "將辨識結果的中文數字轉為阿拉伯數字。", "boolean", True),
     Field("format_spell", "CAPSWRITER_FORMAT_SPELL", "中英空格", "調整中英文之間的空格。", "boolean", True),
@@ -114,7 +118,10 @@ class SettingsStore:
         self.fields = tuple(
             replace(field, choices=("qwen_asr", "fun_asr_nano"))
             if field.key == "model_type" and profile == "docker" else field
-            for field in FIELDS if profile == "docker" or field.key not in {"inference_hardware", "qwen_preset"}
+            for field in FIELDS if profile == "docker" or (
+                field.key not in {"inference_hardware", "qwen_preset"}
+                and not field.key.startswith("gpu_boost_")
+            )
         )
         self.field_map = {field.key: field for field in self.fields}
         self.env = dict(env)
@@ -170,11 +177,18 @@ class SettingsStore:
         return result
 
     def _resolve(self, saved):
-        return {
+        result = {
             field.key: FIELD_MAP[field.key].from_env(self.env[field.env]) if self.env.get(field.env, "").strip()
             else saved.get(field.key, self.defaults[field.key])
             for field in self.fields
         }
+        if "gpu_boost_enabled" in result:
+            from fork_server.gpu_boost_config import parse_gpu_boost_config
+            parse_gpu_boost_config({
+                field.env: str(result[field.key]).lower()
+                for field in self.fields if field.key.startswith("gpu_boost_")
+            })
+        return result
 
     def environment(self):
         """A private merged mapping, never mutate the process environment."""

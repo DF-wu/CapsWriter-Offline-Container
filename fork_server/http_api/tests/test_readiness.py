@@ -29,6 +29,8 @@ class ReadinessTest(unittest.TestCase):
 
         self.assertEqual(status, 200)
         self.assertEqual(payload["status"], "ok")
+        self.assertEqual(payload["version"], "2.6")
+        self.assertRegex(payload["fork_version"], r"^\d+\.\d+\.\d+")
         self.assertTrue(payload["checks"]["task_router_bound"])
         self.assertTrue(payload["checks"]["recognizer_process_alive"])
         self.assertTrue(payload["config"]["auth_enabled"])

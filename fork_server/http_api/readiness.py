@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from typing import Any
+from fork_server import __version__ as fork_version
 
 from .auth import auth_enabled as _auth_enabled
 
@@ -41,6 +42,7 @@ def build_readiness(
         "status": "ok" if ready else "degraded",
         "model": model,
         "version": version,
+        "fork_version": fork_version,
         "checks": checks,
         "config": {
             "auth_enabled": bool(auth_enabled),

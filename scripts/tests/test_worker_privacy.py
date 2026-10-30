@@ -139,7 +139,6 @@ def load_pipeline_class(privacy, logger: Capture, console: Capture):
         TIMESTAMPS = object()
 
     namespace = {
-        "Config": SimpleNamespace(gpu_boost_enabled=False),
         "EngineCapabilities": EngineCapabilities,
         "Result": object,
         "Task": object,
@@ -194,6 +193,8 @@ class WorkerPrivacyTest(unittest.TestCase):
             decode_stream=lambda *_args, **_kwargs: None,
         )
         pipeline = pipeline_class(recognizer)
+        pipeline.state.gpu_boosted = True
+        pipeline.state.gpu_last_active = 123.0
         task = SimpleNamespace(
             task_id="private-task",
             socket_id="http:private-task",
@@ -210,6 +211,7 @@ class WorkerPrivacyTest(unittest.TestCase):
         )
 
         result = pipeline.process(task)
+        self.assertEqual(pipeline.state.gpu_last_active, 123.0)
         emitted = "\n".join(logger.messages + console.messages)
 
         self.assertIn(secret, result.text)

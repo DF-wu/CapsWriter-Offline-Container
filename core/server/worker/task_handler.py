@@ -238,6 +238,13 @@ class TaskHandler:
 
     def handle_audio_task(self, task):
         """处理音频识别任务。"""
+        self.gpu_boost.ensure_boosted()
+        # A bounded GPU command can still outlast a client disconnect or HTTP
+        # deadline. Publish the native-inference lease only after rechecking.
+        if task.socket_id not in self.sockets_id or self.task_deadline_expired(task):
+            self.state.sessions.pop((task.socket_id, task.task_id), None)
+            self.buffer.cleanup_tasks()
+            return
         self._mark_inference_active(task)
         try:
             result = self.pipeline.process(task)
@@ -264,6 +271,7 @@ class TaskHandler:
                 self.buffer.discard_session(task.socket_id, task.task_id)
             return
         finally:
+            self.gpu_boost.record_activity()
             self._clear_inference_active()
 
         self.queue_out.put(result)

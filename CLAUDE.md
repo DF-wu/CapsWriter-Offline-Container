@@ -8,7 +8,34 @@
     - **Client**: 轻量启动，负责全局快捷键监听、录音采集、UI 展示。
 - **源代码开放**: 入口 [`start_server.py`](start_server.py) / [`start_client.py`](start_client.py) 为冻结入口；核心源码在 [`core/`](core/) 目录，发行版保留为源码供用户修改。
 - **配置化**: [`config_client.py`](config_client.py) / [`config_server.py`](config_server.py) 及 `hot*.txt`、[`LLM/*.py`](LLM/) 位于根目录。
-- **版本**: fork-v2.0.0（2026-09-30；上游 v2.6，同步至 `84912d5`）
+- **版本**: 最新已发布 fork-v2.0.0（2026-09-30）；fork-v2.1.0 为未发布准备，上游仍为 v2.6 / `84912d5`。
+
+### fork-v2.1.0 候选边界
+
+- Fork metadata：`fork_server.__version__`、`pyproject.toml` 为 `2.1.0`；
+  `/health`、`/ready` 加 `fork_version: "2.1.0"`，原 `version: "2.6"` 不变。
+- NVIDIA boost 默认关闭，镜像默认 `appuser`。Docker 保存设置提供 typed 开关、
+  单卡数字索引、显存 MHz、闲置秒数，env 优先且须重启；timeout 仅进阶 env。
+  Native 通用入口仅在明确 boost env 时覆盖，其他情况保留旧 Python 默认。
+- Worker 在 HTTP／文件／麦克风推理前确保 boost，保留 mic early hint，推理后刷新活动；
+  闲置／正常退出尝试还原，失败不阻断识别且重试有界。命令 timeout 最大 60 秒，
+  启用时退出预算至少为 `2 * (command_timeout + 4) + 1` 秒，保留更大的 worker-stop 设定。
+- 选用 `docker-compose.nvidia-boost.yml` 接在 GPU override 后；明确使用 root 与
+  `SYS_ADMIN`、`DAC_OVERRIDE`、`CHOWN`、`FOWNER`，停止宽限 150 秒，不能自动开启
+  boost，仍需 `true` 与硬件支持的正频率。命令影响所选实体 GPU 上的其他应用，
+  多实例没有时脉协调保证。Root 写入的 model／log／runtime 内容可能需定向修复
+  为镜像 `appuser` UID/GID；移除 override 前须检查所有权并验证非 root readiness。
+- 不宣称 GPU 实机或延迟已验收；Hopper deferred clocks 不支持，SIGKILL／断电／
+  watchdog 强杀不保证还原。[完整配置与复原](docs/nvidia-boost.md)。
+- Source／image workflow 同属 canonical repo `DF-wu/CapsWriter-Offline-Container`，
+  `DF-wu/CapsWriter-Offline` 是旧名称重定向；发布 `master` 触发自动 image／latest。
+  本次仅准备可审阅内容，正式 merge／tag／release／master push 仍待后续授权。
+- NFS 模型 UID 不符另行处理；`myServices` 本机 named-volume／typed env／独立
+  权限 override recipe 已更新，但尚未合并至部署分支或部署。须另推至 Portainer 追踪分支，
+  确认拉取正确 recipe、实际挂载及 readiness 后才可清旧 appdata models；
+  父目录与 `hot-server.txt` 必须保留。
+- [发布草稿／检查表](docs/releases/fork-v2.1.0.md)中的 merge SHA、image digest、
+  CI 与实机栏位待真实验证后填写，不把旧版证据当成本版结果。
 
 ## 架构细节与流程 (Architecture & Workflows)
 

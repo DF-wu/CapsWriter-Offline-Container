@@ -1,0 +1,14 @@
+# Explicit opt-in for NVIDIA clock-control privileges; see docs/nvidia-boost.md.
+# Apply after docker-compose.gpu.yml. The default image remains non-root.
+# This file grants permission only: set ENABLED=true and a supported frequency
+# explicitly in .env. Clock support is determined by the host driver and GPU.
+services:
+  capswriter-server:
+    user: "0:0"
+    cap_add:
+      - SYS_ADMIN
+      - DAC_OVERRIDE
+      - CHOWN
+      - FOWNER
+    # Covers the maximum supported command timeout plus graceful reset cleanup.
+    stop_grace_period: 150s

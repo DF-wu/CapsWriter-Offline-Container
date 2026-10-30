@@ -43,6 +43,7 @@ from starlette.requests import ClientDisconnect
 from python_multipart.exceptions import MultipartParseError
 
 from config_server import ServerConfig as Config, __version__
+from fork_server import __version__ as fork_version
 from core.constants import AudioFormat
 from core.server.schema import Task, Result
 from core.server import logger, console
@@ -949,6 +950,7 @@ def create_app() -> FastAPI:
             "status": "ok",
             "model": Config.model_type,
             "version": __version__,
+            "fork_version": fork_version,
         }
 
     @app.get("/ready")

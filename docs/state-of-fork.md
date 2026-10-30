@@ -1,10 +1,12 @@
 # Fork 現況（State of Fork）
 
-> **更新時間**：2026-09-30
+> **更新時間**：2026-10-30
 >
 > **`master` 上游基底**：`84912d5`（merge `a1cdd45`，PR #4）
 >
 > **最新發布**：`fork-v2.0.0`（見 [release notes](zh-TW/release-notes.md)）
+>
+> **準備中**：`fork-v2.1.0`（未發布；[發布草稿／檢查表](releases/fork-v2.1.0.md)）
 >
 > **歷史 v2 產品合併點**：`afc8c58`（PR #2）；下方既有驗證紀錄屬於該基線
 
@@ -16,6 +18,36 @@ v1 已透過 PR #5 完成**一次性完整上游同步至 `84912d5`**，包含
 `util/` → `core/` 遷移並保留 v1 server、容器與 API 契約；`archive/v1-legacy` 與
 `fork-pre-reset-20260525-1411` 保持不可變。兩軌發布管道仍然獨立，詳見
 [雙軌維護政策](zh-TW/versioning.md)。
+
+## fork-v2.1.0 準備狀態
+
+- Fork runtime／套件 metadata 為 `2.1.0`；`/health`、`/ready` 新增
+  `fork_version: "2.1.0"`，既有 `version: "2.6"` 與上游 `84912d5` 不變。
+- 新增 NVIDIA boost typed env／Docker 保存設定（env 優先、須重啟，進階命令
+  timeout 僅 env）；native 通用入口僅在明確 boost env 時覆蓋 Python 預設。
+- Worker 在 HTTP／檔案／麥克風推論前確保 boost，保留 early mic hint、推論後刷新
+  活動，閒置／正常退出時嘗試還原；失敗不阻斷辨識，timeout／重試有界。
+- 預設仍為 `appuser`、boost 關閉；GPU override 後可明確選用
+  `docker-compose.nvidia-boost.yml` 的 root／`SYS_ADMIN`、`DAC_OVERRIDE`、`CHOWN`、
+  `FOWNER` 與 150 秒停止寬限。它本身不啟用 boost，仍需 `true` 與硬體支援的正 MHz。
+  命令最大 60 秒；啟用時退出預算至少為 `2 * (command_timeout + 4) + 1` 秒，保留更大的 worker-stop 設定。
+- 命令只選一個可見 GPU 索引，但會影響該實體 GPU 的其他應用；多實例沒有時脈
+  協調保證。Root 首次啟動／寫入 archive 或 marker 可能改變 volume 所有權；回到
+  `appuser` 前須檢查 model／log／runtime 路徑，必要時定向修復至 image 的實際
+  UID/GID 並驗證 non-root readiness。移除 override 不會自動修復所有權。
+- Hopper deferred clocks 不在此功能範圍；SIGKILL、斷電、watchdog 強殺不保證還原。
+  GPU／延遲實機驗收尚無證據，完整測試結果待主作業填入，不能沿用下方歷史數字。
+
+原始碼／image workflow 同屬 canonical repo `DF-wu/CapsWriter-Offline-Container`，
+舊名稱 `DF-wu/CapsWriter-Offline` 會重導向同一個 repo；發布 `master` 會觸發自動 image 發布與
+guarded `latest` promotion。本次準備不代表 merge／tag／release／master push 已完成。
+
+NFS 模型 bootstrap 的 UID 1000／lock owner UID 3000 不符是另一個部署問題。
+`myServices` 本機 recipe 已更新 local named volume、default-false typed boost env
+與獨立權限 override，但尚未 push／部署，實際 stack 未變更。Recipe 必須另行
+commit／push 至 Portainer 追蹤分支；只有 Portainer 拉到正確 revision、確認執行中
+模型掛載及 readiness 後，才可考慮清除舊 appdata models，父目錄與 `hot-server.txt`
+必須保留。詳見 [NVIDIA boost 與部署注意事項](nvidia-boost.md)。
 
 ---
 

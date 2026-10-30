@@ -83,6 +83,11 @@ class RecognizerWorker:
         # 2. 载入核心识别模型
         logger.info("Worker 正在加载语音识别模型...")
         self.loader.load()
+
+        # ORT 可能在加载时回退 CPU；进入任务循环前更新 boost 资格。
+        from config_server import ServerConfig
+        from fork_server.gpu_boost_config import configure_gpu_boost_backend
+        configure_gpu_boost_backend(ServerConfig, os.environ, recognizer=self.loader.recognizer)
         
         # 3. 将加载好的引擎委派给处理器
         self.handler.set_engine(
@@ -126,7 +131,10 @@ class RecognizerWorker:
         self._is_running = False
 
         logger.info("正在停止 Worker 并回收资源...")
-        self.loader.cleanup()
+        try:
+            self.handler.gpu_boost.shutdown()
+        finally:
+            self.loader.cleanup()
         logger.info("Worker 资源已完成回收")
 
 

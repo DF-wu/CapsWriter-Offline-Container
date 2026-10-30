@@ -16,6 +16,10 @@ English · [繁體中文](README.zh-TW.md)
 
 </div>
 
+Latest published: **fork-v2.0.0** (2026-09-30). **fork-v2.1.0 is unreleased
+preparation**; upstream stays v2.6 / `84912d5`. See the
+[candidate notes](docs/en/release-notes.md) and [draft checklist](docs/releases/fork-v2.1.0.md).
+
 ![CapsWriter v2 architecture: desktop, Web, CLI, TUI and OpenAI SDK clients connect to a local CapsWriter Server](docs/assets/overview.svg)
 
 <sub>Diagrams and screenshots use the Traditional Chinese UI; every label is explained in the text.</sub>
@@ -184,6 +188,13 @@ WebSocket `:6016` is now ready for desktop clients (enter this host's IP in thei
 
 Example for NVIDIA: `docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d capswriter-server`.
 Upgrades, backups and details are in the [deployment guide](docs/en/deployment.md).
+
+The v2.1.0 candidate's optional [NVIDIA pre-boost](docs/nvidia-boost.md) is separate
+from GPU inference. Defaults remain `appuser` and boost disabled. The explicit
+`docker-compose.nvidia-boost.yml` permissions override follows the GPU override;
+it also needs explicit enablement and a hardware-supported memory-clock value.
+It is not a universal NVIDIA feature or a measured latency promise. Review the
+guide's ownership checks before returning root-written volumes to `appuser`.
 
 ### Enable the HTTP API (for Web / CLI / TUI / SDK)
 
@@ -370,8 +381,8 @@ better.
 <details>
 <summary><b>Do I need a GPU?</b></summary>
 
-No. CPU works; Qwen3-ASR takes a few seconds per short phrase on CPU. For 0.1–0.3 s
-latency add a GPU or use Fun-ASR-Nano.
+No. CPU works. Response time depends on your model, audio and hardware; compare
+CPU/GPU or Fun-ASR-Nano with a known clip on your own system.
 </details>
 
 ## Versions, upstream and license
@@ -381,6 +392,13 @@ latency add a GPU or use Fun-ASR-Nano.
   [versioning policy](docs/en/versioning.md).
 - Server and Web images are published to GHCR with immutable `sha-<commit>` tags plus
   SBOM/provenance; `latest` only follows a `master` commit that passed the gates.
+- Source/image workflows share canonical `DF-wu/CapsWriter-Offline-Container`
+  (the old repository name redirects here). Publishing `master` triggers image
+  publication automatically. The separate `myServices` recipe must be pushed to
+  Portainer's tracked branch; its local model-volume fix is not yet deployed.
+- Candidate runtime/package metadata is `2.1.0`; `/health` and `/ready` add
+  `fork_version: "2.1.0"` while retaining upstream `version: "2.6"`. This does not
+  establish a published release. See the [release checklist](docs/releases/fork-v2.1.0.md).
 - This fork is based on [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline).
   Models, inference algorithms and the desktop experience come from upstream; the fork
   adds cross-platform deployment, the HTTP API, extra clients, safety limits and the

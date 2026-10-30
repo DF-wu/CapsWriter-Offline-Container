@@ -2,6 +2,33 @@
 
 > [文件首頁](README.md) · [English](../en/release-notes.md) · [開始使用](getting-started.md)
 
+## fork-v2.1.0 — 未發布準備
+
+這是**尚未發布的候選版**，不代表已有 tag／image 或完成實機驗收。
+最新已發布版仍為下方的 **fork-v2.0.0**。上游維持 **v2.6／`84912d5`**，
+保留 Python 3.10–3.12 與 llama.cpp b7798。
+
+- Fork runtime／套件版本改為 `2.1.0`；`/health`、`/ready` 新增
+  `fork_version: "2.1.0"`，既有上游 `version: "2.6"` 不變。
+- NVIDIA 預加速採選用設定，Docker env／保存設定提供有型別驗證的開關、裝置索引、
+  顯存頻率、閒置秒數；env 優先且須重啟，命令 timeout 仍僅由進階 env 設定。
+  Native 通用入口接受明確 boost env，未指定時保留原有 Python 預設。
+- Worker 在 HTTP、檔案、麥克風推論前確保 boost，保留麥克風提早提示、推論後更新
+  活動時間，並在閒置／正常退出時嘗試還原。命令失敗不阻斷辨識，timeout／重試有界；
+  啟用時的 graceful-stop 預算會計入命令 timeout。
+- 預設仍為 `appuser` 且 boost 關閉；選用的 `docker-compose.nvidia-boost.yml`
+  接在 `docker-compose.gpu.yml` 後，明確授予 root／capabilities 與 150 秒停止寬限。
+  此 override 本身不開啟 boost，仍須明確 `true` 與硬體支援的正 MHz 值。
+
+完整範圍、權限、單卡選擇及復原請見 [NVIDIA 預加速](../nvidia-boost.md)。
+並非所有 NVIDIA 裝置皆支援；Hopper deferred clocks 不在此 runtime 功能範圍。
+SIGKILL、主機斷電、watchdog 強制終止不保證還原；候選版沒有延遲實測宣稱。
+
+NFS 模型 UID 不符與待遠端發布的 `myServices` named-volume recipe 屬於另一項部署
+工作，實際 stack 未變更。原始碼／image 發布與推送 Portainer 追蹤的 recipe 必須
+分別交付。[具體發布草稿／檢查表](../releases/fork-v2.1.0.md)保留 merge SHA、CI URL、
+image digest、實機證據欄位，待實際驗證後填入。
+
 ## fork-v2.0.0 — 穩定版
 
 發布日期：**2026-09-30**。這是 fork v2 的第一個穩定版，取代
