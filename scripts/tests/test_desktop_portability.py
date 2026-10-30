@@ -60,6 +60,7 @@ class FakeListener:
 
 class FakeKeyboardListener(FakeListener):
     instances = []
+    _emitter = staticmethod(lambda method: method)
 
 
 class FakeMouseListener(FakeListener):

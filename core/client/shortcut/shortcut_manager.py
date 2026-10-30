@@ -285,9 +285,17 @@ class ShortcutManager:
             key_name = pynput_key_name(key)
             if not key_name:
                 return
+            # pynput 會將 X11 數字鍵盤轉成一般數字／導覽鍵，且常不帶 vk。
+            # 原始資訊已確認為數字鍵盤時，只採用該命名空間與原始 vk。
+            keypad_names = {name for name in base_names if name.startswith('numpad')}
+            if keypad_names:
+                key_name = next(iter(keypad_names))
             vk = getattr(key, 'vk', None)
             if vk is None:
                 vk = getattr(getattr(key, 'value', None), 'vk', None)
+            if keypad_names:
+                vk = next((int(name[3:]) for name in base_names
+                           if name.startswith('vk_')), None)
             message = KEY_DOWN_MESSAGES[0] if pressed else KEY_UP_MESSAGES[0]
             if self._check_emulating(key_name, message, vk=vk):
                 return
@@ -298,10 +306,13 @@ class ShortcutManager:
                     self.clear_restoring_flag(key_name)
                 return
             identity = physical_identity or pynput_key_identity(key, key_name)
-            names = {key_name} | set(base_names)
+            if keypad_names:
+                names = set(base_names)
+            else:
+                names = {key_name} | set(base_names)
             if identity[0] == 'character':
                 names.add(identity[1])
-            if vk is not None:
+            if vk is not None and not keypad_names:
                 names.add(f'vk_{vk}')
             self._dispatch_keyboard(key_name, pressed, identity, frozenset(names))
 

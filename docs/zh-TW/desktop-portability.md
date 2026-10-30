@@ -204,6 +204,11 @@ cancellation。只有刻意使用極慢 model 時才應提高檔案期限，不�
 鍵盤 press/release 與常見的側鍵 8/9（`x1`／`x2`）可用。側鍵編號取決於硬體與
 driver，必須在目標 workstation 實測。
 
+X11 listener 依硬體鍵碼與伺服器時間戳，濾除自動重複的 release/press 配對。
+放鍵會暫存 20 ms，容許配對分散在不同 RECORD 回覆；遇到不同事件時，立即
+交付真正放鍵。數字鍵盤保留自己的 `numpad*` 名稱與原始 `vk_N` 別名，即使
+切換 NumLock，也不會被視為主鍵盤數字列或導覽鍵。
+
 Paste mode 關閉時，Linux 的一般辨識輸出與 LLM streaming output 都使用同一個
 `pynput` X11／XTest controller，不會走 `keyboard` 套件需要 root 與
 `/dev/input` 的 backend；Windows 則保留原有 `keyboard.write` 行為。文字注入仍

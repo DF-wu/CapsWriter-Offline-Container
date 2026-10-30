@@ -14,6 +14,51 @@ from scripts.tests.test_desktop_portability import (
 )
 
 
+class RawListener:
+    """僅模擬 pynput 轉譯介面，不依賴桌面或非同步時鐘。"""
+    _emitter = staticmethod(lambda method: method)
+
+    def __init__(self, **kwargs):
+        self.on_press = kwargs['on_press']
+        self.on_release = kwargs['on_release']
+        self.stopped = False
+
+    def _handle_message(self, display, event, injected):
+        callback = self.on_press if event.type == 2 else self.on_release
+        return callback(event.key, injected)
+
+    def stop(self):
+        self.stopped = True
+
+
+class ManualTimer:
+    instances = []
+
+    def __init__(self, interval, function, args):
+        self.function, self.args = function, args
+        self.cancelled = False
+        self.instances.append(self)
+
+    def start(self):
+        pass
+
+    def cancel(self):
+        self.cancelled = True
+
+    def fire(self):
+        # 刻意允許已取消的計時器執行，以驗證取消時已甦醒的競態。
+        self.function(*self.args)
+
+
+def raw_keyboard():
+    return SimpleNamespace(
+        Listener=RawListener, Key=(), KeyCode=SimpleNamespace(
+            from_char=lambda char, vk: SimpleNamespace(char=char, vk=vk),
+            from_vk=lambda vk: SimpleNamespace(vk=vk),
+        ),
+    )
+
+
 class ParsingTest(unittest.TestCase):
     def test_canonical_names(self):
         for raw, expected in {
@@ -145,20 +190,7 @@ class RuntimeTest(unittest.TestCase):
                     ('down', f'a+{modifier}'), ('down', f'a+{modifier}_l')])
 
     def test_x11_raw_adapter_tracks_hardware_across_shift_and_layout(self):
-        class RawListener:
-            def __init__(self, **kwargs):
-                self.on_press = kwargs['on_press']
-                self.on_release = kwargs['on_release']
-            def _handle_message(self, display, event, injected):
-                callback = self.on_press if event.type == 2 else self.on_release
-                return callback(event.key, injected)
-
-        keyboard = SimpleNamespace(
-            Listener=RawListener, Key=(), KeyCode=SimpleNamespace(
-                from_char=lambda char, vk: SimpleNamespace(char=char, vk=vk),
-                from_vk=lambda vk: SimpleNamespace(vk=vk),
-            ),
-        )
+        keyboard = raw_keyboard()
         with loaded_shortcut_manager() as module:
             # French-style top row: Shift+é emits 2. A US punctuation fold
             # cannot recover the base name; the raw adapter consults the layout.
@@ -186,6 +218,143 @@ class RuntimeTest(unittest.TestCase):
                 # context after _handle_message returns.
                 listener.on_press(self.key('f1'), True)
                 self.assertEqual(manager._physical_keys, {})
+
+    def x11_listener(self, manager):
+        down, up = manager.create_portable_keyboard_callbacks()
+        listener = PLATFORM_SUPPORT.create_x11_keyboard_listener(raw_keyboard(), down, up)
+        display = SimpleNamespace(keycode_to_keysym=lambda detail, index: 0)
+
+        def send(name, pressed, timestamp, detail=None, keysym=0, injected=False):
+            display.keycode_to_keysym = lambda code, index: keysym
+            key = self.key(name) if isinstance(name, str) else name
+            listener._handle_message(display, SimpleNamespace(
+                type=2 if pressed else 3, detail=detail or {'f1': 67, 'f2': 68}[name],
+                time=timestamp, state=0, key=key,
+            ), injected)
+        return listener, send
+
+    def test_x11_repeat_pairs_do_not_end_chord_and_idle_release_rearms(self):
+        with loaded_shortcut_manager() as module, patch('threading.Timer', ManualTimer):
+            manager = self.manager(module, 'f1+f2')
+            listener, send = self.x11_listener(manager)
+            send('f1', True, 1); send('f2', True, 2)
+            for name in ('f1', 'f2', 'f2'):
+                send(name, False, 100)
+                send(name, True, 100)  # 可位於另一個 RECORD 回覆。
+                self.assertEqual(self.events(manager), [('down', 'f1+f2')])
+                stale = ManualTimer.instances[-1]
+                self.assertTrue(stale.cancelled)
+                stale.fire()
+                self.assertEqual(self.events(manager), [('down', 'f1+f2')])
+            send('f1', False, 200)
+            ManualTimer.instances[-1].fire()  # 不需要後續事件。
+            self.assertEqual(self.events(manager), [('down', 'f1+f2'), ('up', 'f1+f2')])
+            send('f2', False, 201)
+            ManualTimer.instances[-1].fire()
+            self.assertEqual(manager._physical_keys, {})
+            send('f2', True, 202); send('f1', True, 203)
+            self.assertEqual(self.events(manager)[-1], ('down', 'f1+f2'))
+            listener.stop()
+
+    def test_x11_quick_repress_with_different_time_is_real_release(self):
+        with loaded_shortcut_manager() as module, patch('threading.Timer', ManualTimer):
+            manager = self.manager(module, 'f1+f2')
+            listener, send = self.x11_listener(manager)
+            send('f1', True, 1); send('f2', True, 2)
+            send('f1', False, 3); send('f1', True, 4)
+            self.assertEqual(self.events(manager), [('down', 'f1+f2'), ('up', 'f1+f2')])
+            # 時間戳相同但硬體鍵不同，仍是真正放鍵。
+            send('f1', False, 5); send('f2', False, 6)
+            stale = ManualTimer.instances[-1]
+            send('f1', True, 6)
+            send('f2', True, 7)
+            stale.fire()
+            self.assertEqual(self.events(manager), [
+                ('down', 'f1+f2'), ('up', 'f1+f2'), ('down', 'f1+f2')])
+            listener.stop()
+
+    def test_x11_injected_callbacks_and_stop_do_not_flush_pending_release(self):
+        with loaded_shortcut_manager() as module, patch('threading.Timer', ManualTimer):
+            manager = self.manager(module, 'f1+f2')
+            listener, send = self.x11_listener(manager)
+            send('f1', True, 1); send('f2', True, 2); send('f2', False, 3)
+            pending = ManualTimer.instances[-1]
+            listener.on_press(self.key('f2'), True)
+            listener.on_release(self.key('f2'), True)
+            self.assertFalse(pending.cancelled)
+            send('f2', True, 3)
+            pending.fire()
+            self.assertEqual(self.events(manager), [('down', 'f1+f2')])
+            send('f2', False, 4)
+            pending = ManualTimer.instances[-1]
+            listener.stop()
+            pending.fire()
+            send('f1', False, 5)
+            self.assertTrue(listener.stopped)
+            self.assertTrue(pending.cancelled)
+            self.assertEqual(self.events(manager), [('down', 'f1+f2')])
+
+    def test_x11_stop_from_flushed_release_does_not_deliver_or_queue_next_event(self):
+        with patch('threading.Timer', ManualTimer):
+            for pressed in (True, False):
+                with self.subTest(pressed=pressed):
+                    events = []
+                    def on_release(*args, **kwargs):
+                        listener.stop()
+                    listener = PLATFORM_SUPPORT.create_x11_keyboard_listener(
+                        raw_keyboard(), lambda *args, **kwargs: events.append('down'),
+                        on_release,
+                    )
+                    display = SimpleNamespace(keycode_to_keysym=lambda *args: 0)
+                    listener._handle_message(display, SimpleNamespace(
+                        type=3, detail=67, time=1, state=0, key=self.key('f1')), False)
+                    timer = ManualTimer.instances[-1]
+                    listener._handle_message(display, SimpleNamespace(
+                        type=2 if pressed else 3, detail=68, time=2, state=0,
+                        key=self.key('f2')), False)
+                    self.assertTrue(listener.stopped)
+                    self.assertEqual(events, [])
+                    self.assertTrue(timer.cancelled)
+                    self.assertIsNone(listener._pending_release)
+                    self.assertIsNone(listener._release_timer)
+
+    def test_x11_raw_keypad_excludes_main_digits_navigation_and_operators(self):
+        cases = (
+            (0xFFB0, SimpleNamespace(char='0'), '0', 'numpad0'),
+            (0xFF9E, SimpleNamespace(name='insert'), 'insert', 'numpad0'),
+            (0xFF9C, SimpleNamespace(name='end'), 'end', 'numpad1'),
+            (0xFFAB, SimpleNamespace(char='+'), 'plus', 'numpad_add'),
+            (0xFFAF, SimpleNamespace(char='/'), '/', 'numpad_divide'),
+            (0xFFAE, SimpleNamespace(char=','), ',', 'numpad_decimal'),
+        )
+        with loaded_shortcut_manager() as module, patch('threading.Timer', ManualTimer):
+            for keysym, translated, main, keypad in cases:
+                with self.subTest(keypad=keypad, keysym=keysym):
+                    manager = self.manager(module, f'{main}+f2', f'{keypad}+f2',
+                                           f'vk_{keysym}+f2')
+                    listener, send = self.x11_listener(manager)
+                    send(translated, True, 1, detail=90, keysym=keysym)
+                    send('f2', True, 2)
+                    self.assertEqual(self.events(manager), [
+                        ('down', normalize_shortcut(f'{keypad}+f2')),
+                        ('down', normalize_shortcut(f'vk_{keysym}+f2'))])
+                    # 放鍵前切換 NumLock／佈局，轉譯後的名稱可能改變。
+                    send(SimpleNamespace(char='?'), False, 3, detail=90, keysym=keysym)
+                    ManualTimer.instances[-1].fire()
+                    self.assertEqual(len(self.events(manager)), 4)
+                    self.assertTrue(all(kind == 'up' for kind, _ in self.events(manager)[-2:]))
+                    listener.stop()
+
+    def test_x11_numpad_only_does_not_complete_main_row_plus_numpad_chord(self):
+        with loaded_shortcut_manager() as module, patch('threading.Timer', ManualTimer):
+            manager = self.manager(module, '0+numpad1', 'numpad0+numpad1')
+            listener, send = self.x11_listener(manager)
+            send(SimpleNamespace(char='0'), True, 1, detail=90, keysym=0xFFB0)
+            send(SimpleNamespace(char='1'), True, 2, detail=87, keysym=0xFFB1)
+            self.assertEqual(self.events(manager), [('down', 'numpad0+numpad1')])
+            send(SimpleNamespace(char='0'), True, 3, detail=19, keysym=ord('0'))
+            self.assertEqual(self.events(manager)[-1], ('down', '0+numpad1'))
+            listener.stop()
 
     def test_generic_alt_and_shift_accept_either_side(self):
         with loaded_shortcut_manager() as module:

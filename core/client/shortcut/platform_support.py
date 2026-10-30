@@ -144,25 +144,99 @@ def pynput_button_name(button: object) -> str:
 
 
 def create_x11_keyboard_listener(keyboard, on_press, on_release):
-    """Adapt pynput's raw X11 messages to physical callback identities.
+    """以原始 X11 訊息保留實體按鍵識別，並濾除自動重複的放鍵事件。
 
-    pynput 1.8.2 has no xorg_event_filter hook. Keep its one private method seam
-    here; use public Xlib layout lookup and no private listener state. The base
-    listener still translates/delivers events and handles injected callbacks.
-    Context is thread-local because Controller callbacks can run on another
-    thread while the RECORD thread is dispatching a physical event.
+    pynput 1.8.2 沒有 xorg_event_filter；私有方法的介接集中於此，佈局查詢
+    則使用公開 Xlib API。事件轉譯、注入回呼與錯誤傳遞仍交由原監聽器處理。
+    Controller 回呼可能與 RECORD 執行緒同時執行，因此原始事件資訊使用
+    thread-local，延後放鍵與新事件的交付則以同一把鎖維持順序。
     """
-    from threading import local
+    from threading import RLock, Timer, local
 
     context = local()
     special = {key.value.vk: key for key in keyboard.Key}
 
     def wrap(callback):
         def dispatch(key, injected=False):
-            return callback(key, injected, **getattr(context, 'event', {}))
+            details = dict(getattr(context, 'event', {}))
+            timestamp = details.pop('x11_time', None)
+            # Controller 回呼不帶原始事件資訊，不得打斷等待重複配對的實體放鍵。
+            with listener._release_lock:
+                if listener._closed:
+                    return
+                if injected or timestamp is None:
+                    return callback(key, injected, **details)
+                pending = listener._pending_release
+                if pending is not None:
+                    if (callback is on_press
+                            and pending[0] == (details['physical_identity'], timestamp)):
+                        listener._cancel_release()
+                        return  # 同一硬體鍵與伺服器時間戳，代表 X11 自動重複。
+                    listener._flush_release(pending)
+                    if listener._closed:
+                        return
+                if callback is on_release:
+                    pending = ((details['physical_identity'], timestamp), key, details)
+                    listener._pending_release = pending
+                    # RECORD 可能將配對拆至不同回覆；等候 20 ms，閒置時也能
+                    # 交付最後一次真正放鍵，不必等待下一個事件。
+                    listener._release_timer = Timer(0.02, listener._expire_release, (pending,))
+                    listener._release_timer.daemon = True
+                    listener._release_timer.start()
+                    return
+                return callback(key, injected, **details)
         return dispatch
 
     class PhysicalKeyboardListener(keyboard.Listener):
+        def __init__(self, **kwargs):
+            self._release_lock = RLock()
+            self._pending_release = None
+            self._release_timer = None
+            self._closed = False
+            super().__init__(**kwargs)
+
+        def _cancel_release(self):
+            if self._release_timer is not None:
+                self._release_timer.cancel()
+            self._release_timer = None
+            self._pending_release = None
+
+        @keyboard.Listener._emitter
+        def _flush_release(self, pending):
+            # 計時器也沿用 pynput 的錯誤邊界；回呼失敗或回傳 False 時停止，
+            # 例外仍由 join() 傳回呼叫端。
+            with self._release_lock:
+                if self._pending_release is not pending:
+                    return
+                self._cancel_release()
+                previous = getattr(context, 'event', {})
+                try:
+                    context.event = pending[2]
+                    return self.on_release(pending[1], False)
+                finally:
+                    context.event = previous
+
+        def _expire_release(self, pending):
+            try:
+                self._flush_release(pending)
+            except Exception:
+                # _emitter 已記錄例外並停止監聽。
+                pass
+
+        def stop(self):
+            with self._release_lock:
+                self._closed = True
+                self._cancel_release()
+            super().stop()
+
+        def _stop_platform(self):
+            if not hasattr(self, '_context'):
+                self.wait()
+            # RECORD 連線正執行 EnableContext，須從控制連線停用，
+            # 計時器執行緒才能在沒有新按鍵時停止閒置的讀取執行緒。
+            self._display_stop.record_disable_context(self._context)
+            self._display_stop.flush()
+
         def _handle_message(self, display, event, injected):
             previous = getattr(context, 'event', {})
             try:
@@ -184,11 +258,13 @@ def create_x11_keyboard_listener(keyboard, on_press, on_release):
                 context.event = {
                     'physical_identity': ('x11', event.detail),
                     'base_names': frozenset({base_name, f'vk_{keysym}'}) if keysym else frozenset(),
+                    'x11_time': getattr(event, 'time', None),
                 }
                 return super()._handle_message(display, event, injected)
             finally:
                 context.event = previous
 
-    return PhysicalKeyboardListener(
+    listener = PhysicalKeyboardListener(
         on_press=wrap(on_press), on_release=wrap(on_release), suppress=False,
     )
+    return listener
