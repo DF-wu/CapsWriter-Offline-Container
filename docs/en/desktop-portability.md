@@ -222,6 +222,12 @@ Keyboard press/release events and the commonly mapped side buttons 8/9
 (`x1`/`x2`) are supported. Side-button numbering is hardware/driver dependent,
 so it must be verified on the target workstation.
 
+The X11 listener filters autorepeat release/press pairs using the hardware key
+and server timestamp. It briefly buffers releases (20 ms) so a repeat pair can
+span RECORD replies; a different event flushes a real release immediately.
+Keypad keys keep their `numpad*` names and raw `vk_N` aliases, independently of
+the main digit row and navigation keys, including when NumLock changes.
+
 When paste mode is disabled, both plain recognition output and LLM streaming
 output use the same `pynput` X11/XTest controller on Linux. They do not use the
 `keyboard` package's root-only `/dev/input` backend. Windows retains its

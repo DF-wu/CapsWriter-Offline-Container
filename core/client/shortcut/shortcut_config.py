@@ -9,6 +9,8 @@
 from dataclasses import dataclass
 from typing import Literal, Optional
 
+from fork_client.shortcut_keys import normalize_shortcut
+
 
 @dataclass
 class Shortcut:
@@ -62,24 +64,7 @@ class Shortcut:
         Returns:
             str: 规范化后的键名（pynput 格式）
         """
-        # 转小写
-        key = key.lower().strip()
-
-        # 替换常见别名
-        aliases = {
-            'capslock': 'caps_lock',
-            'caps lock': 'caps_lock',
-            ' ': 'space',
-            'control': 'ctrl',
-        }
-
-        for old, new in aliases.items():
-            key = key.replace(old, new)
-
-        # 移除左右修饰符标记（pynput 会自动处理）
-        # 保留 'left ctrl' 这样的形式
-
-        return key
+        return normalize_shortcut(key)
 
     def is_toggle_key(self) -> bool:
         """
@@ -92,8 +77,8 @@ class Shortcut:
         """
         from core.client.shortcut.key_mapper import RESTORABLE_KEYS
 
-        # 检查 key 是否包含可恢复的切换键
-        return any(toggle_key in self.key for toggle_key in RESTORABLE_KEYS)
+        # Only singleton lock keys can be restored; never synthesize a chord.
+        return self.key in RESTORABLE_KEYS
 
 
 # 预定义常用快捷键配置

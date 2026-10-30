@@ -10,6 +10,7 @@ import tkinter as tk
 from tkinter import messagebox, ttk
 
 from .devices import device_label, input_device_choices
+from .shortcut_capture import ShortcutCapture
 from .settings import (
     SettingsError, effective_settings, load_overrides, probe_connection,
     save_overrides, settings_path, update_overrides, validate,
@@ -30,6 +31,8 @@ class SettingsWindow:
         self.touched = set()
         self.device_choices = {}
         self.shortcut_draft_dirty = False
+        self.capture_dialog = None
+        self.cancel_capture = None
         self.read_error = None
         try:
             self.overrides = load_overrides(self.path)
@@ -139,20 +142,111 @@ class SettingsWindow:
         for variable in (self.key, self.kind, self.hold, self.suppress, self.enabled):
             variable.trace_add("write", self.mark_shortcut_draft)
         ttk.Label(edit, text="按鍵").grid(row=0, column=0, sticky="w")
-        ttk.Entry(edit, textvariable=self.key, width=17).grid(row=0, column=1, padx=6)
+        ttk.Entry(edit, textvariable=self.key, width=24).grid(row=0, column=1, padx=6)
         ttk.Label(edit, text="類型").grid(row=0, column=2, sticky="w")
         ttk.Combobox(edit, textvariable=self.kind, values=("keyboard", "mouse"), state="readonly", width=12).grid(row=0, column=3, padx=6)
+        ttk.Button(edit, text="錄製按鍵", command=self.record_shortcut).grid(row=2, column=3, sticky="w", padx=6)
         for column, (label, variable) in enumerate((("按住錄音", self.hold), ("阻擋原按鍵", self.suppress), ("啟用", self.enabled))):
             ttk.Checkbutton(edit, text=label, variable=variable).grid(row=1, column=column, sticky="w", pady=6)
         for column, (label, command) in enumerate((("套用按鍵", self.update_shortcut), ("新增", lambda: self.update_shortcut(new=True)), ("移除", self.remove_shortcut))):
             ttk.Button(edit, text=label, command=command).grid(row=2, column=column, sticky="w", pady=4)
-        error = tk.StringVar(value="例如 caps_lock、f12；滑鼠使用 x1／x2。未勾「按住錄音」時，再按一次停止。")
+        error = tk.StringVar(value="例如 `+1、f1+f2+f3、f13；滑鼠 x1／x2。組合鍵不阻擋原按鍵；切換模式再按一次停止。")
         self.errors["shortcuts"] = (error, error.get())
         ttk.Label(page, textvariable=error, wraplength=660).grid(row=10, column=0, columnspan=2, sticky="w", pady=4)
         self.render_shortcuts()
 
     def mark_shortcut_draft(self, *_args):
         self.shortcut_draft_dirty = True
+
+    def record_shortcut(self):
+        if self.capture_dialog is not None:
+            self.capture_dialog.focus_set()
+            return
+        dialog = tk.Toplevel(self.root)
+        self.capture_dialog = dialog
+        capture = ShortcutCapture()
+        pending_releases = {}
+        dialog.title("錄製快捷鍵")
+        dialog.transient(self.root)
+        dialog.resizable(False, False)
+        frame = ttk.Frame(dialog, padding=20)
+        frame.pack(fill="both", expand=True)
+        ttk.Label(frame, text="同時按住所需按鍵，再全部放開。Esc 取消。", wraplength=440).pack(anchor="w")
+        ttk.Label(frame, text="錄製前請先結束執行中的 Client，避免觸發既有錄音快捷鍵。", wraplength=440).pack(anchor="w", pady=(8, 0))
+        preview = tk.StringVar(value="等待按鍵……")
+        ttk.Label(frame, textvariable=preview, wraplength=440, padding=(0, 16)).pack(anchor="w")
+
+        def close():
+            for _event, after_id in pending_releases.values():
+                dialog.after_cancel(after_id)
+            pending_releases.clear()
+            dialog.grab_release()
+            dialog.destroy()
+            self.capture_dialog = None
+            self.cancel_capture = None
+
+        self.cancel_capture = close
+
+        def press(event):
+            if event.keysym == "Escape":
+                close()
+                return "break"
+            pending = pending_releases.get(event.keycode)
+            if pending is not None and pending[0].time == event.time:
+                # X11 autorepeat sends a release/press pair with the same
+                # keycode and timestamp while the physical key stays held.
+                dialog.after_cancel(pending[1])
+                del pending_releases[event.keycode]
+            # A different key press must not join a key already released.
+            for keycode in list(pending_releases):
+                flush_release(keycode)
+                if self.capture_dialog is None:
+                    return "break"
+            try:
+                preview.set(capture.press(event))
+            except ValueError as exc:
+                capture.held.clear()
+                capture.chord = None
+                preview.set(str(exc))
+            return "break"
+
+        def flush_release(keycode):
+            event, after_id = pending_releases.pop(keycode)
+            dialog.after_cancel(after_id)
+            result = capture.release(event)
+            if result:
+                self.kind.set("keyboard")
+                self.key.set(result)
+                self.status.set("已錄製；請按「套用按鍵」或「新增」，再儲存設定。")
+                close()
+
+        def release(event):
+            previous = pending_releases.pop(event.keycode, None)
+            if previous is not None:
+                dialog.after_cancel(previous[1])
+            # Allow the matching repeat press to reach Tk before accepting a
+            # release. This delay only affects the settings recorder, not audio.
+            after_id = dialog.after(15, lambda: flush_release(event.keycode))
+            pending_releases[event.keycode] = (event, after_id)
+            return "break"
+
+        def focus_lost(_event):
+            # Losing focus may also lose releases. Discard partial input, rather
+            # than leaving a modifier stuck in the next captured combination.
+            for _event, after_id in pending_releases.values():
+                dialog.after_cancel(after_id)
+            pending_releases.clear()
+            capture.held.clear()
+            capture.chord = None
+            preview.set("焦點已移開；請回到此視窗重新按下完整組合。")
+
+        ttk.Button(frame, text="取消", command=close, takefocus=False).pack(anchor="e")
+        dialog.bind("<KeyPress>", press)
+        dialog.bind("<KeyRelease>", release)
+        dialog.bind("<FocusOut>", focus_lost)
+        dialog.protocol("WM_DELETE_WINDOW", close)
+        dialog.grab_set()
+        dialog.focus_set()
 
     def render_shortcuts(self, selected=0):
         self.shortcut_list.delete(*self.shortcut_list.get_children())
@@ -179,7 +273,7 @@ class SettingsWindow:
         else:
             proposed.append(item)
         try:
-            validate({"shortcuts": proposed})
+            proposed = validate({"shortcuts": proposed})["shortcuts"]
         except SettingsError as exc:
             self.errors["shortcuts"][0].set(exc.errors["shortcuts"])
             return
@@ -374,6 +468,8 @@ class SettingsWindow:
         if (self.touched or self.shortcut_draft_dirty) and not messagebox.askyesno("尚未儲存", "捨棄尚未儲存的變更並關閉？", parent=self.root):
             return
         self.closed = True
+        if self.cancel_capture is not None:
+            self.cancel_capture()
         if self.poll_after_id is not None:
             self.root.after_cancel(self.poll_after_id)
             self.poll_after_id = None

@@ -60,6 +60,7 @@ class FakeListener:
 
 class FakeKeyboardListener(FakeListener):
     instances = []
+    _emitter = staticmethod(lambda method: method)
 
 
 class FakeMouseListener(FakeListener):
@@ -144,7 +145,7 @@ def loaded_shortcut_manager():
     task.ShortcutTask = FakeTask
 
     pynput = ModuleType("pynput")
-    pynput.keyboard = SimpleNamespace(Listener=FakeKeyboardListener)
+    pynput.keyboard = SimpleNamespace(Listener=FakeKeyboardListener, Key=())
     pynput.mouse = SimpleNamespace(Listener=FakeMouseListener)
 
     config_client = ModuleType("config_client")
