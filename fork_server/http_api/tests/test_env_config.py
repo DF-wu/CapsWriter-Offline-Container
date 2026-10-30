@@ -31,6 +31,11 @@ CLASS_ATTRS = {
         "log_level",
         "enable_tray",
         "hotwords_path",
+        "gpu_boost_enabled",
+        "gpu_boost_backend_active",
+        "gpu_boost_cmd",
+        "gpu_unboost_cmd",
+        "gpu_unboost_timeout",
         "max_websocket_connections",
         "max_websocket_task_seconds",
         "http_api_enable",
@@ -177,6 +182,49 @@ class EnvConfigTest(unittest.TestCase):
             self.assertEqual(Qwen3ASRGGUFArgs.n_batch, value)
         else:
             self.assertFalse(hasattr(Qwen3ASRGGUFArgs, "n_batch"))
+
+    def test_gpu_boost_environment_reaches_worker_config(self):
+        self.apply_env({
+            "CAPSWRITER_GPU_BOOST_ENABLED": "true",
+            "CAPSWRITER_GPU_BOOST_DEVICE": "1",
+            "CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ": "6000",
+            "CAPSWRITER_GPU_BOOST_IDLE_SECONDS": "2.5",
+        })
+        self.assertTrue(ServerConfig.gpu_boost_enabled)
+        self.assertEqual(ServerConfig.gpu_boost_cmd, ["nvidia-smi", "-i", "1", "-lmc", "6000"])
+        self.assertEqual(ServerConfig.gpu_unboost_cmd, ["nvidia-smi", "-i", "1", "-rmc"])
+        self.assertEqual(ServerConfig.gpu_unboost_timeout, 2.5)
+
+    def test_cpu_backend_skips_boost_but_low_vram_cuda_remains_eligible(self):
+        common = {
+            "CAPSWRITER_GPU_BOOST_ENABLED": "true",
+            "CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ": "6000",
+        }
+        for overrides, eligible in (
+            ({"CAPSWRITER_QWEN_PRESET": "cpu_only"}, False),
+            ({"CAPSWRITER_QWEN_USE_CUDA": "false",
+              "CAPSWRITER_QWEN_VULKAN_ENABLE": "false"}, False),
+            ({"CAPSWRITER_INFERENCE_HARDWARE": "cpu"}, False),
+            ({"CAPSWRITER_QWEN_PRESET": "low_vram_gpu"}, True),
+        ):
+            with self.subTest(overrides=overrides):
+                self.apply_env({**common, **overrides})
+                self.assertEqual(ServerConfig.gpu_boost_backend_active, eligible)
+
+    def test_saved_gpu_boost_controls_reach_worker_with_environment_priority(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text(json.dumps({"version": 1, "values": {
+                "gpu_boost_enabled": True, "gpu_boost_memory_clock_mhz": 6000,
+                "gpu_boost_device": 1, "gpu_boost_idle_seconds": 2.5,
+            }}))
+            self.apply_env({
+                "CAPSWRITER_SETTINGS_PATH": str(path),
+                "CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ": "5000",
+            })
+        self.assertTrue(ServerConfig.gpu_boost_enabled)
+        self.assertEqual(ServerConfig.gpu_boost_cmd, ["nvidia-smi", "-i", "1", "-lmc", "5000"])
+        self.assertEqual(ServerConfig.settings_store.sources["gpu_boost_memory_clock_mhz"], "environment")
 
     def test_saved_daily_settings_reach_runtime_without_mutating_environment(self):
         from fork_server.settings_bootstrap import bootstrap_environment

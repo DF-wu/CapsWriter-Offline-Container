@@ -1,6 +1,6 @@
 [project]
 name = "capswriter-offline"
-version = "2.5.0a0"
+version = "2.1.0"
 description = "CapsWriter-Offline 離線語音輸入工具"
 requires-python = ">=3.10,<3.13"
 # Bare uv run/sync must not download ASR or desktop packages.

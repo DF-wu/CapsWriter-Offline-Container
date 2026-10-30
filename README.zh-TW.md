@@ -16,6 +16,10 @@
 
 </div>
 
+最新已發布：**fork-v2.0.0**（2026-09-30）。**fork-v2.1.0 尚在未發布準備**，
+上游仍為 v2.6／`84912d5`。見[候選版說明](docs/zh-TW/release-notes.md)與
+[發布草稿／檢查表](docs/releases/fork-v2.1.0.md)。
+
 ![CapsWriter v2 架構：桌面、Web、CLI、TUI、OpenAI SDK 五種 Client 連到本機的 CapsWriter Server](docs/assets/overview.svg)
 
 ## 目錄
@@ -178,6 +182,12 @@ docker compose logs -f capswriter-server   # 第一次會下載模型，請耐�
 
 例如 NVIDIA：`docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d capswriter-server`。
 完整說明、升級與備份請看[部署指南](docs/zh-TW/deployment.md)。
+
+v2.1.0 候選版的 [NVIDIA 預加速](docs/nvidia-boost.md)與 GPU 推論分開；預設仍為
+`appuser` 且 boost 關閉。選用 `docker-compose.nvidia-boost.yml` 權限 override 時，
+須接在 GPU override 後，並明確啟用及指定硬體支援的顯存頻率。此功能不保證所有
+NVIDIA 裝置支援，也無候選版延遲實測宣稱；root 寫入的 volume 回到 `appuser` 前，
+請先依指南檢查所有權。
 
 ### 啟用 HTTP API（給 Web／CLI／TUI／SDK）
 
@@ -359,8 +369,8 @@ Server 的 `CAPSWRITER_HTTP_API_KEY` 相同。
 <details>
 <summary><b>一定要 GPU 嗎？</b></summary>
 
-不用。CPU 就能執行；Qwen3-ASR 在 CPU 上短句約數秒，想要 0.1–0.3 秒延遲再加 GPU，
-或改用 Fun-ASR-Nano。
+不用。CPU 就能執行；反應時間取決於模型、音訊與硬體，請用已知內容音檔在自己的
+環境比較 CPU／GPU 或 Fun-ASR-Nano。
 </details>
 
 ## 版本、Upstream 與授權
@@ -369,6 +379,12 @@ Server 的 `CAPSWRITER_HTTP_API_KEY` 相同。
   **fork v1** 是另一條只做安全／相容性維護的分支。見[版本政策](docs/zh-TW/versioning.md)。
 - Server／Web image 以不可變的 `sha-<commit>` tag 發布到 GHCR，並附 SBOM／provenance；
   `latest` 只指向通過檢查的 `master`。
+- 原始碼／image workflow 同屬 canonical `DF-wu/CapsWriter-Offline-Container`
+  （舊 repo 名稱會重導向）；發布 `master` 自動觸發 image 發布。獨立的 `myServices`
+  recipe 仍須推至 Portainer 追蹤分支，本機模型 volume 修復尚未部署。
+- 候選 runtime／套件 metadata 為 `2.1.0`；`/health`、`/ready` 新增
+  `fork_version: "2.1.0"`，上游 `version: "2.6"` 不變，不代表已正式發布。
+  見[發布檢查表](docs/releases/fork-v2.1.0.md)。
 - 本 fork 基於 [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline)，
   模型、推論演算法與桌面體驗來自 upstream；fork 增加的是跨平台部署、HTTP API、
   多種 Client、安全邊界與發行流程。喜歡這個專案，也請支持

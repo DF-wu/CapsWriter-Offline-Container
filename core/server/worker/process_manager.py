@@ -36,7 +36,7 @@ SERVER_WORKER_WATCHDOG_POLL_SECONDS = 0.1
 def _worker_stop_timeout_seconds() -> float:
     raw_timeout = os.environ.get(SERVER_WORKER_STOP_TIMEOUT_ENV)
     if raw_timeout is None or raw_timeout == "":
-        return DEFAULT_SERVER_WORKER_STOP_TIMEOUT_SECONDS
+        raw_timeout = str(DEFAULT_SERVER_WORKER_STOP_TIMEOUT_SECONDS)
     try:
         timeout = float(raw_timeout)
     except ValueError as exc:
@@ -45,6 +45,10 @@ def _worker_stop_timeout_seconds() -> float:
         raise ValueError(f"{SERVER_WORKER_STOP_TIMEOUT_ENV} must be a finite number")
     if timeout <= 0:
         raise ValueError(f"{SERVER_WORKER_STOP_TIMEOUT_ENV} must be > 0")
+    from config_server import ServerConfig
+    if getattr(ServerConfig, "gpu_boost_enabled", False):
+        from fork_server.gpu_boost_config import gpu_boost_shutdown_timeout
+        timeout = max(timeout, gpu_boost_shutdown_timeout(os.environ))
     return timeout
 
 
@@ -145,6 +149,15 @@ class ProcessManager:
                 return self._cancel_startup()
 
             # 3. 创建并启动进程
+            from config_server import ServerConfig
+            gpu_boost_config = {
+                name: getattr(ServerConfig, name)
+                for name in ("gpu_boost_enabled", "gpu_boost_cmd", "gpu_unboost_cmd",
+                             "gpu_unboost_timeout")
+            }
+            gpu_boost_config["gpu_boost_backend_active"] = getattr(
+                ServerConfig, "gpu_boost_backend_active", True,
+            )
             process = Process(
                 target=start_worker,
                 args=(state.queue_in,
@@ -152,6 +165,7 @@ class ProcessManager:
                       state.sockets_id,
                       stdin_fn,
                       state.recognizer_active_inference),
+                kwargs={"gpu_boost_config": gpu_boost_config},
                 daemon=True
             )
             self._process = process

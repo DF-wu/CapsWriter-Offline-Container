@@ -123,6 +123,24 @@ class SettingsTest(unittest.TestCase):
             with self.subTest(content=content[:80]), self.assertRaises(ConfigError):
                 SettingsStore(self.env)
 
+    def test_gpu_boost_settings_require_frequency_and_reject_commands(self):
+        store = SettingsStore(self.env)
+        with self.assertRaisesRegex(ConfigError, "MEMORY_CLOCK_MHZ"):
+            store.update({"gpu_boost_enabled": True}, store.snapshot()["revision"])
+        self.assertFalse(self.path.exists())
+        result = store.update({
+            "gpu_boost_enabled": True, "gpu_boost_memory_clock_mhz": 6000,
+            "gpu_boost_device": 1, "gpu_boost_idle_seconds": 2.5,
+        }, store.snapshot()["revision"])
+        self.assertTrue(result["restart_required"])
+        restarted = SettingsStore(self.env)
+        self.assertEqual(restarted.environment()["CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ"], "6000")
+        for values in ({"gpu_boost_cmd": "touch /tmp/unwanted"},
+                       {"gpu_boost_device": "0; true"},
+                       {"gpu_boost_memory_clock_mhz": True}):
+            with self.subTest(values=values), self.assertRaises(ConfigError):
+                restarted.update(values, restarted.snapshot()["revision"])
+
     def test_management_requires_path_and_auth_but_disabled_keeps_saved_values(self):
         for missing in ("CAPSWRITER_SETTINGS_PATH", "CAPSWRITER_HTTP_API_KEY"):
             env = {key: value for key, value in self.env.items() if key != missing}

@@ -292,6 +292,9 @@ def _apply() -> None:
     _set(ServerConfig, "format_num", _env_bool("CAPSWRITER_FORMAT_NUM", ServerConfig.format_num))
     _set(ServerConfig, "format_spell", _env_bool("CAPSWRITER_FORMAT_SPELL", ServerConfig.format_spell))
 
+    from fork_server.gpu_boost_config import apply_gpu_boost_config
+    apply_gpu_boost_config(ServerConfig, _environment())
+
     # ---- HTTP API (fork-only attributes) ----
     http_api = parse_http_api_env(_environment())
     _set(ServerConfig, "http_api_enable",
@@ -411,3 +414,6 @@ def _apply() -> None:
         _set(FunASRNanoGGUFArgs, "n_threads", v)
         _set(Qwen3ASRGGUFArgs, "n_threads", v)
         _set(Qwen3ASRGGUFArgs, "n_threads_batch", v)
+
+    from fork_server.gpu_boost_config import configure_gpu_boost_backend
+    configure_gpu_boost_backend(ServerConfig, _environment())

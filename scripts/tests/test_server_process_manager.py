@@ -11,7 +11,7 @@ import time
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -289,6 +289,51 @@ class ServerProcessManagerTest(unittest.TestCase):
                 with patch.dict(os.environ, {timeout_env: value}):
                     with self.assertRaises(ValueError):
                         namespace["_worker_stop_timeout_seconds"]()
+
+    def test_enabled_gpu_boost_extends_shutdown_budget_for_inflight_and_reset(self):
+        from config_server import ServerConfig
+
+        namespace = load_process_manager_namespace()
+        with patch.object(ServerConfig, "gpu_boost_enabled", True), patch.dict(
+            os.environ, {
+                "CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT": "2",
+                "CAPSWRITER_GPU_BOOST_TIMEOUT": "5",
+            }, clear=True,
+        ):
+            self.assertGreaterEqual(namespace["_worker_stop_timeout_seconds"](), 19)
+
+    def test_worker_creation_transfers_resolved_gpu_controls_for_spawn(self):
+        from config_server import ServerConfig
+
+        namespace = load_process_manager_namespace()
+        process = FakeProcess([])
+        factory = Mock(return_value=process)
+        namespace["Process"] = factory
+        app = SimpleNamespace(state=SimpleNamespace(
+            queue_in=FakeQueue(), queue_out=FakeQueue(statuses=[True]),
+            recognizer_active_inference=ActiveInference(0.0, 0.0),
+        ))
+        manager = namespace["ProcessManager"](app)
+        with patch.multiple(
+            ServerConfig, gpu_boost_enabled=True, gpu_boost_cmd=["boost", "1"],
+            gpu_unboost_cmd=["reset", "1"], gpu_unboost_timeout=2.5,
+            gpu_boost_backend_active=True, create=True,
+        ), patch.object(manager, "_start_watchdog"):
+            manager.start()
+        self.assertEqual(factory.call_args.kwargs["kwargs"]["gpu_boost_config"], {
+            "gpu_boost_enabled": True, "gpu_boost_cmd": ["boost", "1"],
+            "gpu_unboost_cmd": ["reset", "1"], "gpu_unboost_timeout": 2.5,
+            "gpu_boost_backend_active": True,
+        })
+
+    def test_gpu_shutdown_budget_does_not_shorten_an_explicit_longer_grace(self):
+        from config_server import ServerConfig
+
+        namespace = load_process_manager_namespace()
+        with patch.object(ServerConfig, "gpu_boost_enabled", True), patch.dict(
+            os.environ, {"CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT": "30"}, clear=True,
+        ):
+            self.assertEqual(namespace["_worker_stop_timeout_seconds"](), 30)
 
     def test_worker_stall_timeout_is_finite_and_positive(self) -> None:
         namespace = load_process_manager_namespace()

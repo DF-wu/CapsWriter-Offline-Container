@@ -114,6 +114,23 @@ async def _asgi_post(
 
 @unittest.skipUnless(SERVER_DEPS_AVAILABLE, "FastAPI server dependencies are not installed")
 class TranscriptionAsgiContractTest(unittest.TestCase):
+    def test_health_identifies_fork_without_changing_upstream_version(self):
+        import httpx
+        from fork_server import __version__ as fork_version
+        from fork_server.http_api import api
+
+        async def run():
+            async with httpx.AsyncClient(
+                transport=httpx.ASGITransport(app=api.create_app()),
+                base_url="http://testserver",
+            ) as client:
+                return await client.get("/health")
+
+        response = asyncio.run(run())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["version"], "2.6")
+        self.assertEqual(response.json()["fork_version"], fork_version)
+
     @staticmethod
     def _capture_api_logs(logger):
         records = []

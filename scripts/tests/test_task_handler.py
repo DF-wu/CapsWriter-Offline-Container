@@ -42,6 +42,12 @@ class FakeGpuBoostManager:
     def handle_command(self, _task) -> None:
         pass
 
+    def ensure_boosted(self) -> None:
+        pass
+
+    def record_activity(self) -> None:
+        pass
+
 
 class FakeState:
     def __init__(self) -> None:

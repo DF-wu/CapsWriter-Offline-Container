@@ -12,7 +12,6 @@ import time
 from core.server.state import WorkerState, console, session_key
 from core.server.schema import Task, Result
 from core.server.formatter import TextFormatter
-from config_server import ServerConfig as Config
 from core.tools.token_sync import sync_tokens_from_text
 from core.server.engines.base import EngineCapabilities
 from core.server.privacy import transcript_logging, transcript_logging_enabled
@@ -74,10 +73,6 @@ class TaskPipeline:
             ) not in self.state.sessions
             session = self.state.get_session(task.task_id, task.socket_id, task.type)
             result = session.result
-
-            # GPU 加速活跃时间更新（只要有任务进来就刷新）
-            if Config.gpu_boost_enabled and self.state.gpu_boosted:
-                self.state.gpu_last_active = time.time()
 
             # 2. 预处理音频并获取采样点
             samples = process_audio_task(task, result)

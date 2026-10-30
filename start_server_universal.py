@@ -98,6 +98,13 @@ def configure_http_api(
         "num_threads": FunASRNanoGGUFArgs.n_threads,
     }, profile="native")
     selected_environ = store.environment()
+    # Native Python config remains authoritative unless a clock control is explicit.
+    if any(key in {"CAPSWRITER_GPU_BOOST_ENABLED", "CAPSWRITER_GPU_BOOST_DEVICE",
+                   "CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ", "CAPSWRITER_GPU_BOOST_IDLE_SECONDS"}
+           and str(value).strip()
+           for key, value in selected_environ.items()):
+        from fork_server.gpu_boost_config import apply_gpu_boost_config
+        apply_gpu_boost_config(config_cls, selected_environ)
     apply_server_addr_override(selected_environ, config_cls)
     setattr(
         config_cls,
@@ -119,6 +126,8 @@ def configure_http_api(
         FunASRNanoGGUFArgs.n_threads = store.effective["num_threads"]
         Qwen3ASRGGUFArgs.n_threads = store.effective["num_threads"]
         Qwen3ASRGGUFArgs.n_threads_batch = store.effective["num_threads"]
+    from fork_server.gpu_boost_config import configure_gpu_boost_backend
+    configure_gpu_boost_backend(config_cls, selected_environ)
     config_cls.settings_store = store
     return settings
 

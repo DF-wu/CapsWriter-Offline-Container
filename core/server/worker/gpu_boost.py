@@ -17,6 +17,7 @@ from . import logger
 GPU_BOOST_TIMEOUT_ENV = "CAPSWRITER_GPU_BOOST_TIMEOUT"
 DEFAULT_GPU_BOOST_TIMEOUT_SECONDS = 5.0
 GPU_COMMAND_CLEANUP_TIMEOUT_SECONDS = 2.0
+GPU_COMMAND_RETRY_COOLDOWN_SECONDS = 30.0
 
 
 def _gpu_boost_timeout_seconds() -> float:
@@ -29,14 +30,14 @@ def _gpu_boost_timeout_seconds() -> float:
         raise ValueError(f"{GPU_BOOST_TIMEOUT_ENV} must be a number") from exc
     if not math.isfinite(timeout):
         raise ValueError(f"{GPU_BOOST_TIMEOUT_ENV} must be a finite number")
-    if timeout <= 0:
-        raise ValueError(f"{GPU_BOOST_TIMEOUT_ENV} must be > 0")
+    if not 0.1 <= timeout <= 60:
+        raise ValueError(f"{GPU_BOOST_TIMEOUT_ENV} must be >= 0.1 and <= 60")
     return timeout
 
 
-def _gpu_command_popen_kwargs() -> dict:
+def _gpu_command_popen_kwargs(command: str | list[str]) -> dict:
     kwargs = {
-        "shell": True,
+        "shell": isinstance(command, str),
         "stdout": subprocess.DEVNULL,
         "stderr": subprocess.DEVNULL,
     }
@@ -84,7 +85,7 @@ def _kill_gpu_command_tree(process) -> None:
         logger.warning(f"GPU 命令 shell 回收失败: {exc}")
 
 
-def _run_gpu_command(command: str) -> bool:
+def _run_gpu_command(command: str | list[str]) -> bool:
     try:
         timeout = _gpu_boost_timeout_seconds()
     except ValueError as exc:
@@ -92,7 +93,7 @@ def _run_gpu_command(command: str) -> bool:
         return False
 
     try:
-        process = subprocess.Popen(command, **_gpu_command_popen_kwargs())
+        process = subprocess.Popen(command, **_gpu_command_popen_kwargs(command))
     except (OSError, ValueError) as exc:
         logger.warning(f"GPU 命令启动失败: {exc}")
         return False
@@ -102,6 +103,10 @@ def _run_gpu_command(command: str) -> bool:
     except subprocess.TimeoutExpired:
         _kill_gpu_command_tree(process)
         logger.warning(f"GPU 命令超时 ({timeout:g}s): {command}")
+        return False
+    except OSError as exc:
+        _kill_gpu_command_tree(process)
+        logger.warning(f"GPU 命令等待失败: {exc}")
         return False
     if returncode != 0:
         logger.warning(f"GPU 命令失败 (exit {returncode}): {command}")
@@ -118,53 +123,101 @@ class GpuBoostManager:
 
     def __init__(self, state):
         self.state = state
+        self._boost_retry_after = 0.0
+        self._unboost_retry_after = 0.0
+        # A command can apply clocks before failing or timing out. Keep that
+        # uncertainty separate from the confirmed-success gpu_boosted flag.
+        self._cleanup_needed = False
+        self._cleanup_last_active = 0.0
 
     # ── 公开方法 ──────────────────────────────────
 
     def handle_command(self, task):
-        """处理 GPU 加速命令任务。"""
-        if task.command != 'gpu_boost':
+        """Warm up on an explicit mic command or before an audio task."""
+        if not Config.gpu_boost_enabled:
             return
-        if not self._check_admin():
-            logger.warning("非管理员权限，无法执行 GPU 加速命令")
+        if (getattr(task, "command", None) != 'gpu_boost'
+                and getattr(task, "type", "cmd") == 'cmd'):
+            return
+        self.ensure_boosted()
+
+    def ensure_boosted(self):
+        """Best-effort boost before inference, with bounded failure retries."""
+        if (not Config.gpu_boost_enabled
+                or not getattr(Config, "gpu_boost_backend_active", True)):
             return
         if self.state.gpu_boosted:
-            self.state.gpu_last_active = 0
+            self.record_activity()
+            return
+        if time.monotonic() < self._boost_retry_after:
             return
 
+        if not self._check_admin():
+            logger.warning("非管理员权限，无法执行 GPU 加速命令")
+            self._boost_retry_after = time.monotonic() + GPU_COMMAND_RETRY_COOLDOWN_SECONDS
+            return
         logger.info(f"GPU 加速命令: {Config.gpu_boost_cmd}")
+        self._cleanup_needed = True
         if not _run_gpu_command(Config.gpu_boost_cmd):
+            self._cleanup_last_active = time.monotonic()
+            self._boost_retry_after = time.monotonic() + GPU_COMMAND_RETRY_COOLDOWN_SECONDS
             return
         self.state.gpu_boosted = True
-        self.state.gpu_last_active = 0  # 0 表示已加速但尚未有实际音频任务使用过
+        # Even an abandoned mic warmup must eventually expire.
+        self.record_activity()
+        self._boost_retry_after = 0.0
+
+    def record_activity(self):
+        """Record monotonic completion time for any boost we still own."""
+        if self.state.gpu_boosted or self._cleanup_needed:
+            self.state.gpu_last_active = time.monotonic()
+            self._cleanup_last_active = self.state.gpu_last_active
 
     def check_idle(self):
         """GPU 闲置超时检查，超时则取消加速。"""
-        if not Config.gpu_boost_enabled or not self.state.gpu_boosted:
+        # Disabling future boosts does not release clocks already owned here.
+        if not (self.state.gpu_boosted or self._cleanup_needed):
             return
-        # gpu_last_active = 0 表示刚加速但尚未被实际音频任务使用，不取消
-        if self.state.gpu_last_active <= 0:
-            return
-
-        idle_time = time.time() - self.state.gpu_last_active
+        idle_time = time.monotonic() - max(self.state.gpu_last_active, self._cleanup_last_active)
         if idle_time <= Config.gpu_unboost_timeout:
             return
-
-        if not self._check_admin():
-            logger.warning("非管理员权限，无法执行 GPU 取消加速命令")
+        if time.monotonic() < self._unboost_retry_after:
             return
 
-        logger.info(f"GPU 闲置 {idle_time:.0f}s，取消加速: {Config.gpu_unboost_cmd}")
+        self._unboost()
+
+    def shutdown(self):
+        """Attempt one reset on normal shutdown, including after an idle failure.
+
+        The parent must allow the bounded command and process-tree cleanup to
+        complete before escalating to terminate/kill.
+        """
+        if self.state.gpu_boosted or self._cleanup_needed:
+            self._unboost()
+
+    def _unboost(self):
+        if not self._check_admin():
+            logger.warning("非管理员权限，无法执行 GPU 取消加速命令")
+            self._unboost_retry_after = time.monotonic() + GPU_COMMAND_RETRY_COOLDOWN_SECONDS
+            return
+
+        logger.info(f"GPU 取消加速: {Config.gpu_unboost_cmd}")
         if not _run_gpu_command(Config.gpu_unboost_cmd):
+            self._unboost_retry_after = time.monotonic() + GPU_COMMAND_RETRY_COOLDOWN_SECONDS
             return
         self.state.gpu_boosted = False
         self.state.gpu_last_active = 0.0
+        self._cleanup_needed = False
+        self._cleanup_last_active = 0.0
+        self._unboost_retry_after = 0.0
 
     # ── 内部方法 ──────────────────────────────────
 
     @staticmethod
     def _check_admin() -> bool:
-        """检测是否以管理员权限运行。"""
+        """Preserve the Windows guard; other systems rely on command status."""
+        if os.name != "nt":
+            return True
         try:
             return bool(ctypes.windll.shell32.IsUserAnAdmin())
         except Exception:
