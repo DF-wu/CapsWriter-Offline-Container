@@ -59,3 +59,19 @@ recipe 位於[草稿 PR #18](https://github.com/DF-wu/myServices/pull/18)。
 `/tmp/capswriter-v2.1-lifecycle-runtime-final.log`；前輪 Web 輸出位於
 `/tmp/capswriter-v2.1-verify-final.log`。
 這些路徑是本次工作紀錄，不是對其他主機的可攜式 artifact 連結。
+
+## PR #10 合併前更新（2026-10-30）
+
+- 已整合 `master` 的 PR #9（`3479a95`），沒有合併衝突。
+- GitHub CI 的 `verify` 失敗來自 shutdown 測試混用固定活動時間 `100.0`
+  與 runner 的實際單調時間。將單調時間固定為 `105.0` 可重現原先的
+  `Popen` 呼叫次數 `1 != 2`，不涉及 NVIDIA 硬體或 production 還原邏輯。
+- 測試改用受控時鐘，分別驗證閒置期限前立即 shutdown，以及閒置還原失敗、
+  重試冷卻尚未結束時的 shutdown；兩者均確認成功還原後不再重複命令。
+- 修正後上述重現測試及 GPU focused suites 通過：38 項，沒有略過。
+- 更新後的 `scripts/verify_all.py --skip-web` 使用既有 API/runtime 環境通過：
+  CLI 63、HTTP/API 191、Docker bootstrap 64、scripts/worker 486；最後一組
+  13 項因顯示或字幕依賴略過。使用 `CAPSWRITER_UPSTREAM_BASE=upstream/master`
+  與上游 `84912d5` 比較；輸出在 `/tmp/capswriter-pr10-verify-python.log`。
+- 本機完整 Web 驗證在 `npm ci` 階段逾時，未取得本輪 Web 成功結果；
+  合併須等待更新 head 的 GitHub CI（Node 24）全部通過。

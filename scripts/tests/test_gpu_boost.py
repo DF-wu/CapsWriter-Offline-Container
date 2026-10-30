@@ -326,20 +326,33 @@ class GpuBoostManagerTest(unittest.TestCase):
             self.assertEqual(popen.call_count, 2)
 
     def test_shutdown_resets_without_waiting_for_idle_or_failed_reset_cooldown(self):
-        namespace, state, manager = self.make_manager(boosted=True)
-        with (
-            patch.object(manager, "_check_admin", return_value=True),
-            patch.object(subprocess, "Popen") as popen,
-        ):
-            popen.return_value.wait.return_value = 7
-            manager.check_idle()
-            self.assertTrue(state.gpu_boosted)
-            popen.return_value.wait.return_value = 0
-            self.assertTrue(callable(getattr(manager, "shutdown", None)))
-            manager.shutdown()
-            manager.shutdown()
-        self.assertFalse(state.gpu_boosted)
-        self.assertEqual(popen.call_count, 2)
+        for failed_idle_reset in (False, True):
+            with self.subTest(failed_idle_reset=failed_idle_reset):
+                namespace, state, manager = self.make_manager(boosted=True)
+                clock = SimpleNamespace(monotonic=Mock(
+                    return_value=111.0 if failed_idle_reset else 105.0,
+                ))
+                with (
+                    patch.dict(namespace, {"time": clock}),
+                    patch.object(manager, "_check_admin", return_value=True),
+                    patch.object(subprocess, "Popen") as popen,
+                ):
+                    popen.return_value.wait.return_value = 7
+                    manager.check_idle()
+                    self.assertEqual(popen.call_count, int(failed_idle_reset))
+                    self.assertTrue(state.gpu_boosted)
+                    # 闲置未到或失败重试仍在冷却时，正常退出都必须立即还原。
+                    if failed_idle_reset:
+                        self.assertGreater(manager._unboost_retry_after,
+                                           clock.monotonic.return_value)
+                    popen.return_value.wait.return_value = 0
+                    manager.shutdown()
+                    self.assertFalse(state.gpu_boosted)
+                    self.assertEqual(state.gpu_last_active, 0.0)
+                    self.assertEqual(popen.call_args.args[0],
+                                     ["nvidia-smi", "-i", "0", "-rmc"])
+                    manager.shutdown()
+                    self.assertEqual(popen.call_count, 1 + int(failed_idle_reset))
 
     def test_missing_executable_does_not_change_state(self):
         namespace, state, manager = self.make_manager()
