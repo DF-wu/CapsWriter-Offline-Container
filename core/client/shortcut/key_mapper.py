@@ -7,6 +7,8 @@
 
 from platform import system
 
+from fork_client.shortcut_keys import event_key_name
+
 from . import logger
 
 
@@ -88,6 +90,16 @@ class KeyMapper:
     # pynput 特殊键对象缓存
     _SPECIAL_KEY_OBJECTS = None
 
+    @staticmethod
+    def scan_to_name(scan_code: int) -> str:
+        """Get an unmodified character from pynput's cached active layout."""
+        try:
+            translator = _get_key_translator()
+            char = translator.char_from_scan(scan_code) if translator is not None else None
+            return event_key_name(char) if char else ''
+        except (IndexError, KeyError, OSError, ValueError):
+            return ''
+
     @classmethod
     def _get_special_key_objects(cls):
         """获取 pynput 特殊键对象（延迟初始化）"""
@@ -112,10 +124,21 @@ class KeyMapper:
         Returns:
             str: 按键名称（与 Shortcut.key 格式一致）
         """
+        # Function keys beyond F12 are absent from some pynput Key enums.
+        if 0x70 <= vk <= 0x87:
+            return f'f{vk - 0x6F}'
+        physical = {
+            0x10: 'shift_l', 0x11: 'ctrl_l', 0x12: 'alt_l',
+            0xA0: 'shift_l', 0xA1: 'shift_r',
+            0xA2: 'ctrl_l', 0xA3: 'ctrl_r',
+            0xA4: 'alt_l', 0xA5: 'alt_r',
+        }
+        if vk in physical:
+            return physical[vk]
         # 首先检查是否是特殊键（pynput Key 枚举）
         special_keys = _get_special_keys()
         if vk in special_keys:
-            return special_keys[vk].name
+            return event_key_name(special_keys[vk].name)
 
         # 检查是否是小键盘按键
         if vk in NUMPAD_KEYS:
@@ -127,10 +150,12 @@ class KeyMapper:
             if translator is not None:
                 params = translator(vk, is_press=True)
                 if 'char' in params and params['char'] is not None:
-                    return params['char']
+                    return event_key_name(params['char'])
         except Exception:
             pass
 
+        if 0x30 <= vk <= 0x39 or 0x41 <= vk <= 0x5A:
+            return chr(vk).lower()
         # 未知键码，返回 vk_ 格式
         return f'vk_{vk}'
 
@@ -147,10 +172,36 @@ class KeyMapper:
         """
         keyboard = _get_keyboard_module()
 
+        key_name = {'left_ctrl': 'ctrl_l', 'left_alt': 'alt_l'}.get(key_name, key_name)
+
         # 特殊按键
         special_keys = KeyMapper._get_special_key_objects()
         if key_name in special_keys:
             return special_keys[key_name]
+        alias = {'shift_l': 'shift', 'cmd_l': 'cmd', 'alt_r': 'alt_gr',
+                 'ctrl_l': 'ctrl', 'alt_l': 'alt'}.get(key_name)
+        if alias in special_keys:
+            return special_keys[alias]
+
+        if key_name == 'plus':
+            return keyboard.KeyCode.from_char('+')
+        if key_name.startswith('vk_'):
+            return keyboard.KeyCode.from_vk(int(key_name[3:]))
+        for vk, name in NUMPAD_KEYS.items():
+            if name == key_name:
+                if system() == 'Windows':
+                    return keyboard.KeyCode.from_vk(vk)
+                if system() == 'Linux':
+                    x11_vk = 0xFFB0 + vk - 0x60 if vk <= 0x69 else 0xFFAA + vk - 0x6A
+                    return keyboard.KeyCode.from_vk(x11_vk)
+                return None
+        if key_name.startswith('f') and key_name[1:].isdigit():
+            number = int(key_name[1:])
+            if 1 <= number <= 24:
+                if system() == 'Windows':
+                    return keyboard.KeyCode.from_vk(0x6F + number)
+                if system() == 'Linux':
+                    return keyboard.KeyCode.from_vk(0xFFBD + number)
 
         # 单个字符按键
         if len(key_name) == 1:

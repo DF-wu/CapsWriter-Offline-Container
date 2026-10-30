@@ -53,6 +53,8 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "core/client/output/text_output.py",
         "core/client/shortcut/emulator.py",
         "core/client/shortcut/key_mapper.py",
+        # Issue #8: share canonical chord syntax and restore only singleton locks.
+        "core/client/shortcut/shortcut_config.py",
         "core/client/shortcut/shortcut_manager.py",
         "core/client/state.py",
         "core/client/transcribe/file_transcriber.py",
