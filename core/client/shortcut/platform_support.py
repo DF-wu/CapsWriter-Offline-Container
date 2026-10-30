@@ -237,6 +237,11 @@ def create_x11_keyboard_listener(keyboard, on_press, on_release):
             self._display_stop.record_disable_context(self._context)
             self._display_stop.flush()
 
+        def _handler(self, events):
+            # 同一 RECORD 回覆可能已含完整重複配對，計時器不得在批次中途插入。
+            with self._release_lock:
+                return super()._handler(events)
+
         def _handle_message(self, display, event, injected):
             previous = getattr(context, 'event', {})
             try:

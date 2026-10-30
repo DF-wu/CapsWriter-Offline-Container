@@ -5,7 +5,7 @@ from itertools import permutations
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
-from threading import Event
+from threading import Event, Thread
 
 from fork_client.shortcut_keys import normalize_shortcut, parse_shortcut
 from scripts.tests.test_desktop_portability import (
@@ -26,6 +26,11 @@ class RawListener:
     def _handle_message(self, display, event, injected):
         callback = self.on_press if event.type == 2 else self.on_release
         return callback(event.key, injected)
+
+    def _handler(self, batch):
+        for event in batch.events:
+            self._handle_message(batch.display, event, False)
+            batch.after_event(event)
 
     def stop(self):
         self.stopped = True
@@ -271,6 +276,41 @@ class RuntimeTest(unittest.TestCase):
             stale.fire()
             self.assertEqual(self.events(manager), [
                 ('down', 'f1+f2'), ('up', 'f1+f2'), ('down', 'f1+f2')])
+            listener.stop()
+
+    def test_x11_timer_cannot_interrupt_repeat_pair_in_record_batch(self):
+        class ContendedTimer(ManualTimer):
+            def start(self):
+                self.started, self.finished = Event(), Event()
+                def run():
+                    self.started.set()
+                    try:
+                        self.fire()
+                    finally:
+                        self.finished.set()
+                self.thread = Thread(target=run, daemon=True)
+                self.thread.start()
+
+        with loaded_shortcut_manager() as module, patch('threading.Timer', ContendedTimer):
+            manager = self.manager(module, 'f1+f2')
+            listener, send = self.x11_listener(manager)
+            send('f1', True, 1); send('f2', True, 2)
+            def after_event(event):
+                if event.type == 3:
+                    timer = ContendedTimer.instances[-1]
+                    self.assertTrue(timer.started.wait(2))
+                    # 計時器已甦醒，但批次後面尚有配對 press，必須等待。
+                    self.assertFalse(timer.finished.wait(0.05))
+            listener._handler(SimpleNamespace(
+                display=SimpleNamespace(keycode_to_keysym=lambda *args: 0),
+                events=[SimpleNamespace(type=kind, detail=68, time=10,
+                                        state=0, key=self.key('f2')) for kind in (3, 2)],
+                after_event=after_event,
+            ))
+            timer = ContendedTimer.instances[-1]
+            timer.thread.join(2)
+            self.assertFalse(timer.thread.is_alive())
+            self.assertEqual(self.events(manager), [('down', 'f1+f2')])
             listener.stop()
 
     def test_x11_injected_callbacks_and_stop_do_not_flush_pending_release(self):
