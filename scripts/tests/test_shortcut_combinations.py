@@ -327,7 +327,9 @@ class RuntimeTest(unittest.TestCase):
             (0xFFAF, SimpleNamespace(char='/'), '/', 'numpad_divide'),
             (0xFFAE, SimpleNamespace(char=','), ',', 'numpad_decimal'),
         )
-        with loaded_shortcut_manager() as module, patch('threading.Timer', ManualTimer):
+        with loaded_shortcut_manager() as module, patch('threading.Timer', ManualTimer), patch.object(
+            PLATFORM_SUPPORT.platform, 'system', return_value='Linux'
+        ):
             for keysym, translated, main, keypad in cases:
                 with self.subTest(keypad=keypad, keysym=keysym):
                     manager = self.manager(module, f'{main}+f2', f'{keypad}+f2',
@@ -346,7 +348,9 @@ class RuntimeTest(unittest.TestCase):
                     listener.stop()
 
     def test_x11_numpad_only_does_not_complete_main_row_plus_numpad_chord(self):
-        with loaded_shortcut_manager() as module, patch('threading.Timer', ManualTimer):
+        with loaded_shortcut_manager() as module, patch('threading.Timer', ManualTimer), patch.object(
+            PLATFORM_SUPPORT.platform, 'system', return_value='Linux'
+        ):
             manager = self.manager(module, '0+numpad1', 'numpad0+numpad1')
             listener, send = self.x11_listener(manager)
             send(SimpleNamespace(char='0'), True, 1, detail=90, keysym=0xFFB0)
