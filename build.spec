@@ -295,6 +295,7 @@ exe_2 = EXE(
     [],
     exclude_binaries=True,
     name='start_client',
+    version=str(Path(SPECPATH) / 'assets' / 'windows-client-version.txt'),
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

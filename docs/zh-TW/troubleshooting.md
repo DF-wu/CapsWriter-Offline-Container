@@ -38,6 +38,17 @@ python client/cli/capswriter_cli.py models
 
 ## Desktop 問題
 
+桌面麥克風 Client 同一設定目錄只允許執行一份；重複啟動會顯示現有 PID，
+不會再次開啟麥克風或安裝快捷鍵。首次設定也受此限制；獨立設定視窗與檔案轉錄
+仍可另外開啟。Windows 工作管理員的程序名稱是 `start_client.exe`，描述為
+`CapsWriter Offline Client`。可執行 `start_client.exe --status`（原始碼為
+`python start_client.py --status`）查詢是否執行及 PID；退出碼 0 表示執行中、1 表示未執行。
+
+托盤選「退出」會停止錄音、快捷鍵、監控與連線，並等待背景工作清理後結束。
+「重啟」的新實例最多等待舊實例 10 秒釋放鎖；無主控台的背景重啟仍保留托盤。
+視窗的 × 保持可用。程序崩潰或被強制結束後，作業系統自動釋放執行鎖，
+不要手動刪除 `client-instance.lock`。
+
 | 症狀 | 可能邊界 | 處理 |
 |---|---|---|
 | Windows source 正常，packaged executable 失敗 | Hidden import／native library／package layout | 從 clean environment rebuild，保留 build log，驗證兩個 packaged executable，並比對 exact dependency／PyInstaller version |

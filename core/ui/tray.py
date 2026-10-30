@@ -6,7 +6,7 @@
 仅在 Windows 平台有效。
 
 功能：
-- 禁用控制台窗口的关闭按钮（防止误关）
+- 保留控制台窗口的关闭按钮
 - 最小化时自动隐藏到托盘
 - 双击托盘图标显示/隐藏窗口
 - 托盘菜单退出程序
@@ -95,8 +95,20 @@ def _init_win_api():
     
     try:
         import ctypes
+        from ctypes import wintypes
         user32 = ctypes.windll.user32
         kernel32 = ctypes.windll.kernel32
+        # HWND/HMENU 是指標；ctypes 預設的 int 會在 64 位元 Windows 截斷它們。
+        kernel32.GetConsoleWindow.restype = wintypes.HWND
+        kernel32.SetConsoleTitleW.argtypes = [wintypes.LPCWSTR]
+        user32.GetAncestor.argtypes = [wintypes.HWND, wintypes.UINT]
+        user32.GetAncestor.restype = wintypes.HWND
+        user32.GetSystemMenu.argtypes = [wintypes.HWND, wintypes.BOOL]
+        user32.GetSystemMenu.restype = wintypes.HMENU
+        user32.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
+        user32.SetForegroundWindow.argtypes = [wintypes.HWND]
+        user32.IsIconic.argtypes = [wintypes.HWND]
+        user32.IsWindowVisible.argtypes = [wintypes.HWND]
         _win_api_initialized = True
     except Exception as e:
         logger.warning(f"Windows API 初始化失败: {e}")
@@ -232,18 +244,22 @@ def _create_icon(icon_path: Optional[str] = None):
 class _TraySystem:
     """托盘系统内部类"""
     
-    def __init__(self, name: Optional[str] = None, icon_path: Optional[str] = None, more_options: list = None):
+    def __init__(self, name: Optional[str] = None, icon_path: Optional[str] = None, more_options: list = None, restart_args: Optional[list[str]] = None):
         # 延迟导入 pystray
         import pystray
         from pystray import MenuItem as item
         
         self.hwnd = _get_console_hwnd()
         self.should_exit = False
+        self.restart_args = restart_args
+        self._tray_thread = None
+        self._monitor_thread = None
         self.title = name if name else (os.path.basename(sys.argv[0]) or "Console App")
 
-        # 禁用关闭按钮
+        # 托盤不可成為唯一的關閉入口，保留視窗的 × 並顯示可辨認的名稱。
         if self.hwnd:
-            _disable_close_button(self.hwnd)
+            _enable_close_button(self.hwnd)
+            kernel32.SetConsoleTitleW(self.title)
 
         # 定义菜单
         menu_items = [
@@ -287,25 +303,20 @@ class _TraySystem:
             time.sleep(0.2)
 
     def on_restart(self, icon, item) -> None:
-        """托盘重启处理：启动新进程后退出当前进程"""
+        """新客戶端等待舊實例釋放鎖；退出走與選單相同的完整流程。"""
         logger.info("托盘重启: 用户点击重启菜单，准备重启程序")
         try:
             if getattr(sys, 'frozen', False):
-                cmd = sys.argv
+                cmd = [sys.executable]
             else:
-                cmd = [sys.executable] + sys.argv
+                cmd = [sys.executable, sys.argv[0]]
+            cmd += self.restart_args if self.restart_args is not None else sys.argv[1:]
             _launch_detached_process(cmd)
         except Exception as e:
             logger.error(f"重启失败: {e}")
             return
 
-        # 启动新进程成功后，调用退出回调退出当前进程
-        exit_callback = _get_exit_callback()
-        if exit_callback:
-            try:
-                exit_callback()
-            except Exception as e:
-                logger.error(f"重启时调用退出回调发生错误: {e}")
+        self.on_exit(icon, item)
 
     def on_exit(self, icon, item) -> None:
         """托盘退出处理"""
@@ -334,33 +345,53 @@ class _TraySystem:
 
 
 
-        # 5. 停止托盘图标
+        self.stop()
+
+    def stop(self) -> None:
+        """停止圖示與監控；可由托盤執行緒或主執行緒重複呼叫。"""
+        self.should_exit = True
+        if self.hwnd and user32:
+            _enable_close_button(self.hwnd)
         try:
-            logger.debug("正在停止托盘图标线程...")
             self.icon.stop()
-            logger.debug("托盘图标线程已停止")
         except Exception as e:
             logger.warning(f"停止托盘图标时发生错误: {e}")
+        for thread in (self._tray_thread, self._monitor_thread):
+            if thread is not None and thread is not threading.current_thread():
+                thread.join(timeout=2)
+
+    def _run_icon(self) -> None:
+        try:
+            self.icon.run(setup=self._on_ready)
+        except Exception as e:
+            logger.error(f"托盤啟動失敗: {e}")
+        finally:
+            self.should_exit = True
+            # 後端失敗時恢復視窗，避免留下沒有可操作入口的背景程序。
+            if self.hwnd and user32:
+                user32.ShowWindow(self.hwnd, SW_RESTORE)
+
+    def _on_ready(self, icon) -> None:
+        icon.visible = True
+        if self.hwnd and user32 and not self.should_exit:
+            user32.ShowWindow(self.hwnd, SW_HIDE)
 
     def start(self) -> None:
         """启动托盘系统"""
         # 托盘图标线程
-        t_tray = threading.Thread(target=self.icon.run, daemon=False)
-        t_tray.start()
+        self._tray_thread = threading.Thread(target=self._run_icon, daemon=True, name="CapsWriterTray")
+        self._tray_thread.start()
 
         # 状态监控线程
-        t_monitor = threading.Thread(target=self.monitor_loop, daemon=True)
-        t_monitor.start()
-
-        # 启动时隐藏窗口
-        self.toggle_window()
+        self._monitor_thread = threading.Thread(target=self.monitor_loop, daemon=True, name="CapsWriterTrayMonitor")
+        self._monitor_thread.start()
 
 
-def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = None, exit_callback=None, more_options: list = None) -> None:
+def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = None, exit_callback=None, more_options: list = None, restart_args: Optional[list[str]] = None) -> None:
     """
     启用最小化到托盘功能
 
-    如果检测不到控制台窗口（如 .pyw 运行），则不执行任何操作。
+    沒有主控台視窗（如 detached 重啟）仍建立托盤，保留退出入口。
     如果在 Linux 等无 GUI 环境下运行，也会跳过。
 
     Args:
@@ -369,8 +400,6 @@ def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = No
         exit_callback: 退出回调函数，当用户点击托盘退出菜单时调用
         more_options: 额外菜单项列表，格式为 [(名称, 回调函数), ...]
     """
-    global _tray_instance
-
     global _tray_instance
 
     # 设置退出回调函数
@@ -393,10 +422,7 @@ def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = No
         if _tray_instance is not None:
             return  # 已启动
 
-        if not _get_console_hwnd():
-            return  # 没有控制台窗口
-
-        _tray_instance = _TraySystem(name, icon_path, more_options)
+        _tray_instance = _TraySystem(name, icon_path, more_options, restart_args)
         _tray_instance.start()
 
 
@@ -404,12 +430,10 @@ def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = No
 def stop_tray() -> None:
     """停止托盘图标"""
     global _tray_instance
-    if _tray_instance and _tray_instance.icon:
-        try:
-            _tray_instance.icon.stop()
-        except Exception:
-            pass
-    _tray_instance = None
+    with _lock:
+        instance, _tray_instance = _tray_instance, None
+    if instance is not None:
+        instance.stop()
 
 
 if __name__ == "__main__":

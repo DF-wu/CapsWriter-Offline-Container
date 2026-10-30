@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from pathlib import Path
@@ -40,9 +41,13 @@ class ClientReviewTests(unittest.TestCase):
                     "core/client/app.py", {"CapsWriterClient"},
                     Path=Path, os=os, sys=sys, register_signal=lambda *_: None,
                     FileRunner=FileRunner, MicRunner=mic_runner,
+                    asyncio=asyncio, logger=logging.getLogger(__name__),
+                    console=SimpleNamespace(print=lambda *_: None),
                 )["CapsWriterClient"]
                 client = object.__new__(client_type)
                 client.loop = asyncio.new_event_loop()
+                client._stop_requested = threading.Event()
+                client.stop = client._stop_requested.set
                 try:
                     with patch.object(sys, "argv", ["start_client.py", *map(str, requested)]):
                         client.start()

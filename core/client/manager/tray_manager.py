@@ -6,6 +6,7 @@ import time
 
 from . import logger
 from config_client import ClientConfig as Config
+from fork_client.instance import RESTART_WAIT_ARGUMENT
 
 
 def _detached_popen_kwargs() -> dict:
@@ -70,6 +71,7 @@ class TrayManager:
             'CapsWriter Client',
             icon_path,
             exit_callback=self.app.stop,
+            restart_args=[RESTART_WAIT_ARGUMENT],
             more_options=[
                 ('設定', self._open_settings),
                 ('📋 复制结果', self._copy_last_result),
