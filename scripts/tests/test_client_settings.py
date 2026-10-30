@@ -12,6 +12,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from config_client import ClientConfig
+from fork_client.shortcut_keys import normalize_shortcut
 from fork_client.settings import (
     SettingsError, apply_overrides, effective_settings, load_overrides,
     probe_connection, save_overrides, validate, websocket_url,
@@ -82,6 +83,39 @@ class ClientSettingsTest(unittest.TestCase):
         self.assertEqual(websocket_url("axolotl", 6016), "ws://axolotl:6016")
         for host in ("::1", "[::1]"):
             self.assertEqual(websocket_url(host, "6016"), "ws://[::1]:6016")
+
+    def test_shortcut_combinations_normalize_and_round_trip(self):
+        keys = (" ` + 1 ", "F3 + F1 + F2", "F13", "F14", "ctrl + Shift + A", "vk_255", "numpad_add")
+        shortcuts = [{**ClientConfig.shortcuts[0], "key": key} for key in keys]
+        original = copy.deepcopy(shortcuts)
+        expected = [normalize_shortcut(key) for key in keys]
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            save_overrides({"shortcuts": shortcuts}, path)
+            self.assertEqual([item["key"] for item in load_overrides(path)["shortcuts"]], expected)
+            config = type("Config", (ClientConfig,), {})
+            apply_overrides(config, path)
+            self.assertEqual([item["key"] for item in config.shortcuts], expected)
+        self.assertEqual(shortcuts, original)
+
+    def test_shortcut_validation_rejects_equivalent_chords_and_invalid_tokens(self):
+        base = ClientConfig.shortcuts[0]
+        for key in ("f1++f2", "f25", "ctrl+control+a", "vk_0", "vk_65536", "f1+", "x1", "f1+x2"):
+            with self.subTest(key=key), self.assertRaises(SettingsError):
+                validate({"shortcuts": [{**base, "key": key}]})
+        for first, second in (("f1+F2", "f2+f1"), ("Ctrl+A", "a+CONTROL")):
+            with self.subTest(first=first), self.assertRaises(SettingsError):
+                validate({"shortcuts": [{**base, "key": first}, {**base, "key": second}]})
+
+    def test_legacy_literal_plus_settings_load_without_reset(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "settings.json"
+            path.write_text(json.dumps({"version": 1, "overrides": {"shortcuts": [
+                {**ClientConfig.shortcuts[0], "key": "+"},
+            ], "addr": "existing-host"}}), encoding="utf-8")
+            loaded = load_overrides(path)
+            self.assertEqual(loaded["shortcuts"][0]["key"], "plus")
+            self.assertEqual(loaded["addr"], "existing-host")
 
     def test_settings_mode_does_not_import_client_runtime(self):
         ui = SimpleNamespace(run_settings=Mock(return_value=False))

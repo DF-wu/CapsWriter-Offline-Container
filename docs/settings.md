@@ -41,6 +41,66 @@ Windows desktop acceptance check.
 以最後儲存為準。「恢復 Python 設定」會清除所有覆寫，舊視窗下次儲存不會
 帶回未修改的舊值。同目錄的 `.lock` 檔為持續保留的鎖，無須手動刪除。
 
+## 組合快捷鍵與錄製 / Shortcut combinations and recording
+
+在「錄音與快捷鍵」選取要修改的項目，可手動填入按鍵名稱，也可按「錄製按鍵」，
+同時按住所需按鍵，再全部放開。錄製視窗顯示目前組合；Esc 或「取消」保留原值。
+錄製前請先結束執行中的 Client，避免既有的全域快捷鍵同時觸發錄音。
+錄製只處理此視窗收到的鍵盤事件，不會另外啟用全域監聽。
+錄製完成後按「套用按鍵」（或「新增」），再儲存並重新啟動 Client。
+
+In **Recording and shortcuts**, select an entry and type a key name or click
+**Record keys** (`錄製按鍵`). Hold the desired keys together and release all of
+them to fill the editor. Escape or Cancel preserves the previous value. Stop
+the running client before recording, so its existing global shortcuts cannot
+start audio capture. The recorder only handles events focused on its dialog.
+Click Apply key or Add, then save and restart the client.
+
+| 按鍵 / Keys | 手動輸入範例 / Manual input |
+|---|---|
+| 反引號與數字 / Backtick and digit | `` ` + 1 `` |
+| 多個功能鍵 / Multiple function keys | `F1 + F2 + F3` |
+| 延伸功能鍵 / Extended function keys | `F13`, `F14`（支援 / supports F1–F24） |
+| 修飾鍵組合 / Modifier chord | `ctrl+shift+a` |
+| 加號 / Literal plus | `plus`（避免與分隔符號混淆 / distinct from the separator） |
+| 數字鍵盤 / Keypad | `numpad0`, `numpad_add`, `numpad_decimal` |
+| 平臺專屬虛擬鍵碼 / Platform-specific virtual code | `vk_255`（十進位 / decimal 1–65535） |
+
+大小寫、按鍵順序及分隔符號周圍的空白會統一；等價的組合不可重複設定。
+錄製會保留修飾鍵左右側（例如 `ctrl_l+ctrl_r`）；手動輸入 `ctrl`、`alt`、
+`shift`、`cmd` 可匹配任一側，使用 `_l`／`_r` 指定單側。
+Esc 在錄製視窗用於取消，需要綁定時請手動輸入 `esc`。舊設定中的單獨 `+`
+會自動正規化為 `plus`。
+滑鼠仍使用單一 `x1`／`x2`，不與鍵盤混用。虛擬鍵碼依作業系統與鍵盤後端而異，
+移到其他平臺時請重新確認；錄製器不會將 X11 硬體鍵碼當成虛擬鍵碼保存。
+
+組合的所有按鍵同時按下時觸發一次；按住錄音模式在任一成員放開時結束，
+切換模式則在下一次完整按下組合時停止。再次觸發前須先放開整組按鍵，
+長按產生的重複事件不會重啟錄音。避免配置相互包含的快捷鍵，例如同時啟用
+`f1` 與 `f1+f2`，因為按下第一個鍵時就可能啟動單鍵項目。
+
+**組合鍵不阻擋原按鍵**，即使勾選「阻擋原按鍵」亦然；其他程式仍會收到組合。
+單鍵在 Windows 保留既有阻擋與短按補發行為，X11 的既有限制亦不變。
+建議選擇不會與其他程式或系統功能衝突的組合。
+
+Case, order and separator spacing are normalized, and equivalent bindings are
+rejected as duplicates. Recording preserves modifier sides (`ctrl_l+ctrl_r`);
+type `ctrl`, `alt`, `shift` or `cmd` manually to match either side, or use `_l`/`_r`
+for a specific side. Type `esc` manually to bind Escape, since it cancels the
+recorder. Legacy standalone `+` settings normalize to `plus`.
+Mouse bindings remain single `x1`/`x2` buttons. Virtual
+codes depend on the OS/backend; recheck them after moving platforms. A chord
+activates once when all members are held. Hold mode ends on the first member
+release; toggle mode stops on the next complete activation. Release the whole
+chord before activating it again. Avoid overlapping bindings such as `f1` and
+`f1+f2`, since the single key can activate before the chord is complete.
+
+**Multi-key chords pass through to other applications**, including when
+Suppress is checked. Windows single-key suppression and short-tap replay remain
+available; X11 retains its existing suppression limitations. Choose combinations
+that do not conflict with desktop/application shortcuts. Real Windows keyboard
+hooks and physical F13–F24 keys still require a desktop acceptance check.
+
 ## Server 圖形設定 / Server settings in the Web console
 
 管理 API 預設關閉。使用本次程式碼建置的 Server 與 Web 後，Docker 可在原有

@@ -14,6 +14,8 @@ from copy import copy
 from concurrent.futures import ThreadPoolExecutor
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
+from fork_client.shortcut_keys import parse_shortcut, key_matches, event_key_name
+
 from . import logger
 from core.client.shortcut.key_mapper import *
 from core.client.shortcut.key_mapper import KeyMapper
@@ -24,6 +26,8 @@ from core.client.shortcut.platform_support import (
     detect_hotkey_backend,
     pynput_button_name,
     pynput_key_name,
+    pynput_key_identity,
+    create_x11_keyboard_listener,
 )
 from core.client.shortcut.task import ShortcutTask
 
@@ -109,7 +113,15 @@ class ShortcutManager:
                 continue
 
             task_shortcut = shortcut
-            if shortcut.suppress and not self._hotkey_support.selective_suppression:
+            is_chord = len(parse_shortcut(shortcut.key)) > 1
+            if shortcut.suppress and is_chord:
+                # Earlier keys already reached the application; replay cannot
+                # restore their original context safely. Never synthesize a chord.
+                logger.warning(
+                    f"[{shortcut.key}] chord suppression is disabled; other "
+                    "applications receive all keys (no short-tap replay)"
+                )
+            if shortcut.suppress and (is_chord or not self._hotkey_support.selective_suppression):
                 # X11's pynput backend can only grab the whole device. Treat
                 # per-key suppression as disabled instead of freezing all
                 # desktop input or replaying an event that was never blocked.
@@ -134,30 +146,98 @@ class ShortcutManager:
             key_name = KeyMapper.vk_to_name(data.vkCode)
 
             # 防自捕获检查
-            if self._check_emulating(key_name, msg):
+            if self._check_emulating(key_name, msg, vk=data.vkCode):
                 return True
             if self._check_restoring(key_name, msg):
                 return True
 
-            # 查找匹配的快捷键
-            if key_name not in self.tasks:
+            # Ignore externally injected input as well as our own replay.
+            if getattr(data, 'flags', 0) & 0x10:  # LLKHF_INJECTED
                 return True
-
-            task = self.tasks[key_name]
-
-            # 处理按键事件
-            if msg in KEY_DOWN_MESSAGES:
-                self._event_handler.handle_keydown(key_name, task)
-            elif msg in KEY_UP_MESSAGES:
-                self._event_handler.handle_keyup(key_name, task)
-
-            # 阻塞事件
-            if task.shortcut.suppress and self.keyboard_listener:
+            names = {event_key_name(key_name), f'vk_{data.vkCode}'}
+            scan_code = getattr(data, 'scanCode', None)
+            if scan_code is not None and (len(key_name) == 1 or key_name == 'plus'):
+                # Recording uses the unshifted key name. Keep that alias when
+                # Shift/AltGr changes the character reported by the Win32 hook.
+                base_name = KeyMapper.scan_to_name(scan_code)
+                if base_name:
+                    names.add(base_name)
+            suppress = self._dispatch_keyboard(
+                key_name, msg in KEY_DOWN_MESSAGES, ('vk', data.vkCode),
+                frozenset(names),
+            )
+            if suppress and self.keyboard_listener:
                 self.keyboard_listener.suppress_event()
 
             return True
 
         return win32_event_filter
+
+    def _dispatch_keyboard(self, key_name, pressed, identity=None, names=None):
+        """Track physical keys; each binding needs a fresh, complete press cycle.
+
+        Chords never suppress or replay input. A binding is latched on completion,
+        ends on the first selected constituent release, and rearms only when all
+        matching keys are up. Matching uses distinct physical keys, so one right
+        Ctrl cannot satisfy both generic Ctrl and right Ctrl in the same chord.
+        """
+        if not hasattr(self, '_physical_keys'):
+            self._physical_keys = {}
+            self._active_bindings = {}
+            self._latched_bindings = set()
+        identity = identity if identity is not None else ('name', key_name)
+        names = names if names is not None else frozenset({event_key_name(key_name)})
+        if names.intersection({'=', 'plus'}):
+            names = names | frozenset({'=', 'plus'})
+        previous = self._physical_keys.get(identity, names)
+        repeated = pressed and identity in self._physical_keys
+        if pressed:
+            if not repeated:
+                self._physical_keys[identity] = names
+        else:
+            self._physical_keys.pop(identity, None)
+
+        suppress = False
+        for binding, task in self.tasks.items():
+            if getattr(getattr(task, 'shortcut', None), 'type', 'keyboard') == 'mouse':
+                continue
+            tokens = parse_shortcut(binding)
+            if tokens[0] in {'x1', 'x2'}:
+                continue
+            # Preserve selective Win32 singleton suppression, including repeats.
+            if len(tokens) == 1 and key_matches(tokens[0], previous):
+                suppress |= getattr(getattr(task, 'shortcut', None), 'suppress', False)
+            active = self._active_bindings.get(binding)
+            if not pressed and active is not None and identity in active:
+                del self._active_bindings[binding]
+                self._event_handler.handle_keyup(binding, task)
+            if binding in self._latched_bindings:
+                if not any(key_matches(token, held) for token in tokens
+                           for held in self._physical_keys.values()):
+                    self._latched_bindings.discard(binding)
+                continue
+            if not pressed or repeated:
+                continue
+
+            # Bipartite matching prevents aliased/generic modifiers or vk names
+            # from counting the same physical key twice.
+            owners = {}
+
+            def assign(token, seen):
+                for physical, held in self._physical_keys.items():
+                    if physical in seen or not key_matches(token, held):
+                        continue
+                    seen.add(physical)
+                    if physical not in owners or assign(owners[physical], seen):
+                        owners[physical] = token
+                        return True
+                return False
+
+            if all(assign(token, set()) for token in tokens):
+                self._active_bindings[binding] = set(owners)
+                self._latched_bindings.add(binding)
+                self._event_handler.handle_keydown(binding, task)
+        return suppress
 
     def create_mouse_filter(self):
         """创建鼠标事件过滤器"""
@@ -172,6 +252,9 @@ class ShortcutManager:
 
             # 防自捕获检查
             if self._check_emulating(button_name, msg, is_mouse=True):
+                return True
+
+            if getattr(data, 'flags', 0) & 0x01:  # LLMHF_INJECTED
                 return True
 
             # 查找匹配的快捷键
@@ -197,31 +280,34 @@ class ShortcutManager:
     def create_portable_keyboard_callbacks(self):
         """Create pynput callbacks for the X11/macOS listener APIs."""
 
-        def handle(key, pressed: bool, injected: bool = False):
-            if injected:
-                return
+        def handle(key, pressed: bool, injected: bool = False,
+                   physical_identity=None, base_names=frozenset()):
             key_name = pynput_key_name(key)
             if not key_name:
                 return
-            if self._emulator and self._emulator.is_emulating(key_name):
-                if not pressed:
-                    self._emulator.clear_emulating_flag(key_name)
+            vk = getattr(key, 'vk', None)
+            if vk is None:
+                vk = getattr(getattr(key, 'value', None), 'vk', None)
+            message = KEY_DOWN_MESSAGES[0] if pressed else KEY_UP_MESSAGES[0]
+            if self._check_emulating(key_name, message, vk=vk):
+                return
+            if injected:
                 return
             if self.is_restoring(key_name):
                 if not pressed:
                     self.clear_restoring_flag(key_name)
                 return
-            task = self.tasks.get(key_name)
-            if task is None:
-                return
-            if pressed:
-                self._event_handler.handle_keydown(key_name, task)
-            else:
-                self._event_handler.handle_keyup(key_name, task)
+            identity = physical_identity or pynput_key_identity(key, key_name)
+            names = {key_name} | set(base_names)
+            if identity[0] == 'character':
+                names.add(identity[1])
+            if vk is not None:
+                names.add(f'vk_{vk}')
+            self._dispatch_keyboard(key_name, pressed, identity, frozenset(names))
 
         return (
-            lambda key, injected=False: handle(key, True, injected),
-            lambda key, injected=False: handle(key, False, injected),
+            lambda key, injected=False, **context: handle(key, True, injected, **context),
+            lambda key, injected=False, **context: handle(key, False, injected, **context),
         )
 
     def create_portable_mouse_callback(self):
@@ -308,18 +394,35 @@ class ShortcutManager:
 
     # ========== 防自捕获检查 ==========
 
-    def _check_emulating(self, key_name: str, msg: int, is_mouse: bool = False) -> bool:
+    def _check_emulating(self, key_name: str, msg: int, is_mouse: bool = False, vk=None) -> bool:
         """检查是否正在模拟按键"""
-        if not self._emulator.is_emulating(key_name):
+        if not self._emulator:
+            return False
+        replay_names = {
+            'shift_l': ('shift_l', 'shift'),
+            'ctrl_l': ('ctrl_l', 'left_ctrl', 'ctrl'),
+            'alt_l': ('alt_l', 'left_alt', 'alt'),
+            '=': ('=', 'plus'),
+            'plus': ('plus', '='),
+            'alt_r': ('alt_r', 'alt_gr'),
+            'alt_gr': ('alt_gr', 'alt_r'),
+            'cmd_l': ('cmd_l', 'cmd'),
+        }.get(key_name, (key_name,))
+        if vk is not None:
+            replay_names += (f'vk_{vk}',)
+        flagged = [name for name in replay_names if self._emulator.is_emulating(name)]
+        if not flagged:
             return False
 
         # 松开时清除标志
         if is_mouse:
             if msg == WM_XBUTTONUP:
-                self._emulator.clear_emulating_flag(key_name)
+                for name in flagged:
+                    self._emulator.clear_emulating_flag(name)
         else:
-            if msg in (WM_KEYUP, WM_SYSKEYUP):
-                self._emulator.clear_emulating_flag(key_name)
+            if msg in KEY_UP_MESSAGES:
+                for name in flagged:
+                    self._emulator.clear_emulating_flag(name)
 
         return True  # 放行
 
@@ -368,11 +471,16 @@ class ShortcutManager:
                     )
                 else:
                     on_press, on_release = self.create_portable_keyboard_callbacks()
-                    self.keyboard_listener = keyboard.Listener(
-                        on_press=on_press,
-                        on_release=on_release,
-                        suppress=False,
-                    )
+                    if self._hotkey_support.backend == 'x11':
+                        self.keyboard_listener = create_x11_keyboard_listener(
+                            keyboard, on_press, on_release,
+                        )
+                    else:
+                        self.keyboard_listener = keyboard.Listener(
+                            on_press=on_press,
+                            on_release=on_release,
+                            suppress=False,
+                        )
                 self.keyboard_listener.start()
                 logger.info("键盘监听器已启动")
 
@@ -430,6 +538,11 @@ class ShortcutManager:
         for task in self.tasks.values():
             if task.is_recording:
                 task.cancel()
+
+        if hasattr(self, '_physical_keys'):
+            self._physical_keys.clear()
+            self._active_bindings.clear()
+            self._latched_bindings.clear()
 
         # 关闭线程池
         self._pool.shutdown(wait=False)

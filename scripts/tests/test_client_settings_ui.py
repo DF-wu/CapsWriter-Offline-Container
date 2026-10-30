@@ -9,6 +9,7 @@ from unittest.mock import patch
 
 from config_client import ClientConfig
 from fork_client.settings import load_overrides
+from fork_client.shortcut_keys import normalize_shortcut
 
 
 class ClientSettingsUITest(unittest.TestCase):
@@ -33,7 +34,12 @@ class ClientSettingsUITest(unittest.TestCase):
         self.root.update()
 
     def destroy_root(self):
-        if self.root.winfo_exists():
+        import tkinter as tk
+        try:
+            exists = self.root.winfo_exists()
+        except tk.TclError:
+            return
+        if exists:
             with patch("fork_client.settings_ui.messagebox.askyesno", return_value=True):
                 self.window.close()
 
@@ -77,6 +83,111 @@ class ClientSettingsUITest(unittest.TestCase):
         self.window.variables["input_device"].set(label)
         self.window.save()
         self.assertEqual(load_overrides(self.path)["input_device"], selection)
+
+    def capture_events(self, keys):
+        self.window.record_shortcut()
+        self.root.update()
+        dialog = self.window.capture_dialog
+        dialog.focus_force()
+        self.root.update()
+        for key in keys:
+            dialog.event_generate("<KeyPress>", keysym=key)
+            self.root.update()
+        for key in keys:
+            dialog.event_generate("<KeyRelease>", keysym=key)
+            self.root.update()
+        self.finish_releases()
+
+    def finish_releases(self):
+        self.root.after(30, self.root.quit)
+        self.root.mainloop()
+        self.root.update()
+
+    def test_record_chord_apply_save_and_reload(self):
+        self.capture_events(("F1", "F2", "F3"))
+        self.assertIsNone(self.window.capture_dialog)
+        self.assertEqual(self.window.key.get(), "f1+f2+f3")
+        self.window.save()
+        self.assertFalse(self.path.exists())
+        self.assertIn("尚未套用", self.window.status.get())
+        self.window.update_shortcut()
+        self.window.save()
+        self.assertEqual(load_overrides(self.path)["shortcuts"][0]["key"], "f1+f2+f3")
+        self.window.reload_fields()
+        self.assertEqual(self.window.key.get(), "f1+f2+f3")
+
+    def test_record_backtick_combination(self):
+        # F13/F14 symbolic capture is covered without a display in
+        # test_shortcut_capture: minimal X11 keymaps cannot synthesize them.
+        self.capture_events(("grave", "1"))
+        self.assertEqual(self.window.key.get(), normalize_shortcut("`+1"))
+
+    def test_cancel_capture_preserves_previous_value_and_draft(self):
+        before = self.window.key.get()
+        self.window.record_shortcut()
+        self.root.update()
+        dialog = self.window.capture_dialog
+        dialog.focus_force()
+        self.root.update()
+        dialog.event_generate("<KeyPress>", keysym="F1")
+        dialog.event_generate("<KeyPress>", keysym="Escape")
+        self.root.update()
+        self.assertIsNone(self.window.capture_dialog)
+        self.assertTrue(self.root.winfo_exists())
+        self.assertEqual(self.window.key.get(), before)
+        self.assertFalse(self.window.shortcut_draft_dirty)
+
+    def test_capture_ctrl_s_does_not_save_settings(self):
+        self.window.variables["addr"].set("test-host")
+        self.capture_events(("Control_L", "s"))
+        self.assertEqual(self.window.key.get(), normalize_shortcut("ctrl_l+s"))
+        self.assertFalse(self.path.exists())
+
+    def test_capture_focus_loss_discards_partial_keys(self):
+        self.window.record_shortcut()
+        self.root.update()
+        dialog = self.window.capture_dialog
+        dialog.focus_force()
+        self.root.update()
+        dialog.event_generate("<KeyPress>", keysym="Control_L")
+        dialog.event_generate("<FocusOut>")
+        dialog.event_generate("<KeyPress>", keysym="F1")
+        dialog.event_generate("<KeyRelease>", keysym="F1")
+        self.finish_releases()
+        self.assertEqual(self.window.key.get(), "f1")
+
+    def test_x11_repeat_release_press_does_not_finish_capture(self):
+        self.window.record_shortcut()
+        self.root.update()
+        dialog = self.window.capture_dialog
+        dialog.focus_force()
+        self.root.update()
+        dialog.event_generate("<KeyPress>", keysym="F1", time=10)
+        dialog.event_generate("<KeyRelease>", keysym="F1", time=100)
+        dialog.event_generate("<KeyPress>", keysym="F1", time=100)
+        self.root.update()
+        self.assertIs(self.window.capture_dialog, dialog)
+        dialog.event_generate("<KeyPress>", keysym="F2", time=110)
+        dialog.event_generate("<KeyRelease>", keysym="F1", time=120)
+        dialog.event_generate("<KeyRelease>", keysym="F2", time=130)
+        self.finish_releases()
+        self.assertEqual(self.window.key.get(), "f1+f2")
+
+    def test_record_both_modifier_sides(self):
+        self.capture_events(("Control_L", "Control_R"))
+        self.assertEqual(self.window.key.get(), "ctrl_l+ctrl_r")
+
+    def test_close_settings_cancels_pending_capture_callback(self):
+        self.window.record_shortcut()
+        self.root.update()
+        dialog = self.window.capture_dialog
+        dialog.focus_force()
+        self.root.update()
+        dialog.event_generate("<KeyPress>", keysym="F1")
+        dialog.event_generate("<KeyRelease>", keysym="F1")
+        self.window.close()
+        self.assertIsNone(self.window.capture_dialog)
+        self.assertIsNone(self.window.cancel_capture)
 
 
 if __name__ == "__main__":

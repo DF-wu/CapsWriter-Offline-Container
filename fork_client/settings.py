@@ -16,6 +16,7 @@ import re
 import tempfile
 
 from .devices import valid_input_device
+from .shortcut_keys import normalize_shortcut
 
 
 FIELDS = {
@@ -24,12 +25,6 @@ FIELDS = {
     "trash_punc_thresh", "context", "language", "llm_enabled",
 }
 BOOLEAN_FIELDS = {"paste", "restore_clip", "traditional_convert", "save_audio", "llm_enabled"}
-KEYBOARD_KEYS = {
-    "ctrl_l", "ctrl_r", "shift", "shift_r", "alt_l", "alt_gr", "cmd", "cmd_r",
-    "space", "enter", "tab", "backspace", "delete", "insert", "home", "end",
-    "page_up", "page_down", "esc", "caps_lock", "num_lock", "scroll_lock",
-    "print_screen", "pause", "menu", "up", "down", "left", "right",
-} | {f"f{i}" for i in range(1, 25)}
 
 
 class SettingsError(ValueError):
@@ -104,7 +99,7 @@ def validate(overrides: object) -> dict:
                 errors[key] = "請設定 1–16 個快捷鍵"
                 continue
             seen = set()
-            for shortcut in value:
+            for index, shortcut in enumerate(value):
                 if not isinstance(shortcut, dict) or set(shortcut) != {"key", "type", "suppress", "hold_mode", "enabled"}:
                     errors[key] = "每個快捷鍵需包含 key、type、suppress、hold_mode、enabled"
                     break
@@ -112,12 +107,15 @@ def validate(overrides: object) -> dict:
                 if not isinstance(button, str) or kind not in ("keyboard", "mouse"):
                     errors[key] = "快捷鍵類型或名稱無效"
                     break
-                valid = button in ("x1", "x2") if kind == "mouse" else (
-                    button in KEYBOARD_KEYS or len(button) == 1 and button.isprintable() and not button.isspace()
-                )
+                try:
+                    button = normalize_shortcut(button) if kind == "keyboard" else button
+                    valid = button in ("x1", "x2") if kind == "mouse" else button not in ("x1", "x2")
+                except ValueError:
+                    valid = False
                 if not valid or any(type(shortcut[k]) is not bool for k in ("suppress", "hold_mode", "enabled")):
-                    errors[key] = "使用單一按鍵，例如 caps_lock、f12，或滑鼠 x1／x2；開關需為布林值"
+                    errors[key] = "請使用按鍵或以 + 連接的組合，例如 `+1、f1+f2+f3、f13；滑鼠使用 x1／x2。開關需為布林值"
                     break
+                normalized[key][index]["key"] = button
                 identity = (kind, button)
                 if identity in seen:
                     errors[key] = "快捷鍵不可重複"
