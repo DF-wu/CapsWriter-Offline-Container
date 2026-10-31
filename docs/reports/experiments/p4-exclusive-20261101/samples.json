@@ -1,0 +1,92 @@
+[
+  {
+    "id": "libri-1272-128104-0000",
+    "path": "/bench/audio/libri-1272-128104-0000.flac",
+    "language": "en",
+    "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+    "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy",
+    "duration_s": 5.855,
+    "audio_sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "dataset_revision": "5be91486e11a2d616f4ec5db8d3fd248585ac07a",
+    "dataset_rows_api": "https://datasets-server.huggingface.co/rows?dataset=hf-internal-testing/librispeech_asr_dummy&config=clean&split=validation&offset=0&length=3",
+    "cached_assets_revision": "5be91486e11a2d616f4ec5db8d3fd248585ac07a"
+  },
+  {
+    "id": "libri-1272-128104-0001",
+    "path": "/bench/audio/libri-1272-128104-0001.flac",
+    "language": "en",
+    "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+    "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy",
+    "duration_s": 4.815,
+    "audio_sha256": "46a9d58622b4675b29564da2d9ba73e702241c5fa969f12c387cad4aa984276a",
+    "dataset_revision": "5be91486e11a2d616f4ec5db8d3fd248585ac07a",
+    "dataset_rows_api": "https://datasets-server.huggingface.co/rows?dataset=hf-internal-testing/librispeech_asr_dummy&config=clean&split=validation&offset=0&length=3",
+    "cached_assets_revision": "5be91486e11a2d616f4ec5db8d3fd248585ac07a"
+  },
+  {
+    "id": "libri-1272-128104-0002",
+    "path": "/bench/audio/libri-1272-128104-0002.flac",
+    "language": "en",
+    "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+    "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy",
+    "duration_s": 12.485,
+    "audio_sha256": "59bf7bb1129c11734a8dd362ad52b4e10ae31c03f0879fc92f7107ecd513513f",
+    "dataset_revision": "5be91486e11a2d616f4ec5db8d3fd248585ac07a",
+    "dataset_rows_api": "https://datasets-server.huggingface.co/rows?dataset=hf-internal-testing/librispeech_asr_dummy&config=clean&split=validation&offset=0&length=3",
+    "cached_assets_revision": "5be91486e11a2d616f4ec5db8d3fd248585ac07a"
+  },
+  {
+    "id": "noise2",
+    "path": "/bench/audio/noise2.wav",
+    "language": "zh",
+    "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+    "source": "https://huggingface.co/csukuangfj2/sherpa-onnx-qwen3-asr-0.6B-int8-2026-03-25/blob/68818b2313fe77bd06f6a7c5068ff3ef59d02b8a/test_wavs/noise2.wav",
+    "source_revision": "68818b2313fe77bd06f6a7c5068ff3ef59d02b8a",
+    "duration_s": 22.833,
+    "audio_sha256": "33f85268f7fbad6b3152b9ab051edab1a85082fde66bccff61d7f5ef7b437e58"
+  },
+  {
+    "id": "codeswitch",
+    "path": "/bench/audio/codeswitch-16k.wav",
+    "language": null,
+    "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+    "source": "https://huggingface.co/csukuangfj2/sherpa-onnx-qwen3-asr-0.6B-int8-2026-03-25/blob/68818b2313fe77bd06f6a7c5068ff3ef59d02b8a/test_wavs/codeswitch.wav",
+    "source_revision": "68818b2313fe77bd06f6a7c5068ff3ef59d02b8a",
+    "duration_s": 6.230226757369614,
+    "audio_sha256": "770ccb7efa54218f81051abd55ecd7846e4d17638e337247dd0ca72eaf9e6934",
+    "transform": "ffmpeg -ar 16000 -ac 1"
+  },
+  {
+    "id": "mandarin-2s",
+    "path": "/bench/audio/mandarin-2s.wav",
+    "language": "zh",
+    "reference": null,
+    "phase": "latency",
+    "source": "https://huggingface.co/csukuangfj2/sherpa-onnx-qwen3-asr-0.6B-int8-2026-03-25/blob/68818b2313fe77bd06f6a7c5068ff3ef59d02b8a/test_wavs/noise2.wav",
+    "transform": "first 2 seconds of noise2.wav; reference not scored",
+    "duration_s": 2.0,
+    "audio_sha256": "6bda5773850fad8aad9d132181f65cd4d2835ed7fd840bb085c0998b6763989e"
+  },
+  {
+    "id": "mandarin-5s",
+    "path": "/bench/audio/mandarin-5s.wav",
+    "language": "zh",
+    "reference": null,
+    "phase": "latency",
+    "source": "https://huggingface.co/csukuangfj2/sherpa-onnx-qwen3-asr-0.6B-int8-2026-03-25/blob/68818b2313fe77bd06f6a7c5068ff3ef59d02b8a/test_wavs/noise2.wav",
+    "transform": "first 5 seconds of noise2.wav; reference not scored",
+    "duration_s": 5.0,
+    "audio_sha256": "6f067d24602162de9dc7bfb45f05dced2b6ddeae1714d72afa7435119676eeaa"
+  },
+  {
+    "id": "mandarin-10s",
+    "path": "/bench/audio/mandarin-10s.wav",
+    "language": "zh",
+    "reference": null,
+    "phase": "latency",
+    "source": "https://huggingface.co/csukuangfj2/sherpa-onnx-qwen3-asr-0.6B-int8-2026-03-25/blob/68818b2313fe77bd06f6a7c5068ff3ef59d02b8a/test_wavs/noise2.wav",
+    "transform": "first 10 seconds of noise2.wav; reference not scored",
+    "duration_s": 10.0,
+    "audio_sha256": "1f85d1502b83e6a49e4d07c81e59bd6329c884f66c9ce7f40259edc141f7c2c0"
+  }
+]

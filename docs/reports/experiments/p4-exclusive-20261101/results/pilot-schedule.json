@@ -1,0 +1,145 @@
+[
+  {
+    "config": "cpu-fallback",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 25.705136486998526,
+    "gpu_before": "84, 885, 1253, 0, 28.64, Not Active, Not Active",
+    "gpu_after": "85, 974, 1253, 27, 29.32, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:35:30.635259+00:00"
+  },
+  {
+    "config": "vulkan-q5",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 12.60732219000056,
+    "gpu_before": "85, 974, 1253, 27, 29.32, Not Active, Not Active",
+    "gpu_after": "86, 1113, 1253, 3, 30.66, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:35:43.294677+00:00"
+  },
+  {
+    "config": "cuda-q5",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 6.136055159004172,
+    "gpu_before": "86, 1113, 1253, 3, 30.66, Not Active, Not Active",
+    "gpu_after": "87, 1075, 1253, 26, 30.75, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:35:49.476672+00:00"
+  },
+  {
+    "config": "cuda-f32-q5",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 6.838308577993303,
+    "gpu_before": "87, 1075, 1253, 3, 30.75, Not Active, Not Active",
+    "gpu_after": "87, 1113, 1253, 3, 30.95, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:35:56.378251+00:00"
+  },
+  {
+    "config": "cuda-q4",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 5.683530045993393,
+    "gpu_before": "87, 1113, 1253, 3, 30.95, Not Active, Not Active",
+    "gpu_after": "87, 1113, 1253, 0, 31.04, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:36:02.116965+00:00"
+  },
+  {
+    "config": "cuda-w4-q4",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 5.3325617230002536,
+    "gpu_before": "87, 1113, 1253, 0, 31.04, Not Active, Not Active",
+    "gpu_after": "87, 961, 1253, 0, 29.87, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:36:07.502436+00:00"
+  },
+  {
+    "config": "cuda-q6",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 6.787621217008564,
+    "gpu_before": "87, 961, 1253, 0, 29.88, Not Active, Not Active",
+    "gpu_after": "88, 1113, 1253, 2, 31.14, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:36:14.360453+00:00"
+  },
+  {
+    "config": "cuda-q8",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 7.041670418009744,
+    "gpu_before": "88, 1113, 1253, 2, 31.14, Not Active, Not Active",
+    "gpu_after": "88, 1088, 1253, 16, 31.14, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:36:21.461036+00:00"
+  },
+  {
+    "config": "cuda-iq4-xs",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 6.035366622993024,
+    "gpu_before": "88, 1088, 1253, 3, 31.14, Not Active, Not Active",
+    "gpu_after": "88, 1113, 1253, 3, 31.22, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:36:27.559299+00:00"
+  },
+  {
+    "config": "transcribe-q4_k_m",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 3.579279632001999,
+    "gpu_before": "84, 885, 1253, 0, 28.45, Not Active, Not Active",
+    "gpu_after": "85, 1113, 1253, 52, 30.27, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:37:45.722198+00:00"
+  },
+  {
+    "config": "transcribe-q5_k_m",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 3.528590494010132,
+    "gpu_before": "84, 1113, 1253, 52, 30.27, Not Active, Not Active",
+    "gpu_after": "85, 1088, 1253, 11, 30.37, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:37:49.309830+00:00"
+  },
+  {
+    "config": "transcribe-q6_k",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 3.8299857060046634,
+    "gpu_before": "85, 1088, 1253, 11, 30.39, Not Active, Not Active",
+    "gpu_after": "85, 1037, 1253, 0, 29.81, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:37:53.203128+00:00"
+  },
+  {
+    "config": "transcribe-q8_0",
+    "phase": "pilot",
+    "repeats": 1,
+    "warmup": 0,
+    "exit": 0,
+    "elapsed_s": 3.930338071004371,
+    "gpu_before": "83, 885, 1253, 0, 28.37, Not Active, Not Active",
+    "gpu_after": "84, 1113, 1253, 3, 30.08, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:42:29.200736+00:00"
+  }
+]

@@ -1,0 +1,10 @@
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 7599 MiB):
+  Device 0: Tesla P4, compute capability 6.1, VMM: yes, VRAM: 7599 MiB
+qwen3_asr: using cuda backend: CUDA0
+qwen3_asr: weights copied: 1441.3 MiB in CUDA0 (device keeps weights in its own memory)
+qwen3_asr: gate+up aliased for 28/28 blocks (462.0 MiB not duplicated)
+qwen3_asr@589: sched buffer CUDA0 -> 309.3 MB
+qwen3_asr@589: sched buffer CPU -> 1.2 MB
+qwen3_asr@770: sched buffer CPU -> 1.3 MB
+qwen3_asr@910: sched buffer CPU -> 2.6 MB
+{"config": "transcribe-q5_k_m", "id": "noise2", "warmup": false, "wall_s": 1.3324032360105775, "status": "ok"}

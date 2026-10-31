@@ -1,0 +1,828 @@
+[1/319] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml.cpp.o
+[2/319] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-threading.cpp.o
+[3/319] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-alloc.c.o
+[4/319] Building CXX object ggml/src/CMakeFiles/ggml.dir/ggml-backend-dl.cpp.o
+[5/319] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-opt.cpp.o
+[6/319] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-backend.cpp.o
+[7/319] Building CXX object ggml/src/CMakeFiles/ggml.dir/ggml-backend-reg.cpp.o
+[8/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/hbm.cpp.o
+[9/319] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml.c.o
+[10/319] Building C object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/ggml-cpu.c.o
+[11/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/ggml-cpu.cpp.o
+[12/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/traits.cpp.o
+[13/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/amx/mmq.cpp.o
+[14/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/amx/amx.cpp.o
+[15/319] Building C object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/quants.c.o
+[16/319] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/gguf.cpp.o
+[17/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/tiled/tiled-kernel.cpp.o
+[18/319] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-backend-meta.cpp.o
+[19/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/vec.cpp.o
+[20/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/binary-ops.cpp.o
+[21/319] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-quants.c.o
+[22/319] Linking CXX shared library lib/libggml-base.so.0.26.0
+[23/319] Creating library symlink lib/libggml-base.so.0 lib/libggml-base.so
+[24/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/unary-ops.cpp.o
+[25/319] Building C object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/arch/x86/quants.c.o
+[26/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/tiled/tiled.cpp.o
+[27/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/repack.cpp.o
+[28/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/arch/x86/repack.cpp.o
+[29/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/llamafile/sgemm.cpp.o
+[30/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/acc.cu.o
+[31/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/add-id.cu.o
+[32/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/arange.cu.o
+[33/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/allreduce.cu.o
+[34/319] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/ops.cpp.o
+[35/319] Linking CXX shared library lib/libggml-cpu.so.0.26.0
+[36/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/argmax.cu.o
+[37/319] Creating library symlink lib/libggml-cpu.so.0 lib/libggml-cpu.so
+[38/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/clamp.cu.o
+[39/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/col2im-1d.cu.o
+[40/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/conv-transpose-1d.cu.o
+[41/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/cumsum.cu.o
+[42/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/conv2d-dw.cu.o
+[43/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/conv2d-transpose.cu.o
+[44/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/concat.cu.o
+[45/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/conv2d.cu.o
+[46/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/count-equal.cu.o
+[47/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/convert.cu.o
+[48/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/conv3d.cu.o
+[49/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/cross-entropy-loss.cu.o
+[50/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/cpy.cu.o
+[51/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq112-dv112.cu.o
+[52/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/diag.cu.o
+[53/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/diagmask.cu.o
+[54/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/mmf.cu.o
+[55/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/dsv4-hc.cu.o
+[56/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/fattn-tile.cu.o
+[57/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/fill.cu.o
+[58/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/fwht.cu.o
+[59/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/fattn.cu.o
+[60/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/gated_delta_net.cu.o
+[61/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/gla.cu.o
+[62/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/argsort.cu.o
+[63/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/binbcast.cu.o
+[64/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/im2col.cu.o
+[65/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/getrows.cu.o
+[66/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/ggml-cuda.cu.o
+[67/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/mmid.cu.o
+[68/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/mean.cu.o
+[69/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/lightning-indexer.cu.o
+[70/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/moe-weighted-reduction.cu.o
+[71/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/pad.cu.o
+[72/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/mmq.cu.o
+[73/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/opt-step-adamw.cu.o
+[74/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-flash-policy.cpp.o
+[75/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/opt-step-sgd.cu.o
+[76/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/norm.cu.o
+[77/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/out-prod.cu.o
+[78/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/pad_reflect_1d.cu.o
+[79/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/pool1d.cu.o
+[80/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/pool2d.cu.o
+[81/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/roll.cu.o
+[82/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/scale.cu.o
+[83/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/quantize.cu.o
+[84/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/set.cu.o
+[85/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/rope.cu.o
+[86/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/snake.cu.o
+[87/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/set-rows.cu.o
+[88/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/softcap.cu.o
+[89/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/softmax.cu.o
+[90/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/ssm-conv.cu.o
+[91/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/solve_tri.cu.o
+[92/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq320-dv256.cu.o
+[93/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/sum.cu.o
+[94/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/sumrows.cu.o
+[95/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/ssm-scan.cu.o
+[96/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/top-k.cu.o
+[97/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/tri.cu.o
+[98/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/tsembd.cu.o
+[99/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/sortformer/weights.cpp.o
+[100/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/topk-moe.cu.o
+[101/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/upscale.cu.o
+[102/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/mmvf.cu.o
+[103/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/unary.cu.o
+[104/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/wkv.cu.o
+[105/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/mmvq.cu.o
+[106/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq192-dv128.cu.o
+[107/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq40-dv40.cu.o
+[108/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq576-dv512.cu.o
+[109/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq64-dv64.cu.o
+[110/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_1-ncols2_32.cu.o
+[111/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq72-dv72.cu.o
+[112/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_1-ncols2_16.cu.o
+[113/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq80-dv80.cu.o
+[114/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq96-dv96.cu.o
+[115/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_1-ncols2_8.cu.o
+[116/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_16-ncols2_1.cu.o
+[117/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_16-ncols2_2.cu.o
+[118/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq512-dv512.cu.o
+[119/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_16-ncols2_4.cu.o
+[120/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_2-ncols2_16.cu.o
+[121/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_2-ncols2_32.cu.o
+[122/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_32-ncols2_2.cu.o
+[123/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_2-ncols2_4.cu.o
+[124/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_2-ncols2_8.cu.o
+[125/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_32-ncols2_1.cu.o
+[126/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_4-ncols2_16.cu.o
+[127/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq128-dv128.cu.o
+[128/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_4-ncols2_4.cu.o
+[129/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_4-ncols2_2.cu.o
+[130/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_4-ncols2_8.cu.o
+[131/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_64-ncols2_1.cu.o
+[132/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_8-ncols2_2.cu.o
+[133/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-tile-instance-dkq256-dv256.cu.o
+[134/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_8-ncols2_1.cu.o
+[135/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_8-ncols2_4.cu.o
+[136/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-mma-f16-instance-ncols1_8-ncols2_8.cu.o
+[137/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_1.cu.o
+[138/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-iq1_s.cu.o
+[139/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-iq2_s.cu.o
+[140/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-iq2_xs.cu.o
+[141/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-iq2_xxs.cu.o
+[142/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-iq3_s.cu.o
+[143/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-iq3_xxs.cu.o
+[144/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-iq4_nl.cu.o
+[145/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-iq4_xs.cu.o
+[146/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q1_0.cu.o
+[147/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q2_0.cu.o
+[148/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q4_0.cu.o
+[149/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q3_k.cu.o
+[150/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-mxfp4.cu.o
+[151/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q2_k.cu.o
+[152/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-nvfp4.cu.o
+[153/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q4_1.cu.o
+[154/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q4_k.cu.o
+[155/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_11.cu.o
+[156/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_10.cu.o
+[157/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q5_0.cu.o
+[158/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q5_1.cu.o
+[159/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q6_k.cu.o
+[160/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q5_k.cu.o
+[161/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmq-instance-q8_0.cu.o
+[162/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_12.cu.o
+[163/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_13.cu.o
+[164/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_14.cu.o
+[165/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_15.cu.o
+[166/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_6.cu.o
+[167/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_3.cu.o
+[168/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_16.cu.o
+[169/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_2.cu.o
+[170/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_4.cu.o
+[171/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_9.cu.o
+[172/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_5.cu.o
+[173/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/silero_vad/silero_vad.h:21,
+                 from /bench/transcribe-source/src/transcribe.cpp:20:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[174/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-diarize.cpp.o
+[175/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_7.cu.o
+[176/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-asr.cpp.o
+[177/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-langid.cpp.o
+[178/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-vad.cpp.o
+[179/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-loader.cpp.o
+[180/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/mmf-instance-ncols_8.cu.o
+[181/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-arch.cpp.o
+[182/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-meta.cpp.o
+[183/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-kaldi-fbank.cpp.o
+[184/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-model.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/transcribe-model.cpp:7:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[185/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-prompting.cpp.o
+[186/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-mel.cpp.o
+[187/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-tokenizer.cpp.o
+[188/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-env.cpp.o
+[189/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-unicode-data.cpp.o
+[190/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-unicode.cpp.o
+[191/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-backend.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/transcribe-backend.cpp:7:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[192/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-debug.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-debug.cpp:11:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[193/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-weights-util.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-weights-util.cpp:6:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[194/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-mmap.cpp.o
+[195/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-load-common.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/transcribe-load-common.h:21,
+                 from /bench/transcribe-source/src/transcribe-load-common.cpp:6:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[196/319] Building CXX object src/CMakeFiles/transcribe.dir/conformer/conformer.cpp.o
+[197/319] Building CXX object src/CMakeFiles/transcribe.dir/sanm/sanm.cpp.o
+[198/319] Building CXX object src/CMakeFiles/transcribe.dir/granite_conformer/shaw_attn.cpp.o
+[199/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-bin-loader.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-bin-loader.cpp:5:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[200/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/parakeet/longform.cpp.o
+[201/319] Building CXX object src/CMakeFiles/transcribe.dir/causal_lm/causal_lm.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/causal_lm/causal_lm.cpp:4:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[202/319] Building CXX object src/CMakeFiles/transcribe.dir/transcribe-batch-util.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-batch-util.cpp:5:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[203/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/parakeet/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/parakeet/../sortformer/sortformer.h:16,
+                 from /bench/transcribe-source/src/arch/parakeet/parakeet.h:10,
+                 from /bench/transcribe-source/src/arch/parakeet/capabilities.cpp:12:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[204/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/parakeet/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/parakeet/weights.cpp:15:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+/bench/transcribe-source/src/arch/parakeet/weights.cpp: In lambda function:
+/bench/transcribe-source/src/arch/parakeet/weights.cpp:891:20: warning: declaration of 'k' shadows a previous local [-Wshadow]
+  891 |         const int  k = 3, s = 2;
+      |                    ^
+/bench/transcribe-source/src/arch/parakeet/weights.cpp:876:19: note: shadowed declaration is here
+  876 |     const int64_t k        = hp.enc_conv_kernel;
+      |                   ^
+[205/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-vec-instance-f16-f16.cu.o
+[206/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/parakeet/multitalker.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/parakeet/../sortformer/sortformer.h:16,
+                 from /bench/transcribe-source/src/arch/parakeet/multitalker.cpp:36:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[207/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/parakeet/encoder.cpp.o
+[208/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/cohere/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/arch/cohere/cohere.h:9,
+                 from /bench/transcribe-source/src/arch/cohere/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[209/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-vec-instance-bf16-bf16.cu.o
+[210/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/cohere/encoder.cpp.o
+[211/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/cohere/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/cohere/weights.cpp:16:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[212/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/cohere/decoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/cohere/cohere.h:9,
+                 from /bench/transcribe-source/src/arch/cohere/decoder.cpp:16:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[213/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/arch/canary/canary.h:9,
+                 from /bench/transcribe-source/src/arch/canary/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[214/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-vec-instance-q8_0-q8_0.cu.o
+[215/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/parakeet/decoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/parakeet/decoder.h:30,
+                 from /bench/transcribe-source/src/arch/parakeet/decoder.cpp:14:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[216/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary/encoder.cpp.o
+[217/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/cohere/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/cohere/cohere.h:9,
+                 from /bench/transcribe-source/src/arch/cohere/model.cpp:8:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[218/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/parakeet/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/parakeet/decoder.h:30,
+                 from /bench/transcribe-source/src/arch/parakeet/model.cpp:13:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[219/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary/decoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/canary/canary.h:9,
+                 from /bench/transcribe-source/src/arch/canary/decoder.cpp:7:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[220/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/qwen3_asr/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/qwen3_asr/qwen3_asr.h:9,
+                 from /bench/transcribe-source/src/arch/qwen3_asr/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[221/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/canary/weights.cpp:12:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[222/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/qwen3_asr/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/qwen3_asr/weights.cpp:19:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[223/319] Building CUDA object ggml/src/ggml-cuda/CMakeFiles/ggml-cuda.dir/template-instances/fattn-vec-instance-q4_0-q4_0.cu.o
+[224/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/canary/canary.h:9,
+                 from /bench/transcribe-source/src/arch/canary/model.cpp:7:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[225/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/qwen3_asr/encoder.cpp.o
+[226/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/qwen3_asr/decoder.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/qwen3_asr/decoder.h:34,
+                 from /bench/transcribe-source/src/arch/qwen3_asr/decoder.cpp:12:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[227/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moss/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/moss/moss.h:15,
+                 from /bench/transcribe-source/src/arch/moss/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[228/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moss/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/moss/weights.cpp:14:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[229/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moss/encoder.cpp.o
+[230/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moss/decoder.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/moss/decoder.h:16,
+                 from /bench/transcribe-source/src/arch/moss/decoder.cpp:8:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[231/319] Linking CUDA shared library lib/libggml-cuda.so.0.26.0
+[232/319] Creating library symlink lib/libggml-cuda.so.0 lib/libggml-cuda.so
+[233/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moss/diarize.cpp.o
+[234/319] Linking CXX shared library lib/libggml.so.0.26.0
+[235/319] Creating library symlink lib/libggml.so.0 lib/libggml.so
+[236/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/qwen3_asr/model.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/qwen3_asr/model.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[237/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/ecapa_tdnn/graph.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/ecapa_tdnn/ecapa_tdnn.h:8,
+                 from /bench/transcribe-source/src/arch/ecapa_tdnn/graph.cpp:20:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[238/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/silero_vad/decoder.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/silero_vad/silero_vad.h:21,
+                 from /bench/transcribe-source/src/arch/silero_vad/decoder.cpp:14:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[239/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/ecapa_tdnn/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/ecapa_tdnn/weights.cpp:9:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[240/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/silero_vad/encoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/silero_vad/encoder.cpp:19:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[241/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/sortformer/model.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/sortformer/sortformer.h:16,
+                 from /bench/transcribe-source/src/arch/sortformer/model.cpp:14:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[242/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/silero_vad/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/silero_vad/weights.cpp:12:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+In file included from /bench/transcribe-source/src/arch/silero_vad/weights.cpp:6:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[243/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/sortformer/stream.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/sortformer/sortformer.h:16,
+                 from /bench/transcribe-source/src/arch/sortformer/stream.cpp:13:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[244/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moss/model.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/moss/model.cpp:8:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[245/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/voxtral/voxtral.h:12,
+                 from /bench/transcribe-source/src/arch/voxtral/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[246/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/ecapa_tdnn/model.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/ecapa_tdnn/ecapa_tdnn.h:8,
+                 from /bench/transcribe-source/src/arch/ecapa_tdnn/model.cpp:4:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[247/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/silero_vad/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/silero_vad/model.cpp:5:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[248/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/voxtral/weights.cpp:17:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[249/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral/encoder.cpp.o
+[250/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral_realtime/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/voxtral_realtime/weights.cpp:15:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[251/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral/decoder.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/voxtral/decoder.h:21,
+                 from /bench/transcribe-source/src/arch/voxtral/decoder.cpp:9:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[252/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral_realtime/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/voxtral_realtime/voxtral_realtime.h:9,
+                 from /bench/transcribe-source/src/arch/voxtral_realtime/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[253/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral_realtime/encoder.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/voxtral_realtime/encoder.h:15,
+                 from /bench/transcribe-source/src/arch/voxtral_realtime/encoder.cpp:19:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[254/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral_realtime/decoder.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/voxtral_realtime/decoder.h:14,
+                 from /bench/transcribe-source/src/arch/voxtral_realtime/decoder.cpp:8:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+/bench/transcribe-source/src/arch/voxtral_realtime/decoder.cpp: In function 'transcribe::voxtral_realtime::VerifyBuild transcribe::voxtral_realtime::build_verify_graph(ggml_context*, const transcribe::voxtral_realtime::Weights&, const transcribe::voxtral_realtime::HParams&, transcribe::causal_lm::KvCache&, ggml_tensor*, int, int, bool)':
+/bench/transcribe-source/src/arch/voxtral_realtime/decoder.cpp:281:19: warning: unused variable 'vocab' [-Wunused-variable]
+  281 |     const int64_t vocab        = hp.dec_vocab_size;
+      |                   ^~~~~
+[255/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary_qwen/encoder.cpp.o
+[256/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral/model.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/voxtral/model.cpp:13:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[257/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary_qwen/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/canary_qwen/canary_qwen.h:20,
+                 from /bench/transcribe-source/src/arch/canary_qwen/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[258/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary_qwen/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/canary_qwen/weights.cpp:16:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[259/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/whisper/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/arch/whisper/whisper.h:7,
+                 from /bench/transcribe-source/src/arch/whisper/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[260/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/whisper/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/whisper/weights.cpp:17:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[261/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary_qwen/decoder.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/canary_qwen/canary_qwen.h:20,
+                 from /bench/transcribe-source/src/arch/canary_qwen/decoder.h:13,
+                 from /bench/transcribe-source/src/arch/canary_qwen/decoder.cpp:8:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[262/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/whisper/encoder.cpp.o
+[263/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/whisper/decoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/whisper/whisper.h:7,
+                 from /bench/transcribe-source/src/arch/whisper/decoder.cpp:25:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[264/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/whisper/public.cpp.o
+In file included from /bench/transcribe-source/src/arch/whisper/whisper.h:7,
+                 from /bench/transcribe-source/src/arch/whisper/public.cpp:11:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[265/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine/moonshine.h:14,
+                 from /bench/transcribe-source/src/arch/moonshine/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[266/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/canary_qwen/model.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/canary_qwen/canary_qwen.h:20,
+                 from /bench/transcribe-source/src/arch/canary_qwen/model.cpp:20:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+/bench/transcribe-source/src/arch/canary_qwen/model.cpp: In function 'transcribe_status transcribe::canary_qwen::{anonymous}::run(transcribe_session*, const float*, int, const transcribe_run_params*)':
+/bench/transcribe-source/src/arch/canary_qwen/model.cpp:1018:16: warning: variable 't_prefill_us' set but not used [-Wunused-but-set-variable]
+ 1018 |     int64_t    t_prefill_us         = 0;
+      |                ^~~~~~~~~~~~
+[267/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine/weights.cpp:27:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[268/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/whisper/bin_load.cpp.o
+In file included from /bench/transcribe-source/src/arch/whisper/bin_load.cpp:9:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[269/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/voxtral_realtime/model.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/voxtral_realtime/model.cpp:9:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[270/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine/encoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine/moonshine.h:14,
+                 from /bench/transcribe-source/src/arch/moonshine/encoder.cpp:17:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[271/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine_streaming/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine_streaming/moonshine_streaming.h:13,
+                 from /bench/transcribe-source/src/arch/moonshine_streaming/capabilities.cpp:4:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[272/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine/decoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine/moonshine.h:14,
+                 from /bench/transcribe-source/src/arch/moonshine/decoder.cpp:25:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[273/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine/model.cpp:11:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[274/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine_streaming/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine_streaming/weights.cpp:28:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[275/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine_streaming/encoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine_streaming/moonshine_streaming.h:13,
+                 from /bench/transcribe-source/src/arch/moonshine_streaming/encoder.cpp:18:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[276/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/sensevoice/encoder.cpp.o
+[277/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/sensevoice/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/sensevoice/weights.cpp:10:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[278/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/sensevoice/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/sensevoice/sensevoice.h:9,
+                 from /bench/transcribe-source/src/arch/sensevoice/capabilities.cpp:5:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[279/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine_streaming/decoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine_streaming/moonshine_streaming.h:13,
+                 from /bench/transcribe-source/src/arch/moonshine_streaming/decoder.cpp:21:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[280/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/funasr_nano/encoder.cpp.o
+[281/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/sensevoice/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/sensevoice/model.cpp:11:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[282/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/funasr_nano/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/funasr_nano/funasr_nano.h:8,
+                 from /bench/transcribe-source/src/arch/funasr_nano/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[283/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/moonshine_streaming/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/moonshine_streaming/model.cpp:26:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[284/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/funasr_nano/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/funasr_nano/weights.cpp:10:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[285/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/funasr_nano/adaptor.cpp.o
+[286/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/funasr_nano/decoder.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/funasr_nano/decoder.h:10,
+                 from /bench/transcribe-source/src/arch/funasr_nano/decoder.cpp:21:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[287/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/gigaam/encoder.cpp.o
+[288/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/gigaam/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/gigaam/gigaam.h:14,
+                 from /bench/transcribe-source/src/arch/gigaam/capabilities.cpp:7:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[289/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/gigaam/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/gigaam/weights.cpp:13:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[290/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/whisper/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/whisper/model.cpp:10:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[291/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/funasr_nano/model.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/funasr_nano/model.cpp:4:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[292/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite/diarize.cpp.o
+[293/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/gigaam/decoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/gigaam/decoder.cpp:12:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[294/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/granite/granite.h:26,
+                 from /bench/transcribe-source/src/arch/granite/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[295/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/gigaam/mel.cpp.o
+In file included from /bench/transcribe-source/src/arch/gigaam/mel.cpp:10:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[296/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite/weights.cpp:14:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[297/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite/projector.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/granite/granite.h:26,
+                 from /bench/transcribe-source/src/arch/granite/projector.cpp:18:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[298/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite/decoder.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/granite/decoder.h:39,
+                 from /bench/transcribe-source/src/arch/granite/decoder.cpp:18:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[299/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite5_ctc/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite5_ctc/granite5_ctc.h:15,
+                 from /bench/transcribe-source/src/arch/granite5_ctc/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[300/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite/encoder.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/granite/granite.h:26,
+                 from /bench/transcribe-source/src/arch/granite/encoder.cpp:33:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[301/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/gigaam/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/gigaam/model.cpp:10:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[302/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite5_ctc/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite5_ctc/weights.cpp:15:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[303/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite/model.cpp.o
+In file included from /bench/transcribe-source/src/causal_lm/causal_lm.h:17,
+                 from /bench/transcribe-source/src/arch/granite/decoder.h:39,
+                 from /bench/transcribe-source/src/arch/granite/model.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[304/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite_nar/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite_nar/granite_nar.h:13,
+                 from /bench/transcribe-source/src/arch/granite_nar/capabilities.cpp:3:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[305/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite_nar/projector.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite_nar/granite_nar.h:13,
+                 from /bench/transcribe-source/src/arch/granite_nar/projector.cpp:11:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[306/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite_nar/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite_nar/weights.cpp:9:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+[307/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite5_ctc/decoder.cpp.o
+[308/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite_nar/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite_nar/model.cpp:22:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[309/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite5_ctc/encoder.cpp.o
+[310/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite_nar/encoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite_nar/granite_nar.h:13,
+                 from /bench/transcribe-source/src/arch/granite_nar/encoder.cpp:22:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[311/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite_nar/decoder.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite_nar/granite_nar.h:13,
+                 from /bench/transcribe-source/src/arch/granite_nar/decoder.cpp:11:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[312/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/medasr/encoder.cpp.o
+[313/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/granite5_ctc/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/granite5_ctc/model.cpp:11:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[314/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/medasr/capabilities.cpp.o
+In file included from /bench/transcribe-source/src/transcribe-backend.h:16,
+                 from /bench/transcribe-source/src/arch/medasr/medasr.h:8,
+                 from /bench/transcribe-source/src/arch/medasr/capabilities.cpp:7:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[315/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/medasr/weights.cpp.o
+In file included from /bench/transcribe-source/src/arch/medasr/weights.cpp:15:
+/bench/transcribe-source/src/transcribe-weights-util.h:16:1: warning: multi-line comment [-Wcomment]
+   16 | //     #define GET_F32(slot, name, ...) do { \
+      | ^
+In file included from /bench/transcribe-source/src/arch/medasr/weights.cpp:10:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[316/319] Building C object src/CMakeFiles/transcribe.dir/third_party/miniz/miniz.c.o
+[317/319] Building CXX object src/CMakeFiles/transcribe.dir/arch/medasr/model.cpp.o
+In file included from /bench/transcribe-source/src/arch/medasr/model.cpp:17:
+/bench/transcribe-source/ggml/src/../include/ggml-backend.h:429:119: warning: 'ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t, ggml_cgraph*)' hides constructor for 'struct ggml_backend_graph_copy' [-Wshadow]
+  429 |     GGML_API struct ggml_backend_graph_copy ggml_backend_graph_copy(ggml_backend_t backend, struct ggml_cgraph * graph);
+      |                                                                                                                       ^
+[318/319] Linking CXX shared library lib/libtranscribe.so.0.4.1
+[319/319] Creating library symlink lib/libtranscribe.so.0.4 lib/libtranscribe.so

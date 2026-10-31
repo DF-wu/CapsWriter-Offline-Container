@@ -1,0 +1,46 @@
+{
+  "container": {
+    "id": "131c9df5e6b0c55bfbbe5db5d5bb948302fa5b94ce01e26c27bbea59d413b9c0",
+    "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+    "mounts": [
+      {
+        "Type": "bind",
+        "Source": "/tmp/capswriter-p4-exclusive-i3eh5tn4",
+        "Destination": "/bench",
+        "Mode": "",
+        "RW": true,
+        "Propagation": "rprivate"
+      },
+      {
+        "Type": "volume",
+        "Name": "capswriter_capswriter-server-models",
+        "Source": "/var/lib/docker/volumes/capswriter_capswriter-server-models/_data",
+        "Destination": "/models-original",
+        "Driver": "local",
+        "Mode": "ro",
+        "RW": false,
+        "Propagation": ""
+      }
+    ],
+    "cpu_quota": 6000000000,
+    "memory_bytes": 17179869184,
+    "published_ports": {}
+  },
+  "compiler_container": {
+    "id": "2eb9ee3c2764332a65adbb6466392d2f8df33532b2d77629552b879e2ee512e4",
+    "image": "sha256:6f9cc9f1ba9ed67d195088555737124e4a2eb54bebaaa7596f44e235428a461c",
+    "mounts": [
+      {
+        "Type": "bind",
+        "Source": "/tmp/capswriter-p4-exclusive-i3eh5tn4",
+        "Destination": "/bench",
+        "Mode": "",
+        "RW": true,
+        "Propagation": "rprivate"
+      }
+    ],
+    "cpu_quota": 8000000000,
+    "memory_bytes": 12884901888,
+    "published_ports": {}
+  }
+}

@@ -3,7 +3,9 @@
 研究日期：2026-11-01（Asia/Taipei）。追蹤：[Issue #14](https://github.com/DF-wu/CapsWriter-Offline-Container/issues/14)。
 分支：`research/tesla-p4-asr-model-quantization`；程式基準：`95912cf66f384aa752f3dda291e02c893070beff`。
 
-本次交付是深度來源研究、模型清單與實驗設計，**沒有執行 P4 ASR benchmark，因此沒有已證實的最快模型或加速倍數**。讀取了一次本機 GPU 身分；未替換正式模型、調整時脈、安裝推論套件或修改容器。
+**後續本機實測已完成：**見[13組獨占GPU實驗](p4-exclusive-container-experiments-20261101.md)與[第一輪共用GPU實驗](p4-container-experiments-20261101.md)。最新數據已依原Q5逐筆品質底線排除IQ4_XS、transcribe Q4／Q5，並比較CUDA原Q5、Q4 decoder與W4／Q4的速度及記憶體取捨。正式服務未部署優化，兩個原容器已恢復、參數核對與測試清理完成。
+
+下文保留實驗前的深度來源研究、模型清單與假說；該階段當時沒有執行P4 benchmark，不應把假說當成最新實測結論。
 
 相關工作：[既有 runtime 研究](tesla-p4-qwen3-asr-runtime-20261031.md)、[Issue #12 的同模型延遲計畫](../superpowers/plans/2026-11-01-p4-qwen3-asr-dictation-latency.md)。本 issue 把模型量化與縮小模型納入比較，與 #12 保持原 Q5_K 的 runtime 實驗分開。
 

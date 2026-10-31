@@ -2,6 +2,8 @@
 
 日期：2026-11-01（Asia/Taipei）。追蹤 [研究 #14](https://github.com/DF-wu/CapsWriter-Offline-Container/issues/14)、[實驗 #15](https://github.com/DF-wu/CapsWriter-Offline-Container/issues/15)。分支：`research/tesla-p4-asr-model-quantization`。
 
+**後續更新：**[13組獨占GPU實測](p4-exclusive-container-experiments-20261101.md)已完成，包含Q6／Q8／IQ4與完整transcribe.cpp引擎；品質較原Q5差者排除推薦。下文為第一輪共用、熱降頻環境紀錄。
+
 ## 結論與建議
 
 **這台機器首先值得修的是 decoder 的執行路徑。** 正式映像缺少 `libEGL.so.1`，現有 Vulkan decoder 找不到 P4，實際只枚舉 CPU。在 test container 僅安裝 `libegl1` 就能恢復 Vulkan GPU；同模型改用 b7798 的 CUDA SM61 build，這輪測得更低的 engine 延遲。這次沒有修改正式映像、容器、模型或 GPU stack。

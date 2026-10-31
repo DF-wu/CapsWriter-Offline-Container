@@ -1,0 +1,17 @@
+{
+  "reason": "benchmark exception: RuntimeError",
+  "started_utc": "2026-10-31T18:49:04.435479+00:00",
+  "test_stop_exit": 0,
+  "completed_utc": "2026-10-31T18:49:48.410101+00:00",
+  "production_id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+  "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+  "health": "healthy",
+  "running": true,
+  "started_at": "2026-10-31T18:49:20.147540237Z",
+  "config_fingerprints_after": {
+    "Config": "10b848091eedb32b5243f7f08863c6c16dd3ce01e45c6b6addf22222af70d257",
+    "HostConfig": "4265ed08640ac4fbcb37857b6d5b1fd6ac917f23f695454deb4304bf2b7848db",
+    "NetworkConfiguration": "4f1cb77d136ae1e78d3bcdeadd8abae3acee48702e9c880afa0b3a4d026c08e3"
+  },
+  "portainer_parameters_unchanged": true
+}

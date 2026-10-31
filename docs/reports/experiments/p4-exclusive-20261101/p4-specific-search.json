@@ -1,0 +1,193 @@
+{
+  "research_date": "2026-11-01",
+  "scope": "P4/SM61/DP4A-specific Qwen3-ASR artifact or kernel evidence; general GGUF format alone is insufficient.",
+  "conclusion": "No qualifying P4-specific ASR quantized checkpoint found in the sources checked. Pascal DP4A kernel-specific runtime paths exist; compare general artifacts empirically without relabelling them as P4-tuned models.",
+  "searches": [
+    {
+      "query": "Qwen3-ASR Tesla P4 Pascal SM61 optimized quantization DP4A GGUF",
+      "request_id": "3d5db850-b311-4f8c-9459-c4e689f4f902",
+      "results": [
+        {
+          "title": "Qwen3-ASR download | SourceForge.net",
+          "url": "https://sourceforge.net/projects/qwen3-asr.mirror"
+        },
+        {
+          "title": "GitHub - QwenLM/Qwen3-ASR: Qwen3-ASR is an open-source series of ASR models developed by the Qwen team at Alibaba Cloud, supporting stable multilingual speech/music/song recognition, language detection and timestamp prediction. · GitHub",
+          "url": "https://github.com/QwenLM/Qwen3-ASR"
+        },
+        {
+          "title": "GitHub - bpfio/TeslaP4: Complete guide for deploying AI models on NVIDIA Tesla P4 (8GB Pascal GPU). Driver install, dependency setup, pitfall avoidance, and best model selection. · GitHub",
+          "url": "https://github.com/bpfio/TeslaP4"
+        },
+        {
+          "title": "GGUF Quantization Guide: Shrink LLMs 72% [2026]",
+          "url": "https://tech-insider.org/gguf-model-quantization-2026"
+        },
+        {
+          "title": "llama.cpp: ASR in Gemma 4 and Qwen3",
+          "url": "https://sudonull.com/llama-cpp-asr-in-gemma-4-and-qwen3"
+        },
+        {
+          "title": "cstr/qwen3-asr-1.7b-GGUF · Hugging Face",
+          "url": "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF"
+        }
+      ],
+      "error": null
+    },
+    {
+      "query": "Tesla P4 Qwen3 ASR quantized Q4 Q8 Pascal optimized model",
+      "error": "HTTP 500: {\"detail\":\"could not reserve quota\"}"
+    },
+    {
+      "query": "site:github.com \"P4\" \"ASR\" \"DP4A\"",
+      "request_id": "a4e36320-0527-4461-9c76-b330a06ea660",
+      "results": [
+        {
+          "title": "intel-graphics-compiler/documentation/visa/6_instructions.md at master · intel/intel-graphics-compiler · GitHub",
+          "url": "https://github.com/intel/intel-graphics-compiler/blob/master/documentation/visa/6_instructions.md"
+        },
+        {
+          "title": "awesome-bc250/docs/en/11-gaming.md at main · kalpakprod/awesome-bc250 · GitHub",
+          "url": "https://github.com/kalpakprod/awesome-bc250/blob/main/docs/en/11-gaming.md"
+        },
+        {
+          "title": "GitHub - replikativ/pretrained-rstr: Run pretrained HuggingFace models — embeddings, ASR, decoder LLMs — on the JVM via the raster typed-dispatch compiler. No Python/ONNX. · GitHub",
+          "url": "https://github.com/replikativ/pretrained-rstr"
+        },
+        {
+          "title": "pinyon-shift/docs/UPSCALING_BACKLOG.md at main · arcanite24/pinyon-shift · GitHub",
+          "url": "https://github.com/arcanite24/pinyon-shift/blob/main/docs/UPSCALING_BACKLOG.md"
+        },
+        {
+          "title": "Releases · ggml-org/whisper.cpp · GitHub",
+          "url": "https://github.com/ggml-org/whisper.cpp/releases"
+        },
+        {
+          "title": "Commits · ggml-org/llama.cpp · GitHub",
+          "url": "https://github.com/ggml-org/llama.cpp/commits?before=e21cdc11a0461d8b0cbd28cc356d993bf6be7282+35"
+        }
+      ],
+      "error": null
+    },
+    {
+      "query": "site:github.com \"Pascal\" \"Qwen3-ASR\"",
+      "request_id": "c560cb1a-ac9a-4a75-8f94-c5aad9b2546a",
+      "results": [
+        {
+          "title": "GitHub - ba2512005/vllm-pascal: vLLM fork for pascal gpu · GitHub",
+          "url": "https://github.com/ba2512005/vllm-pascal"
+        },
+        {
+          "title": "[Feature Request] Add timestamp support for Qwen3 ASR offline model · Issue #3552 · k2-fsa/sherpa-onnx · GitHub",
+          "url": "https://github.com/k2-fsa/sherpa-onnx/issues/3552"
+        },
+        {
+          "title": "GitHub - uaysk/qwen3-asr-openai: qwen3 asr server for openai compatible API · GitHub",
+          "url": "https://github.com/uaysk/qwen3-asr-openai"
+        },
+        {
+          "title": "GitHub - murtaza-nasir/whisperx-asr-service · GitHub",
+          "url": "https://github.com/murtaza-nasir/whisperx-asr-service"
+        },
+        {
+          "title": "GitHub - malaiwah/qwen3-asr-server: OpenAI-compatible HTTP server for Qwen3-ASR-1.7B with vLLM backend, fp8 KV cache, context-primed transcription (52 languages), CPU fallback. Container + GHCR. · GitHub",
+          "url": "https://github.com/malaiwah/qwen3-asr-server"
+        },
+        {
+          "title": "Feature Request: Add Pascal architecture (sm_61-virtual) support for heavy ASR/TDT models on Windows CUDA 12.4+ builds · Issue #888 · 0xShug0/audio.cpp · GitHub",
+          "url": "https://github.com/0xShug0/audio.cpp/issues/888"
+        }
+      ],
+      "error": null
+    },
+    {
+      "query": "\"Tesla P4\" \"Qwen3-ASR\" quantization model optimized",
+      "request_id": "987b8111-28b6-4be7-957e-342d631c2e0d",
+      "results": [
+        {
+          "title": "Model Optimization and Performance | QwenLM/Qwen3 | DeepWiki",
+          "url": "https://deepwiki.com/QwenLM/Qwen3/6-model-optimization-and-performance"
+        },
+        {
+          "title": "model-quantization-recipes/recipes/qwen3-asr/README.md at main · VinRobotics/model-quantization-recipes · GitHub",
+          "url": "https://github.com/VinRobotics/model-quantization-recipes/blob/main/recipes/qwen3-asr/README.md"
+        },
+        {
+          "title": "Add Qwen3-ASR-0.6B-int4-QAD: INT4 AWQ quantized and QAD fine-tuned · vrfai/Qwen3-ASR-0.6B-int4-QAD at 228884a",
+          "url": "https://huggingface.co/vrfai/Qwen3-ASR-0.6B-int4-QAD/commit/228884ad339dedcf77cb5f927b59445c380f36ea"
+        },
+        {
+          "title": "vrfai/Qwen3-ASR-0.6B-int8-QAD · Hugging Face",
+          "url": "https://huggingface.co/vrfai/Qwen3-ASR-0.6B-int8-QAD"
+        },
+        {
+          "title": "Advanced Configuration and Optimization | QwenLM/Qwen3 | DeepWiki",
+          "url": "https://deepwiki.com/QwenLM/Qwen3/6.2-advanced-configuration-and-optimization"
+        },
+        {
+          "title": "vrfai/Qwen3-ASR-1.7B-nvfp4 · Hugging Face",
+          "url": "https://huggingface.co/vrfai/Qwen3-ASR-1.7B-nvfp4"
+        },
+        {
+          "title": "vrfai/Qwen3-ASR-0.6B-int4-QAD · Hugging Face",
+          "url": "https://huggingface.co/vrfai/Qwen3-ASR-0.6B-int4-QAD"
+        },
+        {
+          "title": "An Empirical Deep-Dive into Qwen3 Quantization: Optimizing State-of-the-Art LLMs",
+          "url": "https://medium.com/@maureesewilliams/an-empirical-deep-dive-into-qwen3-quantization-optimizing-state-of-the-art-llms-7e105b5674ab"
+        }
+      ]
+    }
+  ],
+  "extract": {
+    "request_id": "6f5b71f2-c699-48eb-a595-335f8dfe111a",
+    "urls": [
+      "https://github.com/ggml-org/llama.cpp/issues/30235",
+      "https://github.com/ba2512005/vllm-pascal",
+      "https://github.com/VinRobotics/model-quantization-recipes/blob/main/recipes/qwen3-asr/README.md",
+      "https://github.com/0xShug0/audio.cpp/issues/888",
+      "https://github.com/bpfio/TeslaP4/blob/main/docs/model-selection.md"
+    ],
+    "failed": []
+  },
+  "failed_original_endpoint_calls": [
+    {
+      "query": "Qwen3-ASR Tesla P4 Pascal SM61 optimized quantization DP4A GGUF model",
+      "error": "tool call error: tool call failed for `dfmcp/tavily-hikari__tavily_search`\n\nCaused by:\n    Mcp error: -32603: Error POSTing to endpoint (HTTP 521): "
+    },
+    {
+      "query": "Tesla P4 Qwen ASR Q4_0 Q8_0 quantization optimized",
+      "error": "tool call error: tool call failed for `dfmcp/tavily-hikari__tavily_search`\n\nCaused by:\n    Mcp error: -32603: Error POSTing to endpoint (HTTP 521): "
+    },
+    {
+      "query": "site:github.com \"P4\" \"ASR\" \"DP4A\"",
+      "error": "tool call error: tool call failed for `dfmcp/tavily-hikari__tavily_search`\n\nCaused by:\n    Mcp error: -32603: Error POSTing to endpoint (HTTP 521): "
+    },
+    {
+      "query": "site:github.com \"Pascal\" \"Qwen3-ASR\"",
+      "error": "tool call error: tool call failed for `dfmcp/tavily-hikari__tavily_search`\n\nCaused by:\n    Mcp error: -32603: Error POSTing to endpoint (HTTP 521): "
+    }
+  ],
+  "distinctions": [
+    {
+      "source": "https://github.com/ggml-org/llama.cpp/issues/30235",
+      "finding": "P4 Q8_0 MMQ tile proposal measured BGE prompt processing; not ASR or universal quant-format speed evidence."
+    },
+    {
+      "source": "https://github.com/ba2512005/vllm-pascal",
+      "finding": "Qwen3-ASR validated on P40; no direct P4 speed or P4-specific quantized checkpoint evidence."
+    },
+    {
+      "source": "https://github.com/VinRobotics/model-quantization-recipes/blob/main/recipes/qwen3-asr/README.md",
+      "finding": "Recipes target RTX5090 FP8/NVFP4 and Orin INT8/INT4, not Pascal/P4."
+    },
+    {
+      "source": "https://github.com/bpfio/TeslaP4",
+      "finding": "P4 LLM deployment guide; its chat-model selection is not a Qwen3-ASR performance result."
+    },
+    {
+      "source": "https://github.com/0xShug0/audio.cpp/issues/888",
+      "finding": "Pascal runtime compatibility discussion; no qualified P4-specific 1.7B quantized checkpoint performance A/B."
+    }
+  ]
+}

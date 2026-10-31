@@ -1,0 +1,51 @@
+{
+  "reason": "normal completion",
+  "started_utc": "2026-10-31T19:30:52.665953+00:00",
+  "test_stop_exit": 0,
+  "completed_utc": "2026-10-31T19:31:37.987873+00:00",
+  "production_id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+  "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+  "health": "healthy",
+  "running": true,
+  "started_at": "2026-10-31T19:31:08.33154388Z",
+  "config_fingerprints_after": {
+    "Config": "10b848091eedb32b5243f7f08863c6c16dd3ce01e45c6b6addf22222af70d257",
+    "HostConfig": "4265ed08640ac4fbcb37857b6d5b1fd6ac917f23f695454deb4304bf2b7848db",
+    "NetworkConfiguration": "4f1cb77d136ae1e78d3bcdeadd8abae3acee48702e9c880afa0b3a4d026c08e3"
+  },
+  "services": [
+    {
+      "name": "capswriter-server",
+      "id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+      "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+      "started_at": "2026-10-31T19:31:08.33154388Z",
+      "health": "healthy",
+      "running": true,
+      "readiness_basis": "Docker Healthcheck",
+      "ready": true,
+      "config_fingerprints_after": {
+        "Config": "10b848091eedb32b5243f7f08863c6c16dd3ce01e45c6b6addf22222af70d257",
+        "HostConfig": "4265ed08640ac4fbcb37857b6d5b1fd6ac917f23f695454deb4304bf2b7848db",
+        "NetworkConfiguration": "4f1cb77d136ae1e78d3bcdeadd8abae3acee48702e9c880afa0b3a4d026c08e3"
+      },
+      "parameters_unchanged": true
+    },
+    {
+      "name": "immich-aio",
+      "id": "9b775b9cd582524779a2563cea7a7cf1dcc7502c81d6517970ea9a26525552e9",
+      "image": "sha256:113e61b9de6075e5fc4b8b16364d45d0a7c6404d692c13f81da339aaaf147fdc",
+      "started_at": "2026-10-31T19:31:09.107578902Z",
+      "health": null,
+      "running": true,
+      "readiness_basis": "http://127.0.0.1:38080/api/server/ping",
+      "ready": true,
+      "config_fingerprints_after": {
+        "Config": "762cdc400a69556d7cee718c5b94f8ae4010a9ebeac2a7aa016c724f629b93ec",
+        "HostConfig": "36989c7f426589603a19d8f13e79bebde128c1cfcce92a97dc6a6df335b5e66e",
+        "NetworkConfiguration": "5002ac313788d2ade6e2b4ceae868c391a4c794abcb4bc3c0de5a3c1d9d6797a"
+      },
+      "parameters_unchanged": true
+    }
+  ],
+  "portainer_parameters_unchanged": true
+}

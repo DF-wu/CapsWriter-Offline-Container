@@ -1,0 +1,67 @@
+[
+  {
+    "id": "cpu-fallback",
+    "backend": "cpu",
+    "model": "/models-original/Qwen3-ASR/Qwen3-ASR-1.7B"
+  },
+  {
+    "id": "vulkan-q5",
+    "backend": "vulkan",
+    "model": "/models-original/Qwen3-ASR/Qwen3-ASR-1.7B"
+  },
+  {
+    "id": "cuda-q5",
+    "backend": "cuda",
+    "model": "/models-original/Qwen3-ASR/Qwen3-ASR-1.7B"
+  },
+  {
+    "id": "cuda-f32-q5",
+    "backend": "cuda",
+    "model": "/bench/models/fp32-promoted"
+  },
+  {
+    "id": "cuda-q4",
+    "backend": "cuda",
+    "model": "/bench/models/q4"
+  },
+  {
+    "id": "cuda-w4-q4",
+    "backend": "cuda",
+    "model": "/bench/models/q4-full"
+  },
+  {
+    "id": "cuda-q6",
+    "backend": "cuda",
+    "model": "/bench/models/q6"
+  },
+  {
+    "id": "cuda-q8",
+    "backend": "cuda",
+    "model": "/bench/models/q8"
+  },
+  {
+    "id": "cuda-iq4-xs",
+    "backend": "cuda",
+    "model": "/bench/models/iq4"
+  },
+  {
+    "id": "transcribe-q4_k_m",
+    "backend": "transcribe",
+    "model": "/bench/downloads/Qwen3-ASR-1.7B-Q4_K_M.gguf"
+  },
+  {
+    "id": "transcribe-q5_k_m",
+    "backend": "transcribe",
+    "model": "/bench/downloads/Qwen3-ASR-1.7B-Q5_K_M.gguf"
+  },
+  {
+    "id": "transcribe-q6_k",
+    "backend": "transcribe",
+    "model": "/bench/downloads/Qwen3-ASR-1.7B-Q6_K.gguf"
+  },
+  {
+    "id": "transcribe-q8_0",
+    "backend": "transcribe",
+    "model": "/bench/downloads/Qwen3-ASR-1.7B-Q8_0.gguf"
+  }
+]

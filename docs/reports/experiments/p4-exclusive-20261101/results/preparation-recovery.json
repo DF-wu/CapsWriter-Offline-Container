@@ -1,0 +1,10 @@
+{
+  "production_stopped_during_preparation": false,
+  "corrections": [
+    "Test container created as root for apt/pip; production container untouched.",
+    "Resample with runtime FFmpeg 4.4.2, not host 9.0.2; original codeswitch SHA256 reproduced.",
+    "Q8 pilot exposed a same-basename source collision. Decoder-only artifacts now use source/revision namespaces; handy Q8 restored and all hashes revalidated. This is a preparation error, not runtime model incompatibility."
+  ],
+  "b7798_build": "passed",
+  "base_audio_hashes": "passed"
+}

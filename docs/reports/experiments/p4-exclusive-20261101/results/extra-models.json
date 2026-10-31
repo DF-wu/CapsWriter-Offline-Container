@@ -1,0 +1,32 @@
+[
+  {
+    "variant": "q6",
+    "repo": "mradermacher/Qwen3-ASR-1.7B-GGUF",
+    "revision": "664b960e358348943aefcdc26b3cf09eff1fb0ac",
+    "filename": "Qwen3-ASR-1.7B.Q6_K.gguf",
+    "bytes": 1673003488,
+    "sha256": "534b653ee0074264c80533df9637e9eb556c04457f30cd1ba08fe48dcb608263",
+    "url": "https://huggingface.co/mradermacher/Qwen3-ASR-1.7B-GGUF/resolve/664b960e358348943aefcdc26b3cf09eff1fb0ac/Qwen3-ASR-1.7B.Q6_K.gguf",
+    "download_relative_path": "mradermacher--Qwen3-ASR-1.7B-GGUF/664b960e358348943aefcdc26b3cf09eff1fb0ac/Qwen3-ASR-1.7B.Q6_K.gguf"
+  },
+  {
+    "variant": "q8",
+    "repo": "ggml-org/Qwen3-ASR-1.7B-GGUF",
+    "revision": "36a678687ba7d07a74ca70ccb0e36902e005fb80",
+    "filename": "Qwen3-ASR-1.7B-Q8_0.gguf",
+    "bytes": 2165034944,
+    "sha256": "58e22d0532d4eacaf034cfac17a6fed159f37c41390c710186783be439d1fc57",
+    "url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF/resolve/36a678687ba7d07a74ca70ccb0e36902e005fb80/Qwen3-ASR-1.7B-Q8_0.gguf",
+    "download_relative_path": "ggml-org--Qwen3-ASR-1.7B-GGUF/36a678687ba7d07a74ca70ccb0e36902e005fb80/Qwen3-ASR-1.7B-Q8_0.gguf"
+  },
+  {
+    "variant": "iq4",
+    "repo": "mradermacher/Qwen3-ASR-1.7B-GGUF",
+    "revision": "664b960e358348943aefcdc26b3cf09eff1fb0ac",
+    "filename": "Qwen3-ASR-1.7B.IQ4_XS.gguf",
+    "bytes": 1181583840,
+    "sha256": "33bb28421a3bf976eff8f65b5871946e88c0bcad479a46be9539b8fae521f51a",
+    "url": "https://huggingface.co/mradermacher/Qwen3-ASR-1.7B-GGUF/resolve/664b960e358348943aefcdc26b3cf09eff1fb0ac/Qwen3-ASR-1.7B.IQ4_XS.gguf",
+    "download_relative_path": "mradermacher--Qwen3-ASR-1.7B-GGUF/664b960e358348943aefcdc26b3cf09eff1fb0ac/Qwen3-ASR-1.7B.IQ4_XS.gguf"
+  }
+]

@@ -1,0 +1,365 @@
+{
+  "captured_utc": "2026-10-31T19:31:51.140252+00:00",
+  "python": "3.10.12",
+  "packages": {
+    "numpy": "1.26.4",
+    "onnx": "1.16.2",
+    "onnxruntime-gpu": "1.18.0",
+    "soundfile": "0.13.1"
+  },
+  "model_artifacts": [
+    {
+      "path": "/models-original/Qwen3-ASR/Qwen3-ASR-1.7B/qwen3_asr_encoder_frontend.onnx",
+      "bytes": 24063978,
+      "sha256": "fc288ba9a0ca732251b33628c803cd5188d3dd77a2cd7336f0f0fd37969ed4cd",
+      "variant": "original-read-only",
+      "matches_prior_experiment": true
+    },
+    {
+      "path": "/models-original/Qwen3-ASR/Qwen3-ASR-1.7B/qwen3_asr_encoder_backend.onnx",
+      "bytes": 611276553,
+      "sha256": "4b0b1e34e8393f29222006aae0719283b0ff28b61f289b6ff8377b3ddbda27e3",
+      "variant": "original-read-only",
+      "matches_prior_experiment": true
+    },
+    {
+      "path": "/models-original/Qwen3-ASR/Qwen3-ASR-1.7B/qwen3_asr_llm.gguf",
+      "bytes": 1471800896,
+      "sha256": "89e198470f41d487ab5b6b8a36a35400b3b1534451c4499236983050fe9193e5",
+      "variant": "original-read-only",
+      "matches_prior_experiment": true
+    },
+    {
+      "path": "/bench/downloads/llama-b7798.tar.gz",
+      "bytes": 28802100,
+      "sha256": "4420071ba535356cb62f8cd65edb924dee321942d45b7e5e402df1f2906e1031",
+      "variant": "downloads.json",
+      "url": "https://api.github.com/repos/ggml-org/llama.cpp/tarball/c301172f660a1fe0b42023da990bf7385d69adb4"
+    },
+    {
+      "path": "/bench/downloads/q4.zip",
+      "bytes": 1410584449,
+      "sha256": "9b3d2a66a4a26a0404c32085ec838b7c482495a7827919a5aa674de617c2757b",
+      "variant": "downloads.json",
+      "url": "https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q4_k.zip"
+    },
+    {
+      "path": "/bench/downloads/noise2.wav",
+      "bytes": 741186,
+      "sha256": "33f85268f7fbad6b3152b9ab051edab1a85082fde66bccff61d7f5ef7b437e58",
+      "variant": "downloads.json",
+      "url": "https://huggingface.co/csukuangfj2/sherpa-onnx-qwen3-asr-0.6B-int8-2026-03-25/resolve/68818b2313fe77bd06f6a7c5068ff3ef59d02b8a/test_wavs/noise2.wav"
+    },
+    {
+      "path": "/bench/downloads/codeswitch.wav",
+      "bytes": 549550,
+      "sha256": "2def7fa41004d0a7d148d4afbf4c467c9d112d8b373996123e9a4c43d94957c7",
+      "variant": "downloads.json",
+      "url": "https://huggingface.co/csukuangfj2/sherpa-onnx-qwen3-asr-0.6B-int8-2026-03-25/resolve/68818b2313fe77bd06f6a7c5068ff3ef59d02b8a/test_wavs/codeswitch.wav"
+    },
+    {
+      "path": "/bench/downloads/Qwen3-ASR-1.7B-Q4_K_M.gguf",
+      "bytes": 1319830496,
+      "sha256": "b7afe3674f653fa84f712ed2440353c6e7cf7f93697fef76b05a26538b24844e",
+      "variant": "downloads.json",
+      "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-Q4_K_M.gguf"
+    },
+    {
+      "path": "/bench/downloads/Qwen3-ASR-1.7B-Q5_K_M.gguf",
+      "bytes": 1517290464,
+      "sha256": "034c557fe92ff8fcd9a9c041cbdaad347be0a86a58d3a348f63cf3f0180879d0",
+      "variant": "downloads.json",
+      "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-Q5_K_M.gguf"
+    },
+    {
+      "path": "/bench/downloads/Qwen3-ASR-1.7B-Q6_K.gguf",
+      "bytes": 1692554208,
+      "sha256": "c75a961b7134a6c952d89797865cb0d0376876185aee04ef6d12c31c2952e4e1",
+      "variant": "downloads.json",
+      "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-Q6_K.gguf"
+    },
+    {
+      "path": "/bench/downloads/Qwen3-ASR-1.7B-Q8_0.gguf",
+      "bytes": 2185030624,
+      "sha256": "9a0d81792dfea2d5f278b8a63deb3ea6e02139ce42c2301f32ea19c4f77526b7",
+      "variant": "downloads.json",
+      "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-Q8_0.gguf"
+    },
+    {
+      "path": "/bench/downloads/mradermacher--Qwen3-ASR-1.7B-GGUF/664b960e358348943aefcdc26b3cf09eff1fb0ac/Qwen3-ASR-1.7B.Q6_K.gguf",
+      "bytes": 1673003488,
+      "sha256": "534b653ee0074264c80533df9637e9eb556c04457f30cd1ba08fe48dcb608263",
+      "variant": "extra-models.json",
+      "url": "https://huggingface.co/mradermacher/Qwen3-ASR-1.7B-GGUF/resolve/664b960e358348943aefcdc26b3cf09eff1fb0ac/Qwen3-ASR-1.7B.Q6_K.gguf"
+    },
+    {
+      "path": "/bench/downloads/ggml-org--Qwen3-ASR-1.7B-GGUF/36a678687ba7d07a74ca70ccb0e36902e005fb80/Qwen3-ASR-1.7B-Q8_0.gguf",
+      "bytes": 2165034944,
+      "sha256": "58e22d0532d4eacaf034cfac17a6fed159f37c41390c710186783be439d1fc57",
+      "variant": "extra-models.json",
+      "url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF/resolve/36a678687ba7d07a74ca70ccb0e36902e005fb80/Qwen3-ASR-1.7B-Q8_0.gguf"
+    },
+    {
+      "path": "/bench/downloads/mradermacher--Qwen3-ASR-1.7B-GGUF/664b960e358348943aefcdc26b3cf09eff1fb0ac/Qwen3-ASR-1.7B.IQ4_XS.gguf",
+      "bytes": 1181583840,
+      "sha256": "33bb28421a3bf976eff8f65b5871946e88c0bcad479a46be9539b8fae521f51a",
+      "variant": "extra-models.json",
+      "url": "https://huggingface.co/mradermacher/Qwen3-ASR-1.7B-GGUF/resolve/664b960e358348943aefcdc26b3cf09eff1fb0ac/Qwen3-ASR-1.7B.IQ4_XS.gguf"
+    },
+    {
+      "path": "/bench/models/q4-full/qwen3_asr_encoder_backend.onnx",
+      "bytes": 164740452,
+      "sha256": "1b97a39201050521f63374131557b033b758f8ae7d2a3d6efaa0f9d8900bab9a",
+      "variant": "q4-full"
+    },
+    {
+      "path": "/bench/models/q4-full/qwen3_asr_encoder_frontend.onnx",
+      "bytes": 20876699,
+      "sha256": "9cda7769acc0f1c3077600156b59759abfdeda46c2bbab3610b6ce47cee70e90",
+      "variant": "q4-full"
+    },
+    {
+      "path": "/bench/models/fp32-promoted/qwen3_asr_encoder_backend.onnx",
+      "bytes": 1221995179,
+      "sha256": "ee06ae8ae8e7585fe7111914c9bd4d85f4d79c37fa5e3b07535ee15b09f52783",
+      "variant": "fp32-promoted"
+    },
+    {
+      "path": "/bench/models/fp32-promoted/qwen3_asr_encoder_frontend.onnx",
+      "bytes": 48125132,
+      "sha256": "7aaef2cb376b50ba219756f10fedb6417ee51d959ed4f9223ca87c3792fb1f04",
+      "variant": "fp32-promoted"
+    }
+  ],
+  "libraries": [
+    {
+      "path": "/bench/vulkan-bin/libggml-base.so",
+      "bytes": 738176,
+      "sha256": "f4a7bc5a7dbe1a25dc9e846776c67a2f51ac8e7588ff5355432200baa9ff840e"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-base.so.0",
+      "bytes": 738176,
+      "sha256": "f4a7bc5a7dbe1a25dc9e846776c67a2f51ac8e7588ff5355432200baa9ff840e"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-base.so.0.9.5",
+      "bytes": 738176,
+      "sha256": "f4a7bc5a7dbe1a25dc9e846776c67a2f51ac8e7588ff5355432200baa9ff840e"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-alderlake.so",
+      "bytes": 975752,
+      "sha256": "c6db8e77eb4cc454f57494100d36fe501195faccd3c8d461c54d3194f636abd9"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-cannonlake.so",
+      "bytes": 1104352,
+      "sha256": "0263f11307d37385061fafa3fec1a86101cddd35ec2418678e2c84c3623a0722"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-cascadelake.so",
+      "bytes": 1104352,
+      "sha256": "27d695b280e9e8413a7d12a53efe7c23657a33045bba31d89d3d7401e7457410"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-cooperlake.so",
+      "bytes": 1104424,
+      "sha256": "563f3814f70d4ded67ee8d987c01a57aca2a269f1202163e883cfe271d4af340"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-haswell.so",
+      "bytes": 975752,
+      "sha256": "01df77d9e28f33eb2f1188c9859f98e13026cc82891415b1b7797846fcd6ec97"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-icelake.so",
+      "bytes": 1104352,
+      "sha256": "aa4063fcaefef6b01b22fc9e3cf5dd84d5de493a8b4c1bd02f8ad6e1b1085013"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-ivybridge.so",
+      "bytes": 929280,
+      "sha256": "d40b33608be0f8214432d19ae535cc4cf25816fb3ba4192fe5f3c01832f24a4f"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-piledriver.so",
+      "bytes": 925184,
+      "sha256": "578e75efa05c937912250cf2a220f2fb63ba54390d6969e88120001220bf139a"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-sandybridge.so",
+      "bytes": 915872,
+      "sha256": "86e643556939db7e2e25f42d86dc7496021e8fb99f720ce124a55d97f60a4e9a"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-sapphirerapids.so",
+      "bytes": 1371680,
+      "sha256": "d72f844f9b67141491a91a92df7c8b99938c1612a7d35624c5716be5e3195e0f"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-skylakex.so",
+      "bytes": 1104352,
+      "sha256": "03de97d65f981390a9900ab22f193b79279d034fdade51944c2b5b4dec3b298e"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-sse42.so",
+      "bytes": 720808,
+      "sha256": "247db23db17967ff6e1dce408f5641541caf75b804588f7ab190d920b6525776"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-x64.so",
+      "bytes": 716848,
+      "sha256": "b4719931bcfa58fbb0a478da82a809a8c37e80553aea7572ec5fdeff9a1d3ad8"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu-zen4.so",
+      "bytes": 1104424,
+      "sha256": "7bb6b2b89cc21be27a8d038f3987c9868238698ed23262ba01c96c1e261918b2"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-cpu.so",
+      "bytes": 716848,
+      "sha256": "b4719931bcfa58fbb0a478da82a809a8c37e80553aea7572ec5fdeff9a1d3ad8"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-rpc.so",
+      "bytes": 131392,
+      "sha256": "1aa499332c04e3d43a1d6489d387a17aaf2898ff53708fc9a25c5ba54729f72e"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml-vulkan.so",
+      "bytes": 56414152,
+      "sha256": "0826ad3bfa43c30209cf155edb226dab776d98befce72a7df89f4055b61a541d"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml.so",
+      "bytes": 54800,
+      "sha256": "29b2c60c1d8dc5582fbbfbbdb15dd5982b38f49c60fc4c22bdb61f5222b9ae2e"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml.so.0",
+      "bytes": 54800,
+      "sha256": "29b2c60c1d8dc5582fbbfbbdb15dd5982b38f49c60fc4c22bdb61f5222b9ae2e"
+    },
+    {
+      "path": "/bench/vulkan-bin/libggml.so.0.9.5",
+      "bytes": 54800,
+      "sha256": "29b2c60c1d8dc5582fbbfbbdb15dd5982b38f49c60fc4c22bdb61f5222b9ae2e"
+    },
+    {
+      "path": "/bench/vulkan-bin/libllama.so",
+      "bytes": 3095928,
+      "sha256": "bbe4fd0f99a5062bac8e585192047f82399988e9e24d993a19fdd113454828ec"
+    },
+    {
+      "path": "/bench/vulkan-bin/libllama.so.0",
+      "bytes": 3095928,
+      "sha256": "bbe4fd0f99a5062bac8e585192047f82399988e9e24d993a19fdd113454828ec"
+    },
+    {
+      "path": "/bench/vulkan-bin/libllama.so.0.0.7798",
+      "bytes": 3095928,
+      "sha256": "bbe4fd0f99a5062bac8e585192047f82399988e9e24d993a19fdd113454828ec"
+    },
+    {
+      "path": "/bench/vulkan-bin/libmtmd.so",
+      "bytes": 914680,
+      "sha256": "e0840a54d15f1ea19e66a311ab76a04478fb31fe0562553b54839864114bf703"
+    },
+    {
+      "path": "/bench/vulkan-bin/libmtmd.so.0",
+      "bytes": 914680,
+      "sha256": "e0840a54d15f1ea19e66a311ab76a04478fb31fe0562553b54839864114bf703"
+    },
+    {
+      "path": "/bench/vulkan-bin/libmtmd.so.0.0.7798",
+      "bytes": 914680,
+      "sha256": "e0840a54d15f1ea19e66a311ab76a04478fb31fe0562553b54839864114bf703"
+    },
+    {
+      "path": "/bench/cuda-build/bin/libggml-base.so.0.9.5",
+      "bytes": 738176,
+      "sha256": "a7411ecc3c3c9ed5bf18034c595b95ad26a971152df829a74feafce60978c8e5"
+    },
+    {
+      "path": "/bench/cuda-build/bin/libggml-cpu.so.0.9.5",
+      "bytes": 975304,
+      "sha256": "fe9dd0ec94376d165fb4afe58c52bee318e954e656b967dd4e904d044031b7ce"
+    },
+    {
+      "path": "/bench/cuda-build/bin/libggml-cuda.so.0.9.5",
+      "bytes": 93101320,
+      "sha256": "426b847d74759f405103ff382b5abbdb8ad9ff7410e08dd70cef930f375f58a6"
+    },
+    {
+      "path": "/bench/cuda-build/bin/libggml.so.0.9.5",
+      "bytes": 55048,
+      "sha256": "f4519c93c2add325f6e2fedff299755750ffbdc0ccfd080736f36befb2541885"
+    },
+    {
+      "path": "/bench/cuda-build/bin/libllama.so.0.0.0",
+      "bytes": 3095928,
+      "sha256": "0bf3403678a517bc2b29f51bad6b2434052e3b3777b7835ca3f598be73558d10"
+    },
+    {
+      "path": "/bench/transcribe-build/lib/libggml-base.so.0.26.0",
+      "bytes": 896952,
+      "sha256": "8ff4f0df961c80423f078378b2a7db323375ea25e098ba85a9b902bb217e42d1"
+    },
+    {
+      "path": "/bench/transcribe-build/lib/libggml-cpu.so.0.26.0",
+      "bytes": 1379056,
+      "sha256": "b19a3de9f9d858355d3585e05f19857690aee24ae46f312afe024e4751a907c9"
+    },
+    {
+      "path": "/bench/transcribe-build/lib/libggml-cuda.so.0.26.0",
+      "bytes": 110843944,
+      "sha256": "d25ca9d04877d57f3e625d01c4e6519706f4ba47caacf1ff488d70fa2215ce90"
+    },
+    {
+      "path": "/bench/transcribe-build/lib/libggml.so.0.26.0",
+      "bytes": 51368,
+      "sha256": "f116f37761ef7233b73b42b63721bf7468ae7595d058b61d746f202eeeece2ba"
+    },
+    {
+      "path": "/bench/transcribe-build/lib/libtranscribe.so.0.4.1",
+      "bytes": 2651296,
+      "sha256": "d40e7d2fa16b470ecc4371780aa75f17ea1684dbc94f27bb23c0c7b7691a70a0"
+    }
+  ],
+  "source_files": [
+    {
+      "path": "/bench/transcribe-source/include/transcribe.h",
+      "bytes": 146584,
+      "sha256": "6eeff40fa7d9d3b17eb021170fda4046b5f54794ddfe4295bcf62bbc6015f652"
+    },
+    {
+      "path": "/bench/transcribe-source/ggml/src/ggml-cuda/mmq-config-pascal-dp4a.cuh",
+      "bytes": 25122,
+      "sha256": "67a93b6d26d3e16e77fd285dd77e7cca7848fb0b0d68897c2ff1e8cc47102263"
+    },
+    {
+      "path": "/bench/transcribe-source/ggml/src/ggml-cuda/mmq.cuh",
+      "bytes": 74234,
+      "sha256": "bc79d7cd87b6d8914ba11ee7da98bd3173687fb9a693ed6fbde3561064904169"
+    },
+    {
+      "path": "/bench/llama-source/ggml/src/ggml-cuda/mmq.cuh",
+      "bytes": 171479,
+      "sha256": "8ea93be7d0f8d49a76e09404aaa05068f8606722eab7024d00e16a66b52cebb5"
+    },
+    {
+      "path": "/bench/cuda-build/CMakeCache.txt",
+      "bytes": 42753,
+      "sha256": "b02df1c9cd59954c0a9c4249df71bffda9efc7e22dd7f2b0107846308ae3c0c9"
+    },
+    {
+      "path": "/bench/transcribe-build/CMakeCache.txt",
+      "bytes": 40940,
+      "sha256": "1a1171423d4ea9780dc59bfecdb57773282dd06f59e2b285226e6a2178aa111b"
+    }
+  ],
+  "gpu_query": "name, uuid, driver_version, memory.total [MiB]\nTesla P4, GPU-82dd964b-0c4c-78d4-8bd3-f7067e8cb29f, 580.196.07, 7680 MiB\n",
+  "ffmpeg": "ffmpeg version 4.4.2-0ubuntu0.22.04.1 Copyright (c) 2000-2021 the FFmpeg developers"
+}

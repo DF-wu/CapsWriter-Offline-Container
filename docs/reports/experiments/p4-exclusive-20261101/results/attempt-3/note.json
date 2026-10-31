@@ -1,0 +1,4 @@
+{
+  "reason": "Evidence archival initially could not truncate a root-owned JSONL from host. A premature resume was intentionally interrupted after one valid Q4 quality block, and both original services restored. Corrected using atomic replacement in the host-owned results directory. No latency data rerun or removed.",
+  "retained_quality": "cuda-q4; 5 measured calls, both services stopped"
+}
