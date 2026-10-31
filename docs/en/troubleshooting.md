@@ -41,6 +41,20 @@ python client/cli/capswriter_cli.py models
 
 ## Desktop problems
 
+Only one microphone client can run per settings directory. Reopening it reports
+the existing PID before initializing audio or keyboard hooks, including during
+first-run setup. Separate settings windows and file transcription remain available.
+In Windows Task Manager the executable is `start_client.exe`, with description
+`CapsWriter Offline Client`. Run `start_client.exe --status` (or
+`python start_client.py --status` from source) to report its PID. Exit status 0
+means running; 1 means stopped.
+
+Tray Exit stops recording, hooks, watchers and connections and drains background
+tasks. Restart waits up to 10 seconds for the old instance to release its lock;
+the new background process keeps its tray even without a console. The console
+close button remains available. The OS releases the lock after a crash or forced
+termination; do not delete `client-instance.lock` manually.
+
 | Symptom | Likely boundary | Action |
 |---|---|---|
 | Windows source works, packaged executable fails | Hidden import/native library/package layout | Rebuild from a clean environment, keep build logs, verify both packaged executables, and compare exact dependency/PyInstaller versions |

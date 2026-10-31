@@ -92,9 +92,11 @@ class CapsWriterClient:
         """
         if self._stop_requested.is_set():
             return
-        self._stop_requested.set()
         # 与 start() 的 finally 串行，确保它不会在 shutdown future 发布前返回。
         with self._shutdown_lock:
+            if self._stop_requested.is_set():
+                return
+            self._stop_requested.set()
             self._schedule_stop()
 
     def _schedule_stop(self) -> None:
@@ -104,19 +106,18 @@ class CapsWriterClient:
         processor = self._result_processor
         if processor is not None:
             # 退出事件必须先于 close，避免接收循环抢先进入下一次重连。
-            processor.request_exit()
+            try:
+                processor.request_exit()
+            except Exception as error:
+                logger.warning(f"通知結果處理器退出時發生錯誤: {error}")
 
         # 1. 停止核心运行组件
-        self.udp.stop()
-        self.shortcut.stop()
-        self.stream.stop()
-
-        # 2. 托盘资源
-        self.tray.stop()
-
-        # 3. 关闭监控
-        self.hotword.stop()
-        self.llm.stop()
+        # 單一元件失敗不能中止其餘清理，尤其不能留下托盤與鍵盤 hook。
+        for name in ("udp", "shortcut", "stream", "tray", "hotword", "llm"):
+            try:
+                getattr(self, name).stop()
+            except Exception as error:
+                logger.warning(f"停止 {name} 時發生錯誤: {error}")
 
         # 4. WebSocket 与 receiver 必须由所属事件循环依序关闭。
         if self.loop.is_running():
@@ -125,11 +126,7 @@ class CapsWriterClient:
                 self.loop,
             )
         else:
-            self.state.reset()
-            self.loop.stop()
-
-        logger.info("资源释放完成")
-        console.print('[green4]再见！')
+            self.loop.run_until_complete(self._finish_stop(processor))
 
     async def _finish_stop(self, processor) -> None:
         runner_task = self._runner_task
@@ -163,15 +160,27 @@ class CapsWriterClient:
         try:
             if not shutdown_future.done():
                 self.loop.run_until_complete(
-                    asyncio.wrap_future(shutdown_future, loop=self.loop)
+                    asyncio.wait_for(
+                        asyncio.wrap_future(shutdown_future, loop=self.loop),
+                        timeout=5,
+                    )
                 )
             else:
                 shutdown_future.result()
         except Exception as error:
             logger.warning(f"等待客户端异步清理时发生错误: {error}")
 
+    async def _cancel_pending_tasks(self) -> None:
+        """錄音與背景輸出也屬於此 loop，必須執行其 finally 後才能關閉 loop。"""
+        pending = asyncio.all_tasks(self.loop) - {asyncio.current_task()}
+        for task in pending:
+            task.cancel()
+        if pending:
+            _done, remaining = await asyncio.wait(pending, timeout=5)
+            if remaining:
+                logger.warning(f"仍有 {len(remaining)} 個背景工作未能在期限內停止")
 
-    def start(self):
+    def start(self, argv=None):
         """
         启动客户端 (唯一入口)
         
@@ -182,7 +191,7 @@ class CapsWriterClient:
         register_signal(self.stop)
 
         # FileRunner reports invalid inputs; supplied paths still select file mode.
-        files = [Path(f) for f in sys.argv[1:]]
+        files = [Path(f) for f in (sys.argv[1:] if argv is None else argv)]
 
         if files:
             # 文件转录模式
@@ -200,8 +209,17 @@ class CapsWriterClient:
         except asyncio.CancelledError:
             if not self._stop_requested.is_set():
                 raise
-        except RuntimeError:
-            ...
         finally:
-            self._drain_shutdown()
-            self._runner_task = None
+            try:
+                # 正常返回與啟動失敗也需要清理，不能只仰賴使用者點托盤退出。
+                if not self._stop_requested.is_set():
+                    self.stop()
+                self._drain_shutdown()
+                self.loop.run_until_complete(self._cancel_pending_tasks())
+                self.loop.run_until_complete(self.loop.shutdown_asyncgens())
+                logger.info("资源释放完成")
+                console.print('[green4]再见！')
+            finally:
+                self._runner_task = None
+                self.loop.close()
+                asyncio.set_event_loop(None)

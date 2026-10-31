@@ -11,14 +11,42 @@ def main(argv: list[str] | None = None) -> int | None:
 
         return run_artifact_self_check("client")
 
-    from fork_client.settings import SettingsError, apply_overrides, settings_path
-    from config_client import ClientConfig
-
     if selected_args == ["--settings"]:
         from fork_client.settings_ui import run_settings
 
         run_settings()
         return 0
+
+    from fork_client.instance import (
+        ClientInstance, RESTART_WAIT_ARGUMENT, RESTART_WAIT_SECONDS, report_status,
+    )
+
+    if selected_args == ["--status"]:
+        return report_status()
+    restart = selected_args == [RESTART_WAIT_ARGUMENT]
+    if restart:
+        selected_args = []
+    # 在首次設定、logger、音訊與快捷鍵 import 之前取得鎖。檔案轉錄不占用麥克風鎖。
+    instance = ClientInstance() if not selected_args else None
+    try:
+        if instance is not None:
+            try:
+                acquired = instance.acquire(RESTART_WAIT_SECONDS if restart else 0)
+            except OSError as exc:
+                print(f"無法取得 CapsWriter Client 執行鎖：{exc}", file=sys.stderr)
+                return 2
+            if not acquired:
+                print(f"CapsWriter Client 已在執行，PID={instance.owner().get('pid', '未知')}；請使用現有托盤圖示。")
+                return 1 if restart else 0
+        return _run_client(selected_args)
+    finally:
+        if instance is not None:
+            instance.release()
+
+
+def _run_client(selected_args: list[str]) -> int | None:
+    from fork_client.settings import SettingsError, apply_overrides, settings_path
+    from config_client import ClientConfig
 
     # First-run Windows setup precedes imports that initialize hooks/audio.
     if (sys.platform == "win32" and not selected_args and not settings_path().exists()
@@ -36,7 +64,7 @@ def main(argv: list[str] | None = None) -> int | None:
     from core.client import CapsWriterClient
 
     # 直接实例化并启动门面类即可；环境初始化职责已下放至 CapsWriterClient。
-    CapsWriterClient().start()
+    CapsWriterClient().start(selected_args)
 
 if __name__ == "__main__":
     status = main()

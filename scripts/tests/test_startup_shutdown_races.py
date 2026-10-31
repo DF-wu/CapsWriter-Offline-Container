@@ -639,6 +639,69 @@ class ClientTrayExitRaceTest(unittest.TestCase):
         finally:
             loop.close()
 
+    def test_failed_resource_cleanup_does_not_skip_tray_or_connection(self) -> None:
+        loop = _CountingLoop()
+        client = self._client(loop)
+        thread, result = self._start_client_thread(client, ["start_client.py"])
+        self.assertTrue(client.ws.receive_started.wait(1))
+        cleaned = []
+
+        class BrokenStream:
+            def stop(self):
+                raise RuntimeError("audio close failed")
+
+        client.stream = BrokenStream()
+        client.tray = SimpleNamespace(stop=lambda: cleaned.append("tray"))
+        client.llm = SimpleNamespace(stop=lambda: cleaned.append("llm"))
+        client.stop()
+        thread.join(2)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(cleaned, ["tray", "llm"])
+        self.assertEqual(client.ws.close_calls, 1)
+        self.assertTrue(loop.is_closed())
+        self.assertNotIn("error", result)
+
+    def test_exit_cancels_background_recording_before_closing_loop(self) -> None:
+        loop = _CountingLoop()
+        client = self._client(loop)
+        thread, result = self._start_client_thread(client, ["start_client.py"])
+        self.assertTrue(client.ws.receive_started.wait(1))
+        started, finalized = threading.Event(), threading.Event()
+
+        async def recording():
+            started.set()
+            try:
+                await asyncio.Event().wait()
+            finally:
+                finalized.set()
+
+        asyncio.run_coroutine_threadsafe(recording(), loop)
+        self.assertTrue(started.wait(1))
+        client.stop()
+        thread.join(2)
+        self.assertFalse(thread.is_alive())
+        self.assertTrue(finalized.is_set())
+        self.assertTrue(loop.is_closed())
+        self.assertNotIn("error", result)
+
+    def test_startup_exception_cleans_already_started_resources_and_propagates(self) -> None:
+        loop = _CountingLoop()
+        client = self._client(loop)
+        cleaned = []
+
+        def fail_start():
+            raise RuntimeError("microphone unavailable")
+
+        client.stream = SimpleNamespace(start=fail_start, stop=lambda: cleaned.append("stream"))
+        client.tray = SimpleNamespace(start=lambda: None, stop=lambda: cleaned.append("tray"))
+        thread, result = self._start_client_thread(client, ["start_client.py"])
+        thread.join(2)
+        self.assertFalse(thread.is_alive())
+        self.assertIsInstance(result.get("error"), RuntimeError)
+        self.assertEqual(str(result["error"]), "microphone unavailable")
+        self.assertEqual(cleaned, ["stream", "tray"])
+        self.assertTrue(loop.is_closed())
+
     def test_tray_exit_cancels_long_message_handler(self) -> None:
         loop = _CountingLoop()
         client = self._client(loop, gate_message=True)
