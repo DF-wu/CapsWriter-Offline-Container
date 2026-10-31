@@ -1,0 +1,17 @@
+{
+  "sha256": "9b3d2a66a4a26a0404c32085ec838b7c482495a7827919a5aa674de617c2757b",
+  "files": [
+    {
+      "name": "qwen3_asr_encoder_backend.onnx",
+      "bytes": 164740452
+    },
+    {
+      "name": "qwen3_asr_encoder_frontend.onnx",
+      "bytes": 20876699
+    },
+    {
+      "name": "qwen3_asr_llm.gguf",
+      "bytes": 1282434624
+    }
+  ]
+}

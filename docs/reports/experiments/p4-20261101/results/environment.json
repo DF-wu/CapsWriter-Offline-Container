@@ -1,0 +1,280 @@
+{
+  "base_image_id": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+  "code_commit": "d3b334e95c4d958f6d7812cb94c14a33fff427d3",
+  "llama_source_commit": "c301172f660a1fe0b42023da990bf7385d69adb4",
+  "llama_source_tar_sha256": "4420071ba535356cb62f8cd65edb924dee321942d45b7e5e402df1f2906e1031",
+  "cuda_build_flags": [
+    "GGML_CUDA=ON",
+    "CMAKE_CUDA_ARCHITECTURES=61",
+    "CMAKE_BUILD_TYPE=Release",
+    "LLAMA_CURL=OFF"
+  ],
+  "runtime": "CUDA11.8/cuDNN8/ORT1.18.0/Python3.10.12",
+  "gpu": "Tesla P4 SM6.1 driver580.196.07 7680MiB",
+  "shared_gpu_baseline_mib": 1253,
+  "host_cpu": "Xeon E5-2680 v4 @2.4GHz VMware, 48vCPU",
+  "container_limits": {
+    "cpus": 6,
+    "memory_gib": 16
+  },
+  "files": [
+    {
+      "path": "vulkan-bin/.capswriter-llama-ready.json",
+      "bytes": 3496,
+      "sha256": "fef0c827075a5f49a30a18a744d358bacec2066fc4e41f0553e9325abc3b8873"
+    },
+    {
+      "path": "vulkan-bin/libggml-base.so",
+      "bytes": 738176,
+      "sha256": "f4a7bc5a7dbe1a25dc9e846776c67a2f51ac8e7588ff5355432200baa9ff840e"
+    },
+    {
+      "path": "vulkan-bin/libggml-base.so.0",
+      "bytes": 738176,
+      "sha256": "f4a7bc5a7dbe1a25dc9e846776c67a2f51ac8e7588ff5355432200baa9ff840e"
+    },
+    {
+      "path": "vulkan-bin/libggml-base.so.0.9.5",
+      "bytes": 738176,
+      "sha256": "f4a7bc5a7dbe1a25dc9e846776c67a2f51ac8e7588ff5355432200baa9ff840e"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-alderlake.so",
+      "bytes": 975752,
+      "sha256": "c6db8e77eb4cc454f57494100d36fe501195faccd3c8d461c54d3194f636abd9"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-cannonlake.so",
+      "bytes": 1104352,
+      "sha256": "0263f11307d37385061fafa3fec1a86101cddd35ec2418678e2c84c3623a0722"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-cascadelake.so",
+      "bytes": 1104352,
+      "sha256": "27d695b280e9e8413a7d12a53efe7c23657a33045bba31d89d3d7401e7457410"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-cooperlake.so",
+      "bytes": 1104424,
+      "sha256": "563f3814f70d4ded67ee8d987c01a57aca2a269f1202163e883cfe271d4af340"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-haswell.so",
+      "bytes": 975752,
+      "sha256": "01df77d9e28f33eb2f1188c9859f98e13026cc82891415b1b7797846fcd6ec97"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-icelake.so",
+      "bytes": 1104352,
+      "sha256": "aa4063fcaefef6b01b22fc9e3cf5dd84d5de493a8b4c1bd02f8ad6e1b1085013"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-ivybridge.so",
+      "bytes": 929280,
+      "sha256": "d40b33608be0f8214432d19ae535cc4cf25816fb3ba4192fe5f3c01832f24a4f"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-piledriver.so",
+      "bytes": 925184,
+      "sha256": "578e75efa05c937912250cf2a220f2fb63ba54390d6969e88120001220bf139a"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-sandybridge.so",
+      "bytes": 915872,
+      "sha256": "86e643556939db7e2e25f42d86dc7496021e8fb99f720ce124a55d97f60a4e9a"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-sapphirerapids.so",
+      "bytes": 1371680,
+      "sha256": "d72f844f9b67141491a91a92df7c8b99938c1612a7d35624c5716be5e3195e0f"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-skylakex.so",
+      "bytes": 1104352,
+      "sha256": "03de97d65f981390a9900ab22f193b79279d034fdade51944c2b5b4dec3b298e"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-sse42.so",
+      "bytes": 720808,
+      "sha256": "247db23db17967ff6e1dce408f5641541caf75b804588f7ab190d920b6525776"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-x64.so",
+      "bytes": 716848,
+      "sha256": "b4719931bcfa58fbb0a478da82a809a8c37e80553aea7572ec5fdeff9a1d3ad8"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu-zen4.so",
+      "bytes": 1104424,
+      "sha256": "7bb6b2b89cc21be27a8d038f3987c9868238698ed23262ba01c96c1e261918b2"
+    },
+    {
+      "path": "vulkan-bin/libggml-cpu.so",
+      "bytes": 716848,
+      "sha256": "b4719931bcfa58fbb0a478da82a809a8c37e80553aea7572ec5fdeff9a1d3ad8"
+    },
+    {
+      "path": "vulkan-bin/libggml-rpc.so",
+      "bytes": 131392,
+      "sha256": "1aa499332c04e3d43a1d6489d387a17aaf2898ff53708fc9a25c5ba54729f72e"
+    },
+    {
+      "path": "vulkan-bin/libggml-vulkan.so",
+      "bytes": 56414152,
+      "sha256": "0826ad3bfa43c30209cf155edb226dab776d98befce72a7df89f4055b61a541d"
+    },
+    {
+      "path": "vulkan-bin/libggml.so",
+      "bytes": 54800,
+      "sha256": "29b2c60c1d8dc5582fbbfbbdb15dd5982b38f49c60fc4c22bdb61f5222b9ae2e"
+    },
+    {
+      "path": "vulkan-bin/libggml.so.0",
+      "bytes": 54800,
+      "sha256": "29b2c60c1d8dc5582fbbfbbdb15dd5982b38f49c60fc4c22bdb61f5222b9ae2e"
+    },
+    {
+      "path": "vulkan-bin/libggml.so.0.9.5",
+      "bytes": 54800,
+      "sha256": "29b2c60c1d8dc5582fbbfbbdb15dd5982b38f49c60fc4c22bdb61f5222b9ae2e"
+    },
+    {
+      "path": "vulkan-bin/libllama.so",
+      "bytes": 3095928,
+      "sha256": "bbe4fd0f99a5062bac8e585192047f82399988e9e24d993a19fdd113454828ec"
+    },
+    {
+      "path": "vulkan-bin/libllama.so.0",
+      "bytes": 3095928,
+      "sha256": "bbe4fd0f99a5062bac8e585192047f82399988e9e24d993a19fdd113454828ec"
+    },
+    {
+      "path": "vulkan-bin/libllama.so.0.0.7798",
+      "bytes": 3095928,
+      "sha256": "bbe4fd0f99a5062bac8e585192047f82399988e9e24d993a19fdd113454828ec"
+    },
+    {
+      "path": "vulkan-bin/libmtmd.so",
+      "bytes": 914680,
+      "sha256": "e0840a54d15f1ea19e66a311ab76a04478fb31fe0562553b54839864114bf703"
+    },
+    {
+      "path": "vulkan-bin/libmtmd.so.0",
+      "bytes": 914680,
+      "sha256": "e0840a54d15f1ea19e66a311ab76a04478fb31fe0562553b54839864114bf703"
+    },
+    {
+      "path": "vulkan-bin/libmtmd.so.0.0.7798",
+      "bytes": 914680,
+      "sha256": "e0840a54d15f1ea19e66a311ab76a04478fb31fe0562553b54839864114bf703"
+    },
+    {
+      "path": "cuda-build/bin/libggml-base.so.0.9.5",
+      "bytes": 738176,
+      "sha256": "a7411ecc3c3c9ed5bf18034c595b95ad26a971152df829a74feafce60978c8e5"
+    },
+    {
+      "path": "cuda-build/bin/libggml-cpu.so.0.9.5",
+      "bytes": 975304,
+      "sha256": "fe9dd0ec94376d165fb4afe58c52bee318e954e656b967dd4e904d044031b7ce"
+    },
+    {
+      "path": "cuda-build/bin/libggml-cuda.so.0.9.5",
+      "bytes": 93101320,
+      "sha256": "24eb31f2b629174b96c9aa5d61777cee81274e1064432c0ad17fca21d11df2e4"
+    },
+    {
+      "path": "cuda-build/bin/libggml.so.0.9.5",
+      "bytes": 55048,
+      "sha256": "f4519c93c2add325f6e2fedff299755750ffbdc0ccfd080736f36befb2541885"
+    },
+    {
+      "path": "cuda-build/bin/libllama.so.0.0.0",
+      "bytes": 3095928,
+      "sha256": "0bf3403678a517bc2b29f51bad6b2434052e3b3777b7835ca3f598be73558d10"
+    },
+    {
+      "path": "cuda-build/bin/llama-quantize",
+      "bytes": 443976,
+      "sha256": "20a5afbf24d81b542be62245109d4fde4bc18412655d152397440b299209d57d"
+    },
+    {
+      "path": "models/fp32-promoted/qwen3_asr_encoder_backend.onnx",
+      "bytes": 1221995179,
+      "sha256": "ee06ae8ae8e7585fe7111914c9bd4d85f4d79c37fa5e3b07535ee15b09f52783"
+    },
+    {
+      "path": "models/fp32-promoted/qwen3_asr_encoder_frontend.onnx",
+      "bytes": 48125132,
+      "sha256": "7aaef2cb376b50ba219756f10fedb6417ee51d959ed4f9223ca87c3792fb1f04"
+    },
+    {
+      "path": "models/q4/qwen3_asr_llm.gguf",
+      "bytes": 1282434624,
+      "sha256": "8eb99f67d9bcd882e825344e05b0e60ae77bc0b2830f972a7b4b013e91ea14a6"
+    }
+  ],
+  "captured_utc": "2026-10-31T17:49:42.741083+00:00",
+  "python": "3.10.12",
+  "packages": {
+    "numpy": "1.26.4",
+    "onnx": "1.16.2",
+    "onnxruntime-gpu": "1.18.0",
+    "soundfile": "0.13.1"
+  },
+  "gpu_query": "name, uuid, driver_version, memory.total [MiB], temperature.gpu, clocks.current.graphics [MHz]\nTesla P4, GPU-82dd964b-0c4c-78d4-8bd3-f7067e8cb29f, 580.196.07, 7680 MiB, 86, 885 MHz\n",
+  "model_artifacts": [
+    {
+      "variant": "original-read-only",
+      "filename": "qwen3_asr_encoder_frontend.onnx",
+      "bytes": 24063978,
+      "sha256": "fc288ba9a0ca732251b33628c803cd5188d3dd77a2cd7336f0f0fd37969ed4cd"
+    },
+    {
+      "variant": "original-read-only",
+      "filename": "qwen3_asr_encoder_backend.onnx",
+      "bytes": 611276553,
+      "sha256": "4b0b1e34e8393f29222006aae0719283b0ff28b61f289b6ff8377b3ddbda27e3"
+    },
+    {
+      "variant": "original-read-only",
+      "filename": "qwen3_asr_llm.gguf",
+      "bytes": 1471800896,
+      "sha256": "89e198470f41d487ab5b6b8a36a35400b3b1534451c4499236983050fe9193e5"
+    },
+    {
+      "variant": "q4-full",
+      "filename": "qwen3_asr_encoder_frontend.onnx",
+      "bytes": 20876699,
+      "sha256": "9cda7769acc0f1c3077600156b59759abfdeda46c2bbab3610b6ce47cee70e90"
+    },
+    {
+      "variant": "q4-full",
+      "filename": "qwen3_asr_encoder_backend.onnx",
+      "bytes": 164740452,
+      "sha256": "1b97a39201050521f63374131557b033b758f8ae7d2a3d6efaa0f9d8900bab9a"
+    },
+    {
+      "variant": "q4-full",
+      "filename": "qwen3_asr_llm.gguf",
+      "bytes": 1282434624,
+      "sha256": "8eb99f67d9bcd882e825344e05b0e60ae77bc0b2830f972a7b4b013e91ea14a6"
+    }
+  ],
+  "fp32_promotion_reproduction": {
+    "frontend": {
+      "byte_identical": true,
+      "sha256": "7aaef2cb376b50ba219756f10fedb6417ee51d959ed4f9223ca87c3792fb1f04"
+    },
+    "backend": {
+      "byte_identical": true,
+      "sha256": "ee06ae8ae8e7585fe7111914c9bd4d85f4d79c37fa5e3b07535ee15b09f52783"
+    }
+  },
+  "cuda_cubins": {
+    "architectures": [
+      "sm_61"
+    ],
+    "elf_entries": 126
+  }
+}

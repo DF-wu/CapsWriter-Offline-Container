@@ -1,0 +1,31 @@
+{
+  "before": {
+    "egl_library": null,
+    "vkCreateInstance_pointer": false,
+    "ggml_devices": [
+      "CPU"
+    ]
+  },
+  "after_installing_libegl1_in_test_only": {
+    "egl_library": "libEGL.so.1",
+    "vkCreateInstance_pointer": true,
+    "ggml_devices": [
+      "Vulkan0",
+      "CPU"
+    ],
+    "device": "Tesla P4",
+    "fp16": false,
+    "int_dot": true
+  },
+  "production_read_only_check": {
+    "egl_library": null,
+    "vkCreateInstance_pointer": false
+  },
+  "host_vulkaninfo": {
+    "device": "Tesla P4",
+    "driver": "580.196.07",
+    "api": "1.4.312"
+  },
+  "cause_evidence": "strace shows missing libEGL.so.1; installing libegl1 alone makes NVIDIA vkCreateInstance and ggml Vulkan device discovery succeed; copying graphics DSOs alone did not fix it.",
+  "production_modified": false
+}

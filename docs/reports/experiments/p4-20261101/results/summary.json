@@ -1,0 +1,2591 @@
+{
+  "cuda-f16-q4": {
+    "latency": {
+      "n": 30,
+      "failures": 0,
+      "by_sample": {
+        "mandarin-10s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。": 10
+          },
+          "wall_s": {
+            "p50": 1.8898491549989558,
+            "p95": 2.7324953450006433
+          },
+          "encoder_s": {
+            "p50": 0.28847214249981334,
+            "p95": 0.32566799999040086
+          },
+          "frontend_s": {
+            "p50": 0.11201454650290543,
+            "p95": 0.12665140599710867
+          },
+          "backend_s": {
+            "p50": 0.15560553150135092,
+            "p95": 0.1840963809954701
+          },
+          "prefill_s": {
+            "p50": 0.011490583419799805,
+            "p95": 0.012475728988647461
+          },
+          "generate_s": {
+            "p50": 1.5715495347976685,
+            "p95": 2.3897266387939453
+          },
+          "n_generate": {
+            "p50": 24.0,
+            "p95": 24
+          },
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 20,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-2s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "王浩。": 10
+          },
+          "wall_s": {
+            "p50": 0.40887417949852534,
+            "p95": 0.5399222690030001
+          },
+          "encoder_s": {
+            "p50": 0.08084494299691869,
+            "p95": 0.09213941899361089
+          },
+          "frontend_s": {
+            "p50": 0.022908124497917015,
+            "p95": 0.028394373002811335
+          },
+          "backend_s": {
+            "p50": 0.050334870495134965,
+            "p95": 0.06515214800310787
+          },
+          "prefill_s": {
+            "p50": 0.009923934936523438,
+            "p95": 0.012938976287841797
+          },
+          "generate_s": {
+            "p50": 0.30473172664642334,
+            "p95": 0.4239211082458496
+          },
+          "n_generate": {
+            "p50": 3.0,
+            "p95": 3
+          },
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 20,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-5s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "哪号？请再说一次，请输出您要拨打。": 10
+          },
+          "wall_s": {
+            "p50": 1.0305175065004732,
+            "p95": 1.2776688940066379
+          },
+          "encoder_s": {
+            "p50": 0.16531086400937056,
+            "p95": 0.21517451800173149
+          },
+          "frontend_s": {
+            "p50": 0.056024946992693,
+            "p95": 0.07715900300536305
+          },
+          "backend_s": {
+            "p50": 0.09758381400024518,
+            "p95": 0.12698627400095575
+          },
+          "prefill_s": {
+            "p50": 0.010272741317749023,
+            "p95": 0.011262893676757812
+          },
+          "generate_s": {
+            "p50": 0.841471791267395,
+            "p95": 1.09171724319458
+          },
+          "n_generate": {
+            "p50": 12.0,
+            "p95": 12
+          },
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 20,
+          "thermal_snapshots_n": 20
+        }
+      }
+    },
+    "quality": {
+      "n": 5,
+      "failures": 0,
+      "by_sample": {
+        "codeswitch": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "I'm alone, all by myself. Je suis tout seul, sono tutto, estoy solo.": 1
+          },
+          "wall_s": {
+            "p50": 1.4195361109887017,
+            "p95": 1.4195361109887017
+          },
+          "encoder_s": {
+            "p50": 0.1973358279938111,
+            "p95": 0.1973358279938111
+          },
+          "frontend_s": {
+            "p50": 0.07854489899182227,
+            "p95": 0.07854489899182227
+          },
+          "backend_s": {
+            "p50": 0.10421519400551915,
+            "p95": 0.10421519400551915
+          },
+          "prefill_s": {
+            "p50": 0.00880885124206543,
+            "p95": 0.00880885124206543
+          },
+          "generate_s": {
+            "p50": 1.202787160873413,
+            "p95": 1.202787160873413
+          },
+          "n_generate": {
+            "p50": 19,
+            "p95": 19
+          },
+          "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+          "normalized_reference_chars": 50,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0000": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.": 1
+          },
+          "wall_s": {
+            "p50": 1.5434683789935661,
+            "p95": 1.5434683789935661
+          },
+          "encoder_s": {
+            "p50": 0.18816985299054068,
+            "p95": 0.18816985299054068
+          },
+          "frontend_s": {
+            "p50": 0.0698155119898729,
+            "p95": 0.0698155119898729
+          },
+          "backend_s": {
+            "p50": 0.10411333499359898,
+            "p95": 0.10411333499359898
+          },
+          "prefill_s": {
+            "p50": 0.011744022369384766,
+            "p95": 0.011744022369384766
+          },
+          "generate_s": {
+            "p50": 1.327049732208252,
+            "p95": 1.327049732208252
+          },
+          "n_generate": {
+            "p50": 22,
+            "p95": 22
+          },
+          "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+          "normalized_reference_chars": 73,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0001": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Nor is Mister Quilter's manner less interesting than his matter.": 1
+          },
+          "wall_s": {
+            "p50": 1.0807761910109548,
+            "p95": 1.0807761910109548
+          },
+          "encoder_s": {
+            "p50": 0.16244356099923607,
+            "p95": 0.16244356099923607
+          },
+          "frontend_s": {
+            "p50": 0.058641979994717985,
+            "p95": 0.058641979994717985
+          },
+          "backend_s": {
+            "p50": 0.08887793301255442,
+            "p95": 0.08887793301255442
+          },
+          "prefill_s": {
+            "p50": 0.01100778579711914,
+            "p95": 0.01100778579711914
+          },
+          "generate_s": {
+            "p50": 0.8912279605865479,
+            "p95": 0.8912279605865479
+          },
+          "n_generate": {
+            "p50": 13,
+            "p95": 13
+          },
+          "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0002": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.": 1
+          },
+          "wall_s": {
+            "p50": 2.5823153289966285,
+            "p95": 2.5823153289966285
+          },
+          "encoder_s": {
+            "p50": 0.3614058870007284,
+            "p95": 0.3614058870007284
+          },
+          "frontend_s": {
+            "p50": 0.14739526499761268,
+            "p95": 0.14739526499761268
+          },
+          "backend_s": {
+            "p50": 0.18487557899788953,
+            "p95": 0.18487557899788953
+          },
+          "prefill_s": {
+            "p50": 0.013128995895385742,
+            "p95": 0.013128995895385742
+          },
+          "generate_s": {
+            "p50": 2.190401077270508,
+            "p95": 2.190401077270508
+          },
+          "n_generate": {
+            "p50": 36,
+            "p95": 36
+          },
+          "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+          "normalized_reference_chars": 141,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "noise2": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。": 1
+          },
+          "wall_s": {
+            "p50": 3.897262555998168,
+            "p95": 3.897262555998168
+          },
+          "encoder_s": {
+            "p50": 0.6047197049920214,
+            "p95": 0.6047197049920214
+          },
+          "frontend_s": {
+            "p50": 0.2570966920029605,
+            "p95": 0.2570966920029605
+          },
+          "backend_s": {
+            "p50": 0.3035325999953784,
+            "p95": 0.3035325999953784
+          },
+          "prefill_s": {
+            "p50": 0.0174560546875,
+            "p95": 0.0174560546875
+          },
+          "generate_s": {
+            "p50": 3.2555670738220215,
+            "p95": 3.2555670738220215
+          },
+          "n_generate": {
+            "p50": 52,
+            "p95": 52
+          },
+          "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.03773584905660377
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        }
+      }
+    }
+  },
+  "cuda-f16-q5": {
+    "latency": {
+      "n": 30,
+      "failures": 0,
+      "by_sample": {
+        "mandarin-10s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。": 10
+          },
+          "wall_s": {
+            "p50": 1.9511181630005012,
+            "p95": 1.9628487239970127
+          },
+          "encoder_s": {
+            "p50": 0.2885806449994561,
+            "p95": 0.2952130610065069
+          },
+          "frontend_s": {
+            "p50": 0.11202563300321344,
+            "p95": 0.11411612399388105
+          },
+          "backend_s": {
+            "p50": 0.15498353699513245,
+            "p95": 0.15679767398978584
+          },
+          "prefill_s": {
+            "p50": 0.011407852172851562,
+            "p95": 0.013408899307250977
+          },
+          "generate_s": {
+            "p50": 1.6369671821594238,
+            "p95": 1.6410725116729736
+          },
+          "n_generate": {
+            "p50": 24.0,
+            "p95": 24
+          },
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 20,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-2s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "王浩。": 10
+          },
+          "wall_s": {
+            "p50": 0.4173776104944409,
+            "p95": 0.4268323610012885
+          },
+          "encoder_s": {
+            "p50": 0.07767082549980842,
+            "p95": 0.0856078200013144
+          },
+          "frontend_s": {
+            "p50": 0.022731700490112416,
+            "p95": 0.025772765002329834
+          },
+          "backend_s": {
+            "p50": 0.04998427299869945,
+            "p95": 0.050624690993572585
+          },
+          "prefill_s": {
+            "p50": 0.009392261505126953,
+            "p95": 0.014690160751342773
+          },
+          "generate_s": {
+            "p50": 0.31633055210113525,
+            "p95": 0.317960262298584
+          },
+          "n_generate": {
+            "p50": 3.0,
+            "p95": 3
+          },
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 20,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-5s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "什么？请再说一次，请说出您要拨打。": 10
+          },
+          "wall_s": {
+            "p50": 1.0145471805080888,
+            "p95": 1.0277435989992227
+          },
+          "encoder_s": {
+            "p50": 0.1647831509981188,
+            "p95": 0.1676731799961999
+          },
+          "frontend_s": {
+            "p50": 0.0560225685039768,
+            "p95": 0.0565694779943442
+          },
+          "backend_s": {
+            "p50": 0.09774581249803305,
+            "p95": 0.09937316399009433
+          },
+          "prefill_s": {
+            "p50": 0.010591387748718262,
+            "p95": 0.013187170028686523
+          },
+          "generate_s": {
+            "p50": 0.8255894184112549,
+            "p95": 0.8337123394012451
+          },
+          "n_generate": {
+            "p50": 11.0,
+            "p95": 11
+          },
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 20,
+          "thermal_snapshots_n": 20
+        }
+      }
+    },
+    "quality": {
+      "n": 5,
+      "failures": 0,
+      "by_sample": {
+        "codeswitch": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.": 1
+          },
+          "wall_s": {
+            "p50": 1.5791017779993126,
+            "p95": 1.5791017779993126
+          },
+          "encoder_s": {
+            "p50": 0.20017687499057502,
+            "p95": 0.20017687499057502
+          },
+          "frontend_s": {
+            "p50": 0.07912486800341867,
+            "p95": 0.07912486800341867
+          },
+          "backend_s": {
+            "p50": 0.10433136300707702,
+            "p95": 0.10433136300707702
+          },
+          "prefill_s": {
+            "p50": 0.013870000839233398,
+            "p95": 0.013870000839233398
+          },
+          "generate_s": {
+            "p50": 1.3485329151153564,
+            "p95": 1.3485329151153564
+          },
+          "n_generate": {
+            "p50": 21,
+            "p95": 21
+          },
+          "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+          "normalized_reference_chars": 50,
+          "cer_no_script_or_number_conversion": [
+            0.1
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0000": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.": 1
+          },
+          "wall_s": {
+            "p50": 1.5785581829986768,
+            "p95": 1.5785581829986768
+          },
+          "encoder_s": {
+            "p50": 0.18777518799470272,
+            "p95": 0.18777518799470272
+          },
+          "frontend_s": {
+            "p50": 0.06845536299806554,
+            "p95": 0.06845536299806554
+          },
+          "backend_s": {
+            "p50": 0.1030215669889003,
+            "p95": 0.1030215669889003
+          },
+          "prefill_s": {
+            "p50": 0.010725975036621094,
+            "p95": 0.010725975036621094
+          },
+          "generate_s": {
+            "p50": 1.3667747974395752,
+            "p95": 1.3667747974395752
+          },
+          "n_generate": {
+            "p50": 22,
+            "p95": 22
+          },
+          "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+          "normalized_reference_chars": 73,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0001": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Nor is Mister Quilter's manner less interesting than his matter.": 1
+          },
+          "wall_s": {
+            "p50": 1.1016786419932032,
+            "p95": 1.1016786419932032
+          },
+          "encoder_s": {
+            "p50": 0.15676875801000278,
+            "p95": 0.15676875801000278
+          },
+          "frontend_s": {
+            "p50": 0.05687146200216375,
+            "p95": 0.05687146200216375
+          },
+          "backend_s": {
+            "p50": 0.08801829999720212,
+            "p95": 0.08801829999720212
+          },
+          "prefill_s": {
+            "p50": 0.010035991668701172,
+            "p95": 0.010035991668701172
+          },
+          "generate_s": {
+            "p50": 0.9223685264587402,
+            "p95": 0.9223685264587402
+          },
+          "n_generate": {
+            "p50": 13,
+            "p95": 13
+          },
+          "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0002": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.": 1
+          },
+          "wall_s": {
+            "p50": 2.653827727001044,
+            "p95": 2.653827727001044
+          },
+          "encoder_s": {
+            "p50": 0.35673091300122906,
+            "p95": 0.35673091300122906
+          },
+          "frontend_s": {
+            "p50": 0.14521640200109687,
+            "p95": 0.14521640200109687
+          },
+          "backend_s": {
+            "p50": 0.18542499501199927,
+            "p95": 0.18542499501199927
+          },
+          "prefill_s": {
+            "p50": 0.010272026062011719,
+            "p95": 0.010272026062011719
+          },
+          "generate_s": {
+            "p50": 2.2702858448028564,
+            "p95": 2.2702858448028564
+          },
+          "n_generate": {
+            "p50": 36,
+            "p95": 36
+          },
+          "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+          "normalized_reference_chars": 141,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "noise2": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。": 1
+          },
+          "wall_s": {
+            "p50": 3.9215670279954793,
+            "p95": 3.9215670279954793
+          },
+          "encoder_s": {
+            "p50": 0.6077511769981356,
+            "p95": 0.6077511769981356
+          },
+          "frontend_s": {
+            "p50": 0.25807130499742925,
+            "p95": 0.25807130499742925
+          },
+          "backend_s": {
+            "p50": 0.3035323369986145,
+            "p95": 0.3035323369986145
+          },
+          "prefill_s": {
+            "p50": 0.016895055770874023,
+            "p95": 0.016895055770874023
+          },
+          "generate_s": {
+            "p50": 3.27698016166687,
+            "p95": 3.27698016166687
+          },
+          "n_generate": {
+            "p50": 50,
+            "p95": 50
+          },
+          "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.03773584905660377
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        }
+      }
+    },
+    "regression": {
+      "n": 3,
+      "failures": 0,
+      "by_sample": {
+        "mandarin-10s": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。": 1
+          },
+          "wall_s": {
+            "p50": 1.0995560470037162,
+            "p95": 1.0995560470037162
+          },
+          "encoder_s": {
+            "p50": 0.09488049200444948,
+            "p95": 0.09488049200444948
+          },
+          "frontend_s": {
+            "p50": 0.03344082699913997,
+            "p95": 0.03344082699913997
+          },
+          "backend_s": {
+            "p50": 0.04186541700619273,
+            "p95": 0.04186541700619273
+          },
+          "prefill_s": {
+            "p50": 0.01111745834350586,
+            "p95": 0.01111745834350586
+          },
+          "generate_s": {
+            "p50": 0.9770948886871338,
+            "p95": 0.9770948886871338
+          },
+          "n_generate": {
+            "p50": 24,
+            "p95": 24
+          },
+          "graphics_mhz_range": [
+            455,
+            974
+          ],
+          "thermal_active_snapshots": 1,
+          "thermal_snapshots_n": 2
+        },
+        "mandarin-2s": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "王浩。": 1
+          },
+          "wall_s": {
+            "p50": 0.13664291599707212,
+            "p95": 0.13664291599707212
+          },
+          "encoder_s": {
+            "p50": 0.028216323000378907,
+            "p95": 0.028216323000378907
+          },
+          "frontend_s": {
+            "p50": 0.007096130007994361,
+            "p95": 0.007096130007994361
+          },
+          "backend_s": {
+            "p50": 0.015617654993548058,
+            "p95": 0.015617654993548058
+          },
+          "prefill_s": {
+            "p50": 0.010307073593139648,
+            "p95": 0.010307073593139648
+          },
+          "generate_s": {
+            "p50": 0.08615875244140625,
+            "p95": 0.08615875244140625
+          },
+          "n_generate": {
+            "p50": 3,
+            "p95": 3
+          },
+          "graphics_mhz_range": [
+            923,
+            987
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        },
+        "mandarin-5s": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "什么？请再说一次，请说出您要拨打。": 1
+          },
+          "wall_s": {
+            "p50": 0.3277723880019039,
+            "p95": 0.3277723880019039
+          },
+          "encoder_s": {
+            "p50": 0.05566012000781484,
+            "p95": 0.05566012000781484
+          },
+          "frontend_s": {
+            "p50": 0.017686574996332638,
+            "p95": 0.017686574996332638
+          },
+          "backend_s": {
+            "p50": 0.02595166501123458,
+            "p95": 0.02595166501123458
+          },
+          "prefill_s": {
+            "p50": 0.012355327606201172,
+            "p95": 0.012355327606201172
+          },
+          "generate_s": {
+            "p50": 0.24587059020996094,
+            "p95": 0.24587059020996094
+          },
+          "n_generate": {
+            "p50": 11,
+            "p95": 11
+          },
+          "graphics_mhz_range": [
+            923,
+            974
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        }
+      }
+    }
+  },
+  "cuda-f32-q5": {
+    "latency": {
+      "n": 30,
+      "failures": 0,
+      "by_sample": {
+        "mandarin-10s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。": 10
+          },
+          "wall_s": {
+            "p50": 1.959959356005129,
+            "p95": 1.9777065369999036
+          },
+          "encoder_s": {
+            "p50": 0.29967491799470736,
+            "p95": 0.30778173300495837
+          },
+          "frontend_s": {
+            "p50": 0.09388235549704405,
+            "p95": 0.09500922598817851
+          },
+          "backend_s": {
+            "p50": 0.18649646400444908,
+            "p95": 0.19034620199818164
+          },
+          "prefill_s": {
+            "p50": 0.011770963668823242,
+            "p95": 0.015208005905151367
+          },
+          "generate_s": {
+            "p50": 1.6332987546920776,
+            "p95": 1.651756763458252
+          },
+          "n_generate": {
+            "p50": 24.0,
+            "p95": 24
+          },
+          "graphics_mhz_range": [
+            455,
+            885
+          ],
+          "thermal_active_snapshots": 19,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-2s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "王浩。": 10
+          },
+          "wall_s": {
+            "p50": 0.41024901250057155,
+            "p95": 0.41992513799050357
+          },
+          "encoder_s": {
+            "p50": 0.07144878949475242,
+            "p95": 0.07946424398687668
+          },
+          "frontend_s": {
+            "p50": 0.01934273349615978,
+            "p95": 0.02410993300145492
+          },
+          "backend_s": {
+            "p50": 0.04680108000320615,
+            "p95": 0.048462890001246706
+          },
+          "prefill_s": {
+            "p50": 0.009100914001464844,
+            "p95": 0.010869503021240234
+          },
+          "generate_s": {
+            "p50": 0.3166935443878174,
+            "p95": 0.3193039894104004
+          },
+          "n_generate": {
+            "p50": 3.0,
+            "p95": 3
+          },
+          "graphics_mhz_range": [
+            455,
+            885
+          ],
+          "thermal_active_snapshots": 19,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-5s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "何事？请再说一次，请说出您要拨打。": 10
+          },
+          "wall_s": {
+            "p50": 1.0507753954952932,
+            "p95": 1.0589634680072777
+          },
+          "encoder_s": {
+            "p50": 0.15363781600171933,
+            "p95": 0.15736431200639345
+          },
+          "frontend_s": {
+            "p50": 0.046857681503752246,
+            "p95": 0.048081842993269674
+          },
+          "backend_s": {
+            "p50": 0.09770338049565908,
+            "p95": 0.09897667598852422
+          },
+          "prefill_s": {
+            "p50": 0.010239005088806152,
+            "p95": 0.012257099151611328
+          },
+          "generate_s": {
+            "p50": 0.8742092847824097,
+            "p95": 0.885521650314331
+          },
+          "n_generate": {
+            "p50": 12.0,
+            "p95": 12
+          },
+          "graphics_mhz_range": [
+            455,
+            885
+          ],
+          "thermal_active_snapshots": 19,
+          "thermal_snapshots_n": 20
+        }
+      }
+    },
+    "quality": {
+      "n": 5,
+      "failures": 0,
+      "by_sample": {
+        "codeswitch": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.": 1
+          },
+          "wall_s": {
+            "p50": 1.6776780219952343,
+            "p95": 1.6776780219952343
+          },
+          "encoder_s": {
+            "p50": 0.18041366500256117,
+            "p95": 0.18041366500256117
+          },
+          "frontend_s": {
+            "p50": 0.06608752599277068,
+            "p95": 0.06608752599277068
+          },
+          "backend_s": {
+            "p50": 0.09995757600700017,
+            "p95": 0.09995757600700017
+          },
+          "prefill_s": {
+            "p50": 0.012440204620361328,
+            "p95": 0.012440204620361328
+          },
+          "generate_s": {
+            "p50": 1.4708571434020996,
+            "p95": 1.4708571434020996
+          },
+          "n_generate": {
+            "p50": 21,
+            "p95": 21
+          },
+          "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+          "normalized_reference_chars": 50,
+          "cer_no_script_or_number_conversion": [
+            0.1
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0000": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.": 1
+          },
+          "wall_s": {
+            "p50": 1.6300604979915079,
+            "p95": 1.6300604979915079
+          },
+          "encoder_s": {
+            "p50": 0.17455039099149872,
+            "p95": 0.17455039099149872
+          },
+          "frontend_s": {
+            "p50": 0.05846834300609771,
+            "p95": 0.05846834300609771
+          },
+          "backend_s": {
+            "p50": 0.10008741800265852,
+            "p95": 0.10008741800265852
+          },
+          "prefill_s": {
+            "p50": 0.014117002487182617,
+            "p95": 0.014117002487182617
+          },
+          "generate_s": {
+            "p50": 1.4265296459197998,
+            "p95": 1.4265296459197998
+          },
+          "n_generate": {
+            "p50": 22,
+            "p95": 22
+          },
+          "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+          "normalized_reference_chars": 73,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0001": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Nor is Mister Quilter's manner less interesting than his matter.": 1
+          },
+          "wall_s": {
+            "p50": 1.1417999490076909,
+            "p95": 1.1417999490076909
+          },
+          "encoder_s": {
+            "p50": 0.14463818700460251,
+            "p95": 0.14463818700460251
+          },
+          "frontend_s": {
+            "p50": 0.05308929900638759,
+            "p95": 0.05308929900638759
+          },
+          "backend_s": {
+            "p50": 0.08020425199356396,
+            "p95": 0.08020425199356396
+          },
+          "prefill_s": {
+            "p50": 0.011002063751220703,
+            "p95": 0.011002063751220703
+          },
+          "generate_s": {
+            "p50": 0.971562385559082,
+            "p95": 0.971562385559082
+          },
+          "n_generate": {
+            "p50": 13,
+            "p95": 13
+          },
+          "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0002": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.": 1
+          },
+          "wall_s": {
+            "p50": 3.0418888550047996,
+            "p95": 3.0418888550047996
+          },
+          "encoder_s": {
+            "p50": 0.34009452399914153,
+            "p95": 0.34009452399914153
+          },
+          "frontend_s": {
+            "p50": 0.12386484000307973,
+            "p95": 0.12386484000307973
+          },
+          "backend_s": {
+            "p50": 0.18966324800567236,
+            "p95": 0.18966324800567236
+          },
+          "prefill_s": {
+            "p50": 0.015214204788208008,
+            "p95": 0.015214204788208008
+          },
+          "generate_s": {
+            "p50": 2.669512987136841,
+            "p95": 2.669512987136841
+          },
+          "n_generate": {
+            "p50": 36,
+            "p95": 36
+          },
+          "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+          "normalized_reference_chars": 141,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "noise2": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。": 1
+          },
+          "wall_s": {
+            "p50": 4.330249086997355,
+            "p95": 4.330249086997355
+          },
+          "encoder_s": {
+            "p50": 0.6050769730063621,
+            "p95": 0.6050769730063621
+          },
+          "frontend_s": {
+            "p50": 0.2611437029991066,
+            "p95": 0.2611437029991066
+          },
+          "backend_s": {
+            "p50": 0.29730006599857006,
+            "p95": 0.29730006599857006
+          },
+          "prefill_s": {
+            "p50": 0.013746261596679688,
+            "p95": 0.013746261596679688
+          },
+          "generate_s": {
+            "p50": 3.697392463684082,
+            "p95": 3.697392463684082
+          },
+          "n_generate": {
+            "p50": 53,
+            "p95": 53
+          },
+          "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.03773584905660377
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        }
+      }
+    }
+  },
+  "cuda-int4-q4": {
+    "latency": {
+      "n": 30,
+      "failures": 0,
+      "by_sample": {
+        "mandarin-10s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。": 10
+          },
+          "wall_s": {
+            "p50": 2.0177548680003383,
+            "p95": 2.032842943997821
+          },
+          "encoder_s": {
+            "p50": 0.42658019350346876,
+            "p95": 0.4329197710030712
+          },
+          "frontend_s": {
+            "p50": 0.11864545999560505,
+            "p95": 0.11926811399462167
+          },
+          "backend_s": {
+            "p50": 0.2878017835028004,
+            "p95": 0.28924695000750944
+          },
+          "prefill_s": {
+            "p50": 0.009995579719543457,
+            "p95": 0.011889934539794922
+          },
+          "generate_s": {
+            "p50": 1.5687869787216187,
+            "p95": 1.575761079788208
+          },
+          "n_generate": {
+            "p50": 24.0,
+            "p95": 24
+          },
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 20,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-2s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "王浩。": 10
+          },
+          "wall_s": {
+            "p50": 0.4991182684971136,
+            "p95": 0.5082167319924338
+          },
+          "encoder_s": {
+            "p50": 0.17381443949852837,
+            "p95": 0.176079369004583
+          },
+          "frontend_s": {
+            "p50": 0.024099202499201056,
+            "p95": 0.024613000990939327
+          },
+          "backend_s": {
+            "p50": 0.14418278700031806,
+            "p95": 0.14573621000454295
+          },
+          "prefill_s": {
+            "p50": 0.009703874588012695,
+            "p95": 0.014438629150390625
+          },
+          "generate_s": {
+            "p50": 0.3034309148788452,
+            "p95": 0.3089625835418701
+          },
+          "n_generate": {
+            "p50": 3.0,
+            "p95": 3
+          },
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 20,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-5s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "哪号？请再说一次，请输出您要拨打。": 10
+          },
+          "wall_s": {
+            "p50": 1.127753284505161,
+            "p95": 1.1468014860001858
+          },
+          "encoder_s": {
+            "p50": 0.2652182254969375,
+            "p95": 0.2825118030013982
+          },
+          "frontend_s": {
+            "p50": 0.05956570950365858,
+            "p95": 0.062407812001765706
+          },
+          "backend_s": {
+            "p50": 0.1954955469991546,
+            "p95": 0.20611547399312258
+          },
+          "prefill_s": {
+            "p50": 0.010170340538024902,
+            "p95": 0.010903358459472656
+          },
+          "generate_s": {
+            "p50": 0.8397171497344971,
+            "p95": 0.8448472023010254
+          },
+          "n_generate": {
+            "p50": 12.0,
+            "p95": 12
+          },
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 20,
+          "thermal_snapshots_n": 20
+        }
+      }
+    },
+    "quality": {
+      "n": 5,
+      "failures": 0,
+      "by_sample": {
+        "codeswitch": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "I'm alone, all by myself. Je suis tout seul, sono tutto. Estoy solo.": 1
+          },
+          "wall_s": {
+            "p50": 1.5746737439912977,
+            "p95": 1.5746737439912977
+          },
+          "encoder_s": {
+            "p50": 0.29630696299136616,
+            "p95": 0.29630696299136616
+          },
+          "frontend_s": {
+            "p50": 0.0835634149989346,
+            "p95": 0.0835634149989346
+          },
+          "backend_s": {
+            "p50": 0.1988178220053669,
+            "p95": 0.1988178220053669
+          },
+          "prefill_s": {
+            "p50": 0.011285066604614258,
+            "p95": 0.011285066604614258
+          },
+          "generate_s": {
+            "p50": 1.2551026344299316,
+            "p95": 1.2551026344299316
+          },
+          "n_generate": {
+            "p50": 20,
+            "p95": 20
+          },
+          "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+          "normalized_reference_chars": 50,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0000": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.": 1
+          },
+          "wall_s": {
+            "p50": 1.6285539290111046,
+            "p95": 1.6285539290111046
+          },
+          "encoder_s": {
+            "p50": 0.2842178240098292,
+            "p95": 0.2842178240098292
+          },
+          "frontend_s": {
+            "p50": 0.0721531210001558,
+            "p95": 0.0721531210001558
+          },
+          "backend_s": {
+            "p50": 0.1980169750022469,
+            "p95": 0.1980169750022469
+          },
+          "prefill_s": {
+            "p50": 0.011548757553100586,
+            "p95": 0.011548757553100586
+          },
+          "generate_s": {
+            "p50": 1.3196187019348145,
+            "p95": 1.3196187019348145
+          },
+          "n_generate": {
+            "p50": 22,
+            "p95": 22
+          },
+          "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+          "normalized_reference_chars": 73,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0001": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Nor is Mister Quilter's manner less interesting than his matter.": 1
+          },
+          "wall_s": {
+            "p50": 1.146330403003958,
+            "p95": 1.146330403003958
+          },
+          "encoder_s": {
+            "p50": 0.2441987400088692,
+            "p95": 0.2441987400088692
+          },
+          "frontend_s": {
+            "p50": 0.059245224998448975,
+            "p95": 0.059245224998448975
+          },
+          "backend_s": {
+            "p50": 0.17629367200424895,
+            "p95": 0.17629367200424895
+          },
+          "prefill_s": {
+            "p50": 0.0071566104888916016,
+            "p95": 0.0071566104888916016
+          },
+          "generate_s": {
+            "p50": 0.8857071399688721,
+            "p95": 0.8857071399688721
+          },
+          "n_generate": {
+            "p50": 13,
+            "p95": 13
+          },
+          "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0002": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.": 1
+          },
+          "wall_s": {
+            "p50": 2.70623096601048,
+            "p95": 2.70623096601048
+          },
+          "encoder_s": {
+            "p50": 0.47797130700200796,
+            "p95": 0.47797130700200796
+          },
+          "frontend_s": {
+            "p50": 0.15600009699119255,
+            "p95": 0.15600009699119255
+          },
+          "backend_s": {
+            "p50": 0.290172833003453,
+            "p95": 0.290172833003453
+          },
+          "prefill_s": {
+            "p50": 0.013829469680786133,
+            "p95": 0.013829469680786133
+          },
+          "generate_s": {
+            "p50": 2.1988792419433594,
+            "p95": 2.1988792419433594
+          },
+          "n_generate": {
+            "p50": 36,
+            "p95": 36
+          },
+          "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+          "normalized_reference_chars": 141,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "noise2": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九，纠正，纠正，不是九六。": 1
+          },
+          "wall_s": {
+            "p50": 3.9863326929917093,
+            "p95": 3.9863326929917093
+          },
+          "encoder_s": {
+            "p50": 0.6980800829915097,
+            "p95": 0.6980800829915097
+          },
+          "frontend_s": {
+            "p50": 0.27688348799711093,
+            "p95": 0.27688348799711093
+          },
+          "backend_s": {
+            "p50": 0.3742880729987519,
+            "p95": 0.3742880729987519
+          },
+          "prefill_s": {
+            "p50": 0.016295194625854492,
+            "p95": 0.016295194625854492
+          },
+          "generate_s": {
+            "p50": 3.256514549255371,
+            "p95": 3.256514549255371
+          },
+          "n_generate": {
+            "p50": 52,
+            "p95": 52
+          },
+          "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.03773584905660377
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        }
+      }
+    }
+  },
+  "shipped-cpu-fallback": {
+    "latency": {
+      "n": 30,
+      "failures": 0,
+      "by_sample": {
+        "mandarin-10s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。": 10
+          },
+          "wall_s": {
+            "p50": 8.603009604499675,
+            "p95": 9.898877238010755
+          },
+          "encoder_s": {
+            "p50": 0.10512654799822485,
+            "p95": 0.11680067700217478
+          },
+          "frontend_s": {
+            "p50": 0.033669929500319995,
+            "p95": 0.035457694000797346
+          },
+          "backend_s": {
+            "p50": 0.04643059299996821,
+            "p95": 0.050956171995494515
+          },
+          "prefill_s": {
+            "p50": 6.5329437255859375,
+            "p95": 7.64888596534729
+          },
+          "generate_s": {
+            "p50": 1.7603768110275269,
+            "p95": 2.0839321613311768
+          },
+          "n_generate": {
+            "p50": 24.0,
+            "p95": 24
+          },
+          "graphics_mhz_range": [
+            885,
+            999
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-2s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "王浩。": 10
+          },
+          "wall_s": {
+            "p50": 2.598972023501119,
+            "p95": 3.1433535879914416
+          },
+          "encoder_s": {
+            "p50": 0.03123779500310775,
+            "p95": 0.03775675900396891
+          },
+          "frontend_s": {
+            "p50": 0.007788635506585706,
+            "p95": 0.008794024994131178
+          },
+          "backend_s": {
+            "p50": 0.017503864495665766,
+            "p95": 0.018888218008214608
+          },
+          "prefill_s": {
+            "p50": 2.3084088563919067,
+            "p95": 2.8163065910339355
+          },
+          "generate_s": {
+            "p50": 0.2230750322341919,
+            "p95": 0.2783668041229248
+          },
+          "n_generate": {
+            "p50": 3.0,
+            "p95": 3
+          },
+          "graphics_mhz_range": [
+            885,
+            999
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-5s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "何事？请再说一次，请说出您要拨打。": 10
+          },
+          "wall_s": {
+            "p50": 5.375377582509827,
+            "p95": 5.805128470994532
+          },
+          "encoder_s": {
+            "p50": 0.0561415565025527,
+            "p95": 0.05847563598945271
+          },
+          "frontend_s": {
+            "p50": 0.01662728449446149,
+            "p95": 0.017410429994924925
+          },
+          "backend_s": {
+            "p50": 0.028750146506354213,
+            "p95": 0.029245625002658926
+          },
+          "prefill_s": {
+            "p50": 4.236199259757996,
+            "p95": 4.536975383758545
+          },
+          "generate_s": {
+            "p50": 1.0453927516937256,
+            "p95": 1.1578834056854248
+          },
+          "n_generate": {
+            "p50": 12.0,
+            "p95": 12
+          },
+          "graphics_mhz_range": [
+            885,
+            999
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 20
+        }
+      }
+    },
+    "quality": {
+      "n": 5,
+      "failures": 0,
+      "by_sample": {
+        "codeswitch": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.": 1
+          },
+          "wall_s": {
+            "p50": 6.753981378002209,
+            "p95": 6.753981378002209
+          },
+          "encoder_s": {
+            "p50": 0.06775291400845163,
+            "p95": 0.06775291400845163
+          },
+          "frontend_s": {
+            "p50": 0.02404648000083398,
+            "p95": 0.02404648000083398
+          },
+          "backend_s": {
+            "p50": 0.030856434008455835,
+            "p95": 0.030856434008455835
+          },
+          "prefill_s": {
+            "p50": 4.635772228240967,
+            "p95": 4.635772228240967
+          },
+          "generate_s": {
+            "p50": 1.8590576648712158,
+            "p95": 1.8590576648712158
+          },
+          "n_generate": {
+            "p50": 21,
+            "p95": 21
+          },
+          "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+          "normalized_reference_chars": 50,
+          "cer_no_script_or_number_conversion": [
+            0.1
+          ],
+          "graphics_mhz_range": [
+            885,
+            885
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0000": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.": 1
+          },
+          "wall_s": {
+            "p50": 6.532661781006027,
+            "p95": 6.532661781006027
+          },
+          "encoder_s": {
+            "p50": 0.07174489099998027,
+            "p95": 0.07174489099998027
+          },
+          "frontend_s": {
+            "p50": 0.02229994599474594,
+            "p95": 0.02229994599474594
+          },
+          "backend_s": {
+            "p50": 0.032134990993654355,
+            "p95": 0.032134990993654355
+          },
+          "prefill_s": {
+            "p50": 4.671293497085571,
+            "p95": 4.671293497085571
+          },
+          "generate_s": {
+            "p50": 1.7412049770355225,
+            "p95": 1.7412049770355225
+          },
+          "n_generate": {
+            "p50": 22,
+            "p95": 22
+          },
+          "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+          "normalized_reference_chars": 73,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            885,
+            885
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0001": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Nor is Mister Quilter's manner less interesting than his matter.": 1
+          },
+          "wall_s": {
+            "p50": 5.059256444001221,
+            "p95": 5.059256444001221
+          },
+          "encoder_s": {
+            "p50": 0.05721261400321964,
+            "p95": 0.05721261400321964
+          },
+          "frontend_s": {
+            "p50": 0.01753110000572633,
+            "p95": 0.01753110000572633
+          },
+          "backend_s": {
+            "p50": 0.02795502000662964,
+            "p95": 0.02795502000662964
+          },
+          "prefill_s": {
+            "p50": 3.771186590194702,
+            "p95": 3.771186590194702
+          },
+          "generate_s": {
+            "p50": 1.1768293380737305,
+            "p95": 1.1768293380737305
+          },
+          "n_generate": {
+            "p50": 13,
+            "p95": 13
+          },
+          "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            885,
+            885
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0002": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.": 1
+          },
+          "wall_s": {
+            "p50": 11.2139702590066,
+            "p95": 11.2139702590066
+          },
+          "encoder_s": {
+            "p50": 0.13111336900328752,
+            "p95": 0.13111336900328752
+          },
+          "frontend_s": {
+            "p50": 0.044521761999931186,
+            "p95": 0.044521761999931186
+          },
+          "backend_s": {
+            "p50": 0.05182544900162611,
+            "p95": 0.05182544900162611
+          },
+          "prefill_s": {
+            "p50": 8.374751567840576,
+            "p95": 8.374751567840576
+          },
+          "generate_s": {
+            "p50": 2.6418025493621826,
+            "p95": 2.6418025493621826
+          },
+          "n_generate": {
+            "p50": 36,
+            "p95": 36
+          },
+          "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+          "normalized_reference_chars": 141,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            885,
+            974
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        },
+        "noise2": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。": 1
+          },
+          "wall_s": {
+            "p50": 20.685386358003598,
+            "p95": 20.685386358003598
+          },
+          "encoder_s": {
+            "p50": 0.19040417300129775,
+            "p95": 0.19040417300129775
+          },
+          "frontend_s": {
+            "p50": 0.0719259979960043,
+            "p95": 0.0719259979960043
+          },
+          "backend_s": {
+            "p50": 0.07584914600010961,
+            "p95": 0.07584914600010961
+          },
+          "prefill_s": {
+            "p50": 14.578410863876343,
+            "p95": 14.578410863876343
+          },
+          "generate_s": {
+            "p50": 5.856858015060425,
+            "p95": 5.856858015060425
+          },
+          "n_generate": {
+            "p50": 53,
+            "p95": 53
+          },
+          "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.03773584905660377
+          ],
+          "graphics_mhz_range": [
+            885,
+            974
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        }
+      }
+    },
+    "regression": {
+      "n": 3,
+      "failures": 0,
+      "by_sample": {
+        "mandarin-10s": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。": 1
+          },
+          "wall_s": {
+            "p50": 8.522465164001915,
+            "p95": 8.522465164001915
+          },
+          "encoder_s": {
+            "p50": 0.08288596299826168,
+            "p95": 0.08288596299826168
+          },
+          "frontend_s": {
+            "p50": 0.02960208899457939,
+            "p95": 0.02960208899457939
+          },
+          "backend_s": {
+            "p50": 0.042374283002573065,
+            "p95": 0.042374283002573065
+          },
+          "prefill_s": {
+            "p50": 6.5607380867004395,
+            "p95": 6.5607380867004395
+          },
+          "generate_s": {
+            "p50": 1.8345022201538086,
+            "p95": 1.8345022201538086
+          },
+          "n_generate": {
+            "p50": 24,
+            "p95": 24
+          },
+          "graphics_mhz_range": [
+            974,
+            999
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        },
+        "mandarin-2s": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "王浩。": 1
+          },
+          "wall_s": {
+            "p50": 2.7597488690080354,
+            "p95": 2.7597488690080354
+          },
+          "encoder_s": {
+            "p50": 0.02885481900011655,
+            "p95": 0.02885481900011655
+          },
+          "frontend_s": {
+            "p50": 0.007143987008021213,
+            "p95": 0.007143987008021213
+          },
+          "backend_s": {
+            "p50": 0.016336340995621867,
+            "p95": 0.016336340995621867
+          },
+          "prefill_s": {
+            "p50": 2.3782296180725098,
+            "p95": 2.3782296180725098
+          },
+          "generate_s": {
+            "p50": 0.29859471321105957,
+            "p95": 0.29859471321105957
+          },
+          "n_generate": {
+            "p50": 3,
+            "p95": 3
+          },
+          "graphics_mhz_range": [
+            974,
+            974
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        },
+        "mandarin-5s": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "何事？请再说一次，请说出您要拨打。": 1
+          },
+          "wall_s": {
+            "p50": 4.944570166000631,
+            "p95": 4.944570166000631
+          },
+          "encoder_s": {
+            "p50": 0.0488917579932604,
+            "p95": 0.0488917579932604
+          },
+          "frontend_s": {
+            "p50": 0.015008499991381541,
+            "p95": 0.015008499991381541
+          },
+          "backend_s": {
+            "p50": 0.02654483100923244,
+            "p95": 0.02654483100923244
+          },
+          "prefill_s": {
+            "p50": 4.005751132965088,
+            "p95": 4.005751132965088
+          },
+          "generate_s": {
+            "p50": 0.8400440216064453,
+            "p95": 0.8400440216064453
+          },
+          "n_generate": {
+            "p50": 12,
+            "p95": 12
+          },
+          "graphics_mhz_range": [
+            974,
+            974
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        }
+      }
+    }
+  },
+  "vulkan-f16-q5": {
+    "latency": {
+      "n": 30,
+      "failures": 0,
+      "by_sample": {
+        "mandarin-10s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。": 10
+          },
+          "wall_s": {
+            "p50": 3.0000278360021184,
+            "p95": 3.0234134170023026
+          },
+          "encoder_s": {
+            "p50": 0.2931620524977916,
+            "p95": 0.3144748850027099
+          },
+          "frontend_s": {
+            "p50": 0.11183301299752202,
+            "p95": 0.11558130699268077
+          },
+          "backend_s": {
+            "p50": 0.16143400449800538,
+            "p95": 0.16805269099131692
+          },
+          "prefill_s": {
+            "p50": 0.011352777481079102,
+            "p95": 0.017738819122314453
+          },
+          "generate_s": {
+            "p50": 2.652308940887451,
+            "p95": 2.6802480220794678
+          },
+          "n_generate": {
+            "p50": 24.0,
+            "p95": 24
+          },
+          "graphics_mhz_range": [
+            455,
+            1037
+          ],
+          "thermal_active_snapshots": 13,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-2s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "王浩。": 10
+          },
+          "wall_s": {
+            "p50": 0.6255835334959556,
+            "p95": 0.6460033359908266
+          },
+          "encoder_s": {
+            "p50": 0.07815504150494235,
+            "p95": 0.09258988700457849
+          },
+          "frontend_s": {
+            "p50": 0.022845085004519206,
+            "p95": 0.02564144099596888
+          },
+          "backend_s": {
+            "p50": 0.04986601500422694,
+            "p95": 0.055208898993441835
+          },
+          "prefill_s": {
+            "p50": 0.010273218154907227,
+            "p95": 0.012682914733886719
+          },
+          "generate_s": {
+            "p50": 0.505578875541687,
+            "p95": 0.5088355541229248
+          },
+          "n_generate": {
+            "p50": 3.0,
+            "p95": 3
+          },
+          "graphics_mhz_range": [
+            455,
+            1113
+          ],
+          "thermal_active_snapshots": 12,
+          "thermal_snapshots_n": 20
+        },
+        "mandarin-5s": {
+          "n": 10,
+          "ok": 10,
+          "outputs": {
+            "什么？请再说一次，请说出您要拨打。": 10
+          },
+          "wall_s": {
+            "p50": 1.7875945634950767,
+            "p95": 1.7931831640016753
+          },
+          "encoder_s": {
+            "p50": 0.16539343900512904,
+            "p95": 0.1736658459994942
+          },
+          "frontend_s": {
+            "p50": 0.05618103600863833,
+            "p95": 0.056606316997203976
+          },
+          "backend_s": {
+            "p50": 0.09885758950258605,
+            "p95": 0.10152345598908141
+          },
+          "prefill_s": {
+            "p50": 0.01121222972869873,
+            "p95": 0.014486312866210938
+          },
+          "generate_s": {
+            "p50": 1.5761148929595947,
+            "p95": 1.584374189376831
+          },
+          "n_generate": {
+            "p50": 11.0,
+            "p95": 11
+          },
+          "graphics_mhz_range": [
+            455,
+            1113
+          ],
+          "thermal_active_snapshots": 12,
+          "thermal_snapshots_n": 20
+        }
+      }
+    },
+    "quality": {
+      "n": 5,
+      "failures": 0,
+      "by_sample": {
+        "codeswitch": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.": 1
+          },
+          "wall_s": {
+            "p50": 2.331529297007364,
+            "p95": 2.331529297007364
+          },
+          "encoder_s": {
+            "p50": 0.19689798800391145,
+            "p95": 0.19689798800391145
+          },
+          "frontend_s": {
+            "p50": 0.07890047199907713,
+            "p95": 0.07890047199907713
+          },
+          "backend_s": {
+            "p50": 0.10341253399383277,
+            "p95": 0.10341253399383277
+          },
+          "prefill_s": {
+            "p50": 0.010568857192993164,
+            "p95": 0.010568857192993164
+          },
+          "generate_s": {
+            "p50": 2.0937588214874268,
+            "p95": 2.0937588214874268
+          },
+          "n_generate": {
+            "p50": 21,
+            "p95": 21
+          },
+          "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+          "normalized_reference_chars": 50,
+          "cer_no_script_or_number_conversion": [
+            0.1
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0000": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.": 1
+          },
+          "wall_s": {
+            "p50": 2.3795781360095134,
+            "p95": 2.3795781360095134
+          },
+          "encoder_s": {
+            "p50": 0.18335181499423925,
+            "p95": 0.18335181499423925
+          },
+          "frontend_s": {
+            "p50": 0.06785605399636552,
+            "p95": 0.06785605399636552
+          },
+          "backend_s": {
+            "p50": 0.10112996899988502,
+            "p95": 0.10112996899988502
+          },
+          "prefill_s": {
+            "p50": 0.01060938835144043,
+            "p95": 0.01060938835144043
+          },
+          "generate_s": {
+            "p50": 2.1556789875030518,
+            "p95": 2.1556789875030518
+          },
+          "n_generate": {
+            "p50": 22,
+            "p95": 22
+          },
+          "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+          "normalized_reference_chars": 73,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0001": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "Nor is Mister Quilter's manner less interesting than his matter.": 1
+          },
+          "wall_s": {
+            "p50": 1.8731146510108374,
+            "p95": 1.8731146510108374
+          },
+          "encoder_s": {
+            "p50": 0.154592897000839,
+            "p95": 0.154592897000839
+          },
+          "frontend_s": {
+            "p50": 0.056245095998747274,
+            "p95": 0.056245095998747274
+          },
+          "backend_s": {
+            "p50": 0.0879716310009826,
+            "p95": 0.0879716310009826
+          },
+          "prefill_s": {
+            "p50": 0.01032876968383789,
+            "p95": 0.01032876968383789
+          },
+          "generate_s": {
+            "p50": 1.6788341999053955,
+            "p95": 1.6788341999053955
+          },
+          "n_generate": {
+            "p50": 13,
+            "p95": 13
+          },
+          "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "libri-1272-128104-0002": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.": 1
+          },
+          "wall_s": {
+            "p50": 3.6664538140030345,
+            "p95": 3.6664538140030345
+          },
+          "encoder_s": {
+            "p50": 0.35548409399052616,
+            "p95": 0.35548409399052616
+          },
+          "frontend_s": {
+            "p50": 0.14561343898822088,
+            "p95": 0.14561343898822088
+          },
+          "backend_s": {
+            "p50": 0.18437228100083303,
+            "p95": 0.18437228100083303
+          },
+          "prefill_s": {
+            "p50": 0.011574506759643555,
+            "p95": 0.011574506759643555
+          },
+          "generate_s": {
+            "p50": 3.266624927520752,
+            "p95": 3.266624927520752
+          },
+          "n_generate": {
+            "p50": 36,
+            "p95": 36
+          },
+          "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+          "normalized_reference_chars": 141,
+          "cer_no_script_or_number_conversion": [
+            0.0
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        },
+        "noise2": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。": 1
+          },
+          "wall_s": {
+            "p50": 5.9316014439973515,
+            "p95": 5.9316014439973515
+          },
+          "encoder_s": {
+            "p50": 0.6061259989946848,
+            "p95": 0.6061259989946848
+          },
+          "frontend_s": {
+            "p50": 0.2574545689858496,
+            "p95": 0.2574545689858496
+          },
+          "backend_s": {
+            "p50": 0.30316966700775083,
+            "p95": 0.30316966700775083
+          },
+          "prefill_s": {
+            "p50": 0.07934141159057617,
+            "p95": 0.07934141159057617
+          },
+          "generate_s": {
+            "p50": 5.194386720657349,
+            "p95": 5.194386720657349
+          },
+          "n_generate": {
+            "p50": 53,
+            "p95": 53
+          },
+          "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+          "normalized_reference_chars": 53,
+          "cer_no_script_or_number_conversion": [
+            0.03773584905660377
+          ],
+          "graphics_mhz_range": [
+            455,
+            455
+          ],
+          "thermal_active_snapshots": 2,
+          "thermal_snapshots_n": 2
+        }
+      }
+    },
+    "regression": {
+      "n": 3,
+      "failures": 0,
+      "by_sample": {
+        "mandarin-10s": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。": 1
+          },
+          "wall_s": {
+            "p50": 0.9098384929966414,
+            "p95": 0.9098384929966414
+          },
+          "encoder_s": {
+            "p50": 0.09716820699395612,
+            "p95": 0.09716820699395612
+          },
+          "frontend_s": {
+            "p50": 0.03024687001015991,
+            "p95": 0.03024687001015991
+          },
+          "backend_s": {
+            "p50": 0.04049544999725185,
+            "p95": 0.04049544999725185
+          },
+          "prefill_s": {
+            "p50": 0.02426290512084961,
+            "p95": 0.02426290512084961
+          },
+          "generate_s": {
+            "p50": 0.7611715793609619,
+            "p95": 0.7611715793609619
+          },
+          "n_generate": {
+            "p50": 24,
+            "p95": 24
+          },
+          "graphics_mhz_range": [
+            961,
+            999
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        },
+        "mandarin-2s": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "王浩。": 1
+          },
+          "wall_s": {
+            "p50": 0.1956115529901581,
+            "p95": 0.1956115529901581
+          },
+          "encoder_s": {
+            "p50": 0.028058668991434388,
+            "p95": 0.028058668991434388
+          },
+          "frontend_s": {
+            "p50": 0.007157810003263876,
+            "p95": 0.007157810003263876
+          },
+          "backend_s": {
+            "p50": 0.015449797007022426,
+            "p95": 0.015449797007022426
+          },
+          "prefill_s": {
+            "p50": 0.010281562805175781,
+            "p95": 0.010281562805175781
+          },
+          "generate_s": {
+            "p50": 0.13698244094848633,
+            "p95": 0.13698244094848633
+          },
+          "n_generate": {
+            "p50": 3,
+            "p95": 3
+          },
+          "graphics_mhz_range": [
+            999,
+            1075
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        },
+        "mandarin-5s": {
+          "n": 1,
+          "ok": 1,
+          "outputs": {
+            "什么？请再说一次，请说出您要拨打。": 1
+          },
+          "wall_s": {
+            "p50": 5.0675264980091015,
+            "p95": 5.0675264980091015
+          },
+          "encoder_s": {
+            "p50": 0.05632011599664111,
+            "p95": 0.05632011599664111
+          },
+          "frontend_s": {
+            "p50": 0.015272876000381075,
+            "p95": 0.015272876000381075
+          },
+          "backend_s": {
+            "p50": 0.025113972995313816,
+            "p95": 0.025113972995313816
+          },
+          "prefill_s": {
+            "p50": 4.548121452331543,
+            "p95": 4.548121452331543
+          },
+          "generate_s": {
+            "p50": 0.44290733337402344,
+            "p95": 0.44290733337402344
+          },
+          "n_generate": {
+            "p50": 11,
+            "p95": 11
+          },
+          "graphics_mhz_range": [
+            999,
+            1101
+          ],
+          "thermal_active_snapshots": 0,
+          "thermal_snapshots_n": 2
+        }
+      }
+    }
+  }
+}

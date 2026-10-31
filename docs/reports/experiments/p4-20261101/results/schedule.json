@@ -1,0 +1,107 @@
+[
+  {
+    "block": 0,
+    "config": "vulkan-f16-q5",
+    "repeats": 4,
+    "exit": 0,
+    "elapsed_s": 34.44092405599076
+  },
+  {
+    "block": 0,
+    "config": "cuda-f16-q5",
+    "repeats": 4,
+    "exit": 0,
+    "elapsed_s": 23.546551783991163
+  },
+  {
+    "block": 0,
+    "config": "cuda-f32-q5",
+    "repeats": 4,
+    "exit": 0,
+    "elapsed_s": 24.40052188100526
+  },
+  {
+    "block": 0,
+    "config": "cuda-f16-q4",
+    "repeats": 4,
+    "exit": 0,
+    "elapsed_s": 24.904242707998492
+  },
+  {
+    "block": 0,
+    "config": "cuda-int4-q4",
+    "repeats": 4,
+    "exit": 0,
+    "elapsed_s": 24.50141969199467
+  },
+  {
+    "block": 1,
+    "config": "cuda-f16-q5",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 20.38501444000576
+  },
+  {
+    "block": 1,
+    "config": "cuda-f32-q5",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 20.98475430700637
+  },
+  {
+    "block": 1,
+    "config": "cuda-f16-q4",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 20.140483836003114
+  },
+  {
+    "block": 1,
+    "config": "cuda-int4-q4",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 20.138878343001124
+  },
+  {
+    "block": 1,
+    "config": "vulkan-f16-q5",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 21.337998579998384
+  },
+  {
+    "block": 2,
+    "config": "cuda-f32-q5",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 19.635162746999413
+  },
+  {
+    "block": 2,
+    "config": "cuda-f16-q4",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 19.331701379996957
+  },
+  {
+    "block": 2,
+    "config": "cuda-int4-q4",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 20.435247674002312
+  },
+  {
+    "block": 2,
+    "config": "vulkan-f16-q5",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 36.34444161399733
+  },
+  {
+    "block": 2,
+    "config": "cuda-f16-q5",
+    "repeats": 3,
+    "exit": 0,
+    "elapsed_s": 19.885682769003324
+  }
+]
