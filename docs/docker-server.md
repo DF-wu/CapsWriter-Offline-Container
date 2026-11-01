@@ -1,6 +1,7 @@
 # Docker 部署細節
 
-本文件只覆蓋 **Server 端**。無 GUI CLI 與 Web Console 請見[繁體中文 CLI 指南](zh-TW/cli-client.md)與 [Web Console Client 指南](zh-TW/web-console.md)。
+部署入口已收斂為唯一 [`docker-compose.yml`](../docker-compose.yml)；完整硬體、Web、設定、
+儲存及 Portainer 遷移見[單檔指南](compose.md)。本文件只覆蓋 **Server 端**。無 GUI CLI 與 Web Console 請見[繁體中文 CLI 指南](zh-TW/cli-client.md)與 [Web Console Client 指南](zh-TW/web-console.md)。
 
 ---
 
@@ -15,7 +16,7 @@
 | Python runtime dependencies | [`requirements/server-docker.lock`](../requirements/server-docker.lock) pins the Docker image's transitive runtime versions and package hashes |
 | 入口 | [`docker/server/entrypoint.sh`](../docker/server/entrypoint.sh) → `start_server_docker.py` |
 | 模型策略 | 容器啟動時自動下載缺失模型；預設保存於 `capswriter-server-models` named volume，host bind mount 為明確 opt in |
-| GPU 策略 | Base Compose 不暴露 device；加入 NVIDIA／Intel／AMD override 後，`auto` 優先 GPU；GPU bootstrap 或 probe 失敗時必須重新準備並 probe 完整 CPU fallback |
+| GPU 策略 | Base Compose 不暴露 device；取消同檔 NVIDIA／DRI 區塊註解後，`auto` 優先 GPU；CPU／Vulkan GPU bootstrap 或 probe 失敗須完整 CPU fallback；選定 P4 CUDA 失敗則拒絕啟動 |
 | Healthcheck | WebSocket port probe；若 `CAPSWRITER_HTTP_API_ENABLE=true`，再要求 `/ready` 回 `status=ok` |
 | Runtime hardening | Image 內以 `appuser` 執行；Compose 預設 `no-new-privileges` 並 drop Linux capabilities |
 | 公開 image | `ghcr.io/df-wu/capswriter-offline-server:latest`（[`publish-server-image.yml`](../.github/workflows/publish-server-image.yml) 自動發布） |
@@ -55,9 +56,9 @@ docker compose logs -f capswriter-server
 | `CAPSWRITER_MODEL_TYPE` | `qwen_asr` | `qwen_asr` / `fun_asr_nano` |
 | `CAPSWRITER_QWEN_PRESET` | `default` | `default`（CUDA ONNX + Vulkan llama）/ `low_vram_gpu`（CUDA ONNX + CPU llama）/ `cpu_only` |
 | `CAPSWRITER_INFERENCE_HARDWARE` | `auto` | `auto` / `gpu` / `cpu` |
-| `CAPSWRITER_GPU_DEVICE_COUNT` | `all` | 只供 `docker-compose.gpu.yml` 使用；`all` 或正整數。CPU-only 應省略 GPU override |
-| `CAPSWRITER_DRI_RENDER_GID` | `109` | 只供 `docker-compose.igpu.yml` 使用；host render node 的 numeric GID |
-| `CAPSWRITER_DRI_VIDEO_GID` | `44` | 只供 `docker-compose.igpu.yml` 使用；host card node 的 numeric GID |
+| `CAPSWRITER_GPU_DEVICE_COUNT` | `all` | 供同檔 NVIDIA 區塊使用；`all` 或正整數。CPU-only 保持 NVIDIA 區塊註解 |
+| `CAPSWRITER_DRI_RENDER_GID` | `109` | 供同檔 DRI 區塊使用；host render node 的 numeric GID |
+| `CAPSWRITER_DRI_VIDEO_GID` | `44` | 供同檔 DRI 區塊使用；host card node 的 numeric GID |
 
 ### 3.2 網路與認證
 
@@ -88,8 +89,8 @@ HTTP API 預設不把 prompt/context 或轉錄內容寫入 server log/console；
 |---|---|---|
 | `CAPSWRITER_INFERENCE_HARDWARE` | `auto` | Docker entrypoint 的硬體策略；用這個控制 GPU/CPU 偏好 |
 | `CAPSWRITER_QWEN_PRESET` | `default` | Qwen backend 組合；`low_vram_gpu` 可讓 ONNX 留在 GPU、llama 改 CPU |
-| `CAPSWRITER_DRI_RENDER_GID` | `109` | `docker-compose.igpu.yml` 加入的 render group；必須依 host `/dev/dri/renderD*` 修正 |
-| `CAPSWRITER_DRI_VIDEO_GID` | `44` | `docker-compose.igpu.yml` 加入的 video/card group；必須依 host `/dev/dri/card*` 修正 |
+| `CAPSWRITER_DRI_RENDER_GID` | `109` | 同檔 DRI 區塊加入的 render group；必須依 host `/dev/dri/renderD*` 修正 |
+| `CAPSWRITER_DRI_VIDEO_GID` | `44` | 同檔 DRI 區塊加入的 video/card group；必須依 host `/dev/dri/card*` 修正 |
 | `GGML_VK_DISABLE_COOPMAT` | _(空)_ | AMD iGPU 無法載入 GGUF 時設 `1` |
 | `GGML_VK_DISABLE_F16` | _(空)_ | iGPU 解碼錯誤、熔斷時設 `1` |
 
@@ -101,12 +102,13 @@ container。不要假設不同 distribution 都使用 `109`／`44`：
 ```bash
 stat -c '%n %g' /dev/dri/renderD* /dev/dri/card*
 # 把對應 numeric GID 寫入 .env 的 CAPSWRITER_DRI_RENDER_GID / VIDEO_GID
-docker compose -f docker-compose.yml -f docker-compose.igpu.yml up -d --force-recreate capswriter-server
+# 先取消 docker-compose.yml 的 DRI 區塊註解
+docker compose up -d --force-recreate capswriter-server
 ```
 
 Image 內包含 Mesa Vulkan ICD (`mesa-vulkan-drivers`)，但 host kernel driver、可用
 render node 與正確 group access 仍是必要條件。NVIDIA device 則使用
-`docker-compose.gpu.yml`；base file 保持 CPU-safe。
+同檔 NVIDIA 區塊；預設保持註解，CPU-safe。
 
 ### 3.4 模型調校
 
@@ -217,7 +219,8 @@ else:
     → 關閉所有 CUDA/Vulkan flag；整條 pipeline CPU
 ```
 
-只要上述設定留下任何 CUDA／Vulkan path，entrypoint 會先 bootstrap 對應 runtime，
+P4 CUDA 是嚴格 opt-in，選定後 bootstrap／probe 失敗會拒絕啟動，不走下述 CPU fallback。
+原 CPU／Vulkan 路徑只要留下 GPU path，entrypoint 會先 bootstrap 對應 runtime，
 並用 `EngineFactory` 建構一次完整 configured engine。GPU runtime bootstrap 或 probe
 任一失敗（包括 archive/runtime、library、model load、driver、GPU OOM 或 probe
 timeout），都必須把 llama backend 與 Qwen／FunASR 的 CUDA、Vulkan flag 全部切到
@@ -227,8 +230,7 @@ probe 也失敗就拒絕啟動；因此 log 中的「falling back」不是未驗
 每次 engine construction 都在受監督的 child 內執行，wall-clock deadline 由
 `CAPSWRITER_BACKEND_PROBE_TIMEOUT` 控制（預設 `300` 秒，合法值 > 0 且 <= `1800`）。
 這套 fallback 只能處理 container 已成功建立後的 bootstrap／startup probe failure；
-Docker 在 entrypoint 前就無法完成 NVIDIA device reservation 時，仍需移除 GPU
-override。
+Docker 在 entrypoint 前就無法完成 NVIDIA device reservation 時，仍需將同檔 GPU 裝置區塊註解。
 
 ---
 
@@ -237,10 +239,10 @@ override。
 低延遲 / 互動場景：
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml up -d
+CAPSWRITER_MODEL_TYPE=fun_asr_nano docker compose up -d capswriter-server
 ```
 
-[`docker-compose.fun-asr.yml`](../docker-compose.fun-asr.yml) override 同時調 `CAPSWRITER_MODEL_TYPE=fun_asr_nano` 及對應參數。
+在 `.env` 設定 `CAPSWRITER_MODEL_TYPE=fun_asr_nano` 即可持續使用，其他調校也在同檔轉送。
 
 ---
 
@@ -258,13 +260,14 @@ volumes:
     bind:
       create_host_path: false
   - capswriter-server-logs:/app/logs       # 日誌 named volume
+  - capswriter-server-settings:/app/settings  # 設定 named volume
 ```
 
 Named model volume 由 Docker 建立並保留，刪除／recreate container 不會刪除它；
 只有明確執行 `docker compose down -v` 或 `docker volume rm` 才會移除。這個預設也
 避免 host directory 的 UID／GID 與寫入權限問題。
 
-若 operator 確實需要直接管理 host files，加入明確 bind override：
+若 operator 確實需要直接管理 host files，先準備權限，再設 `CAPSWRITER_MODELS_SOURCE=./models`：
 
 ```bash
 image="$(docker compose config --images | sed -n '1p')"
@@ -272,10 +275,10 @@ uid="$(docker run --rm --entrypoint id "$image" -u appuser)"
 gid="$(docker run --rm --entrypoint id "$image" -g appuser)"
 mkdir -p models
 sudo chown -R "$uid:$gid" models
-docker compose -f docker-compose.yml -f docker-compose.models-bind.yml up -d capswriter-server
+CAPSWRITER_MODELS_SOURCE=./models docker compose up -d capswriter-server
 ```
 
-`docker-compose.models-bind.yml` 會以 `./models:/app/models` 取代同一 target 的
+`CAPSWRITER_MODELS_SOURCE=./models` 會以 `./models:/app/models` 取代同一 target 的
 named volume。Bootstrap 期間整個 directory、lock file、`.downloads` 與 staging
 paths 都必須能由 image 內的 `appuser` 寫入；不要只讓最終 model file 可讀。
 共享 bind mount 也必須符合上一節的 advisory-lock 條件。
@@ -345,7 +348,7 @@ Container healthcheck 行為：
 | Warm start 重新下載／repair model 或 llama runtime | Schema 2 ready marker 與重新計算的 size／SHA-256 manifest 不符；檢查 volume 是否被手動改動、截斷或混入另一 backend 的 runtime，不要手動偽造 marker |
 | `ONNXRuntimeError: NO_SUCHFILE` | 模型檔不在預期路徑。以 `docker compose exec capswriter-server ls -l /app/models/Qwen3-ASR/Qwen3-ASR-1.7B/` 檢查檔名是否對齊 [`config_server.py:ModelPaths`](../config_server.py) |
 | `libggml-base.so.0: cannot open shared object file` | llama.cpp runtime libraries 不完整；重新跑 `python docker/server/download_models.py` 或重建/重啟容器讓 entrypoint 補齊 versioned `.so` |
-| iGPU 沒有被使用 | 加入 `docker-compose.igpu.yml`，再依 host `/dev/dri/*` numeric GID 修正兩個 `CAPSWRITER_DRI_*_GID` 值 |
+| iGPU 沒有被使用 | 取消同檔 DRI 區塊註解，再依 host `/dev/dri/*` numeric GID 修正兩個 `CAPSWRITER_DRI_*_GID` 值 |
 | AMD iGPU 模型載入失敗 | 先驗證 device/group access；再於 `.env` 設 `GGML_VK_DISABLE_COOPMAT=1` |
 | Intel iGPU 解碼結果亂 | `.env` 設 `GGML_VK_DISABLE_F16=1` |
 | `Container is not running` 立刻退出 | `docker logs <container>` 看 traceback；通常是 missing dep 或 model file 缺失 |

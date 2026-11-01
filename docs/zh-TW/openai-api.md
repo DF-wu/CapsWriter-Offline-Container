@@ -67,8 +67,8 @@ CAPSWRITER_HTTP_API_PORT=6017
 CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 ```
 
-取消 [`docker-compose.yml`](../../docker-compose.yml) 內 optional HTTP mapping 的
-註解，再重建 service：
+唯一 [`docker-compose.yml`](../../docker-compose.yml) 已提供 loopback HTTP mapping。
+設定 API 開關與 key 後重建 service：
 
 ```bash
 docker compose up -d --force-recreate capswriter-server

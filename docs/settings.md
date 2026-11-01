@@ -103,41 +103,35 @@ hooks and physical F13–F24 keys still require a desktop acceptance check.
 
 ## Server 圖形設定 / Server settings in the Web console
 
-管理 API 預設關閉。使用本次程式碼建置的 Server 與 Web 後，Docker 可在原有
-Compose 檔案後加上 `docker-compose.settings.yml`。請先設定 HTTP API key，
-並在跨 origin 使用時設定 `CAPSWRITER_HTTP_API_CORS_ORIGINS`。
+管理 API 預設關閉。全部設定已整合至唯一 `docker-compose.yml`，不需 overlay。
+在 `.env` 設定 HTTP API、key、SETTINGS 開關及 Web origin：
 
-```sh
-docker compose -f docker-compose.yml -f docker-compose.settings.yml -f docker-compose.web.yml config --quiet
-docker compose -f docker-compose.yml -f docker-compose.settings.yml -f docker-compose.web.yml up -d
+```dotenv
+CAPSWRITER_HTTP_API_ENABLE=true
+CAPSWRITER_HTTP_API_KEY=replace-with-your-own-token
+CAPSWRITER_SETTINGS_ENABLE=true
+CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080
 ```
 
-如有 GPU／模型 override，放在 `docker-compose.settings.yml` 之前。
-設定 overlay 會取代模型 override 的內建選擇；例如 `docker-compose.fun-asr.yml`
-中的固定模型會被清空。首次啟動要保持 Fun-ASR，請在 `.env` 明確保留
-`CAPSWRITER_MODEL_TYPE=fun_asr_nano`（UI 會鎖定），或先建立含該模型的 Server
-JSON 設定。GPU 裝置掛載仍保留。
-此設定 overlay 會啟用 HTTP API 與設定管理，將 HTTP port 預設發布至 host
-loopback，並以 `capswriter-server-settings` volume 保存 `/app/settings`。
-遠端瀏覽器的 API base URL 必須是瀏覽器能連到的 Server 位址；部署方式見
-[部署指南](zh-TW/deployment.md)。上述命令是維運操作範例，不會自動升級
-既有服務。
+```sh
+docker compose --profile web config --quiet
+docker compose --profile web up -d
+```
 
-Settings management is opt-in and requires the HTTP Bearer API key. Apply the
-settings Compose override after any hardware/model overrides. It preserves
-settings in a dedicated named volume and publishes HTTP to loopback by default.
-It clears a model override's literal defaults too: to retain Fun-ASR on first
-start, explicitly set `CAPSWRITER_MODEL_TYPE=fun_asr_nano` in `.env` (UI locked)
-or seed the settings JSON. GPU device mappings remain intact.
-Use a server image built from this change; an older released image does not
-provide the settings API. Enter the API URL and key in the Web console, then
-open Server settings.
+Settings 使用 `capswriter-server-settings` volume 保存 `/app/settings`；HTTP port
+預設只發布 loopback。GPU、模型與權限均在同檔設定，沒有 overlay 順序問題。
+遠端瀏覽器的 API URL 必須可達，詳見[單一 Compose 指南](compose.md)。
+
+Settings management remains opt-in and authenticated. Enable HTTP and settings,
+set an API key, then use the `web` profile in the same file. This profile only
+starts the UI; it does not enable API/authentication automatically. Enter the
+server URL and token in the Web console, then open Server settings.
 
 ### 環境變數優先 / Environment precedence
 
 優先序為 **非空環境變數 → 儲存的 JSON → 預設值**。從 `.env.example` 複製的
 每日參數已有非空值，因此會顯示為環境變數控制、不能在 UI 編輯。要交由 UI
-管理，先把 `.env` 中對應的值清空或刪除，再重建容器；進階參數不受影響。
+管理，先把 `.env` 中對應的值明確清空（KEY=），再重建容器；進階參數不受影響。
 
 | UI 設定 | 對應環境變數 |
 |---|---|
@@ -150,8 +144,9 @@ open Server settings.
 
 Nonempty environment values take precedence and lock their fields in the UI.
 Clear the corresponding values in `.env` and recreate the container to let
-saved settings control them. The overlay removes Compose's implicit daily
-defaults without ignoring your explicit environment choices.
+saved settings control them. The single Compose file preserves empty daily
+values. Removing a variable
+instead restores its Compose default; explicitly set `KEY=` to unlock the field.
 
 介面分別顯示執行中的有效值、下次啟動值及設定來源。儲存後顯示待重啟；
 請選擇沒有辨識作業的時段重新啟動 Server。多個視窗同時修改會要求重新讀取，

@@ -1,3 +1,7 @@
+# Single deployment file. Start: docker compose up -d
+# Web UI: docker compose --profile web up -d (enable HTTP API + key in .env).
+# CPU-safe by default. Uncomment the matching hardware block below for GPU access.
+# Model/settings/storage/runtime options are in .env.example; no overlay files.
 services:
   capswriter-server:
     image: ${CAPSWRITER_SERVER_IMAGE:-ghcr.io/df-wu/capswriter-offline-server:latest}
@@ -6,43 +10,79 @@ services:
       - no-new-privileges:true
     cap_drop:
       - ALL
-    # The base file is portable on CPU-only Docker hosts. Add the explicit
-    # docker-compose.gpu.yml (NVIDIA) or docker-compose.igpu.yml (Intel/AMD)
-    # override only when that class of device should be exposed.
+    # GPU access: uncomment ONE matching block, preserving its indentation.
+    # Docker validates hardware before the entrypoint; an env flag cannot skip
+    # a missing host device/runtime. CPU hosts leave these blocks commented.
+    # BEGIN NVIDIA
+#     deploy:
+#       resources:
+#         reservations:
+#           devices:
+#             - driver: nvidia
+#               count: ${CAPSWRITER_GPU_DEVICE_COUNT:-all}
+#               capabilities: [gpu]
+    # END NVIDIA
+
+    # BEGIN DRI
+#     devices:
+#       - /dev/dri:/dev/dri
+#     group_add:
+#       - "${CAPSWRITER_DRI_RENDER_GID:-109}"
+#       - "${CAPSWRITER_DRI_VIDEO_GID:-44}"
+    # END DRI
+
+    # Optional NVIDIA clock control, ONLY after enabling the NVIDIA block.
+    # This grants privileges; it does not enable clock boost. See docs/nvidia-boost.md.
+    # P4 CUDA optimization does NOT require root or these extra capabilities.
+    # BEGIN NVIDIA_BOOST
+#     user: "0:0"
+#     cap_add:
+#       - SYS_ADMIN
+#       - DAC_OVERRIDE
+#       - CHOWN
+#       - FOWNER
+#     stop_grace_period: 150s
+    # END NVIDIA_BOOST
+
     environment:
+      # Daily values: unset = documented default; explicitly blank = saved JSON.
+      CAPSWRITER_SETTINGS_ENABLE: ${CAPSWRITER_SETTINGS_ENABLE:-false}
+      CAPSWRITER_SETTINGS_PATH: /app/settings/server-settings.json
+      CAPSWRITER_FORMAT_NUM: ${CAPSWRITER_FORMAT_NUM-true}
+      CAPSWRITER_FORMAT_SPELL: ${CAPSWRITER_FORMAT_SPELL-true}
       # qwen_asr (default) | fun_asr_nano
-      CAPSWRITER_MODEL_TYPE: ${CAPSWRITER_MODEL_TYPE:-qwen_asr}
+      CAPSWRITER_MODEL_TYPE: ${CAPSWRITER_MODEL_TYPE-qwen_asr}
 
       # qwen preset: default | low_vram_gpu
-      CAPSWRITER_QWEN_PRESET: ${CAPSWRITER_QWEN_PRESET:-default}
+      CAPSWRITER_QWEN_PRESET: ${CAPSWRITER_QWEN_PRESET-default}
       CAPSWRITER_LLAMA_BACKEND: ${CAPSWRITER_LLAMA_BACKEND:-auto}
       # Tesla P4 SM61 decoder is opt-in; false preserves CPU/Vulkan selection.
       CAPSWRITER_TESLA_P4_OPTIMIZATION: ${CAPSWRITER_TESLA_P4_OPTIMIZATION:-false}
 
       # auto = prefer GPU and fall back to CPU; gpu = try GPU first; cpu = force CPU
-      CAPSWRITER_INFERENCE_HARDWARE: ${CAPSWRITER_INFERENCE_HARDWARE:-auto}
+      CAPSWRITER_INFERENCE_HARDWARE: ${CAPSWRITER_INFERENCE_HARDWARE-auto}
 
       # true = remove downloaded archives after extraction
       CAPSWRITER_REMOVE_MODEL_ARCHIVES: ${CAPSWRITER_REMOVE_MODEL_ARCHIVES:-false}
 
       CAPSWRITER_SERVER_ADDR: 0.0.0.0
       CAPSWRITER_SERVER_PORT: ${CAPSWRITER_SERVER_PORT:-6016}
-      CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS: ${CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS:-8}
-      CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS: ${CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS:-3600}
+      CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS: ${CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS-8}
+      CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS: ${CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS-3600}
 
       # ===== OpenAI-Compatible HTTP API (opt-in; see docs/HTTP_API.md) =====
-      # Set CAPSWRITER_HTTP_API_ENABLE=true and uncomment the port mapping below.
+      # Set CAPSWRITER_HTTP_API_ENABLE=true and an API key; mapping is already present.
       CAPSWRITER_HTTP_API_ENABLE: ${CAPSWRITER_HTTP_API_ENABLE:-false}
       CAPSWRITER_HTTP_API_BIND: ${CAPSWRITER_HTTP_API_BIND:-0.0.0.0}
       CAPSWRITER_HTTP_API_PORT: ${CAPSWRITER_HTTP_API_PORT:-6017}
       CAPSWRITER_HTTP_API_KEY: ${CAPSWRITER_HTTP_API_KEY:-}
       CAPSWRITER_HTTP_API_KEY_FILE: ${CAPSWRITER_HTTP_API_KEY_FILE:-}
       CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND: ${CAPSWRITER_HTTP_API_ALLOW_INSECURE_BIND:-false}
-      CAPSWRITER_HTTP_API_MAX_UPLOAD_MB: ${CAPSWRITER_HTTP_API_MAX_UPLOAD_MB:-100}
-      CAPSWRITER_HTTP_API_MAX_AUDIO_SECONDS: ${CAPSWRITER_HTTP_API_MAX_AUDIO_SECONDS:-3600}
-      CAPSWRITER_HTTP_API_TASK_TIMEOUT: ${CAPSWRITER_HTTP_API_TASK_TIMEOUT:-600}
-      CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS: ${CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS:-2}
-      CAPSWRITER_HTTP_API_MAX_PENDING_REQUESTS: ${CAPSWRITER_HTTP_API_MAX_PENDING_REQUESTS:-4}
+      CAPSWRITER_HTTP_API_MAX_UPLOAD_MB: ${CAPSWRITER_HTTP_API_MAX_UPLOAD_MB-100}
+      CAPSWRITER_HTTP_API_MAX_AUDIO_SECONDS: ${CAPSWRITER_HTTP_API_MAX_AUDIO_SECONDS-3600}
+      CAPSWRITER_HTTP_API_TASK_TIMEOUT: ${CAPSWRITER_HTTP_API_TASK_TIMEOUT-600}
+      CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS: ${CAPSWRITER_HTTP_API_MAX_CONCURRENT_REQUESTS-2}
+      CAPSWRITER_HTTP_API_MAX_PENDING_REQUESTS: ${CAPSWRITER_HTTP_API_MAX_PENDING_REQUESTS-4}
       CAPSWRITER_HTTP_API_CORS_ORIGINS: ${CAPSWRITER_HTTP_API_CORS_ORIGINS:-}
       CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS: ${CAPSWRITER_HTTP_API_LOG_TRANSCRIPTS:-false}
 
@@ -51,15 +91,15 @@ services:
       CAPSWRITER_LOG_DIR: /app/logs
 
       # shared thread hint for CPU-bound stages
-      CAPSWRITER_NUM_THREADS: ${CAPSWRITER_NUM_THREADS:-4}
+      CAPSWRITER_NUM_THREADS: ${CAPSWRITER_NUM_THREADS-4}
       CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT: ${CAPSWRITER_MODEL_DOWNLOAD_TIMEOUT:-60}
       CAPSWRITER_MODEL_BOOTSTRAP_LOCK_TIMEOUT: ${CAPSWRITER_MODEL_BOOTSTRAP_LOCK_TIMEOUT:-1800}
       CAPSWRITER_BACKEND_PROBE_TIMEOUT: ${CAPSWRITER_BACKEND_PROBE_TIMEOUT:-300}
       CAPSWRITER_ENGINE_FFMPEG_TIMEOUT: ${CAPSWRITER_ENGINE_FFMPEG_TIMEOUT:-120}
-      CAPSWRITER_GPU_BOOST_ENABLED: ${CAPSWRITER_GPU_BOOST_ENABLED:-false}
-      CAPSWRITER_GPU_BOOST_DEVICE: ${CAPSWRITER_GPU_BOOST_DEVICE:-0}
-      CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ: ${CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ:-0}
-      CAPSWRITER_GPU_BOOST_IDLE_SECONDS: ${CAPSWRITER_GPU_BOOST_IDLE_SECONDS:-1}
+      CAPSWRITER_GPU_BOOST_ENABLED: ${CAPSWRITER_GPU_BOOST_ENABLED-false}
+      CAPSWRITER_GPU_BOOST_DEVICE: ${CAPSWRITER_GPU_BOOST_DEVICE-0}
+      CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ: ${CAPSWRITER_GPU_BOOST_MEMORY_CLOCK_MHZ-0}
+      CAPSWRITER_GPU_BOOST_IDLE_SECONDS: ${CAPSWRITER_GPU_BOOST_IDLE_SECONDS-1}
       CAPSWRITER_GPU_BOOST_TIMEOUT: ${CAPSWRITER_GPU_BOOST_TIMEOUT:-5}
       CAPSWRITER_SERVER_MODEL_LOAD_TIMEOUT: ${CAPSWRITER_SERVER_MODEL_LOAD_TIMEOUT:-600}
       CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT: ${CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT:-2}
@@ -91,10 +131,10 @@ services:
       # GGML_VK_DISABLE_F16:     ${GGML_VK_DISABLE_F16:-}
     ports:
       - "${CAPSWRITER_SERVER_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}"
-      # Uncomment to also expose the OpenAI-compatible HTTP API:
-      # - "${CAPSWRITER_HTTP_API_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}"
+      # Reserved on loopback even with API disabled; the flag controls the listener.
+      - "${CAPSWRITER_HTTP_API_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}"
     volumes:
-      - capswriter-server-models:/app/models
+      - ${CAPSWRITER_MODELS_SOURCE:-capswriter-server-models}:/app/models
       - type: bind
         source: ./hot-server.txt
         target: /app/hot-server.txt
@@ -102,6 +142,7 @@ services:
         bind:
           create_host_path: false
       - capswriter-server-logs:/app/logs
+      - capswriter-server-settings:/app/settings
     healthcheck:
       test: ["CMD", "python", "docker/server/healthcheck.py"]
       interval: 30s
@@ -109,6 +150,32 @@ services:
       start_period: 20m
       retries: 5
 
+  capswriter-web:
+    profiles: [web]
+    build:
+      context: ./client/web
+      dockerfile: Dockerfile
+    image: ${CAPSWRITER_WEB_IMAGE:-ghcr.io/df-wu/capswriter-offline-web:latest}
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    environment:
+      CAPSWRITER_WEB_API_BASE: ${CAPSWRITER_WEB_API_BASE:-http://localhost:6017}
+      CAPSWRITER_WEB_API_KEY: ${CAPSWRITER_WEB_API_KEY:-}
+      CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY: ${CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY:-false}
+      CAPSWRITER_WEB_MODEL: ${CAPSWRITER_WEB_MODEL:-whisper-1}
+      CAPSWRITER_WEB_LANGUAGE: ${CAPSWRITER_WEB_LANGUAGE:-}
+      CAPSWRITER_WEB_PROMPT: ${CAPSWRITER_WEB_PROMPT:-}
+      CAPSWRITER_WEB_RESPONSE_FORMAT: ${CAPSWRITER_WEB_RESPONSE_FORMAT:-verbose_json}
+    ports:
+      - "${CAPSWRITER_WEB_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_WEB_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
 volumes:
   capswriter-server-models:
   capswriter-server-logs:
+  capswriter-server-settings:

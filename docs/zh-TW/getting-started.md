@@ -106,51 +106,23 @@ docker compose ps
 docker compose logs -f capswriter-server
 ```
 
-第一次 model bootstrap 可能需要時間，因此 Compose health check 有較長 start
-period。Model 預設保留在 `capswriter-server-models` named volume；server log 使用
-`capswriter-server-logs` volume。若確實需要在 host 直接管理 `./models`，才加入
-`docker-compose.models-bind.yml`，並先確保 image 內 `appuser` 對該 directory 有
-完整寫入權限：
+第一次 bootstrap 會下載模型；named volumes 保留模型與 logs。現在部署只用
+`docker-compose.yml`，預設無 GPU admission 要求。NVIDIA 取消同檔 NVIDIA 區塊
+註解；Intel／AMD 使用 DRI 區塊並填入 host render／video GID。CPU-only 主機保持
+硬體區塊註解。P4 使用者再設定 P4 opt-in flag。
 
-```bash
-docker compose -f docker-compose.yml -f docker-compose.models-bind.yml up -d capswriter-server
-```
+需要 host-visible 模型時，先建立 `appuser` 可寫目錄，再設
+`CAPSWRITER_MODELS_SOURCE=./models`；更換 source 不會搬移資料。設定管理用 env
+開關與專屬持久化 volume；Web 用 `docker compose --profile web up -d`。
+詳見[單一 Compose／遷移](../compose.md)與[部署指南](deployment.md#linux-container-profile)。
 
-CPU-only 啟動：
-
-```bash
-CAPSWRITER_INFERENCE_HARDWARE=cpu \
-docker compose up -d --force-recreate capswriter-server
-```
-
-Base Compose 刻意不保留 GPU，因此沒有 NVIDIA container runtime 的 host 也能
-安全啟動。若要暴露 NVIDIA device，請明確加入 GPU override：
-
-```bash
-CAPSWRITER_GPU_DEVICE_COUNT=all \
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml \
-  up -d --force-recreate capswriter-server
-```
-
-Linux Intel／AMD iGPU 使用不同的明確 override。先以
-`stat -c '%n %g' /dev/dri/renderD* /dev/dri/card*` 查出 host numeric GID，寫入
-`.env` 的 `CAPSWRITER_DRI_RENDER_GID`／`CAPSWRITER_DRI_VIDEO_GID`，再啟動：
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.igpu.yml up -d --force-recreate capswriter-server
-```
-
-若任何 configured CUDA／Vulkan startup probe 失敗，entrypoint 會關閉所有 GPU
-backend、準備 CPU runtime 並要求第二次 CPU probe 通過，才啟動 server。
-
-WebSocket port 預設只發布到 host loopback。選用 HTTP mapping、認證、Web
-Console、persistence 與 upgrade 請接著讀
-[部署指南](deployment.md#linux-container-profile)。
+CPU／Vulkan 失敗需經完整 CPU fallback probe；選定 P4 CUDA 後啟動失敗直接拒絕，
+不偷偷退回 CPU。
 
 ## 連接 client
 
 Web Console、CLI、TUI 與 OpenAI SDK 都需要 HTTP API。請明確啟用、設定 key、
-取消 Compose `ports:` mapping 的註解、重建 server，並要求兩個 endpoint 都成功：
+重建 server（HTTP mapping 已提供），並要求兩個 endpoint 都成功：
 
 ```bash
 curl http://127.0.0.1:6017/health

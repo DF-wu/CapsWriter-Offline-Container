@@ -39,8 +39,8 @@ v1 已透過 PR #5 完成**一次性完整上游同步至 `84912d5`**，包含
   timeout 僅 env）；native 通用入口僅在明確 boost env 時覆蓋 Python 預設。
 - Worker 在 HTTP／檔案／麥克風推論前確保 boost，保留 early mic hint、推論後刷新
   活動，閒置／正常退出時嘗試還原；失敗不阻斷辨識，timeout／重試有界。
-- 預設仍為 `appuser`、boost 關閉；GPU override 後可明確選用
-  `docker-compose.nvidia-boost.yml` 的 root／`SYS_ADMIN`、`DAC_OVERRIDE`、`CHOWN`、
+- 預設仍為 `appuser`、boost 關閉；同檔 NVIDIA 區塊啟用後可明確選用
+  同檔 NVIDIA_BOOST 區塊的 root／`SYS_ADMIN`、`DAC_OVERRIDE`、`CHOWN`、
   `FOWNER` 與 150 秒停止寬限。它本身不啟用 boost，仍需 `true` 與硬體支援的正 MHz。
   命令最大 60 秒；啟用時退出預算至少為 `2 * (command_timeout + 4) + 1` 秒，保留更大的 worker-stop 設定。
 - 命令只選一個可見 GPU 索引，但會影響該實體 GPU 的其他應用；多實例沒有時脈
@@ -145,7 +145,7 @@ ASR／標點／對齊模型與推論算法仍由 upstream `core/server/engines/*
 - [`docker/server/entrypoint.sh`](../docker/server/entrypoint.sh) 做 GPU/CPU backend 選擇與 fallback。
 - [`docker/server/probe_backend.py`](../docker/server/probe_backend.py) 以 bounded supervisor 執行 native backend probe；POSIX timeout 會 kill 隔離的 process group，並 bounded wait／reap probe child。
 - [`docker/server/healthcheck.py`](../docker/server/healthcheck.py) 一律檢查 WebSocket port；若啟用 HTTP API，還要求 `/ready` 回 `status="ok"`。
-- [`docker-compose.yml`](../docker-compose.yml) 啟動 CPU-safe server 並以 named volume 保存模型；[`docker-compose.gpu.yml`](../docker-compose.gpu.yml) 明確要求 NVIDIA runtime、[`docker-compose.igpu.yml`](../docker-compose.igpu.yml) 掛載 Intel／AMD `/dev/dri`、[`docker-compose.models-bind.yml`](../docker-compose.models-bind.yml) 才把 operator-managed `./models` bind-mount 進 container，另可用 [`docker-compose.fun-asr.yml`](../docker-compose.fun-asr.yml) 切低延遲 Fun-ASR。
+- [`docker-compose.yml`](../docker-compose.yml) 為唯一部署入口，預設 CPU-safe、models/logs/settings named volumes；NVIDIA／DRI／boost 使用同檔註解區塊，Web 使用 profile，模型與 bind storage 使用 env。見[單檔及遷移指南](compose.md)。
 
 ### 3.3 No-GUI CLI
 
@@ -171,7 +171,7 @@ ASR／標點／對齊模型與推論算法仍由 upstream `core/server/engines/*
 - Web settings controls 與 persisted settings/history 會做型別、格式與字串長度邊界檢查；手動污染或過大的 localStorage record 不會直接餵回 UI。最近 20 筆 transcript／raw history 仍是 browser localStorage 內的明文敏感資料；清除全部歷史前會要求不可復原確認。Static container 只有在明確設定 `CAPSWRITER_WEB_ALLOW_PUBLIC_API_KEY=true` 時才會把預設 API key 寫入公開 `/config.js`。
 - `npm run browser-smoke` 以 `agent-browser` 驗證真實瀏覽器 health/readiness、upload、transcribe workflow；`agent-browser` subprocess、HTTP startup probe 與 mock API/Vite child cleanup 都有 bounded timeout。
 - [`client/web/Dockerfile`](../client/web/Dockerfile) 產出 Nginx static image，並套用 CSP、frame、MIME sniffing、referrer 與 permissions-policy 等基本瀏覽器安全 header。
-- [`docker-compose.web.yml`](../docker-compose.web.yml) 提供 local build 部署。
+- 唯一 [`docker-compose.yml`](../docker-compose.yml) 的 `web` profile 提供公開 image 與選用 local build。
 - runtime config 由 container 啟動時寫入 `/config.js`，deploy-time 字串會 escape 成有效 JS string literal。
 
 ### 3.5 CI / Release

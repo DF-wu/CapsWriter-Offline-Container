@@ -110,56 +110,26 @@ docker compose ps
 docker compose logs -f capswriter-server
 ```
 
-The first model bootstrap can take time. The Compose health check has a long
-start period for that reason. Models persist in the
-`capswriter-server-models` named volume; server logs use the
-`capswriter-server-logs` volume. Use `docker-compose.models-bind.yml` only when
-you deliberately need host-visible `./models`, after granting the image's
-`appuser` full write access to that directory:
+The first bootstrap downloads models; named volumes persist models and logs.
+Deployment now uses only `docker-compose.yml`. Defaults run on CPU without GPU
+admission requirements. To use NVIDIA, uncomment its NVIDIA block; for Intel/AMD,
+uncomment DRI and set the host render/video GIDs. Leave hardware blocks commented
+on CPU-only hosts. P4 users additionally set the P4 opt-in flag.
 
-```bash
-docker compose -f docker-compose.yml -f docker-compose.models-bind.yml \
-  up -d capswriter-server
-```
+For host-visible model files, set `CAPSWRITER_MODELS_SOURCE=./models` after
+preparing the directory for `appuser` writes. Switching sources does not migrate
+data. Settings management uses env switches and its persistent volume; Web uses
+`docker compose --profile web up -d`. See the
+[single-file guide and migration notes](../compose.md) and
+[deployment guide](deployment.md#linux-container-profile) for details.
 
-CPU-only startup:
-
-```bash
-CAPSWRITER_INFERENCE_HARDWARE=cpu \
-docker compose up -d --force-recreate capswriter-server
-```
-
-The base Compose file intentionally reserves no GPU, so it is safe on a host
-without the NVIDIA container runtime. To expose NVIDIA devices, opt into the
-GPU override instead:
-
-```bash
-CAPSWRITER_GPU_DEVICE_COUNT=all \
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml \
-  up -d --force-recreate capswriter-server
-```
-
-Linux Intel/AMD iGPUs use a different explicit override. Read the host numeric
-GIDs with `stat -c '%n %g' /dev/dri/renderD* /dev/dri/card*`, place them in
-`CAPSWRITER_DRI_RENDER_GID` and `CAPSWRITER_DRI_VIDEO_GID`, then run:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.igpu.yml \
-  up -d --force-recreate capswriter-server
-```
-
-If a configured CUDA/Vulkan startup probe fails, the entrypoint disables all
-GPU paths, prepares the CPU runtime, and requires a second CPU probe to pass.
-
-The WebSocket port is published on host loopback by default. Continue with the
-[deployment guide](deployment.md#linux-container-profile) for the optional HTTP
-mapping, authentication, Web Console, persistence, and upgrades.
+CPU/Vulkan failure requires a successful full-CPU fallback probe; selected P4
+CUDA startup failures refuse startup rather than silently serving on CPU.
 
 ## Connect a client
 
 The HTTP API is required by the Web Console, CLI, TUI, and OpenAI SDK. Enable it
-explicitly, set a key, uncomment its Compose `ports:` mapping, recreate the
-server, and require both endpoints to succeed:
+explicitly, set a key, recreate the server (the HTTP mapping is already present), and require both endpoints to succeed:
 
 ```bash
 curl http://127.0.0.1:6017/health

@@ -10,6 +10,13 @@
 - **配置化**: [`config_client.py`](config_client.py) / [`config_server.py`](config_server.py) 及 `hot*.txt`、[`LLM/*.py`](LLM/) 位于根目录。
 - **版本**: 最新已发布 fork-v2.1.0（2026-10-31）；fork-v2.2.0 为未发布准备，上游仍为 v2.6 / `84912d5`。
 
+### 单一 Compose 部署
+
+- 只有 `docker-compose.yml`，不再维护 overlay/example。Web 由 `web` profile 选用。
+- NVIDIA／DRI／NVIDIA_BOOST 在同档注释区块；默认CPU-safe、appuser、不加权限。
+- 模型／P4／settings 用env；models source默认保留named volume，可显式改bind。
+- GUI管理的daily env需明确`KEY=`，删除key会恢复Compose默认。见[指南](docs/compose.md)。
+
 ### fork-v2.2.0 候选边界
 
 - `CAPSWRITER_TESLA_P4_OPTIMIZATION` 默认 false；只在开启后使用 CUDA 11.8 SM61
@@ -30,7 +37,7 @@
 - Worker 在 HTTP／文件／麦克风推理前确保 boost，保留 mic early hint，推理后刷新活动；
   闲置／正常退出尝试还原，失败不阻断识别且重试有界。命令 timeout 最大 60 秒，
   启用时退出预算至少为 `2 * (command_timeout + 4) + 1` 秒，保留更大的 worker-stop 设定。
-- 选用 `docker-compose.nvidia-boost.yml` 接在 GPU override 后；明确使用 root 与
+- 选用同一 `docker-compose.yml` 的 NVIDIA_BOOST 区块；明确使用 root 与
   `SYS_ADMIN`、`DAC_OVERRIDE`、`CHOWN`、`FOWNER`，停止宽限 150 秒，不能自动开启
   boost，仍需 `true` 与硬件支持的正频率。命令影响所选实体 GPU 上的其他应用，
   多实例没有时脉协调保证。Root 写入的 model／log／runtime 内容可能需定向修复

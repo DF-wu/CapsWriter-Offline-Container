@@ -71,8 +71,8 @@ CAPSWRITER_HTTP_API_PORT=6017
 CAPSWRITER_HTTP_API_KEY=replace-with-a-long-random-token
 ```
 
-Uncomment the optional HTTP mapping in
-[`docker-compose.yml`](../../docker-compose.yml), then recreate the service:
+The single [`docker-compose.yml`](../../docker-compose.yml) already publishes the
+HTTP mapping on loopback. After setting the API flag/key, recreate the service:
 
 ```bash
 docker compose up -d --force-recreate capswriter-server

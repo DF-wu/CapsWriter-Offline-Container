@@ -45,7 +45,8 @@ HTTP API env 會在 server 啟動時驗證；明確設定的無效值會讓啟�
 
 ### 1.1 Docker
 
-[`docker-compose.yml`](../docker-compose.yml) 已有預留註解段。最小啟用：
+唯一 [`docker-compose.yml`](../docker-compose.yml) 已提供 HTTP mapping，預設 loopback。
+在 `.env` 啟用 API 並設定 key 後重建；下方只是相關欄位示意，不需再加入重複的 port：
 
 ```yaml
 environment:
@@ -373,7 +374,7 @@ HTTP API 偏 batch/互動式場景，推薦切到 `fun_asr_nano` 降延遲：
 
 ```bash
 CAPSWRITER_HTTP_API_ENABLE=true \
-docker compose -f docker-compose.yml -f docker-compose.fun-asr.yml \
+CAPSWRITER_MODEL_TYPE=fun_asr_nano docker compose \
   up -d --force-recreate
 ```
 

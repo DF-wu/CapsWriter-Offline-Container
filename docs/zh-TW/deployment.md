@@ -19,7 +19,7 @@ boundary。
 | Windows desktop-local | `start_server_universal.py` 或 packaged server | Packaged／upstream desktop client | 除非另一個本機 user 需要，否則 WebSocket 與選用 HTTP API 都留在 loopback |
 | Linux X11 desktop-local | `start_server_universal.py` | Source desktop client | 只限 X11 session；service 留在 loopback |
 | Linux container（`linux/amd64`） | `docker-compose.yml` | Desktop、CLI、TUI、SDK | 預設 loopback publish；remote 時使用 key 與 trusted network／TLS |
-| Server + Web Console | Server Compose + `docker-compose.web.yml` | Modern browser | Browser 必須直接到達 API；設定 exact CORS origins 與 secure-context 麥克風 |
+| Server + Web Console | `docker-compose.yml` + `web` profile | Modern browser | Browser 必須直接到達 API；設定 exact CORS origins 與 secure-context 麥克風 |
 | Headless automation | Source／container server | CLI 或 SDK | 優先使用 key file、bounded timeout、readiness check 與 service supervisor |
 
 ## Linux container profile
@@ -59,38 +59,25 @@ CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS=8
 CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS=3600
 ```
 
-Base Compose 沒有 GPU reservation，因此 CPU-only Docker host 不需要 NVIDIA
-runtime 也能啟動。明確 CPU deployment 只需使用 base file 並設定
-`CAPSWRITER_INFERENCE_HARDWARE=cpu`。若要暴露 NVIDIA device，請把
-`CAPSWRITER_GPU_DEVICE_COUNT` 設為 `all` 或正整數，並加入
-`-f docker-compose.gpu.yml`：
+現在只使用**一份 `docker-compose.yml`**。預設不要求 GPU，CPU-only host 可直接
+啟動。NVIDIA 取消同檔 **NVIDIA** 區塊註解；Intel／AMD 取消 **DRI** 區塊註解，
+其他硬體區塊保持註解。Docker 在 entrypoint 前檢查裝置，缺少 host device／runtime
+不能靠應用程式 CPU fallback 修復。見[單檔操作及遷移](../compose.md)。
 
-```bash
-CAPSWRITER_GPU_DEVICE_COUNT=all \
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml \
-  up -d --force-recreate capswriter-server
-```
-
-加入 GPU override 後，`auto` 會優先使用 GPU backend。只要 GPU runtime bootstrap
-或 configured engine construction 任一失敗，entrypoint 就必須關閉全部
-CUDA／Vulkan path、重新準備 CPU runtime，並要求第二次 CPU engine probe 通過才
-啟動；CPU probe 失敗或 timeout 會拒絕啟動，不存在未驗證的 fallback。每次受監督的
-probe 都使用 `CAPSWRITER_BACKEND_PROBE_TIMEOUT`（預設 `300` 秒，合法值 > 0 且 <=
-`1800`）。Host-level Docker GPU reservation failure 發生在 entrypoint 之前，無法靠
-runtime fallback 復原，因此 override 必須明確 opt in。
-
-Linux Intel／AMD iGPU 使用 `/dev/dri` override。先確認 render/card node，並把
-host 的 numeric group IDs 寫入 `.env`：
+NVIDIA reservation 的 `CAPSWRITER_GPU_DEVICE_COUNT` 可填 all 或正整數。
+Tesla P4 再加 `CAPSWRITER_TESLA_P4_OPTIMIZATION=true`；flag 本身不授予 GPU 存取。
+DRI 先查 host 實際 GID：
 
 ```bash
 stat -c '%n %g' /dev/dri/renderD* /dev/dri/card*
-# CAPSWRITER_DRI_RENDER_GID=<renderD node GID>
-# CAPSWRITER_DRI_VIDEO_GID=<card node GID>
-docker compose -f docker-compose.yml -f docker-compose.igpu.yml up -d --force-recreate capswriter-server
+# 將 CAPSWRITER_DRI_RENDER_GID／CAPSWRITER_DRI_VIDEO_GID 寫入 .env。
+docker compose config --quiet
+docker compose up -d --force-recreate capswriter-server
 ```
 
-Image 已安裝 Mesa Vulkan ICD，但 host kernel driver、device node 與正確 group access
-仍必須可用。`109`／`44` 只是 Compose fallback，不是跨 distribution 保證值。
+Image 有 Mesa Vulkan ICD，host driver、device nodes、group access 仍須具備。
+原 CPU／Vulkan 路徑失敗需通過完整 CPU fallback probe；選定 P4 CUDA 後失敗直接
+拒絕啟動。每次 probe timeout 為 `CAPSWRITER_BACKEND_PROBE_TIMEOUT`，預設300、>0..1800秒。
 
 ### Model persistence 與 bootstrap lock
 
@@ -98,7 +85,8 @@ Base Compose 把 `/app/models` 放在 `capswriter-server-models` named volume。
 container 會保留它，且 Docker 會處理初始 ownership；`docker compose down -v` 則會
 刻意刪除 named volumes 與已下載 asset。
 
-若需要 host-visible model files，使用明確 override：
+若需要 host-visible model files，先準備權限，再在 `.env` 設定
+`CAPSWRITER_MODELS_SOURCE=./models`：
 
 ```bash
 image="$(docker compose config --images | sed -n '1p')"
@@ -106,7 +94,7 @@ uid="$(docker run --rm --entrypoint id "$image" -u appuser)"
 gid="$(docker run --rm --entrypoint id "$image" -g appuser)"
 mkdir -p models
 sudo chown -R "$uid:$gid" models
-docker compose -f docker-compose.yml -f docker-compose.models-bind.yml up -d capswriter-server
+CAPSWRITER_MODELS_SOURCE=./models docker compose up -d capswriter-server
 ```
 
 Bind directory 在 bootstrap 期間必須允許 `appuser` 建立 lock、download、staging 與
@@ -140,11 +128,10 @@ CAPSWRITER_HTTP_API_KEY_FILE=/run/secrets/capswriter-http.key
 CAPSWRITER_HTTP_API_CORS_ORIGINS=
 ```
 
-Key-file path 必須存在於 container 內；請用 local Compose override 加入 read-only
+Key-file path 必須存在於 container 內；請在同檔加入 read-only
 secret mount。若同時設定，explicit `CAPSWRITER_HTTP_API_KEY` 優先。
 
-取消 `docker-compose.yml` 內 `ports:` 下 HTTP mapping 的註解，再 recreate
-service。除非 remote client 確實需要 direct access，否則保留
+HTTP mapping 已在同檔提供，API 關閉時 Docker 仍保留6017；啟用 API 與 key 後 recreate。除非 remote client 確實需要 direct access，否則保留
 `CAPSWRITER_HTTP_API_PUBLISH_HOST=127.0.0.1`。
 
 API 在 container 內 bind `0.0.0.0`，只要 published host address 仍是
@@ -193,11 +180,13 @@ Packaged release 必須透過 packaged server executable 重做驗證；source r
 
 ## Web Console profile
 
-Build 並啟動 static application：
+以同檔 web profile 啟動公開 Web image。若需本機 build，先在 `.env` 保存
+`CAPSWRITER_WEB_IMAGE=capswriter-web:local`，執行
+`docker compose --profile web build capswriter-web`，再用相同 up 命令：
 
 ```bash
 CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017 \
-  docker compose -f docker-compose.web.yml up -d --build capswriter-web
+  docker compose --profile web up -d capswriter-web
 curl http://127.0.0.1:8080/health
 curl http://127.0.0.1:8080/config.js
 ```
@@ -222,18 +211,18 @@ Web publish address 預設是 loopback。Remote browser 需要：
 
 | State | Location | Backup guidance |
 |---|---|---|
-| Model 與 archive cache | `capswriter-server-models` named volume；選用 `./models` bind override | 只有 download cost／availability 值得時才備份；複製 asset 時保留 provenance 與 checksum |
+| Model 與 archive cache | `capswriter-server-models` named volume；選用 `CAPSWRITER_MODELS_SOURCE=./models` bind source | 只有 download cost／availability 值得時才備份；複製 asset 時保留 provenance 與 checksum |
 | Downloaded llama runtime | Container writable layer | Recreate 時由 verified bootstrap 重建；不當成 persistent backup |
 | Server hotword | Read-only `./hot-server.txt` bind | 視為 configuration 備份；移到不同 model type 前先 review |
 | Server log | `capswriter-server-logs` named volume | 依 privacy／operations policy 留存；transcript logging 預設關閉 |
-| `.env` 與 Compose override | 只留 deployment host | 安全備份；不可 commit key 或 local path |
+| `.env` 與唯一 Compose 檔 | 只留 deployment host | 安全備份；不可 commit key 或 local path |
 | Web history／settings | Browser localStorage | 最近的 transcript／raw history 是可能敏感的明文；per-browser、best effort，並非 server backup 或 encrypted-record system |
 | TUI／CLI transcript output | User-selected filesystem path | 視同一般 user document 備份 |
 
 Compose 預設只把既有的 `./hot-server.txt` file read-only bind-mount，且拒絕自動
 建立缺少的 source path；model 與 log 各用 named volume。
 刪除 container 不會刪除 named volume 或 host hotword，但 `docker compose down -v`
-會刪除 named volumes。加入 `docker-compose.models-bind.yml` 後，`./models` 才是
+會刪除 named volumes。設定 `CAPSWRITER_MODELS_SOURCE=./models` 後，`./models` 才是
 operator-managed host state。
 
 ## Remote access 與 TLS
@@ -249,7 +238,7 @@ CORS 是 browser control，不是 non-browser client authentication。
 ## Upgrade 與 rollback
 
 1. 讀 [release notes](release-notes.md)與[版本政策](versioning.md)。
-2. 備份 `.env`、hotword、Compose override，以及無法重新取得的 model asset／log。
+2. 備份 `.env`、hotword、唯一 Compose 檔，以及無法重新取得的 model asset／log。
 3. Pin candidate source commit 或 image digest。
 4. 跑 repository／image gate，以及 known-audio readiness／transcription test。
 5. Recreate 一個 instance，驗證 `/health`、`/ready`、`/v1/models` 與所需

@@ -36,6 +36,11 @@ jobs:
           cache: npm
           cache-dependency-path: client/web/package-lock.json
 
+      - name: Verify single Compose deployment variants (no daemon or GPU)
+        run: |
+          docker compose version
+          python -m unittest scripts.tests.test_compose_render -v
+
       - name: Verify
         env:
           CAPSWRITER_UPSTREAM_BASE: upstream/master

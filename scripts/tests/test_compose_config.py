@@ -106,7 +106,7 @@ def active_env_keys(path: Path) -> set[str]:
 
 class ComposeConfigTest(unittest.TestCase):
     def test_tesla_p4_runtime_is_forwarded_with_opt_in_default(self) -> None:
-        for filename in ("docker-compose.yml", "docker-compose.example.yml"):
+        for filename in ("docker-compose.yml",):
             with self.subTest(filename=filename):
                 source = (ROOT / filename).read_text(encoding="utf-8")
                 self.assertIn("${CAPSWRITER_TESLA_P4_OPTIMIZATION:-false}", source)
@@ -117,12 +117,8 @@ class ComposeConfigTest(unittest.TestCase):
         keys = active_yaml_keys(ROOT / "docker-compose.yml")
         self.assertTrue(HTTP_ENV_KEYS <= keys)
 
-    def test_example_compose_passes_http_api_environment(self) -> None:
-        keys = active_yaml_keys(ROOT / "docker-compose.example.yml")
-        self.assertTrue(HTTP_ENV_KEYS <= keys)
-
     def test_compose_passes_supported_model_tuning_environment(self) -> None:
-        for filename in ("docker-compose.yml", "docker-compose.example.yml"):
+        for filename in ("docker-compose.yml",):
             with self.subTest(filename=filename):
                 keys = active_yaml_keys(ROOT / filename)
                 self.assertTrue(MODEL_TUNING_ENV_KEYS <= keys)
@@ -134,7 +130,7 @@ class ComposeConfigTest(unittest.TestCase):
             "CAPSWRITER_BACKEND_PROBE_TIMEOUT=300",
             (ROOT / ".env.example").read_text(encoding="utf-8"),
         )
-        for filename in ("docker-compose.yml", "docker-compose.example.yml"):
+        for filename in ("docker-compose.yml",):
             with self.subTest(filename=filename):
                 compose_source = (ROOT / filename).read_text(encoding="utf-8")
                 keys = active_yaml_keys(ROOT / filename)
@@ -154,13 +150,6 @@ class ComposeConfigTest(unittest.TestCase):
                 "${CAPSWRITER_SERVER_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}",
                 "${CAPSWRITER_HTTP_API_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}",
             ),
-            "docker-compose.example.yml": (
-                "${CAPSWRITER_SERVER_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_SERVER_PORT:-6016}:${CAPSWRITER_SERVER_PORT:-6016}",
-                "${CAPSWRITER_HTTP_API_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_HTTP_API_PORT:-6017}:${CAPSWRITER_HTTP_API_PORT:-6017}",
-            ),
-            "docker-compose.web.yml": (
-                "${CAPSWRITER_WEB_PUBLISH_HOST:-127.0.0.1}:${CAPSWRITER_WEB_PORT:-8080}:8080",
-            ),
         }
         for filename, expected_lines in expectations.items():
             with self.subTest(filename=filename):
@@ -172,7 +161,7 @@ class ComposeConfigTest(unittest.TestCase):
         env_keys = active_env_keys(ROOT / ".env.example")
         self.assertTrue(WEB_ENV_KEYS <= env_keys)
 
-        source = (ROOT / "docker-compose.web.yml").read_text(encoding="utf-8")
+        source = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
         for key in WEB_ENV_KEYS:
             with self.subTest(key=key):
                 self.assertIn(f"{key}:", source)
@@ -181,75 +170,38 @@ class ComposeConfigTest(unittest.TestCase):
     def test_compose_services_enable_no_new_privileges(self) -> None:
         for filename in (
             "docker-compose.yml",
-            "docker-compose.example.yml",
-            "docker-compose.web.yml",
         ):
             with self.subTest(filename=filename):
                 source = (ROOT / filename).read_text(encoding="utf-8")
                 self.assertIn("security_opt:\n      - no-new-privileges:true", source)
 
     def test_server_compose_services_drop_linux_capabilities(self) -> None:
-        for filename in ("docker-compose.yml", "docker-compose.example.yml"):
+        for filename in ("docker-compose.yml",):
             with self.subTest(filename=filename):
                 source = (ROOT / filename).read_text(encoding="utf-8")
                 self.assertIn("cap_drop:\n      - ALL", source)
 
-    def test_base_compose_is_cpu_safe_and_gpu_devices_are_explicit(self) -> None:
-        for filename in ("docker-compose.yml", "docker-compose.example.yml"):
-            with self.subTest(filename=filename):
-                source = (ROOT / filename).read_text(encoding="utf-8")
-                self.assertNotIn("reservations:\n          devices:", source)
+    def test_only_one_compose_entrypoint_remains(self) -> None:
+        self.assertEqual(sorted(p.name for p in ROOT.glob("*compose*.y*ml")),
+                         ["docker-compose.yml"])
 
-        gpu_override = (ROOT / "docker-compose.gpu.yml").read_text(
-            encoding="utf-8"
-        )
-        self.assertIn("driver: nvidia", gpu_override)
-        self.assertIn(
-            "count: ${CAPSWRITER_GPU_DEVICE_COUNT:-all}",
-            gpu_override,
-        )
-        self.assertIn("capabilities: [gpu]", gpu_override)
-
-        igpu_override = (ROOT / "docker-compose.igpu.yml").read_text(
-            encoding="utf-8"
-        )
-        self.assertIn("/dev/dri:/dev/dri", igpu_override)
-        self.assertIn("CAPSWRITER_DRI_RENDER_GID", igpu_override)
-        self.assertIn("CAPSWRITER_DRI_VIDEO_GID", igpu_override)
-
-        env_example = (ROOT / ".env.example").read_text(encoding="utf-8")
-        self.assertIn("CAPSWRITER_DRI_RENDER_GID=109", env_example)
-        self.assertIn("CAPSWRITER_DRI_VIDEO_GID=44", env_example)
-        self.assertIn("stat -c '%n %g' /dev/dri/renderD* /dev/dri/card*", env_example)
-
-    def test_default_model_storage_is_named_and_bind_mount_is_explicit(self) -> None:
-        for filename in ("docker-compose.yml", "docker-compose.example.yml"):
-            with self.subTest(filename=filename):
-                source = (ROOT / filename).read_text(encoding="utf-8")
-                self.assertIn("capswriter-server-models:/app/models", source)
-                self.assertIn("capswriter-server-models:", source)
-                self.assertNotIn("./models:/app/models", source)
-                self.assertIn("source: ./hot-server.txt", source)
-                self.assertIn("target: /app/hot-server.txt", source)
-                self.assertIn("read_only: true", source)
-                self.assertIn("create_host_path: false", source)
-                self.assertNotIn(
-                    "./hot-server.txt:/app/hot-server.txt",
-                    source,
-                )
-
-        bind_override = (
-            ROOT / "docker-compose.models-bind.yml"
-        ).read_text(encoding="utf-8")
-        self.assertIn("./models:/app/models", bind_override)
-        self.assertNotIn("capswriter-server-models:/app/models", bind_override)
+    def test_settings_and_storage_are_integrated(self) -> None:
+        source = (ROOT / "docker-compose.yml").read_text(encoding="utf-8")
+        for expected in (
+            "CAPSWRITER_SETTINGS_ENABLE:",
+            "CAPSWRITER_SETTINGS_PATH: /app/settings/server-settings.json",
+            "capswriter-server-settings:/app/settings",
+            "${CAPSWRITER_MODELS_SOURCE:-capswriter-server-models}:/app/models",
+            "source: ./hot-server.txt", "target: /app/hot-server.txt",
+            "read_only: true", "create_host_path: false",
+        ):
+            with self.subTest(expected=expected):
+                self.assertIn(expected, source)
 
     def test_user_facing_env_templates_avoid_backend_internal_keys(self) -> None:
         for filename in (
             ".env.example",
             "docker-compose.yml",
-            "docker-compose.example.yml",
-            "docker-compose.fun-asr.yml",
         ):
             with self.subTest(filename=filename):
                 path = ROOT / filename

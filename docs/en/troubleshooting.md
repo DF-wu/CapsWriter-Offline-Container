@@ -117,12 +117,12 @@ docker compose run --rm --no-deps --entrypoint python capswriter-server \
 docker compose start capswriter-server
 ```
 
-For an Intel/AMD iGPU, inspect the explicit override and actual host GIDs:
+For an Intel/AMD iGPU, inspect the same file's DRI block and actual host GIDs:
 
 ```bash
 stat -c '%n %g' /dev/dri/renderD* /dev/dri/card*
-docker compose -f docker-compose.yml -f docker-compose.igpu.yml config
-docker compose -f docker-compose.yml -f docker-compose.igpu.yml exec capswriter-server id
+docker compose config
+docker compose exec capswriter-server id
 ```
 
 Put the numeric node GIDs in `CAPSWRITER_DRI_RENDER_GID` and
@@ -136,16 +136,15 @@ For CPU-only hosts, set:
 CAPSWRITER_INFERENCE_HARDWARE=cpu
 ```
 
-Use only `docker-compose.yml`; do not include `docker-compose.gpu.yml` or
-`docker-compose.igpu.yml`. Device exposure/reservation is a Docker admission
+Leave the NVIDIA and DRI blocks commented in the single `docker-compose.yml`. Device exposure/reservation is a Docker admission
 decision and cannot fall back inside the container if the host runtime or
 device node is unavailable.
 
 ### Readiness says ffmpeg or model is unavailable
 
 - Confirm ffmpeg is installed in a source deployment or present in the image.
-- Base Compose uses the `capswriter-server-models` named volume. If the explicit
-  `docker-compose.models-bind.yml` override is present, confirm `./models` is
+- Base Compose uses the `capswriter-server-models` named volume. If
+  `CAPSWRITER_MODELS_SOURCE=./models` is selected, confirm `./models` is
   writable by the image's `appuser`, including lock/staging/marker creation.
 - If multiple containers share model storage, confirm the filesystem provides
   coherent POSIX advisory locks and inspect
