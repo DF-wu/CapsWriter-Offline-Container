@@ -17,6 +17,14 @@ import download_models as dm
 
 
 class CudaRuntimeTest(unittest.TestCase):
+    def test_p4_flag_boolean_values(self):
+        from fork_server.llama_backend import tesla_p4_optimization_enabled
+        for value, expected in [("true", True), ("  YES ", True), ("1", True),
+                                ("ON", True), ("false", False), ("0", False),
+                                (" no ", False), ("OFF", False), ("", False)]:
+            with self.subTest(value=value), patch.dict(os.environ, {"CAPSWRITER_TESLA_P4_OPTIMIZATION": value}):
+                self.assertEqual(tesla_p4_optimization_enabled(), expected)
+
     def test_cuda_requires_its_backend_library(self):
         self.assertIn("libggml-cuda.so", dm._llama_required_names("cuda"))
 
@@ -41,7 +49,7 @@ class CudaRuntimeTest(unittest.TestCase):
             original = Path.cwd()
             try:
                 os.chdir(root)
-                with patch.dict(dm.LLAMA_CPP_ASSETS), patch.dict(dm.LLAMA_CPP_OFFICIAL_MANIFESTS), patch.object(dm, "LLAMA_TARGET_DIRS", [root / "target"]), patch.dict(os.environ, {"CAPSWRITER_LLAMA_BACKEND": "cuda"}):
+                with patch.dict(dm.LLAMA_CPP_ASSETS), patch.dict(dm.LLAMA_CPP_OFFICIAL_MANIFESTS), patch.object(dm, "LLAMA_TARGET_DIRS", [root / "target"]), patch.dict(os.environ, {"CAPSWRITER_LLAMA_BACKEND": "cuda", "CAPSWRITER_TESLA_P4_OPTIMIZATION": "true"}):
                     dm._register_bundled_cuda(manifest)
                     self.assertEqual(dm._prepare_llama_binaries(), 0)
                     self.assertTrue(dm._llama_binaries_ready())
@@ -64,10 +72,72 @@ class CudaRuntimeTest(unittest.TestCase):
             return subprocess.run(["sh", "-c", script], text=True, capture_output=True,
                 env={"PATH": os.environ["PATH"], "CAPSWRITER_SETTINGS_BOOTSTRAPPED": "1", **(env or {})})
 
-    def test_nvidia_prefers_bundled_cuda(self):
-        result = self.run_selection()
+    def test_p4_flag_enables_bundled_cuda(self):
+        result = self.run_selection(env={"CAPSWRITER_TESLA_P4_OPTIMIZATION": "true"})
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("RESULT:cuda,true,true", result.stdout)
+
+    def test_default_and_disabled_p4_flag_keep_original_vulkan(self):
+        for env in [{}, {"CAPSWRITER_TESLA_P4_OPTIMIZATION": "false"}]:
+            with self.subTest(env=env):
+                result = self.run_selection(env=env)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("RESULT:vulkan,true,true", result.stdout)
+
+    def test_explicit_cuda_cannot_bypass_p4_opt_in(self):
+        result = self.run_selection(env={"CAPSWRITER_LLAMA_BACKEND": "cuda"})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("CAPSWRITER_TESLA_P4_OPTIMIZATION", result.stderr)
+
+    def test_enabled_p4_requires_nvidia_and_bundle(self):
+        for kwargs in [{"nvidia": False}, {"bundle": False}]:
+            with self.subTest(kwargs=kwargs):
+                result = self.run_selection(**kwargs, env={"CAPSWRITER_TESLA_P4_OPTIMIZATION": "true"})
+                self.assertNotEqual(result.returncode, 0)
+
+    def test_disabled_bundle_is_not_registered_or_read(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "runtime.json"
+            path.write_text("invalid bundle must not affect original mode")
+            with patch.dict(os.environ, {"CAPSWRITER_TESLA_P4_OPTIMIZATION": "false"}):
+                dm._register_bundled_cuda(path)
+
+    def test_explicit_other_backend_ignores_invalid_cuda_bundle(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "runtime.json"
+            path.write_text("unused CUDA bundle must not break CPU/Vulkan overrides")
+            for backend in ["cpu", "vulkan"]:
+                with self.subTest(backend=backend), patch.dict(os.environ, {
+                    "CAPSWRITER_TESLA_P4_OPTIMIZATION": "true",
+                    "CAPSWRITER_LLAMA_BACKEND": backend,
+                }):
+                    dm._register_bundled_cuda(path)
+
+    def test_enabled_p4_preserves_hardware_and_preset_overrides(self):
+        for env, expected in [
+            ({"CAPSWRITER_INFERENCE_HARDWARE": "cpu"}, "cpu,false,false"),
+            ({"CAPSWRITER_QWEN_PRESET": "cpu_only"}, "cpu,false,false"),
+            ({"CAPSWRITER_QWEN_PRESET": "low_vram_gpu"}, "cpu,true,false"),
+            ({"CAPSWRITER_LLAMA_BACKEND": "vulkan"}, "vulkan,true,true"),
+            ({"CAPSWRITER_LLAMA_BACKEND": "cpu"}, "cpu,false,false"),
+        ]:
+            with self.subTest(env=env):
+                result = self.run_selection(env={"CAPSWRITER_TESLA_P4_OPTIMIZATION": "true", **env})
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("RESULT:" + expected, result.stdout)
+
+    def test_invalid_p4_flag_fails_clearly(self):
+        result = self.run_selection(env={"CAPSWRITER_TESLA_P4_OPTIMIZATION": "typo"})
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("CAPSWRITER_TESLA_P4_OPTIMIZATION", result.stderr)
+
+    def test_p4_hardware_guard_rejects_other_cards(self):
+        from fork_server.llama_backend import require_tesla_p4_devices
+        require_tesla_p4_devices(["Tesla P4"])
+        for descriptions in [[], ["Tesla P40"], ["NVIDIA GeForce RTX 4090"], ["Tesla P4", "Tesla P40"]]:
+            with self.subTest(descriptions=descriptions):
+                with self.assertRaisesRegex(RuntimeError, "Tesla P4"):
+                    require_tesla_p4_devices(descriptions)
 
     def test_cpu_low_vram_and_vulkan_overrides(self):
         for env, expected in [

@@ -16,6 +16,8 @@ services:
       # qwen preset: default | low_vram_gpu
       CAPSWRITER_QWEN_PRESET: ${CAPSWRITER_QWEN_PRESET:-default}
       CAPSWRITER_LLAMA_BACKEND: ${CAPSWRITER_LLAMA_BACKEND:-auto}
+      # Tesla P4 SM61 decoder is opt-in; false preserves CPU/Vulkan selection.
+      CAPSWRITER_TESLA_P4_OPTIMIZATION: ${CAPSWRITER_TESLA_P4_OPTIMIZATION:-false}
 
       # auto = prefer GPU and fall back to CPU; gpu = try GPU first; cpu = force CPU
       CAPSWRITER_INFERENCE_HARDWARE: ${CAPSWRITER_INFERENCE_HARDWARE:-auto}

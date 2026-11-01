@@ -20,6 +20,7 @@ if ROOT_DIR.as_posix() not in sys.path:
     sys.path.insert(0, ROOT_DIR.as_posix())
 
 from config_server import ModelPaths, ServerConfig
+from fork_server.llama_backend import tesla_p4_optimization_enabled
 
 DEFAULT_DOWNLOAD_TIMEOUT_SECONDS = 60.0
 MODEL_BOOTSTRAP_LOCK_TIMEOUT_ENV = "CAPSWRITER_MODEL_BOOTSTRAP_LOCK_TIMEOUT"
@@ -507,7 +508,9 @@ def _register_bundled_cuda(
     manifest_path: Path = Path("/opt/capswriter/llama-cuda/runtime.json"),
 ) -> None:
     """Register the root-owned image artifact; normal archive/library checks apply."""
-    if not manifest_path.exists():
+    if (not tesla_p4_optimization_enabled()
+            or os.getenv("CAPSWRITER_LLAMA_BACKEND", "cpu").strip().lower() != "cuda"
+            or not manifest_path.exists()):
         return
     metadata = json.loads(manifest_path.read_text(encoding="utf-8"))
     if (metadata["source_commit"] != "c301172f660a1fe0b42023da990bf7385d69adb4"
