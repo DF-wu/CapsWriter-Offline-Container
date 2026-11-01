@@ -24,6 +24,21 @@ enable P4/clock boost/API/settings, and publishes on loopback. The HTTP host
 port is reserved even when its listener is disabled; change its port or remove
 that mapping if unused and already occupied.
 
+## Runtime 支援範圍
+
+單一 Compose 統一的是部署入口；公開 server image 目前仍是 CUDA11.8／ORT1.18
+與 llama b7798。P4 flag 開啟才用已驗證 SM61 CUDA decoder，其餘維持原 CPU／Vulkan
+選擇。Intel／AMD 的 DRI 區塊提供 Vulkan decoder 存取，沒有自動安裝 OpenVINO、
+SYCL、MIGraphX 或 HIP；encoder 仍需各自支援的 provider。
+
+後續廠牌路由方向是 NVIDIA 優先相容 CUDA、Intel 原生 GPU 路徑、AMD 原生或明確
+選用的社群 ROCm，auto 模式最後經完整模型驗證回 CPU。這需要不同 image／adapter
+及硬體驗收，本 PR 尚未實作，詳見[一手來源研究](reports/gpu-vendor-qwen-runtime-policy-20261101.md)。
+
+One Compose file does not make vendor runtime packages interchangeable. The
+current image and P4 opt-in retain their existing support boundaries; the vendor
+selection policy in the linked research is a follow-up, not a new support claim.
+
 ## NVIDIA／Tesla P4
 
 在 `docker-compose.yml` 的 `BEGIN NVIDIA`／`END NVIDIA` 之間，取消每行開頭
