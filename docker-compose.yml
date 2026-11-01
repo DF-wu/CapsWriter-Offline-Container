@@ -105,7 +105,8 @@ services:
       CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT: ${CAPSWRITER_SERVER_WORKER_STOP_TIMEOUT:-2}
       CAPSWRITER_SERVER_WORKER_STALL_TIMEOUT: ${CAPSWRITER_SERVER_WORKER_STALL_TIMEOUT:-900}
 
-      # model tuning; backend CUDA/Vulkan flags are derived by entrypoint.sh
+      # Model/prefill tuning: docs/qwen-tuning.md. Server CHUNK_SIZE truncates;
+      # too-small N_BATCH can abort long inputs. Backend flags derive from entrypoint.sh.
       CAPSWRITER_QWEN_CHUNK_SIZE: ${CAPSWRITER_QWEN_CHUNK_SIZE:-}
       CAPSWRITER_QWEN_N_CTX: ${CAPSWRITER_QWEN_N_CTX:-}
       CAPSWRITER_QWEN_MEMORY_NUM: ${CAPSWRITER_QWEN_MEMORY_NUM:-}

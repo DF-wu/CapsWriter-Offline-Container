@@ -53,6 +53,14 @@ Tesla P4；P40、RTX、混合 P4／其他 GPU 都不會被當成已驗證硬體�
 會增加顯存占用；先前本機觀測約由 1.2 GiB 增至 2.9 GiB，與 Immich 競爭時須留足
 顯存及散熱餘裕。
 
+## Prefill 與音訊長度調校
+
+P4 flag 只選用已驗證 decoder runtime，不改 batch、ubatch、context 或模型精度。
+既有短音訊基準為 requested batch4096／effective2048、ubatch512、context2048。
+較低 micro-batch 可能省暫存，但未證明更快；Server `CHUNK_SIZE=80` 超過即截斷，
+不能靠減小該值取得同品質加速。完整參數取捨、音訊位置預算與試驗矩陣見
+[Qwen prefill 調校指南](qwen-tuning.md)。
+
 ## 實測與限制
 
 [原始實測報告](reports/p4-cuda-runtime-deployment-20261101.md)記錄 P4 的 HTTP

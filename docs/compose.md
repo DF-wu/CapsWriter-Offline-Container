@@ -39,6 +39,17 @@ One Compose file does not make vendor runtime packages interchangeable. The
 current image and P4 opt-in retain their existing support boundaries; the vendor
 selection policy in the linked research is a follow-up, not a new support claim.
 
+## Qwen prefill 與音訊長度 / Tuning
+
+Batch／micro-batch／context 的容量與取捨見 [Qwen 調校指南](qwen-tuning.md)。
+目前 Server 的 `CHUNK_SIZE=80` 會截斷超過上限的單次音訊，並非自動分段；
+`N_BATCH` 過小可能讓長 prompt／音訊中止。先保留原基準，再逐項比較 latency、
+顯存與完整輸出；變更 env 後須以原 Stack 配置重新部署。
+
+See the guide's English summary before changing prefill settings: logical batch
+capacity, physical micro-batches and context are separate limits. Alternatives
+are trial configurations, not newly benchmarked P4 presets.
+
 ## NVIDIA／Tesla P4
 
 在 `docker-compose.yml` 的 `BEGIN NVIDIA`／`END NVIDIA` 之間，取消每行開頭

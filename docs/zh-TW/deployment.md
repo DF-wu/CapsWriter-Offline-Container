@@ -79,6 +79,13 @@ Image 有 Mesa Vulkan ICD，host driver、device nodes、group access 仍須具�
 原 CPU／Vulkan 路徑失敗需通過完整 CPU fallback probe；選定 P4 CUDA 後失敗直接
 拒絕啟動。每次 probe timeout 為 `CAPSWRITER_BACKEND_PROBE_TIMEOUT`，預設300、>0..1800秒。
 
+### Qwen prefill 與音訊長度
+
+Batch／micro-batch／context 對速度、顯存及辨識結果的影響見
+[Qwen 調校指南](../qwen-tuning.md)。目前 Server 一次送完整 prefill，`N_BATCH`
+太小可能使長輸入中止；`CHUNK_SIZE=80` 超過會截斷，不是自動切段。其他 ubatch／
+context 組合列為試驗值，沒有冒稱新的 P4 實測加速結果。
+
 ### Model persistence 與 bootstrap lock
 
 Base Compose 把 `/app/models` 放在 `capswriter-server-models` named volume。Recreate

@@ -83,6 +83,14 @@ access are still required. Legacy CPU/Vulkan GPU failures require a verified
 full-CPU fallback probe; selected P4 CUDA failures instead refuse startup.
 Each probe uses `CAPSWRITER_BACKEND_PROBE_TIMEOUT` (default 300, range >0..1800).
 
+### Qwen prefill and audio length
+
+See the [Qwen tuning guide](../qwen-tuning.md) and its English summary for batch,
+micro-batch, context, VRAM and transcript tradeoffs. The current server submits
+one full prefill: a too-small `N_BATCH` can abort longer inputs. `CHUNK_SIZE=80`
+truncates a recognition call, rather than automatically splitting it. Alternative
+ubatch/context combinations are trial settings, not measured P4 speedups.
+
 ### Model persistence and bootstrap locking
 
 Base Compose stores `/app/models` in the `capswriter-server-models` named

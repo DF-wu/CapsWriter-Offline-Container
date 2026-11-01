@@ -114,19 +114,23 @@ render node 與正確 group access 仍是必要條件。NVIDIA device 則使用
 
 | 變數 | 預設 | 說明 |
 |---|---|---|
-| `CAPSWRITER_QWEN_CHUNK_SIZE` | `80` | Qwen 分段長度（秒） |
-| `CAPSWRITER_QWEN_N_CTX` | `2048` | Qwen llama context size |
-| `CAPSWRITER_QWEN_MEMORY_NUM` | `1` | Qwen 記憶段數 |
-| `CAPSWRITER_QWEN_PAD_TO` | `30` | Qwen ONNX padding 長度 |
-| `CAPSWRITER_QWEN_LLAMA_N_BATCH` | _(空)_ | expert-only llama batch override |
-| `CAPSWRITER_QWEN_LLAMA_N_UBATCH` | _(空)_ | expert-only llama ubatch override |
-| `CAPSWRITER_QWEN_LLAMA_FLASH_ATTN` | _(空)_ | expert-only llama flash-attention override |
-| `CAPSWRITER_QWEN_LLAMA_OFFLOAD_KQV` | _(空)_ | expert-only llama K/Q/V offload override |
+| `CAPSWRITER_QWEN_CHUNK_SIZE` | `80` | Server 單次保留音訊秒數，超過會截斷，不會自動分段 |
+| `CAPSWRITER_QWEN_N_CTX` | `2048` | decoder 輸入＋生成的 context 容量；加大通常增加 KV 記憶體 |
+| `CAPSWRITER_QWEN_MEMORY_NUM` | `1` | 內部 file-transcribe 路徑的歷史段數；Server decode_stream 不使用 |
+| `CAPSWRITER_QWEN_PAD_TO` | `30` | DirectML encoder padding 秒數，CUDA 路徑不使用此固定 padding |
+| `CAPSWRITER_QWEN_LLAMA_N_BATCH` | _(空)_ | 保留請求4096；P4 context2048時有效2048。單次prefill容量，太小可中止長輸入 |
+| `CAPSWRITER_QWEN_LLAMA_N_UBATCH` | _(空)_ | 保留512；實際micro-batch，較小可能省暫存但變慢，需實測 |
+| `CAPSWRITER_QWEN_LLAMA_FLASH_ATTN` | _(空)_ | 保留請求true；以native log核對backend是否啟用 |
+| `CAPSWRITER_QWEN_LLAMA_OFFLOAD_KQV` | _(空)_ | 保留true；控制K/Q/V相關GPU offload，不等於整個decoder移回CPU |
 | `CAPSWRITER_FUNASR_ENABLE_CTC` | `true` | Fun-ASR CTC hotword retrieval |
 | `CAPSWRITER_FUNASR_N_PREDICT` | `512` | Fun-ASR decoder token limit |
 | `CAPSWRITER_FUNASR_PAD_TO` | `30` | Fun-ASR ONNX padding 長度 |
 | `CAPSWRITER_FUNASR_MAX_HOTWORDS` | `20` | 傳入 Fun-ASR decoder 的熱詞上限 |
 | `CAPSWRITER_FUNASR_SIMILAR_THRESHOLD` | `0.6` | Fun-ASR 熱詞相似度門檻 |
+
+Prefill 的 batch／ubatch 單位是 token／embedding 位置，並非音訊秒數或並行請求數。
+詳見 [Qwen 調校指南](qwen-tuning.md)：包含音訊長度預算、截斷／生成限制、P4
+基準與未實測的參數矩陣、速度／顯存／品質驗證及還原方式。
 
 ### 3.5 日誌與資源
 
