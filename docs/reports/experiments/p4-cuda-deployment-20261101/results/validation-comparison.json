@@ -1,0 +1,27 @@
+{
+  "mandarin-10s": {
+    "baseline_p50_s": 4.149651174986502,
+    "candidate_p50_s": 0.831597144016996,
+    "speedup": 4.989977665076845,
+    "latency_reduction_percent": 79.95983014115153,
+    "http_outputs_are_stochastic": true,
+    "samples_per_variant": 3
+  },
+  "mandarin-2s": {
+    "baseline_p50_s": 1.254796763008926,
+    "candidate_p50_s": 0.333258508995641,
+    "speedup": 3.7652354827805423,
+    "latency_reduction_percent": 73.44123615712019,
+    "http_outputs_are_stochastic": true,
+    "samples_per_variant": 3
+  },
+  "mandarin-5s": {
+    "baseline_p50_s": 2.3956491760036442,
+    "candidate_p50_s": 0.5337566930102184,
+    "speedup": 4.488279411529142,
+    "latency_reduction_percent": 77.71974718349134,
+    "http_outputs_are_stochastic": true,
+    "samples_per_variant": 3
+  },
+  "run_id": "1793508011791913579"
+}

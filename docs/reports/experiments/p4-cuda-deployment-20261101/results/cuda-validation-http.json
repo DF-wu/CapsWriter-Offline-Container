@@ -1,0 +1,122 @@
+[
+  {
+    "id": "mandarin-2s",
+    "wall_s": 0.43542937099118717,
+    "text": "我是。",
+    "gpu": "85, 1113, 2973, 41",
+    "repeat": 0,
+    "warmup": true,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-5s",
+    "wall_s": 0.5371121399803087,
+    "text": "哪号？请再说一次，请说出您要拨打。",
+    "gpu": "85, 1012, 2975, 91",
+    "repeat": 0,
+    "warmup": true,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-10s",
+    "wall_s": 0.8550067860051058,
+    "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+    "gpu": "85, 961, 2975, 93",
+    "repeat": 0,
+    "warmup": true,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-2s",
+    "wall_s": 0.333258508995641,
+    "text": "王浩。",
+    "gpu": "85, 1075, 2975, 62",
+    "repeat": 1,
+    "warmup": false,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-5s",
+    "wall_s": 0.5337566930102184,
+    "text": "多少？请再说一次，请说出您要拨打的。",
+    "gpu": "86, 1037, 2975, 91",
+    "repeat": 1,
+    "warmup": false,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-10s",
+    "wall_s": 0.8285746359906625,
+    "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+    "gpu": "86, 999, 2975, 93",
+    "repeat": 1,
+    "warmup": false,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-2s",
+    "wall_s": 0.35013260500272736,
+    "text": "王浩。",
+    "gpu": "86, 1101, 2975, 61",
+    "repeat": 2,
+    "warmup": false,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-5s",
+    "wall_s": 0.5171526129997801,
+    "text": "什么？请再说一次，请说出您要拨打。",
+    "gpu": "86, 974, 2975, 89",
+    "repeat": 2,
+    "warmup": false,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-10s",
+    "wall_s": 0.8547984299948439,
+    "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+    "gpu": "86, 949, 2975, 93",
+    "repeat": 2,
+    "warmup": false,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-2s",
+    "wall_s": 0.32922786800190806,
+    "text": "哥儿。",
+    "gpu": "86, 949, 2975, 17",
+    "repeat": 3,
+    "warmup": false,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-5s",
+    "wall_s": 0.538419480988523,
+    "text": "哪号？请再说一次，请说出您要拨打。",
+    "gpu": "86, 961, 2975, 88",
+    "repeat": 3,
+    "warmup": false,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "mandarin-10s",
+    "wall_s": 0.831597144016996,
+    "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+    "gpu": "87, 961, 2975, 94",
+    "repeat": 3,
+    "warmup": false,
+    "phase": "cuda-validation-http",
+    "run_id": "1793508011791913579"
+  }
+]

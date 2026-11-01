@@ -1,0 +1,40 @@
+{"id": "mandarin-2s", "wall_s": 1.428852269978961, "phase": "baseline-http", "repeat": 0}
+{"id": "mandarin-5s", "wall_s": 2.0757173049787525, "phase": "baseline-http", "repeat": 0}
+{"id": "mandarin-10s", "wall_s": 3.6787376790016424, "phase": "baseline-http", "repeat": 0}
+{"id": "mandarin-2s", "wall_s": 1.1538181510113645, "phase": "baseline-http", "repeat": 1}
+{"id": "mandarin-5s", "wall_s": 2.147076441993704, "phase": "baseline-http", "repeat": 1}
+{"id": "mandarin-10s", "wall_s": 3.5301799819862936, "phase": "baseline-http", "repeat": 1}
+{"id": "mandarin-2s", "wall_s": 1.0737284820061177, "phase": "baseline-http", "repeat": 2}
+{"id": "mandarin-5s", "wall_s": 2.0734272740082815, "phase": "baseline-http", "repeat": 2}
+{"id": "mandarin-10s", "wall_s": 3.712859446008224, "phase": "baseline-http", "repeat": 2}
+{"id": "mandarin-2s", "wall_s": 1.2277893610007595, "phase": "baseline-http", "repeat": 3}
+{"id": "mandarin-5s", "wall_s": 1.9422534090117551, "phase": "baseline-http", "repeat": 3}
+{"id": "mandarin-10s", "wall_s": 3.589552048011683, "phase": "baseline-http", "repeat": 3}
+{"id": "libri-1272-128104-0000", "wall_s": 2.925429366005119, "phase": "baseline-quality-http", "repeat": 0}
+{"id": "libri-1272-128104-0001", "wall_s": 2.137592404993484, "phase": "baseline-quality-http", "repeat": 0}
+{"id": "libri-1272-128104-0002", "wall_s": 4.756635953002842, "phase": "baseline-quality-http", "repeat": 0}
+{"id": "noise2", "wall_s": 7.13874069598387, "phase": "baseline-quality-http", "repeat": 0}
+{"id": "codeswitch", "wall_s": 2.5431766849942505, "phase": "baseline-quality-http", "repeat": 0}
+{"id": "mandarin-2s", "wall_s": 0.4485028360213619, "phase": "cuda-validation-http", "repeat": 0}
+{"id": "mandarin-5s", "wall_s": 0.5127691490051802, "phase": "cuda-validation-http", "repeat": 0}
+{"id": "mandarin-10s", "wall_s": 0.8397102589951828, "phase": "cuda-validation-http", "repeat": 0}
+{"id": "mandarin-2s", "wall_s": 0.33138825799687766, "phase": "cuda-validation-http", "repeat": 1}
+{"id": "mandarin-5s", "wall_s": 0.5138274999917485, "phase": "cuda-validation-http", "repeat": 1}
+{"id": "mandarin-10s", "wall_s": 0.8326310540142003, "phase": "cuda-validation-http", "repeat": 1}
+{"id": "mandarin-2s", "wall_s": 0.37568503798684105, "phase": "cuda-validation-http", "repeat": 2}
+{"id": "mandarin-5s", "wall_s": 0.5388200259767473, "phase": "cuda-validation-http", "repeat": 2}
+{"id": "mandarin-10s", "wall_s": 0.8273650629853364, "phase": "cuda-validation-http", "repeat": 2}
+{"id": "mandarin-2s", "wall_s": 0.32704908098094165, "phase": "cuda-validation-http", "repeat": 3}
+{"id": "mandarin-5s", "wall_s": 0.5040727599989623, "phase": "cuda-validation-http", "repeat": 3}
+{"id": "mandarin-10s", "wall_s": 0.8252277739811689, "phase": "cuda-validation-http", "repeat": 3}
+Traceback (most recent call last):
+  File "/home/df/workspace/CapsWriter-Offline/docs/reports/experiments/p4-cuda-deployment-20261101/deploy.py", line 367, in <module>
+    deploy()
+    ~~~~~~^^
+  File "/home/df/workspace/CapsWriter-Offline/docs/reports/experiments/p4-cuda-deployment-20261101/deploy.py", line 328, in deploy
+    save('validation-comparison.json', compare(baseline, candidate))
+                                       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/home/df/workspace/CapsWriter-Offline/docs/reports/experiments/p4-cuda-deployment-20261101/deploy.py", line 133, in compare
+    assert {normalize(r['text']) for r in new} == {normalize(r['text']) for r in old}, ('Transcript changed', sid)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: ('Transcript changed', 'mandarin-10s')

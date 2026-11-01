@@ -1,0 +1,8 @@
+{
+  "relocated_dso_load": true,
+  "actual_driver_injected": true,
+  "no_build_tree": true,
+  "verified_audio_hashes": 8,
+  "rollback_original_files_restored": 126,
+  "no_extra_cuda_dsos_after_rollback": true
+}

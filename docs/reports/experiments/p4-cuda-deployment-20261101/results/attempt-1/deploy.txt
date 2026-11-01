@@ -1,0 +1,28 @@
+{"id": "mandarin-2s", "wall_s": 1.4758729789755307, "phase": "baseline-http", "repeat": 0}
+{"id": "mandarin-5s", "wall_s": 2.138672722998308, "phase": "baseline-http", "repeat": 0}
+{"id": "mandarin-10s", "wall_s": 4.020894551009405, "phase": "baseline-http", "repeat": 0}
+{"id": "mandarin-2s", "wall_s": 1.1162686230090912, "phase": "baseline-http", "repeat": 1}
+{"id": "mandarin-5s", "wall_s": 2.1126435849873815, "phase": "baseline-http", "repeat": 1}
+{"id": "mandarin-10s", "wall_s": 3.6058359899907373, "phase": "baseline-http", "repeat": 1}
+{"id": "mandarin-2s", "wall_s": 1.027886800991837, "phase": "baseline-http", "repeat": 2}
+{"id": "mandarin-5s", "wall_s": 2.1783578179893084, "phase": "baseline-http", "repeat": 2}
+{"id": "mandarin-10s", "wall_s": 3.6629746399994474, "phase": "baseline-http", "repeat": 2}
+{"id": "mandarin-2s", "wall_s": 1.1841439109994099, "phase": "baseline-http", "repeat": 3}
+{"id": "mandarin-5s", "wall_s": 2.1983978649950586, "phase": "baseline-http", "repeat": 3}
+{"id": "mandarin-10s", "wall_s": 3.972906579001574, "phase": "baseline-http", "repeat": 3}
+{"id": "libri-1272-128104-0000", "wall_s": 2.9623410229978617, "phase": "baseline-quality-http", "repeat": 0}
+{"id": "libri-1272-128104-0001", "wall_s": 2.2715209269954357, "phase": "baseline-quality-http", "repeat": 0}
+{"id": "libri-1272-128104-0002", "wall_s": 4.568273379991297, "phase": "baseline-quality-http", "repeat": 0}
+{"id": "noise2", "wall_s": 6.803910262999125, "phase": "baseline-quality-http", "repeat": 0}
+{"id": "codeswitch", "wall_s": 2.6607688999793027, "phase": "baseline-quality-http", "repeat": 0}
+Traceback (most recent call last):
+  File "/home/df/workspace/CapsWriter-Offline/docs/reports/experiments/p4-cuda-deployment-20261101/deploy.py", line 353, in <module>
+    deploy()
+    ~~~~~~^^
+  File "/home/df/workspace/CapsWriter-Offline/docs/reports/experiments/p4-cuda-deployment-20261101/deploy.py", line 312, in deploy
+    assert_cuda_logs(state['test_container'])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/df/workspace/CapsWriter-Offline/docs/reports/experiments/p4-cuda-deployment-20261101/deploy.py", line 157, in assert_cuda_logs
+    assert any(int(a) > 0 and a == b for a, b in offload), 'No full GPU layer offload evidence'
+           ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: No full GPU layer offload evidence

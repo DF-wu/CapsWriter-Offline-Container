@@ -1,0 +1,75 @@
+"""Generate a self-contained public report from accepted deployment evidence."""
+import html
+import json
+from pathlib import Path
+import statistics
+
+HERE = Path(__file__).resolve().parent
+RESULTS = HERE / 'results'
+SITE = HERE / 'site'
+SITE.mkdir(exist_ok=True)
+
+
+def read(name):
+    return json.loads((RESULTS / name).read_text())
+
+
+deployment = read('deployment.json')
+restoration = read('restoration.json')
+assert deployment['accepted'] and deployment['services_restored_before_acceptance']
+assert restoration['optimization_accepted'] and not restoration['errors']
+assert deployment['run_id'] == restoration['run_id']
+comparison = read('deployed-comparison.json')
+quality = read('validation-quality-comparison.json')
+assert quality['matched_normalized_outputs'] == 5
+records = []
+for n in [2, 5, 10]:
+    row = comparison['mandarin-' + str(n) + 's']
+    records.append(dict(seconds=n, before=row['baseline_p50_s'], after=row['candidate_p50_s'],
+                        speedup=row['speedup'], reduction=row['latency_reduction_percent']))
+before = read('baseline-http.json'); after = read('deployed-http.json')
+memory = {'baseline_mib': statistics.median(float(r['gpu'].split(',')[2]) for r in before if not r['warmup']),
+          'deployed_mib': statistics.median(float(r['gpu'].split(',')[2]) for r in after if not r['warmup'])}
+measurements = {'latency': records, 'run_id': deployment['run_id'],
+                'gpu_memory_mib': memory,
+                'quality': quality, 'deployment': deployment,
+                'baseline_http': before, 'deployed_http': after,
+                'greedy_cpu': read('greedy-cpu.json'), 'greedy_cuda': read('greedy-cuda.json')}
+(SITE / 'measurements.json').write_text(json.dumps(measurements, ensure_ascii=False, indent=2) + '\n')
+rows = ''.join(f'<tr><th scope="row">{r["seconds"]} 秒音訊</th><td>{r["before"]:.3f} s</td><td class="focus">{r["after"]:.3f} s</td><td>{r["speedup"]:.2f}×</td><td>−{r["reduction"]:.1f}%</td></tr>' for r in records)
+text_rows = ''.join('<tr><th scope="row">' + html.escape(a['id']) + '</th><td>' + html.escape(a['text']) + '</td><td>' + ('相同' if ''.join(c.lower() for c in a['text'] if c.isalnum()) == ''.join(c.lower() for c in b['text'] if c.isalnum()) else '不同') + '</td></tr>'
+                    for a, b in zip(read('greedy-cpu.json'), read('greedy-cuda.json')))
+template = r'''<!doctype html>
+<html lang="zh-Hant"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tesla P4 的 CUDA 升級實測｜CapsWriter</title>
+<style>
+:root{color-scheme:light;--ink:#173247;--quiet:#536b7b;--blue:#156eaa;--good:#086c59;--line:#d9e4eb;--paper:#f4f8fb}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.75}main{max-width:1080px;margin:auto;padding:40px 32px 64px}a{color:#126393;text-underline-offset:4px}a:hover{color:#08486f}a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid #e1a237;outline-offset:4px}nav{display:flex;justify-content:space-between;align-items:center;gap:16px;color:var(--quiet);font-size:14px}nav a{text-decoration:none}header{padding:65px 0 40px;max-width:850px}h1{font-size:clamp(32px,5.2vw,56px);font-weight:650;line-height:1.22;letter-spacing:-1.2px;margin:0 0 24px}header p{font-size:19px;max-width:42em;color:var(--quiet);margin:0 0 18px}.status{display:inline-flex;gap:9px;align-items:center;font-size:14px;color:var(--good)}.dot{width:9px;height:9px;background:var(--good);border-radius:50%}.pipeline{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:18px 0 34px;color:var(--quiet);font-size:14px}.pipeline strong{color:var(--ink);background:white;border:1px solid var(--line);padding:8px 14px;border-radius:6px}.pipeline .active{border-color:#8ab8d5;color:var(--blue)}section{margin-top:42px}h2{font-size:24px;line-height:1.4;font-weight:650;margin:0 0 12px}h3{font-size:17px;margin:0 0 9px}p{max-width:75ch}.sub{color:var(--quiet);font-size:14px;margin:0 0 18px}.timing{background:#fff;padding:28px;border-radius:14px;border:1px solid var(--line)}.plot-head{display:flex;justify-content:space-between;gap:20px;align-items:start}.tabs{display:flex;gap:4px;padding:4px;background:#edf3f7;border-radius:8px}.tabs button{font:inherit;min-height:44px;padding:6px 16px;border:0;background:none;border-radius:5px;color:var(--quiet);cursor:pointer}.tabs button[aria-pressed=true]{background:#fff;color:var(--ink);box-shadow:0 1px 3px #17324720}.chart{margin:30px 0 10px}.bar-row{display:grid;grid-template-columns:105px 1fr 90px;gap:12px;align-items:center;margin:19px 0}.track{height:28px;background:repeating-linear-gradient(90deg,transparent,transparent calc(25% - 1px),#e9eff3 calc(25% - 1px),#e9eff3 25%);border-bottom:1px solid var(--line)}.bar{height:27px;background:#9aaebd;border-radius:3px;min-width:3px}.bar.new{background:var(--blue)}.bar-row strong{text-align:right;font-variant-numeric:tabular-nums}.outcome{display:flex;align-items:baseline;gap:14px;margin:20px 0 4px}.outcome b{font-size:36px;color:var(--blue);font-weight:650;line-height:1.25}.outcome span{color:var(--quiet)}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:14px;font-variant-numeric:tabular-nums}th,td{padding:15px 12px;border-bottom:1px solid var(--line);vertical-align:top}thead th{font-size:13px;color:var(--quiet);font-weight:500}tbody th{font-weight:550}td.focus{color:var(--blue);font-weight:650}.note{font-size:13px;color:var(--quiet);margin:18px 0 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}.check{border-left:3px solid #83b4c5;padding:0 0 0 20px}.check p{margin:7px 0 0;font-size:15px}.muted{color:var(--quiet)}.callout{padding:20px 24px;background:#e7f0f6;border-radius:8px;font-size:15px}.callout strong{display:block;margin-bottom:4px}.evidence{font-size:14px}.evidence td:first-child{white-space:nowrap}details{border-top:1px solid var(--line);padding:18px 0}summary{cursor:pointer;font-weight:550;min-height:36px;list-style-position:outside;margin-left:18px}.details-inner{padding-top:12px}code{font-size:.91em;font-family:ui-monospace,Consolas,monospace;overflow-wrap:anywhere}.transcript{font-size:13px}.transcript th{min-width:150px}.transcript td:nth-child(2){max-width:620px}.transcript td:last-child{color:var(--good);white-space:nowrap}footer{border-top:1px solid var(--line);margin-top:48px;padding-top:18px;font-size:13px;color:var(--quiet)}.links{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px}.nojs{font-size:14px;color:var(--quiet)}@media(max-width:650px){main{padding:24px 18px 40px}header{padding:44px 0 22px}header p{font-size:17px}.timing{padding:21px 16px}.plot-head{display:block}.tabs{display:inline-flex;margin-top:12px}.bar-row{grid-template-columns:72px 1fr 68px;gap:8px;font-size:13px}.outcome{display:block}.outcome span{display:block;margin-top:7px}.grid{grid-template-columns:1fr;gap:25px}th,td{padding:12px 8px}section{margin-top:32px}.pipeline{padding-bottom:18px}nav{font-size:12px}.table-wrap{margin-right:-4px}}
+</style>
+<main>
+<nav><span>CapsWriter / Tesla P4</span><a href="https://github.com/DF-wu/CapsWriter-Offline-Container/issues/18">實作紀錄 #18</a></nav>
+<header><h1>讓 P4 用上<br>實測更快的 CUDA runtime。</h1><p>沿用 Qwen3-ASR 1.7B 的 FP16 ONNX encoder 與 Q5_K_M decoder，將 decoder 換成針對 Pascal SM61 建置的 llama.cpp b7798。</p><div class="status"><span class="dot"></span>已套用至原容器；CapsWriter 與 Immich 已恢復服務</div></header>
+<div class="pipeline"><strong>FP16 ONNX encoder</strong><span>＋</span><strong>原 Q5_K_M 權重</strong><span>＋</span><strong class="active">CUDA 11.8 / SM61</strong></div>
+<section class="timing" aria-labelledby="timing-title"><div class="plot-head"><div><h2 id="timing-title">實際 HTTP 辨識，快了多少？</h2><p class="sub">原服務與更新後服務的熱啟動延遲中位數，越短越快。</p></div><div class="tabs" aria-label="音訊長度"><button type="button" data-n="2" aria-pressed="false">2 秒</button><button type="button" data-n="5" aria-pressed="false">5 秒</button><button type="button" data-n="10" aria-pressed="true">10 秒</button></div></div>
+<div id="chart" class="chart" aria-live="polite"></div><div id="outcome" class="outcome"></div>
+<noscript><p class="nojs">完整結果列於下方表格。</p></noscript>
+<div class="table-wrap"><table><thead><tr><th>測試音訊</th><th>原服務</th><th>已部署 CUDA</th><th>速度倍率</th><th>延遲減少</th></tr></thead><tbody>__ROWS__</tbody></table></div>
+<p class="note">每方案每長度 3 次正式請求，另各 1 次暖機。基準是原部署的 decoder CPU fallback：Vulkan 未找到裝置，encoder 仍使用 CUDA。Immich 在量測期間暫停。時間含 HTTP、音訊處理與推論，未包含客戶端放開按鍵到顯示文字。測試按方案依序進行，樣本小且時脈、溫度會變動，不是統計顯著性結論。</p></section>
+<section><h2>這次做了哪些修改</h2><div class="grid"><div class="check"><h3>對準 P4 的 decoder 核心</h3><p>固定 b7798 原始碼與 SHA-256，使用 CUDA 11.8 編譯 SM61 核心；在免洗容器內完成。以可重定位的 <code>$ORIGIN</code> 載入相依函式庫，移出編譯容器仍能運行。</p></div><div class="check"><h3>啟動時確認真的使用 CUDA</h3><p>偵測 NVIDIA 與內建 runtime 後選擇 CUDA，檢查 <code>CUDA0</code> 註冊；選定 CUDA 後若載入失敗，停止啟動，交由部署流程回復。CPU、Vulkan 與低顯存 preset 保留。</p></div><div class="check"><h3>可驗證的權重與部署</h3><p>沿用原模型，三份權重雜湊完全相同。runtime 壓縮包與每份函式庫均驗證雜湊，沿用原有 staging 與原子切換流程。</p></div><div class="check"><h3>保存 Portainer 注入設定</h3><p>以同一 CapsWriter 容器 ID 套用已測試的程式與函式庫，再重啟。核對 Config、HostConfig、網路設定指紋與應用設定；Immich 也以原 ID 恢復。</p></div></div></section>
+<section><h2>品質驗證如何判讀</h2><p>在獨立免洗容器中，分別使用原 runtime 的 CPU decoder 與新 CUDA decoder，以相同參數、相同權重、<strong>temperature=0 的 greedy 解碼</strong>測試 5 份完整音訊。正規化後文字 <strong>5 / 5 相同</strong>，涵蓋英文、中文與語言混合。</p><div class="callout"><strong>HTTP 的 temperature 限制已分開記錄</strong>舊 HTTP 路徑接受 temperature 欄位，但 worker 呼叫 decode_stream 時仍使用 0.4。即使請求傳 0，文字也有隨機變動。因此 HTTP 測延遲、greedy 引擎測輸出一致性；本次未修改這段既有行為。這五份音訊是回歸檢查，不能證明所有場景零品質差異。</div>
+<details><summary>檢視五份 greedy 辨識文字與一致性</summary><div class="table-wrap details-inner"><table class="transcript"><thead><tr><th>音訊</th><th>原 runtime 的輸出</th><th>CUDA 比對</th></tr></thead><tbody>__TEXT_ROWS__</tbody></table></div></details></section>
+<section><h2>取捨與邊界</h2><div class="grid"><div><h3>這個方案的優點</h3><p class="muted">已在這張 P4 上實測；沿用現有模型與 ctypes 介面；省去重新轉換或下載另一份量化權重。相較原先只枚舉到 CPU 的 decoder，GPU 能實際承擔模型、KV 與 compute buffer。</p></div><div><h3>需要留意的成本</h3><p class="muted">本輪熱推論的整卡顯存觀測中位數由 __MEMORY__。與 Immich 同時工作時可能競爭顯存、算力與散熱。已恢復 Immich 並做一筆共存辨識，但未進行 Immich 滿載壓力測試。</p></div></div>
+<div class="callout"><strong>restart 已保留；recreate 必須使用新版映像</strong>目前是在原容器的 writable layer 套用更新，普通 restart 會保留。若 Portainer 從舊映像重建容器，更新會消失。分支中的 Dockerfile 已整合完整建置流程，但尚未合併 master、尚未替換 GHCR latest。回復資料保留在本機私人目錄。</div>
+<details><summary>其他方案為何沒有採用？</summary><div class="details-inner table-wrap"><table><thead><tr><th>方案</th><th>先前實驗的結論</th><th>本次處理</th></tr></thead><tbody><tr><th>修好 EGL 的 Vulkan</th><td>先前相同權重的引擎測試：10 秒音訊 Vulkan 0.8649 s、CUDA 0.5831 s，CUDA 延遲少約 32.6%；此數字與本頁 HTTP 量測範圍不同</td><td>採用實測較快的 CUDA</td></tr><tr><th>FP32 encoder</th><td>未改善整體速度，約多用 1 GiB 顯存</td><td>沿用 FP16 encoder</td></tr><tr><th>Q6 / Q8 與其他完整 runtime</th><td>未在速度與品質合併評估中勝過原 CUDA Q5</td><td>保留 Q5_K_M</td></tr><tr><th>Tiro v2</th><td>已完成轉換與 smoke test；英語限制與品質退步不符合需求</td><td>不替換模型</td></tr><tr><th>P4 專用 Qwen3-ASR checkpoint</th><td>未找到具合格一手 P4 A/B 證據的版本</td><td>採用已實測的 runtime 優化</td></tr></tbody></table></div></details></section>
+<section><h2>部署證據</h2><div class="table-wrap"><table class="evidence"><tbody><tr><th>GPU 執行</th><td>CUDA0 註冊、29 / 29 layers offloaded、CUDA0 model / KV / compute buffers。</td></tr><tr><th>權重</th><td>encoder frontend、encoder backend、Q5_K_M decoder 三份 SHA-256 更新前後一致。</td></tr><tr><th>服務</th><td>原 CapsWriter 容器與 image ID；原 Immich 容器與 image ID。Config / HostConfig / 網路設定指紋一致，應用設定雜湊一致。</td></tr><tr><th>Host</th><td>編譯、套件安裝、音訊轉換與品質測試均在免洗容器內；未安裝 host CUDA / compiler / 套件，未變更驅動、時脈、風扇或功耗。</td></tr><tr><th>回復演練</th><td>126 份原始檔案全部還原、無額外 CUDA DSO 殘留；另以模擬失敗確認 CapsWriter rollback 失敗仍會嘗試重啟 Immich。</td></tr><tr><th>測試與清理</th><td>106 項相關回歸測試通過；免洗編譯、測試資源及本次 build cache 的清理結果另見原始紀錄。</td></tr></tbody></table></div>
+<p class="note">前兩輪維護驗證未修改正式 runtime：第一輪修正日誌檢查位置，第二輪發現 HTTP 輸出的隨機性。它們的數據獨立保留，不混入本頁採用的正式一輪比較。</p>
+<div class="links"><a href="measurements.json">下載本輪量測 JSON</a><a href="https://github.com/DF-wu/CapsWriter-Offline-Container/tree/perf/p4-cuda-sm61-runtime/docs/reports/experiments/p4-cuda-deployment-20261101">程式、日誌與原始結果</a><a href="https://github.com/DF-wu/CapsWriter-Offline-Container/blob/perf/p4-cuda-sm61-runtime/docs/reports/p4-exclusive-container-experiments-20261101.md">先前 13 組獨占 GPU 實驗</a></div></section>
+<footer>2026-11-01 / Tesla P4 SM61 / Qwen3-ASR 1.7B / llama.cpp c301172f660a<br>本頁為指定硬體的測試與部署紀錄；延遲為本機觀測值，不代表其他硬體或負載。</footer>
+</main><script>
+const records=__DATA__;
+function show(n){const d=records.find(x=>x.seconds===n),max=d.before;document.querySelectorAll('[data-n]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.n===n)));document.querySelector('#chart').innerHTML=`<div class="bar-row"><span>原服務</span><div class="track"><div class="bar" style="width:100%"></div></div><strong>${d.before.toFixed(3)} s</strong></div><div class="bar-row"><span>CUDA</span><div class="track"><div class="bar new" style="width:${d.after/max*100}%"></div></div><strong>${d.after.toFixed(3)} s</strong></div>`;document.querySelector('#outcome').innerHTML=`<b>${d.speedup.toFixed(2)}×</b><span>${n} 秒音訊的速度倍率；等待時間減少 ${d.reduction.toFixed(1)}%</span>`;}
+document.querySelectorAll('[data-n]').forEach(b=>b.addEventListener('click',()=>show(+b.dataset.n)));show(10);
+</script></html>'''
+memory_text = f'{memory["baseline_mib"]:.0f} MiB 增至 {memory["deployed_mib"]:.0f} MiB'
+page = template.replace('__ROWS__', rows).replace('__TEXT_ROWS__', text_rows).replace('__DATA__', json.dumps(records)).replace('__MEMORY__', memory_text)
+(SITE / 'index.html').write_text(page)
+print(json.dumps({'report': str(SITE / 'index.html'), 'latency': records}, ensure_ascii=False))

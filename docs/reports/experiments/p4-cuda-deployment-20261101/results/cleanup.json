@@ -1,0 +1,19 @@
+{
+  "task_containers_removed": [
+    "/capswriter-p4-cuda-validation",
+    "/capswriter-p4-cuda-compiler"
+  ],
+  "task_image_tags_removed": [
+    "capswriter-p4-cuda:validated-20261101",
+    "capswriter-p4-cuda-compiler:temporary",
+    "capswriter-p4-base:temporary"
+  ],
+  "task_cache_records_removed": 31,
+  "unrelated_cache_records_preserved": 70,
+  "global_prune_used": false,
+  "host_packages_installed": false,
+  "original_services_and_parameters_unchanged": true,
+  "private_rollback_and_cuda_bundle_retained": true,
+  "scratch_removed": true,
+  "duplicated_cuda_archive_cache_removed": true
+}

@@ -1,0 +1,5 @@
+[capswriter] selected llama backend: cuda
+模型与 llama.cpp runtime 已就绪，跳过 bootstrap: qwen_asr
+[capswriter] CUDA decoder devices verified: CUDA0, CPU
+[capswriter] configured backend probe passed for qwen_asr (llama=cuda)
+[capswriter] CUDA decoder devices verified: CUDA0, CPU

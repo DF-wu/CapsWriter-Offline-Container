@@ -1,0 +1,21 @@
+23:17:18.681 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+14:42:16.280 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+14:42:22.888 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+16:28:53.530 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+16:29:00.659 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+02:49:31.586 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+02:49:38.530 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+03:19:56.213 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+03:20:04.742 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+03:23:14.105 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+03:23:21.867 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+03:31:18.275 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+03:31:26.383 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+11:07:06.370 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+11:07:12.554 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+12:31:53.557 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+12:32:00.222 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+12:35:00.273 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+12:35:07.361 INFO  [            llama.py:177] ggml_vulkan: No devices found.
+12:43:41.178 INFO  [            llama.py:177] load_tensors:        CUDA0 model buffer size =  1193.93 MiB
+12:43:47.442 INFO  [            llama.py:177] load_tensors:        CUDA0 model buffer size =  1193.93 MiB

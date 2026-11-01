@@ -1,0 +1,52 @@
+[
+  {
+    "id": "libri-1272-128104-0000",
+    "wall_s": 0.6602917489944957,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "gpu": "81, 1075, 2987, 92",
+    "repeat": 0,
+    "warmup": false,
+    "phase": "deployed-quality-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "libri-1272-128104-0001",
+    "wall_s": 0.5132136669999454,
+    "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+    "gpu": "82, 1075, 2987, 92",
+    "repeat": 0,
+    "warmup": false,
+    "phase": "deployed-quality-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "libri-1272-128104-0002",
+    "wall_s": 1.0158951139892451,
+    "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+    "gpu": "82, 1037, 2987, 94",
+    "repeat": 0,
+    "warmup": false,
+    "phase": "deployed-quality-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "noise2",
+    "wall_s": 1.4253382190072443,
+    "text": "拨号。请再说一次，请说出你要拨打的号码。13581887557。13582888188。纠正纠正。969。纠正纠正，不是96。",
+    "gpu": "83, 1037, 2989, 95",
+    "repeat": 0,
+    "warmup": false,
+    "phase": "deployed-quality-http",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "codeswitch",
+    "wall_s": 0.6874046790180728,
+    "text": "I'm alone, all by myself. Je suis tout seul. Sonne toute. Estoy solo.",
+    "gpu": "83, 1088, 2989, 92",
+    "repeat": 0,
+    "warmup": false,
+    "phase": "deployed-quality-http",
+    "run_id": "1793508011791913579"
+  }
+]

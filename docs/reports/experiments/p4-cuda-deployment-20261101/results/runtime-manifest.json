@@ -1,0 +1,70 @@
+{
+  "source_commit": "c301172f660a1fe0b42023da990bf7385d69adb4",
+  "source_archive_sha256": "4420071ba535356cb62f8cd65edb924dee321942d45b7e5e402df1f2906e1031",
+  "cuda_architectures": "61",
+  "cuda_toolkit": "11.8",
+  "archive_size": 101469556,
+  "archive_sha256": "a38423d78da294c9d837513b97da7723700e2b086ef1ec7c8528fb46bdce424d",
+  "libraries": {
+    "libggml-base.so": {
+      "size": 738176,
+      "sha256": "d48480bf2f01b254974d38ddc4f73034f18db2cb9acba5522b078d31fc20facf"
+    },
+    "libggml-base.so.0": {
+      "size": 738176,
+      "sha256": "d48480bf2f01b254974d38ddc4f73034f18db2cb9acba5522b078d31fc20facf"
+    },
+    "libggml-base.so.0.9.5": {
+      "size": 738176,
+      "sha256": "d48480bf2f01b254974d38ddc4f73034f18db2cb9acba5522b078d31fc20facf"
+    },
+    "libggml-cpu.so": {
+      "size": 971208,
+      "sha256": "f2550f7de4d5c0c70afef4f796ead196d71c6e15fc88733ac13d0a94698d467b"
+    },
+    "libggml-cpu.so.0": {
+      "size": 971208,
+      "sha256": "f2550f7de4d5c0c70afef4f796ead196d71c6e15fc88733ac13d0a94698d467b"
+    },
+    "libggml-cpu.so.0.9.5": {
+      "size": 971208,
+      "sha256": "f2550f7de4d5c0c70afef4f796ead196d71c6e15fc88733ac13d0a94698d467b"
+    },
+    "libggml-cuda.so": {
+      "size": 93101320,
+      "sha256": "cecba40bce2b7575cbb814f21254f3a54d0bc5e6fffd19cf85dcdbdaf5af45cd"
+    },
+    "libggml-cuda.so.0": {
+      "size": 93101320,
+      "sha256": "cecba40bce2b7575cbb814f21254f3a54d0bc5e6fffd19cf85dcdbdaf5af45cd"
+    },
+    "libggml-cuda.so.0.9.5": {
+      "size": 93101320,
+      "sha256": "cecba40bce2b7575cbb814f21254f3a54d0bc5e6fffd19cf85dcdbdaf5af45cd"
+    },
+    "libggml.so": {
+      "size": 55048,
+      "sha256": "70c4e6d1dc9e13da10b9f871f199ed49e83d205503bef59d769d3adbd92cbae1"
+    },
+    "libggml.so.0": {
+      "size": 55048,
+      "sha256": "70c4e6d1dc9e13da10b9f871f199ed49e83d205503bef59d769d3adbd92cbae1"
+    },
+    "libggml.so.0.9.5": {
+      "size": 55048,
+      "sha256": "70c4e6d1dc9e13da10b9f871f199ed49e83d205503bef59d769d3adbd92cbae1"
+    },
+    "libllama.so": {
+      "size": 3091832,
+      "sha256": "f56804fc0072e4d700c26d1cdb5004887744036116ee33b4dec959870adc2519"
+    },
+    "libllama.so.0": {
+      "size": 3091832,
+      "sha256": "f56804fc0072e4d700c26d1cdb5004887744036116ee33b4dec959870adc2519"
+    },
+    "libllama.so.0.0.0": {
+      "size": 3091832,
+      "sha256": "f56804fc0072e4d700c26d1cdb5004887744036116ee33b4dec959870adc2519"
+    }
+  }
+}
