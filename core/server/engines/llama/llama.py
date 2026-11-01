@@ -247,6 +247,10 @@ def bind_llama_lib():
     llama_backend_init.restype = None
     llama_backend_init()
 
+    if os.environ.get("CAPSWRITER_LLAMA_BACKEND") == "cuda":
+        from fork_server.llama_backend import validate_cuda_backend
+        validate_cuda_backend(ggml)
+
     # 绑定其他函数
     llama_backend_free = llama.llama_backend_free
     llama_backend_free.argtypes = []

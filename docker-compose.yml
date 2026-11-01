@@ -15,6 +15,7 @@ services:
 
       # qwen preset: default | low_vram_gpu
       CAPSWRITER_QWEN_PRESET: ${CAPSWRITER_QWEN_PRESET:-default}
+      CAPSWRITER_LLAMA_BACKEND: ${CAPSWRITER_LLAMA_BACKEND:-auto}
 
       # auto = prefer GPU and fall back to CPU; gpu = try GPU first; cpu = force CPU
       CAPSWRITER_INFERENCE_HARDWARE: ${CAPSWRITER_INFERENCE_HARDWARE:-auto}

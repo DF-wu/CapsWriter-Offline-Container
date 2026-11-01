@@ -18,6 +18,11 @@ configure_backend() {
   inference_hardware="${CAPSWRITER_INFERENCE_HARDWARE:-${CAPSWRITER_GPU_MODE:-auto}}"
   model_type="${CAPSWRITER_MODEL_TYPE:-qwen_asr}"
   qwen_preset="${CAPSWRITER_QWEN_PRESET:-default}"
+  requested_backend="${CAPSWRITER_LLAMA_BACKEND:-auto}"
+  case "$requested_backend" in
+    auto|cpu|vulkan|cuda) ;;
+    *) echo "[capswriter] invalid CAPSWRITER_LLAMA_BACKEND: $requested_backend" >&2; exit 1 ;;
+  esac
   llama_backend="cpu"
 
   gpu_visible="false"
@@ -29,16 +34,23 @@ configure_backend() {
     nvidia_visible="true"
   fi
 
-  if [ "$inference_hardware" = "cpu" ]; then
+  if [ "$inference_hardware" = "cpu" ] || [ "$requested_backend" = "cpu" ]; then
     llama_backend="cpu"
+  elif [ "$requested_backend" = "cuda" ]; then
+    llama_backend="cuda"
   elif [ "$gpu_visible" = "true" ]; then
     llama_backend="vulkan"
+    if [ "$requested_backend" = "auto" ] && [ "$nvidia_visible" = "true" ] &&
+       [ -f /opt/capswriter/llama-cuda/runtime.json ]; then
+      llama_backend="cuda"
+    fi
   else
     llama_backend="cpu"
   fi
 
-  if [ "$llama_backend" = "vulkan" ]; then
-    export CAPSWRITER_LLAMA_BACKEND="vulkan"
+  if [ "$llama_backend" = "vulkan" ] || [ "$llama_backend" = "cuda" ]; then
+    export CAPSWRITER_LLAMA_BACKEND="$llama_backend"
+    # Historical flags mean decoder GPU offload for either native backend.
     export CAPSWRITER_QWEN_VULKAN_ENABLE="true"
     export CAPSWRITER_FUNASR_VULKAN_ENABLE="true"
     if [ "$nvidia_visible" = "true" ]; then
@@ -48,7 +60,7 @@ configure_backend() {
       export CAPSWRITER_QWEN_USE_CUDA="false"
       export CAPSWRITER_FUNASR_USE_CUDA="false"
     fi
-    echo "[capswriter] GPU runtime detected, preferring Vulkan backend"
+    echo "[capswriter] selected llama backend: $llama_backend"
 
     if [ "$model_type" = "qwen_asr" ] && [ "$qwen_preset" = "cpu_only" ]; then
       configure_full_cpu_backend
@@ -61,6 +73,12 @@ configure_backend() {
     fi
   else
     configure_full_cpu_backend
+    if [ "$inference_hardware" != "cpu" ] && [ "$nvidia_visible" = "true" ] &&
+       [ "$model_type" = "qwen_asr" ] && [ "$qwen_preset" = "low_vram_gpu" ]; then
+      export CAPSWRITER_QWEN_USE_CUDA="true"
+      echo "[capswriter] qwen preset low_vram_gpu enabled: ONNX on GPU, llama on CPU"
+      return
+    fi
     if [ "$inference_hardware" = "gpu" ] || [ "$inference_hardware" = "auto" ]; then
       echo "[capswriter] GPU runtime unavailable, falling back to CPU backend"
     else
@@ -70,7 +88,8 @@ configure_backend() {
 }
 
 gpu_backend_configured() {
-  [ "${CAPSWRITER_LLAMA_BACKEND:-cpu}" = "vulkan" ] ||
+  [ "${CAPSWRITER_LLAMA_BACKEND:-cpu}" = "cuda" ] ||
+    [ "${CAPSWRITER_LLAMA_BACKEND:-cpu}" = "vulkan" ] ||
     [ "${CAPSWRITER_QWEN_USE_CUDA:-false}" = "true" ] ||
     [ "${CAPSWRITER_FUNASR_USE_CUDA:-false}" = "true" ] ||
     [ "${CAPSWRITER_QWEN_VULKAN_ENABLE:-false}" = "true" ] ||
@@ -83,6 +102,10 @@ fallback_to_cpu() {
 }
 
 prepare_and_probe_cpu_fallback() {
+  if [ "${CAPSWRITER_LLAMA_BACKEND:-cpu}" = "cuda" ]; then
+    echo "[capswriter] CUDA backend failed; refusing CPU fallback" >&2
+    exit 1
+  fi
   fallback_to_cpu
   python /app/docker/server/download_models.py
   if ! python /app/docker/server/probe_backend.py; then
