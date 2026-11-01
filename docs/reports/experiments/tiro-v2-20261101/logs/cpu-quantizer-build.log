@@ -1,0 +1,249 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+CMAKE_BUILD_TYPE=Release
+-- Could NOT find Git (missing: GIT_EXECUTABLE) 
+-- Could NOT find Git (missing: GIT_EXECUTABLE) 
+CMake Warning at cmake/build-info.cmake:14 (message):
+  Git not found.  Build info will not be accurate.
+Call Stack (most recent call first):
+  CMakeLists.txt:125 (include)
+
+
+-- The ASM compiler identification is GNU
+-- Found assembler: /usr/bin/cc
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Warning: ccache not found - consider installing it for faster compilation or disable this warning with GGML_CCACHE=OFF
+-- CMAKE_SYSTEM_PROCESSOR: x86_64
+-- GGML_SYSTEM_ARCH: x86
+-- Including CPU backend
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- x86 detected
+-- Adding CPU backend variant ggml-cpu: -msse4.2;-mf16c;-mfma;-mbmi2;-mavx;-mavx2 GGML_SSE42;GGML_F16C;GGML_FMA;GGML_BMI2;GGML_AVX;GGML_AVX2
+-- ggml version: 0.9.5
+-- ggml commit:  unknown
+CMake Warning at common/CMakeLists.txt:32 (message):
+  Git repository not found; to enable automatic generation of build info,
+  make sure Git is installed and the project is a Git repository.
+
+
+-- Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR (missing: OPENSSL_CRYPTO_LIBRARY OPENSSL_INCLUDE_DIR) 
+CMake Warning at vendor/cpp-httplib/CMakeLists.txt:145 (message):
+  OpenSSL not found, HTTPS support disabled
+
+
+-- Generating embedded license file for target: common
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /bench/cpu-build
+[1/196] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml.cpp.o
+[2/196] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-threading.cpp.o
+[3/196] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-alloc.c.o
+[4/196] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-opt.cpp.o
+[5/196] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/ggml-backend.cpp.o
+[6/196] Building CXX object ggml/src/CMakeFiles/ggml.dir/ggml-backend-reg.cpp.o
+[7/196] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml.c.o
+[8/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/hbm.cpp.o
+[9/196] Building C object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/ggml-cpu.c.o
+[10/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/ggml-cpu.cpp.o
+[11/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/traits.cpp.o
+[12/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/amx/amx.cpp.o
+[13/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/amx/mmq.cpp.o
+[14/196] Building C object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/quants.c.o
+[15/196] Building CXX object ggml/src/CMakeFiles/ggml-base.dir/gguf.cpp.o
+[16/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/vec.cpp.o
+[17/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/binary-ops.cpp.o
+[18/196] Building C object ggml/src/CMakeFiles/ggml-base.dir/ggml-quants.c.o
+[19/196] Linking CXX shared library bin/libggml-base.so.0.9.5
+[20/196] Creating library symlink bin/libggml-base.so.0 bin/libggml-base.so
+[21/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/repack.cpp.o
+[22/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/unary-ops.cpp.o
+[23/196] Building C object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/arch/x86/quants.c.o
+[24/196] Building CXX object src/CMakeFiles/llama.dir/llama-adapter.cpp.o
+[25/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/llamafile/sgemm.cpp.o
+[26/196] Building CXX object src/CMakeFiles/llama.dir/llama-arch.cpp.o
+[27/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/arch/x86/repack.cpp.o
+[28/196] Building CXX object src/CMakeFiles/llama.dir/llama.cpp.o
+[29/196] Building CXX object src/CMakeFiles/llama.dir/llama-cparams.cpp.o
+[30/196] Building CXX object src/CMakeFiles/llama.dir/models/jais.cpp.o
+[31/196] Building CXX object src/CMakeFiles/llama.dir/llama-batch.cpp.o
+[32/196] Building CXX object src/CMakeFiles/llama.dir/llama-hparams.cpp.o
+[33/196] Building CXX object src/CMakeFiles/llama.dir/llama-impl.cpp.o
+[34/196] Building CXX object src/CMakeFiles/llama.dir/llama-chat.cpp.o
+[35/196] Building CXX object src/CMakeFiles/llama.dir/llama-io.cpp.o
+[36/196] Building CXX object ggml/src/CMakeFiles/ggml-cpu.dir/ggml-cpu/ops.cpp.o
+[37/196] Linking CXX shared library bin/libggml-cpu.so.0.9.5
+[38/196] Creating library symlink bin/libggml-cpu.so.0 bin/libggml-cpu.so
+[39/196] Linking CXX shared library bin/libggml.so.0.9.5
+[40/196] Creating library symlink bin/libggml.so.0 bin/libggml.so
+[41/196] Building CXX object src/CMakeFiles/llama.dir/llama-memory.cpp.o
+[42/196] Building CXX object src/CMakeFiles/llama.dir/llama-graph.cpp.o
+[43/196] Building CXX object src/CMakeFiles/llama.dir/llama-kv-cache-iswa.cpp.o
+[44/196] Building CXX object src/CMakeFiles/llama.dir/llama-context.cpp.o
+[45/196] Building CXX object src/CMakeFiles/llama.dir/llama-memory-hybrid-iswa.cpp.o
+[46/196] Building CXX object src/CMakeFiles/llama.dir/llama-memory-hybrid.cpp.o
+[47/196] Building CXX object src/CMakeFiles/llama.dir/llama-mmap.cpp.o
+[48/196] Building CXX object src/CMakeFiles/llama.dir/llama-model-saver.cpp.o
+[49/196] Building CXX object src/CMakeFiles/llama.dir/llama-memory-recurrent.cpp.o
+[50/196] Building CXX object src/CMakeFiles/llama.dir/llama-kv-cache.cpp.o
+[51/196] Building CXX object src/CMakeFiles/llama.dir/llama-grammar.cpp.o
+[52/196] Building CXX object src/CMakeFiles/llama.dir/llama-model-loader.cpp.o
+[53/196] Building CXX object src/CMakeFiles/llama.dir/unicode-data.cpp.o
+[54/196] Building CXX object src/CMakeFiles/llama.dir/models/afmoe.cpp.o
+[55/196] Building CXX object src/CMakeFiles/llama.dir/models/apertus.cpp.o
+[56/196] Building CXX object src/CMakeFiles/llama.dir/models/arcee.cpp.o
+[57/196] Building CXX object src/CMakeFiles/llama.dir/models/arctic.cpp.o
+[58/196] Building CXX object src/CMakeFiles/llama.dir/llama-quant.cpp.o
+[59/196] Building CXX object src/CMakeFiles/llama.dir/models/arwkv7.cpp.o
+[60/196] Building CXX object src/CMakeFiles/llama.dir/llama-vocab.cpp.o
+[61/196] Building CXX object src/CMakeFiles/llama.dir/models/baichuan.cpp.o
+[62/196] Building CXX object src/CMakeFiles/llama.dir/models/bailingmoe.cpp.o
+[63/196] Building CXX object src/CMakeFiles/llama.dir/models/bert.cpp.o
+[64/196] Building CXX object src/CMakeFiles/llama.dir/models/bailingmoe2.cpp.o
+[65/196] Building CXX object src/CMakeFiles/llama.dir/llama-sampling.cpp.o
+[66/196] Building CXX object src/CMakeFiles/llama.dir/models/bitnet.cpp.o
+[67/196] Building CXX object src/CMakeFiles/llama.dir/models/bloom.cpp.o
+[68/196] Building CXX object src/CMakeFiles/llama.dir/models/chameleon.cpp.o
+[69/196] Building CXX object src/CMakeFiles/llama.dir/models/chatglm.cpp.o
+[70/196] Building CXX object src/CMakeFiles/llama.dir/models/cogvlm.cpp.o
+[71/196] Building CXX object src/CMakeFiles/llama.dir/models/codeshell.cpp.o
+[72/196] Building CXX object src/CMakeFiles/llama.dir/models/command-r.cpp.o
+[73/196] Building CXX object src/CMakeFiles/llama.dir/models/cohere2-iswa.cpp.o
+[74/196] Building CXX object src/CMakeFiles/llama.dir/models/deci.cpp.o
+[75/196] Building CXX object src/CMakeFiles/llama.dir/models/dbrx.cpp.o
+[76/196] Building CXX object src/CMakeFiles/llama.dir/models/deepseek.cpp.o
+[77/196] Building CXX object src/CMakeFiles/llama.dir/models/deepseek2.cpp.o
+[78/196] Building CXX object src/CMakeFiles/llama.dir/models/ernie4-5-moe.cpp.o
+[79/196] Building CXX object src/CMakeFiles/llama.dir/models/dream.cpp.o
+[80/196] Building CXX object src/CMakeFiles/llama.dir/unicode.cpp.o
+[81/196] Building CXX object src/CMakeFiles/llama.dir/models/dots1.cpp.o
+[82/196] Building CXX object src/CMakeFiles/llama.dir/models/ernie4-5.cpp.o
+[83/196] Building CXX object src/CMakeFiles/llama.dir/models/exaone.cpp.o
+[84/196] Building CXX object src/CMakeFiles/llama.dir/models/exaone-moe.cpp.o
+[85/196] Building CXX object src/CMakeFiles/llama.dir/models/falcon-h1.cpp.o
+[86/196] Building CXX object src/CMakeFiles/llama.dir/models/exaone4.cpp.o
+[87/196] Building CXX object src/CMakeFiles/llama.dir/models/gemma-embedding.cpp.o
+[88/196] Building CXX object src/CMakeFiles/llama.dir/models/falcon.cpp.o
+[89/196] Building CXX object src/CMakeFiles/llama.dir/models/gemma.cpp.o
+[90/196] Building CXX object src/CMakeFiles/llama.dir/models/gemma2-iswa.cpp.o
+[91/196] Building CXX object src/CMakeFiles/llama.dir/models/gemma3.cpp.o
+[92/196] Building CXX object src/CMakeFiles/llama.dir/models/gemma3n-iswa.cpp.o
+[93/196] Building CXX object src/CMakeFiles/llama.dir/models/glm4-moe.cpp.o
+[94/196] Building CXX object src/CMakeFiles/llama.dir/models/glm4.cpp.o
+[95/196] Building CXX object src/CMakeFiles/llama.dir/models/gpt2.cpp.o
+[96/196] Building CXX object src/CMakeFiles/llama.dir/models/gptneox.cpp.o
+[97/196] Building CXX object src/CMakeFiles/llama.dir/models/granite-hybrid.cpp.o
+[98/196] Building CXX object src/CMakeFiles/llama.dir/models/grok.cpp.o
+[99/196] Building CXX object src/CMakeFiles/llama.dir/models/granite.cpp.o
+[100/196] Building CXX object src/CMakeFiles/llama.dir/models/grovemoe.cpp.o
+[101/196] Building CXX object src/CMakeFiles/llama.dir/models/hunyuan-dense.cpp.o
+[102/196] Building CXX object src/CMakeFiles/llama.dir/models/hunyuan-moe.cpp.o
+[103/196] Building CXX object src/CMakeFiles/llama.dir/models/internlm2.cpp.o
+[104/196] Building CXX object src/CMakeFiles/llama.dir/models/jamba.cpp.o
+[105/196] Building CXX object src/CMakeFiles/llama.dir/models/lfm2.cpp.o
+[106/196] Building CXX object src/CMakeFiles/llama.dir/models/llada-moe.cpp.o
+[107/196] Building CXX object src/CMakeFiles/llama.dir/models/llada.cpp.o
+[108/196] Building CXX object src/CMakeFiles/llama.dir/llama-model.cpp.o
+[109/196] Building CXX object src/CMakeFiles/llama.dir/models/llama-iswa.cpp.o
+[110/196] Building CXX object src/CMakeFiles/llama.dir/models/mamba.cpp.o
+[111/196] Building CXX object src/CMakeFiles/llama.dir/models/llama.cpp.o
+[112/196] Building CXX object src/CMakeFiles/llama.dir/models/maincoder.cpp.o
+[113/196] Building CXX object src/CMakeFiles/llama.dir/models/mimo2-iswa.cpp.o
+[114/196] Building CXX object src/CMakeFiles/llama.dir/models/minimax-m2.cpp.o
+[115/196] Building CXX object src/CMakeFiles/llama.dir/models/minicpm3.cpp.o
+[116/196] Building CXX object src/CMakeFiles/llama.dir/models/modern-bert.cpp.o
+[117/196] Building CXX object src/CMakeFiles/llama.dir/models/mpt.cpp.o
+[118/196] Building CXX object src/CMakeFiles/llama.dir/models/nemotron-h.cpp.o
+[119/196] Building CXX object src/CMakeFiles/llama.dir/models/nemotron.cpp.o
+[120/196] Building CXX object src/CMakeFiles/llama.dir/models/olmo.cpp.o
+[121/196] Building CXX object src/CMakeFiles/llama.dir/models/olmo2.cpp.o
+[122/196] Building CXX object src/CMakeFiles/llama.dir/models/neo-bert.cpp.o
+[123/196] Building CXX object src/CMakeFiles/llama.dir/models/olmoe.cpp.o
+[124/196] Building CXX object src/CMakeFiles/llama.dir/models/openai-moe-iswa.cpp.o
+[125/196] Building CXX object src/CMakeFiles/llama.dir/models/orion.cpp.o
+[126/196] Building CXX object src/CMakeFiles/llama.dir/models/openelm.cpp.o
+[127/196] Building CXX object src/CMakeFiles/llama.dir/models/pangu-embedded.cpp.o
+[128/196] Building CXX object src/CMakeFiles/llama.dir/models/phi2.cpp.o
+[129/196] Building CXX object src/CMakeFiles/llama.dir/models/phi3.cpp.o
+[130/196] Building CXX object src/CMakeFiles/llama.dir/models/plamo.cpp.o
+[131/196] Building CXX object src/CMakeFiles/llama.dir/models/plamo3.cpp.o
+[132/196] Building CXX object src/CMakeFiles/llama.dir/models/plamo2.cpp.o
+[133/196] Building CXX object src/CMakeFiles/llama.dir/models/plm.cpp.o
+[134/196] Building CXX object src/CMakeFiles/llama.dir/models/qwen.cpp.o
+[135/196] Building CXX object src/CMakeFiles/llama.dir/models/qwen2moe.cpp.o
+[136/196] Building CXX object src/CMakeFiles/llama.dir/models/qwen2.cpp.o
+[137/196] Building CXX object src/CMakeFiles/llama.dir/models/qwen3.cpp.o
+[138/196] Building CXX object src/CMakeFiles/llama.dir/models/qwen3vl.cpp.o
+[139/196] Building CXX object src/CMakeFiles/llama.dir/models/qwen2vl.cpp.o
+[140/196] Building CXX object src/CMakeFiles/llama.dir/models/qwen3moe.cpp.o
+[141/196] Building CXX object src/CMakeFiles/llama.dir/models/qwen3vl-moe.cpp.o
+[142/196] Building CXX object src/CMakeFiles/llama.dir/models/refact.cpp.o
+[143/196] Building CXX object src/CMakeFiles/llama.dir/models/rnd1.cpp.o
+[144/196] Building CXX object src/CMakeFiles/llama.dir/models/qwen3next.cpp.o
+[145/196] Building CXX object src/CMakeFiles/llama.dir/models/rwkv6-base.cpp.o
+[146/196] Building CXX object src/CMakeFiles/llama.dir/models/rwkv6.cpp.o
+[147/196] Building CXX object src/CMakeFiles/llama.dir/models/rwkv6qwen2.cpp.o
+[148/196] Building CXX object src/CMakeFiles/llama.dir/models/rwkv7-base.cpp.o
+[149/196] Building CXX object src/CMakeFiles/llama.dir/models/smallthinker.cpp.o
+[150/196] Building CXX object src/CMakeFiles/llama.dir/models/seed-oss.cpp.o
+[151/196] Building CXX object src/CMakeFiles/llama.dir/models/rwkv7.cpp.o
+[152/196] Building CXX object src/CMakeFiles/llama.dir/models/stablelm.cpp.o
+[153/196] Building CXX object src/CMakeFiles/llama.dir/models/smollm3.cpp.o
+[154/196] Building CXX object src/CMakeFiles/llama.dir/models/starcoder.cpp.o
+[155/196] Building CXX object src/CMakeFiles/llama.dir/models/t5-dec.cpp.o
+[156/196] Building CXX object src/CMakeFiles/llama.dir/models/starcoder2.cpp.o
+[157/196] Building CXX object common/CMakeFiles/build_info.dir/build-info.cpp.o
+[158/196] Building CXX object src/CMakeFiles/llama.dir/models/t5-enc.cpp.o
+[159/196] Building CXX object src/CMakeFiles/llama.dir/models/wavtokenizer-dec.cpp.o
+[160/196] Building CXX object src/CMakeFiles/llama.dir/models/xverse.cpp.o
+[161/196] Building CXX object src/CMakeFiles/llama.dir/models/graph-context-mamba.cpp.o
+[162/196] Building CXX object src/CMakeFiles/llama.dir/models/mistral3.cpp.o
+[163/196] Linking CXX shared library bin/libllama.so.0.0.0
+[164/196] Creating library symlink bin/libllama.so.0 bin/libllama.so
+[165/196] Building CXX object common/CMakeFiles/common.dir/chat-peg-parser.cpp.o
+[166/196] Building CXX object common/CMakeFiles/common.dir/console.cpp.o
+[167/196] Building CXX object common/CMakeFiles/common.dir/chat-parser.cpp.o
+[168/196] Building CXX object common/CMakeFiles/common.dir/common.cpp.o
+[169/196] Building CXX object common/CMakeFiles/common.dir/debug.cpp.o
+[170/196] Building CXX object common/CMakeFiles/common.dir/chat-parser-xml-toolcall.cpp.o
+[171/196] Building CXX object common/CMakeFiles/common.dir/llguidance.cpp.o
+[172/196] Building CXX object common/CMakeFiles/common.dir/log.cpp.o
+[173/196] Building CXX object common/CMakeFiles/common.dir/ngram-cache.cpp.o
+[174/196] Building CXX object common/CMakeFiles/common.dir/json-partial.cpp.o
+[175/196] Building CXX object common/CMakeFiles/common.dir/arg.cpp.o
+[176/196] Building CXX object common/CMakeFiles/common.dir/json-schema-to-grammar.cpp.o
+[177/196] Building CXX object common/CMakeFiles/common.dir/download.cpp.o
+[178/196] Building CXX object common/CMakeFiles/common.dir/chat.cpp.o
+[179/196] Building CXX object common/CMakeFiles/common.dir/unicode.cpp.o
+[180/196] Building CXX object common/CMakeFiles/common.dir/preset.cpp.o
+[181/196] Building CXX object common/CMakeFiles/common.dir/speculative.cpp.o
+[182/196] Building CXX object common/CMakeFiles/common.dir/sampling.cpp.o
+[183/196] Building CXX object common/CMakeFiles/common.dir/regex-partial.cpp.o
+[184/196] Building CXX object common/CMakeFiles/common.dir/jinja/lexer.cpp.o
+[185/196] Building CXX object common/CMakeFiles/common.dir/jinja/string.cpp.o
+[186/196] Building CXX object common/CMakeFiles/common.dir/__/license.cpp.o
+[187/196] Building CXX object common/CMakeFiles/common.dir/jinja/parser.cpp.o
+[188/196] Building CXX object common/CMakeFiles/common.dir/jinja/runtime.cpp.o
+[189/196] Building CXX object tools/quantize/CMakeFiles/llama-quantize.dir/quantize.cpp.o
+[190/196] Building CXX object common/CMakeFiles/common.dir/jinja/caps.cpp.o
+[191/196] Building CXX object common/CMakeFiles/common.dir/jinja/value.cpp.o
+[192/196] Building CXX object common/CMakeFiles/common.dir/peg-parser.cpp.o
+[193/196] Building CXX object vendor/cpp-httplib/CMakeFiles/cpp-httplib.dir/httplib.cpp.o
+[194/196] Linking CXX static library vendor/cpp-httplib/libcpp-httplib.a
+[195/196] Linking CXX static library common/libcommon.a
+[196/196] Linking CXX executable bin/llama-quantize

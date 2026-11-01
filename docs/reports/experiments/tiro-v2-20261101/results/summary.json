@@ -1,0 +1,1540 @@
+{
+  "original-q5": {
+    "id": "original-q5",
+    "quality": {
+      "libri-1272-128104-0000": {
+        "id": "libri-1272-128104-0000",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.7059527079982217,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "id": "libri-1272-128104-0001",
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.5634362400160171,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "id": "libri-1272-128104-0002",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 1.1044911869976204,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "id": "noise2",
+        "text": "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "condition": "Mandarin",
+        "cer_edits": 2,
+        "reference_characters": 53,
+        "cer": 0.03773584905660377,
+        "wall_s": 1.733556868013693,
+        "status": "ok"
+      },
+      "codeswitch": {
+        "id": "codeswitch",
+        "text": "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "condition": "multilingual",
+        "cer_edits": 5,
+        "reference_characters": 50,
+        "cer": 0.1,
+        "wall_s": 0.6973033340182155,
+        "status": "ok"
+      },
+      "libri-1272-128104-0000-white-10db": {
+        "id": "libri-1272-128104-0000-white-10db",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.7070142330194358,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0000-white-0db": {
+        "id": "libri-1272-128104-0000-white-0db",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "white noise 0 dB",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.7107747989939526,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0000-echo": {
+        "id": "libri-1272-128104-0000-echo",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.7219650330080185,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001-white-10db": {
+        "id": "libri-1272-128104-0001-white-10db",
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.5577318390132859,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001-white-0db": {
+        "id": "libri-1272-128104-0001-white-0db",
+        "text": "Nor is Mister Croker's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "white noise 0 dB",
+        "cer_edits": 5,
+        "reference_characters": 53,
+        "cer": 0.09433962264150944,
+        "wall_s": 0.5603008270263672,
+        "status": "ok",
+        "wer_edits": 1,
+        "reference_words": 10,
+        "wer": 0.1
+      },
+      "libri-1272-128104-0001-echo": {
+        "id": "libri-1272-128104-0001-echo",
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.5619257789803669,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002-white-10db": {
+        "id": "libri-1272-128104-0002-white-10db",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 1.0981482859933749,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002-white-0db": {
+        "id": "libri-1272-128104-0002-white-0db",
+        "text": "He tells us that at this festive season of the year, with Christmas trees beaming before us, similes drawn from reading and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "white noise 0 dB",
+        "cer_edits": 13,
+        "reference_characters": 141,
+        "cer": 0.09219858156028368,
+        "wall_s": 1.0887157279939856,
+        "status": "ok",
+        "wer_edits": 5,
+        "reference_words": 32,
+        "wer": 0.15625
+      },
+      "libri-1272-128104-0002-echo": {
+        "id": "libri-1272-128104-0002-echo",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 1.0996406040212605,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      }
+    },
+    "latency": {
+      "mandarin-10s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.8916947349789552,
+          "min": 0.859028531005606,
+          "max": 0.8970217329915613
+        },
+        "texts": [
+          "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。"
+        ],
+        "n_generate": [
+          24
+        ]
+      },
+      "mandarin-2s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.19761731100152247,
+          "min": 0.18973083997843787,
+          "max": 0.19906726601766422
+        },
+        "texts": [
+          "王浩。"
+        ],
+        "n_generate": [
+          3
+        ]
+      },
+      "mandarin-5s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.5235791789891664,
+          "min": 0.5215065800002776,
+          "max": 0.5317531559849158
+        },
+        "texts": [
+          "什么？请再说一次，请说出您要拨打。"
+        ],
+        "n_generate": [
+          11
+        ]
+      }
+    },
+    "groups": {
+      "Mandarin": {
+        "n": 1,
+        "cer": 0.03773584905660377
+      },
+      "clean English": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      },
+      "multilingual": {
+        "n": 1,
+        "cer": 0.1
+      },
+      "synthetic echo": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      },
+      "white noise 0 dB": {
+        "n": 3,
+        "cer": 0.06741573033707865,
+        "word_errors": 6,
+        "reference_words": 59,
+        "wer": 0.1016949152542373
+      },
+      "white noise 10 dB": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      }
+    },
+    "metadata": [
+      {
+        "type": "metadata",
+        "run_id": "1793502036295466492",
+        "config": "original-q5",
+        "load_s": 3.7120522930053994,
+        "onnx_providers": {
+          "frontend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "backend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        },
+        "input_dtype": "<class 'numpy.float16'>",
+        "parameters": {
+          "allow_cpu_decoder": false,
+          "model_dir": "/models-original/Qwen3-ASR/Qwen3-ASR-1.7B",
+          "samples": "/bench/samples.json",
+          "output": "/bench/results/original-q5.jsonl",
+          "config_id": "original-q5",
+          "repeats": 1,
+          "temperature": 0,
+          "phase": "quality",
+          "warmup": 1
+        },
+        "library_path": "/bench/vulkan-bin",
+        "ggml_devices": [
+          "Vulkan0",
+          "CPU"
+        ]
+      },
+      {
+        "type": "metadata",
+        "run_id": "1793502252058409450",
+        "config": "original-q5",
+        "load_s": 3.6029777200019453,
+        "onnx_providers": {
+          "frontend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "backend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        },
+        "input_dtype": "<class 'numpy.float16'>",
+        "parameters": {
+          "allow_cpu_decoder": false,
+          "model_dir": "/models-original/Qwen3-ASR/Qwen3-ASR-1.7B",
+          "samples": "/bench/samples.json",
+          "output": "/bench/results/original-q5.jsonl",
+          "config_id": "original-q5",
+          "repeats": 3,
+          "temperature": 0,
+          "phase": "latency",
+          "warmup": 3
+        },
+        "library_path": "/bench/vulkan-bin",
+        "ggml_devices": [
+          "Vulkan0",
+          "CPU"
+        ]
+      }
+    ],
+    "measured_calls": 23,
+    "failures": 0,
+    "aborts": 0,
+    "extra_decode_attempts": 0,
+    "thermal": {
+      "snapshots": 46,
+      "temperature_c": [
+        80,
+        85
+      ],
+      "graphics_mhz": [
+        1037,
+        1113
+      ],
+      "gpu_mib": [
+        2984,
+        2996
+      ],
+      "sw_thermal_active": 0,
+      "hw_thermal_active": 0
+    },
+    "versus": {
+      "original-q5": {
+        "worse_samples": [],
+        "better_samples": [],
+        "passes_small_sample_quality_gate": true
+      },
+      "tiro-f16": {
+        "worse_samples": [
+          "codeswitch"
+        ],
+        "better_samples": [
+          "libri-1272-128104-0000-white-0db",
+          "libri-1272-128104-0002-white-0db"
+        ],
+        "passes_small_sample_quality_gate": false
+      }
+    }
+  },
+  "tiro-f16": {
+    "id": "tiro-f16",
+    "quality": {
+      "libri-1272-128104-0000": {
+        "id": "libri-1272-128104-0000",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 1.242438407993177,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "id": "libri-1272-128104-0001",
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.960374360991409,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "id": "libri-1272-128104-0002",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 1.906153007003013,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "id": "noise2",
+        "text": "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "condition": "Mandarin",
+        "cer_edits": 2,
+        "reference_characters": 53,
+        "cer": 0.03773584905660377,
+        "wall_s": 2.9132904720027,
+        "status": "ok"
+      },
+      "codeswitch": {
+        "id": "codeswitch",
+        "text": "I'm alone, all by myself. Je suis tout seul. Sonot tout. Estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "condition": "multilingual",
+        "cer_edits": 4,
+        "reference_characters": 50,
+        "cer": 0.08,
+        "wall_s": 1.2174581630097236,
+        "status": "ok"
+      },
+      "libri-1272-128104-0000-white-10db": {
+        "id": "libri-1272-128104-0000-white-10db",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 1.2356648230052087,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0000-white-0db": {
+        "id": "libri-1272-128104-0000-white-0db",
+        "text": "Mr. Croker is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "white noise 0 dB",
+        "cer_edits": 5,
+        "reference_characters": 73,
+        "cer": 0.0684931506849315,
+        "wall_s": 1.2363884469959885,
+        "status": "ok",
+        "wer_edits": 1,
+        "reference_words": 17,
+        "wer": 0.058823529411764705
+      },
+      "libri-1272-128104-0000-echo": {
+        "id": "libri-1272-128104-0000-echo",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 1.2417178300092928,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001-white-10db": {
+        "id": "libri-1272-128104-0001-white-10db",
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.9593503249925561,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001-white-0db": {
+        "id": "libri-1272-128104-0001-white-0db",
+        "text": "Nor is Mr. Croker's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "white noise 0 dB",
+        "cer_edits": 5,
+        "reference_characters": 53,
+        "cer": 0.09433962264150944,
+        "wall_s": 0.9916055010107812,
+        "status": "ok",
+        "wer_edits": 1,
+        "reference_words": 10,
+        "wer": 0.1
+      },
+      "libri-1272-128104-0001-echo": {
+        "id": "libri-1272-128104-0001-echo",
+        "text": "Nor is Mister. Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.994557974016061,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002-white-10db": {
+        "id": "libri-1272-128104-0002-white-10db",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 1.9508289000077639,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002-white-0db": {
+        "id": "libri-1272-128104-0002-white-0db",
+        "text": "He tells us that at this festive season of the year, when Christmas was bequeaming before us, similes drawn from reading and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "white noise 0 dB",
+        "cer_edits": 16,
+        "reference_characters": 141,
+        "cer": 0.11347517730496454,
+        "wall_s": 1.9335720960225444,
+        "status": "ok",
+        "wer_edits": 6,
+        "reference_words": 32,
+        "wer": 0.1875
+      },
+      "libri-1272-128104-0002-echo": {
+        "id": "libri-1272-128104-0002-echo",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 1.937314698996488,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      }
+    },
+    "latency": {
+      "mandarin-10s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 1.51397273800103,
+          "min": 1.5131079179991502,
+          "max": 1.5235305730020627
+        },
+        "texts": [
+          "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。"
+        ],
+        "n_generate": [
+          24
+        ]
+      },
+      "mandarin-2s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.26733100597630255,
+          "min": 0.26612743802252226,
+          "max": 0.26763205902534537
+        },
+        "texts": [
+          "喂，哈。"
+        ],
+        "n_generate": [
+          4
+        ]
+      },
+      "mandarin-5s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.990052373992512,
+          "min": 0.9893209160072729,
+          "max": 0.9907737110042945
+        },
+        "texts": [
+          "喂？请再说一次，请说出您要拨打的电话号码。"
+        ],
+        "n_generate": [
+          14
+        ]
+      }
+    },
+    "groups": {
+      "Mandarin": {
+        "n": 1,
+        "cer": 0.03773584905660377
+      },
+      "clean English": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      },
+      "multilingual": {
+        "n": 1,
+        "cer": 0.08
+      },
+      "synthetic echo": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      },
+      "white noise 0 dB": {
+        "n": 3,
+        "cer": 0.09737827715355805,
+        "word_errors": 8,
+        "reference_words": 59,
+        "wer": 0.13559322033898305
+      },
+      "white noise 10 dB": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      }
+    },
+    "metadata": [
+      {
+        "type": "metadata",
+        "run_id": "1793502093783121090",
+        "config": "tiro-f16",
+        "load_s": 4.78756210298161,
+        "onnx_providers": {
+          "frontend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "backend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        },
+        "input_dtype": "<class 'numpy.float16'>",
+        "parameters": {
+          "allow_cpu_decoder": false,
+          "model_dir": "/bench/models/tiro-f16",
+          "samples": "/bench/samples.json",
+          "output": "/bench/results/tiro-f16.jsonl",
+          "config_id": "tiro-f16",
+          "repeats": 1,
+          "temperature": 0,
+          "phase": "quality",
+          "warmup": 1
+        },
+        "library_path": "/bench/vulkan-bin",
+        "ggml_devices": [
+          "Vulkan0",
+          "CPU"
+        ]
+      },
+      {
+        "type": "metadata",
+        "run_id": "1793502295838089724",
+        "config": "tiro-f16",
+        "load_s": 5.644595980003942,
+        "onnx_providers": {
+          "frontend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "backend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        },
+        "input_dtype": "<class 'numpy.float16'>",
+        "parameters": {
+          "allow_cpu_decoder": false,
+          "model_dir": "/bench/models/tiro-f16",
+          "samples": "/bench/samples.json",
+          "output": "/bench/results/tiro-f16.jsonl",
+          "config_id": "tiro-f16",
+          "repeats": 3,
+          "temperature": 0,
+          "phase": "latency",
+          "warmup": 3
+        },
+        "library_path": "/bench/vulkan-bin",
+        "ggml_devices": [
+          "Vulkan0",
+          "CPU"
+        ]
+      }
+    ],
+    "measured_calls": 23,
+    "failures": 0,
+    "aborts": 0,
+    "extra_decode_attempts": 0,
+    "thermal": {
+      "snapshots": 46,
+      "temperature_c": [
+        80,
+        86
+      ],
+      "graphics_mhz": [
+        987,
+        1113
+      ],
+      "gpu_mib": [
+        5070,
+        5072
+      ],
+      "sw_thermal_active": 0,
+      "hw_thermal_active": 0
+    },
+    "versus": {
+      "original-q5": {
+        "worse_samples": [
+          "libri-1272-128104-0000-white-0db",
+          "libri-1272-128104-0002-white-0db"
+        ],
+        "better_samples": [
+          "codeswitch"
+        ],
+        "passes_small_sample_quality_gate": false
+      },
+      "tiro-f16": {
+        "worse_samples": [],
+        "better_samples": [],
+        "passes_small_sample_quality_gate": true
+      }
+    }
+  },
+  "tiro-q5": {
+    "id": "tiro-q5",
+    "quality": {
+      "libri-1272-128104-0000": {
+        "id": "libri-1272-128104-0000",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.7208088299958035,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "id": "libri-1272-128104-0001",
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.5539853670052253,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "id": "libri-1272-128104-0002",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 1.0926146899873856,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "id": "noise2",
+        "text": "拨号。请再说一次，请说出您要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。九正九正。九六九。九正九正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "condition": "Mandarin",
+        "cer_edits": 5,
+        "reference_characters": 53,
+        "cer": 0.09433962264150944,
+        "wall_s": 1.7905752760125324,
+        "status": "ok"
+      },
+      "codeswitch": {
+        "id": "codeswitch",
+        "text": "I'm alone, all by myself. Je suis tout seul. Sonot tout. Estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "condition": "multilingual",
+        "cer_edits": 4,
+        "reference_characters": 50,
+        "cer": 0.08,
+        "wall_s": 0.7088431020092685,
+        "status": "ok"
+      },
+      "libri-1272-128104-0000-white-10db": {
+        "id": "libri-1272-128104-0000-white-10db",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.7072101939993445,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0000-white-0db": {
+        "id": "libri-1272-128104-0000-white-0db",
+        "text": "Mr. Croker is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "white noise 0 dB",
+        "cer_edits": 5,
+        "reference_characters": 73,
+        "cer": 0.0684931506849315,
+        "wall_s": 0.7299399340117816,
+        "status": "ok",
+        "wer_edits": 1,
+        "reference_words": 17,
+        "wer": 0.058823529411764705
+      },
+      "libri-1272-128104-0000-echo": {
+        "id": "libri-1272-128104-0000-echo",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.7195272049866617,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001-white-10db": {
+        "id": "libri-1272-128104-0001-white-10db",
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.5575164540205151,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001-white-0db": {
+        "id": "libri-1272-128104-0001-white-0db",
+        "text": "Nor is Mr. Croker's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "white noise 0 dB",
+        "cer_edits": 5,
+        "reference_characters": 53,
+        "cer": 0.09433962264150944,
+        "wall_s": 0.5708311230118852,
+        "status": "ok",
+        "wer_edits": 1,
+        "reference_words": 10,
+        "wer": 0.1
+      },
+      "libri-1272-128104-0001-echo": {
+        "id": "libri-1272-128104-0001-echo",
+        "text": "Nor is Mister. Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.5765839669911657,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002-white-10db": {
+        "id": "libri-1272-128104-0002-white-10db",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 1.0969213949865662,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002-white-0db": {
+        "id": "libri-1272-128104-0002-white-0db",
+        "text": "He tells us that at this festive season of the year, when Christmas was bequeathing before us, symbols drawn from reading and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "white noise 0 dB",
+        "cer_edits": 21,
+        "reference_characters": 141,
+        "cer": 0.14893617021276595,
+        "wall_s": 1.0796212639834266,
+        "status": "ok",
+        "wer_edits": 7,
+        "reference_words": 32,
+        "wer": 0.21875
+      },
+      "libri-1272-128104-0002-echo": {
+        "id": "libri-1272-128104-0002-echo",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 1.1001537130214274,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      }
+    },
+    "latency": {
+      "mandarin-10s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.8806820049940143,
+          "min": 0.8782836059981491,
+          "max": 0.8999477659817785
+        },
+        "texts": [
+          "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五五七。"
+        ],
+        "n_generate": [
+          25
+        ]
+      },
+      "mandarin-2s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.1937491660064552,
+          "min": 0.19343198300339282,
+          "max": 0.20067500602453947
+        },
+        "texts": [
+          "我好。"
+        ],
+        "n_generate": [
+          3
+        ]
+      },
+      "mandarin-5s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.5225083259865642,
+          "min": 0.5217573319969233,
+          "max": 0.5241248509846628
+        },
+        "texts": [
+          "喂？请再说一次，请说出您要拨打。"
+        ],
+        "n_generate": [
+          11
+        ]
+      }
+    },
+    "groups": {
+      "Mandarin": {
+        "n": 1,
+        "cer": 0.09433962264150944
+      },
+      "clean English": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      },
+      "multilingual": {
+        "n": 1,
+        "cer": 0.08
+      },
+      "synthetic echo": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      },
+      "white noise 0 dB": {
+        "n": 3,
+        "cer": 0.11610486891385768,
+        "word_errors": 9,
+        "reference_words": 59,
+        "wer": 0.15254237288135594
+      },
+      "white noise 10 dB": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      }
+    },
+    "metadata": [
+      {
+        "type": "metadata",
+        "run_id": "1793502157208677817",
+        "config": "tiro-q5",
+        "load_s": 3.8060968829959165,
+        "onnx_providers": {
+          "frontend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "backend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        },
+        "input_dtype": "<class 'numpy.float16'>",
+        "parameters": {
+          "allow_cpu_decoder": false,
+          "model_dir": "/bench/models/tiro-q5",
+          "samples": "/bench/samples.json",
+          "output": "/bench/results/tiro-q5.jsonl",
+          "config_id": "tiro-q5",
+          "repeats": 1,
+          "temperature": 0,
+          "phase": "quality",
+          "warmup": 1
+        },
+        "library_path": "/bench/vulkan-bin",
+        "ggml_devices": [
+          "Vulkan0",
+          "CPU"
+        ]
+      },
+      {
+        "type": "metadata",
+        "run_id": "1793502343178393589",
+        "config": "tiro-q5",
+        "load_s": 4.182966270018369,
+        "onnx_providers": {
+          "frontend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "backend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        },
+        "input_dtype": "<class 'numpy.float16'>",
+        "parameters": {
+          "allow_cpu_decoder": false,
+          "model_dir": "/bench/models/tiro-q5",
+          "samples": "/bench/samples.json",
+          "output": "/bench/results/tiro-q5.jsonl",
+          "config_id": "tiro-q5",
+          "repeats": 3,
+          "temperature": 0,
+          "phase": "latency",
+          "warmup": 3
+        },
+        "library_path": "/bench/vulkan-bin",
+        "ggml_devices": [
+          "Vulkan0",
+          "CPU"
+        ]
+      }
+    ],
+    "measured_calls": 23,
+    "failures": 0,
+    "aborts": 0,
+    "extra_decode_attempts": 0,
+    "thermal": {
+      "snapshots": 46,
+      "temperature_c": [
+        80,
+        84
+      ],
+      "graphics_mhz": [
+        1063,
+        1113
+      ],
+      "gpu_mib": [
+        2984,
+        2989
+      ],
+      "sw_thermal_active": 0,
+      "hw_thermal_active": 0
+    },
+    "versus": {
+      "original-q5": {
+        "worse_samples": [
+          "noise2",
+          "libri-1272-128104-0000-white-0db",
+          "libri-1272-128104-0002-white-0db"
+        ],
+        "better_samples": [
+          "codeswitch"
+        ],
+        "passes_small_sample_quality_gate": false
+      },
+      "tiro-f16": {
+        "worse_samples": [
+          "noise2",
+          "libri-1272-128104-0002-white-0db"
+        ],
+        "better_samples": [],
+        "passes_small_sample_quality_gate": false
+      }
+    }
+  },
+  "tiro-q4": {
+    "id": "tiro-q4",
+    "quality": {
+      "libri-1272-128104-0000": {
+        "id": "libri-1272-128104-0000",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.615283608000027,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "id": "libri-1272-128104-0001",
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.48267678898992017,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "id": "libri-1272-128104-0002",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "clean English",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 0.9550334560044575,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "id": "noise2",
+        "text": "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "condition": "Mandarin",
+        "cer_edits": 2,
+        "reference_characters": 53,
+        "cer": 0.03773584905660377,
+        "wall_s": 1.501293146982789,
+        "status": "ok"
+      },
+      "codeswitch": {
+        "id": "codeswitch",
+        "text": "I'm alone, all by myself. Je suis tout seul. Sonot tout. Estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "condition": "multilingual",
+        "cer_edits": 4,
+        "reference_characters": 50,
+        "cer": 0.08,
+        "wall_s": 0.6121043659804855,
+        "status": "ok"
+      },
+      "libri-1272-128104-0000-white-10db": {
+        "id": "libri-1272-128104-0000-white-10db",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.6147871220018715,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0000-white-0db": {
+        "id": "libri-1272-128104-0000-white-0db",
+        "text": "Mr. Croker is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "white noise 0 dB",
+        "cer_edits": 5,
+        "reference_characters": 73,
+        "cer": 0.0684931506849315,
+        "wall_s": 0.6163853930193,
+        "status": "ok",
+        "wer_edits": 1,
+        "reference_words": 17,
+        "wer": 0.058823529411764705
+      },
+      "libri-1272-128104-0000-echo": {
+        "id": "libri-1272-128104-0000-echo",
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "wall_s": 0.6229391089873388,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001-white-10db": {
+        "id": "libri-1272-128104-0001-white-10db",
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.4847917690058239,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001-white-0db": {
+        "id": "libri-1272-128104-0001-white-0db",
+        "text": "Nor is Mr. Croker's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "white noise 0 dB",
+        "cer_edits": 5,
+        "reference_characters": 53,
+        "cer": 0.09433962264150944,
+        "wall_s": 0.5010580930102151,
+        "status": "ok",
+        "wer_edits": 1,
+        "reference_words": 10,
+        "wer": 0.1
+      },
+      "libri-1272-128104-0001-echo": {
+        "id": "libri-1272-128104-0001-echo",
+        "text": "Nor is Mister. Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "wall_s": 0.5068696179951075,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002-white-10db": {
+        "id": "libri-1272-128104-0002-white-10db",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "white noise 10 dB",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 0.9563317809952423,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002-white-0db": {
+        "id": "libri-1272-128104-0002-white-0db",
+        "text": "He tells us that at this festive season of the year, the Christmas tree was being blooming before us, symbolized on feeding and its results appear most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "white noise 0 dB",
+        "cer_edits": 32,
+        "reference_characters": 141,
+        "cer": 0.22695035460992907,
+        "wall_s": 0.9519582710054237,
+        "status": "ok",
+        "wer_edits": 10,
+        "reference_words": 32,
+        "wer": 0.3125
+      },
+      "libri-1272-128104-0002-echo": {
+        "id": "libri-1272-128104-0002-echo",
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "condition": "synthetic echo",
+        "cer_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "wall_s": 0.9618275040120352,
+        "status": "ok",
+        "wer_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      }
+    },
+    "latency": {
+      "mandarin-10s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.7831946749938652,
+          "min": 0.7703168110165279,
+          "max": 0.7881327829963993
+        },
+        "texts": [
+          "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。"
+        ],
+        "n_generate": [
+          25
+        ]
+      },
+      "mandarin-2s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.18007202100125141,
+          "min": 0.17866846700781025,
+          "max": 0.1878905310004484
+        },
+        "texts": [
+          "喂，哈。"
+        ],
+        "n_generate": [
+          4
+        ]
+      },
+      "mandarin-5s": {
+        "wall_s": {
+          "n": 3,
+          "p50": 0.4733171520056203,
+          "min": 0.47284507800941356,
+          "max": 0.48204544399050064
+        },
+        "texts": [
+          "哪号？请再说一次，请说出您要拨打。"
+        ],
+        "n_generate": [
+          12
+        ]
+      }
+    },
+    "groups": {
+      "Mandarin": {
+        "n": 1,
+        "cer": 0.03773584905660377
+      },
+      "clean English": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      },
+      "multilingual": {
+        "n": 1,
+        "cer": 0.08
+      },
+      "synthetic echo": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      },
+      "white noise 0 dB": {
+        "n": 3,
+        "cer": 0.15730337078651685,
+        "word_errors": 12,
+        "reference_words": 59,
+        "wer": 0.2033898305084746
+      },
+      "white noise 10 dB": {
+        "n": 3,
+        "cer": 0.0,
+        "word_errors": 0,
+        "reference_words": 59,
+        "wer": 0.0
+      }
+    },
+    "metadata": [
+      {
+        "type": "metadata",
+        "run_id": "1793502206511426570",
+        "config": "tiro-q4",
+        "load_s": 3.021420200006105,
+        "onnx_providers": {
+          "frontend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "backend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        },
+        "input_dtype": "<class 'numpy.float16'>",
+        "parameters": {
+          "allow_cpu_decoder": false,
+          "model_dir": "/bench/models/tiro-q4",
+          "samples": "/bench/samples.json",
+          "output": "/bench/results/tiro-q4.jsonl",
+          "config_id": "tiro-q4",
+          "repeats": 1,
+          "temperature": 0,
+          "phase": "quality",
+          "warmup": 1
+        },
+        "library_path": "/bench/vulkan-bin",
+        "ggml_devices": [
+          "Vulkan0",
+          "CPU"
+        ]
+      },
+      {
+        "type": "metadata",
+        "run_id": "1793502384220275910",
+        "config": "tiro-q4",
+        "load_s": 4.51467481002328,
+        "onnx_providers": {
+          "frontend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "backend": [
+            "CUDAExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        },
+        "input_dtype": "<class 'numpy.float16'>",
+        "parameters": {
+          "allow_cpu_decoder": false,
+          "model_dir": "/bench/models/tiro-q4",
+          "samples": "/bench/samples.json",
+          "output": "/bench/results/tiro-q4.jsonl",
+          "config_id": "tiro-q4",
+          "repeats": 3,
+          "temperature": 0,
+          "phase": "latency",
+          "warmup": 3
+        },
+        "library_path": "/bench/vulkan-bin",
+        "ggml_devices": [
+          "Vulkan0",
+          "CPU"
+        ]
+      }
+    ],
+    "measured_calls": 23,
+    "failures": 0,
+    "aborts": 0,
+    "extra_decode_attempts": 0,
+    "thermal": {
+      "snapshots": 46,
+      "temperature_c": [
+        80,
+        84
+      ],
+      "graphics_mhz": [
+        1101,
+        1113
+      ],
+      "gpu_mib": [
+        2845,
+        2851
+      ],
+      "sw_thermal_active": 0,
+      "hw_thermal_active": 0
+    },
+    "versus": {
+      "original-q5": {
+        "worse_samples": [
+          "libri-1272-128104-0000-white-0db",
+          "libri-1272-128104-0002-white-0db"
+        ],
+        "better_samples": [
+          "codeswitch"
+        ],
+        "passes_small_sample_quality_gate": false
+      },
+      "tiro-f16": {
+        "worse_samples": [
+          "libri-1272-128104-0002-white-0db"
+        ],
+        "better_samples": [],
+        "passes_small_sample_quality_gate": false
+      }
+    }
+  }
+}

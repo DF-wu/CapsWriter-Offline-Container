@@ -1,0 +1,191 @@
+[capswriter] selected llama backend: cuda
+模型与 llama.cpp runtime 已就绪，跳过 bootstrap: qwen_asr
+[capswriter] CUDA decoder devices verified: CUDA0, CPU
+[capswriter] configured backend probe passed for qwen_asr (llama=cuda)
+[capswriter] CUDA decoder devices verified: CUDA0, CPU
+12:42:04.612 INFO  [            llama.py:177] ggml_cuda_init: found 1 CUDA devices:
+12:42:07.395 INFO  [            llama.py:177] load_tensors: loading model tensors, this can take a while... (mmap = false, direct_io = true)
+12:42:07.396 INFO  [            llama.py:177] load_tensors: layer   0 assigned to device CUDA0, is_swa = 0
+12:42:07.396 INFO  [            llama.py:177] load_tensors: layer   1 assigned to device CUDA0, is_swa = 0
+12:42:07.396 INFO  [            llama.py:177] load_tensors: layer   2 assigned to device CUDA0, is_swa = 0
+12:42:07.396 INFO  [            llama.py:177] load_tensors: layer   3 assigned to device CUDA0, is_swa = 0
+12:42:07.396 INFO  [            llama.py:177] load_tensors: layer   4 assigned to device CUDA0, is_swa = 0
+12:42:07.396 INFO  [            llama.py:177] load_tensors: layer   5 assigned to device CUDA0, is_swa = 0
+12:42:07.396 INFO  [            llama.py:177] load_tensors: layer   6 assigned to device CUDA0, is_swa = 0
+12:42:07.396 INFO  [            llama.py:177] load_tensors: layer   7 assigned to device CUDA0, is_swa = 0
+12:42:07.396 INFO  [            llama.py:177] load_tensors: layer   8 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer   9 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer  10 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer  11 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer  12 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer  13 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer  14 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer  15 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer  16 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer  17 assigned to device CUDA0, is_swa = 0
+12:42:07.397 INFO  [            llama.py:177] load_tensors: layer  18 assigned to device CUDA0, is_swa = 0
+12:42:07.398 INFO  [            llama.py:177] load_tensors: layer  19 assigned to device CUDA0, is_swa = 0
+12:42:07.398 INFO  [            llama.py:177] load_tensors: layer  20 assigned to device CUDA0, is_swa = 0
+12:42:07.398 INFO  [            llama.py:177] load_tensors: layer  21 assigned to device CUDA0, is_swa = 0
+12:42:07.398 INFO  [            llama.py:177] load_tensors: layer  22 assigned to device CUDA0, is_swa = 0
+12:42:07.398 INFO  [            llama.py:177] load_tensors: layer  23 assigned to device CUDA0, is_swa = 0
+12:42:07.398 INFO  [            llama.py:177] load_tensors: layer  24 assigned to device CUDA0, is_swa = 0
+12:42:07.398 INFO  [            llama.py:177] load_tensors: layer  25 assigned to device CUDA0, is_swa = 0
+12:42:07.398 INFO  [            llama.py:177] load_tensors: layer  26 assigned to device CUDA0, is_swa = 0
+12:42:07.398 INFO  [            llama.py:177] load_tensors: layer  27 assigned to device CUDA0, is_swa = 0
+12:42:07.399 INFO  [            llama.py:177] load_tensors: layer  28 assigned to device CUDA0, is_swa = 0
+12:42:07.435 INFO  [            llama.py:177] load_tensors: tensor 'token_embd.weight' (q5_K) (and 0 others) cannot be used with preferred buffer type CUDA_Host, using CPU instead
+12:42:07.436 INFO  [            llama.py:177] load_tensors: offloading output layer to GPU
+12:42:07.436 INFO  [            llama.py:177] load_tensors: offloading 27 repeating layers to GPU
+12:42:07.436 INFO  [            llama.py:177] load_tensors: offloaded 29/29 layers to GPU
+12:42:07.436 INFO  [            llama.py:177] load_tensors:          CPU model buffer size =   204.02 MiB
+12:42:07.436 INFO  [            llama.py:177] load_tensors:        CUDA0 model buffer size =  1193.93 MiB
+12:42:08.689 INFO  [            llama.py:177] llama_context: constructing llama_context
+12:42:08.689 INFO  [            llama.py:177] llama_context: n_seq_max     = 1
+12:42:08.690 INFO  [            llama.py:177] llama_context: n_ctx         = 2048
+12:42:08.690 INFO  [            llama.py:177] llama_context: n_ctx_seq     = 2048
+12:42:08.690 INFO  [            llama.py:177] llama_context: n_batch       = 2048
+12:42:08.690 INFO  [            llama.py:177] llama_context: n_ubatch      = 512
+12:42:08.690 INFO  [            llama.py:177] llama_context: causal_attn   = 1
+12:42:08.690 INFO  [            llama.py:177] llama_context: flash_attn    = enabled
+12:42:08.691 INFO  [            llama.py:177] llama_context: kv_unified    = false
+12:42:08.691 INFO  [            llama.py:177] llama_context: freq_base     = 1000000.0
+12:42:08.691 INFO  [            llama.py:177] llama_context: freq_scale    = 1
+12:42:08.691 INFO  [            llama.py:177] llama_context: n_ctx_seq (2048) < n_ctx_train (65536) -- the full capacity of the model will not be utilized
+12:42:08.691 INFO  [            llama.py:177] llama_context:  CUDA_Host  output buffer size =     0.58 MiB
+12:42:08.692 INFO  [            llama.py:177] llama_kv_cache: layer   0: dev = CUDA0
+12:42:08.692 INFO  [            llama.py:177] llama_kv_cache: layer   1: dev = CUDA0
+12:42:08.692 INFO  [            llama.py:177] llama_kv_cache: layer   2: dev = CUDA0
+12:42:08.692 INFO  [            llama.py:177] llama_kv_cache: layer   3: dev = CUDA0
+12:42:08.692 INFO  [            llama.py:177] llama_kv_cache: layer   4: dev = CUDA0
+12:42:08.692 INFO  [            llama.py:177] llama_kv_cache: layer   5: dev = CUDA0
+12:42:08.693 INFO  [            llama.py:177] llama_kv_cache: layer   6: dev = CUDA0
+12:42:08.693 INFO  [            llama.py:177] llama_kv_cache: layer   7: dev = CUDA0
+12:42:08.693 INFO  [            llama.py:177] llama_kv_cache: layer   8: dev = CUDA0
+12:42:08.693 INFO  [            llama.py:177] llama_kv_cache: layer   9: dev = CUDA0
+12:42:08.693 INFO  [            llama.py:177] llama_kv_cache: layer  10: dev = CUDA0
+12:42:08.693 INFO  [            llama.py:177] llama_kv_cache: layer  11: dev = CUDA0
+12:42:08.694 INFO  [            llama.py:177] llama_kv_cache: layer  12: dev = CUDA0
+12:42:08.694 INFO  [            llama.py:177] llama_kv_cache: layer  13: dev = CUDA0
+12:42:08.694 INFO  [            llama.py:177] llama_kv_cache: layer  14: dev = CUDA0
+12:42:08.694 INFO  [            llama.py:177] llama_kv_cache: layer  15: dev = CUDA0
+12:42:08.694 INFO  [            llama.py:177] llama_kv_cache: layer  16: dev = CUDA0
+12:42:08.694 INFO  [            llama.py:177] llama_kv_cache: layer  17: dev = CUDA0
+12:42:08.694 INFO  [            llama.py:177] llama_kv_cache: layer  18: dev = CUDA0
+12:42:08.695 INFO  [            llama.py:177] llama_kv_cache: layer  19: dev = CUDA0
+12:42:08.695 INFO  [            llama.py:177] llama_kv_cache: layer  20: dev = CUDA0
+12:42:08.695 INFO  [            llama.py:177] llama_kv_cache: layer  21: dev = CUDA0
+12:42:08.695 INFO  [            llama.py:177] llama_kv_cache: layer  22: dev = CUDA0
+12:42:08.695 INFO  [            llama.py:177] llama_kv_cache: layer  23: dev = CUDA0
+12:42:08.695 INFO  [            llama.py:177] llama_kv_cache: layer  24: dev = CUDA0
+12:42:08.695 INFO  [            llama.py:177] llama_kv_cache: layer  25: dev = CUDA0
+12:42:08.695 INFO  [            llama.py:177] llama_kv_cache: layer  26: dev = CUDA0
+12:42:08.696 INFO  [            llama.py:177] llama_kv_cache: layer  27: dev = CUDA0
+12:42:08.696 INFO  [            llama.py:177] llama_kv_cache:      CUDA0 KV buffer size =   224.00 MiB
+12:42:08.698 INFO  [            llama.py:177] llama_kv_cache: size =  224.00 MiB (  2048 cells,  28 layers,  1/1 seqs), K (f16):  112.00 MiB, V (f16):  112.00 MiB
+12:42:08.698 INFO  [            llama.py:177] llama_context: enumerating backends
+12:42:08.698 INFO  [            llama.py:177] llama_context: backend_ptrs.size() = 2
+12:42:08.698 INFO  [            llama.py:177] sched_reserve: reserving ...
+12:42:08.699 INFO  [            llama.py:177] sched_reserve: max_nodes = 2488
+12:42:08.700 INFO  [            llama.py:177] sched_reserve: reserving full memory module
+12:42:08.700 INFO  [            llama.py:177] sched_reserve: worst-case: n_tokens = 512, n_seqs = 1, n_outputs = 1
+12:42:08.702 INFO  [            llama.py:177] ggml_cuda_graph_set_enabled: disabling CUDA graphs due to GPU architecture
+12:42:08.714 INFO  [            llama.py:177] sched_reserve:      CUDA0 compute buffer size =   300.75 MiB
+12:42:08.714 INFO  [            llama.py:177] sched_reserve:  CUDA_Host compute buffer size =     8.02 MiB
+12:42:08.714 INFO  [            llama.py:177] sched_reserve: graph nodes  = 987
+12:42:08.714 INFO  [            llama.py:177] sched_reserve: graph splits = 2
+12:42:08.714 INFO  [            llama.py:177] sched_reserve: reserve took 15.76 ms, sched copies = 1
+12:42:08.779 INFO  [            llama.py:177] ~llama_context:      CUDA0 compute buffer size is 300.7500 MiB, matches expectation of 300.7500 MiB
+12:42:08.779 INFO  [            llama.py:177] ~llama_context:  CUDA_Host compute buffer size is   8.0195 MiB, matches expectation of   8.0195 MiB
+12:42:10.654 INFO  [            llama.py:177] ggml_cuda_init: found 1 CUDA devices:
+12:42:13.501 INFO  [            llama.py:177] load_tensors: loading model tensors, this can take a while... (mmap = false, direct_io = true)
+12:42:13.501 INFO  [            llama.py:177] load_tensors: layer   0 assigned to device CUDA0, is_swa = 0
+12:42:13.501 INFO  [            llama.py:177] load_tensors: layer   1 assigned to device CUDA0, is_swa = 0
+12:42:13.501 INFO  [            llama.py:177] load_tensors: layer   2 assigned to device CUDA0, is_swa = 0
+12:42:13.501 INFO  [            llama.py:177] load_tensors: layer   3 assigned to device CUDA0, is_swa = 0
+12:42:13.502 INFO  [            llama.py:177] load_tensors: layer   4 assigned to device CUDA0, is_swa = 0
+12:42:13.502 INFO  [            llama.py:177] load_tensors: layer   5 assigned to device CUDA0, is_swa = 0
+12:42:13.502 INFO  [            llama.py:177] load_tensors: layer   6 assigned to device CUDA0, is_swa = 0
+12:42:13.502 INFO  [            llama.py:177] load_tensors: layer   7 assigned to device CUDA0, is_swa = 0
+12:42:13.502 INFO  [            llama.py:177] load_tensors: layer   8 assigned to device CUDA0, is_swa = 0
+12:42:13.502 INFO  [            llama.py:177] load_tensors: layer   9 assigned to device CUDA0, is_swa = 0
+12:42:13.502 INFO  [            llama.py:177] load_tensors: layer  10 assigned to device CUDA0, is_swa = 0
+12:42:13.502 INFO  [            llama.py:177] load_tensors: layer  11 assigned to device CUDA0, is_swa = 0
+12:42:13.503 INFO  [            llama.py:177] load_tensors: layer  12 assigned to device CUDA0, is_swa = 0
+12:42:13.503 INFO  [            llama.py:177] load_tensors: layer  13 assigned to device CUDA0, is_swa = 0
+12:42:13.503 INFO  [            llama.py:177] load_tensors: layer  14 assigned to device CUDA0, is_swa = 0
+12:42:13.503 INFO  [            llama.py:177] load_tensors: layer  15 assigned to device CUDA0, is_swa = 0
+12:42:13.503 INFO  [            llama.py:177] load_tensors: layer  16 assigned to device CUDA0, is_swa = 0
+12:42:13.503 INFO  [            llama.py:177] load_tensors: layer  17 assigned to device CUDA0, is_swa = 0
+12:42:13.503 INFO  [            llama.py:177] load_tensors: layer  18 assigned to device CUDA0, is_swa = 0
+12:42:13.503 INFO  [            llama.py:177] load_tensors: layer  19 assigned to device CUDA0, is_swa = 0
+12:42:13.504 INFO  [            llama.py:177] load_tensors: layer  20 assigned to device CUDA0, is_swa = 0
+12:42:13.504 INFO  [            llama.py:177] load_tensors: layer  21 assigned to device CUDA0, is_swa = 0
+12:42:13.504 INFO  [            llama.py:177] load_tensors: layer  22 assigned to device CUDA0, is_swa = 0
+12:42:13.504 INFO  [            llama.py:177] load_tensors: layer  23 assigned to device CUDA0, is_swa = 0
+12:42:13.504 INFO  [            llama.py:177] load_tensors: layer  24 assigned to device CUDA0, is_swa = 0
+12:42:13.504 INFO  [            llama.py:177] load_tensors: layer  25 assigned to device CUDA0, is_swa = 0
+12:42:13.504 INFO  [            llama.py:177] load_tensors: layer  26 assigned to device CUDA0, is_swa = 0
+12:42:13.504 INFO  [            llama.py:177] load_tensors: layer  27 assigned to device CUDA0, is_swa = 0
+12:42:13.505 INFO  [            llama.py:177] load_tensors: layer  28 assigned to device CUDA0, is_swa = 0
+12:42:13.555 INFO  [            llama.py:177] load_tensors: tensor 'token_embd.weight' (q5_K) (and 0 others) cannot be used with preferred buffer type CUDA_Host, using CPU instead
+12:42:13.556 INFO  [            llama.py:177] load_tensors: offloading output layer to GPU
+12:42:13.556 INFO  [            llama.py:177] load_tensors: offloading 27 repeating layers to GPU
+12:42:13.556 INFO  [            llama.py:177] load_tensors: offloaded 29/29 layers to GPU
+12:42:13.556 INFO  [            llama.py:177] load_tensors:          CPU model buffer size =   204.02 MiB
+12:42:13.556 INFO  [            llama.py:177] load_tensors:        CUDA0 model buffer size =  1193.93 MiB
+12:42:14.855 INFO  [            llama.py:177] llama_context: constructing llama_context
+12:42:14.856 INFO  [            llama.py:177] llama_context: n_seq_max     = 1
+12:42:14.856 INFO  [            llama.py:177] llama_context: n_ctx         = 2048
+12:42:14.856 INFO  [            llama.py:177] llama_context: n_ctx_seq     = 2048
+12:42:14.856 INFO  [            llama.py:177] llama_context: n_batch       = 2048
+12:42:14.856 INFO  [            llama.py:177] llama_context: n_ubatch      = 512
+12:42:14.856 INFO  [            llama.py:177] llama_context: causal_attn   = 1
+12:42:14.856 INFO  [            llama.py:177] llama_context: flash_attn    = enabled
+12:42:14.857 INFO  [            llama.py:177] llama_context: kv_unified    = false
+12:42:14.857 INFO  [            llama.py:177] llama_context: freq_base     = 1000000.0
+12:42:14.857 INFO  [            llama.py:177] llama_context: freq_scale    = 1
+12:42:14.857 INFO  [            llama.py:177] llama_context: n_ctx_seq (2048) < n_ctx_train (65536) -- the full capacity of the model will not be utilized
+12:42:14.858 INFO  [            llama.py:177] llama_context:  CUDA_Host  output buffer size =     0.58 MiB
+12:42:14.858 INFO  [            llama.py:177] llama_kv_cache: layer   0: dev = CUDA0
+12:42:14.858 INFO  [            llama.py:177] llama_kv_cache: layer   1: dev = CUDA0
+12:42:14.858 INFO  [            llama.py:177] llama_kv_cache: layer   2: dev = CUDA0
+12:42:14.858 INFO  [            llama.py:177] llama_kv_cache: layer   3: dev = CUDA0
+12:42:14.859 INFO  [            llama.py:177] llama_kv_cache: layer   4: dev = CUDA0
+12:42:14.859 INFO  [            llama.py:177] llama_kv_cache: layer   5: dev = CUDA0
+12:42:14.859 INFO  [            llama.py:177] llama_kv_cache: layer   6: dev = CUDA0
+12:42:14.859 INFO  [            llama.py:177] llama_kv_cache: layer   7: dev = CUDA0
+12:42:14.859 INFO  [            llama.py:177] llama_kv_cache: layer   8: dev = CUDA0
+12:42:14.859 INFO  [            llama.py:177] llama_kv_cache: layer   9: dev = CUDA0
+12:42:14.859 INFO  [            llama.py:177] llama_kv_cache: layer  10: dev = CUDA0
+12:42:14.860 INFO  [            llama.py:177] llama_kv_cache: layer  11: dev = CUDA0
+12:42:14.860 INFO  [            llama.py:177] llama_kv_cache: layer  12: dev = CUDA0
+12:42:14.860 INFO  [            llama.py:177] llama_kv_cache: layer  13: dev = CUDA0
+12:42:14.860 INFO  [            llama.py:177] llama_kv_cache: layer  14: dev = CUDA0
+12:42:14.860 INFO  [            llama.py:177] llama_kv_cache: layer  15: dev = CUDA0
+12:42:14.860 INFO  [            llama.py:177] llama_kv_cache: layer  16: dev = CUDA0
+12:42:14.861 INFO  [            llama.py:177] llama_kv_cache: layer  17: dev = CUDA0
+12:42:14.861 INFO  [            llama.py:177] llama_kv_cache: layer  18: dev = CUDA0
+12:42:14.861 INFO  [            llama.py:177] llama_kv_cache: layer  19: dev = CUDA0
+12:42:14.861 INFO  [            llama.py:177] llama_kv_cache: layer  20: dev = CUDA0
+12:42:14.861 INFO  [            llama.py:177] llama_kv_cache: layer  21: dev = CUDA0
+12:42:14.861 INFO  [            llama.py:177] llama_kv_cache: layer  22: dev = CUDA0
+12:42:14.862 INFO  [            llama.py:177] llama_kv_cache: layer  23: dev = CUDA0
+12:42:14.862 INFO  [            llama.py:177] llama_kv_cache: layer  24: dev = CUDA0
+12:42:14.862 INFO  [            llama.py:177] llama_kv_cache: layer  25: dev = CUDA0
+12:42:14.862 INFO  [            llama.py:177] llama_kv_cache: layer  26: dev = CUDA0
+12:42:14.862 INFO  [            llama.py:177] llama_kv_cache: layer  27: dev = CUDA0
+12:42:14.863 INFO  [            llama.py:177] llama_kv_cache:      CUDA0 KV buffer size =   224.00 MiB
+12:42:14.865 INFO  [            llama.py:177] llama_kv_cache: size =  224.00 MiB (  2048 cells,  28 layers,  1/1 seqs), K (f16):  112.00 MiB, V (f16):  112.00 MiB
+12:42:14.865 INFO  [            llama.py:177] llama_context: enumerating backends
+12:42:14.865 INFO  [            llama.py:177] llama_context: backend_ptrs.size() = 2
+12:42:14.865 INFO  [            llama.py:177] sched_reserve: reserving ...
+12:42:14.866 INFO  [            llama.py:177] sched_reserve: max_nodes = 2488
+12:42:14.868 INFO  [            llama.py:177] sched_reserve: reserving full memory module
+12:42:14.868 INFO  [            llama.py:177] sched_reserve: worst-case: n_tokens = 512, n_seqs = 1, n_outputs = 1
+12:42:14.871 INFO  [            llama.py:177] ggml_cuda_graph_set_enabled: disabling CUDA graphs due to GPU architecture
+12:42:14.886 INFO  [            llama.py:177] sched_reserve:      CUDA0 compute buffer size =   300.75 MiB
+12:42:14.886 INFO  [            llama.py:177] sched_reserve:  CUDA_Host compute buffer size =     8.02 MiB
+12:42:14.886 INFO  [            llama.py:177] sched_reserve: graph nodes  = 987
+12:42:14.886 INFO  [            llama.py:177] sched_reserve: graph splits = 2
+12:42:14.887 INFO  [            llama.py:177] sched_reserve: reserve took 21.10 ms, sched copies = 1

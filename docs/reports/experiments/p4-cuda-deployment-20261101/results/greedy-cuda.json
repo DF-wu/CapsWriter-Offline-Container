@@ -1,0 +1,47 @@
+[
+  {
+    "id": "libri-1272-128104-0000",
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+    "wall_s": 0.5233889539958909,
+    "temperature": 0,
+    "backend": "cuda",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "libri-1272-128104-0001",
+    "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+    "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+    "wall_s": 0.3469165550195612,
+    "temperature": 0,
+    "backend": "cuda",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "libri-1272-128104-0002",
+    "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+    "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+    "wall_s": 0.8211472159891855,
+    "temperature": 0,
+    "backend": "cuda",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "noise2",
+    "text": "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+    "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+    "wall_s": 1.21363613801077,
+    "temperature": 0,
+    "backend": "cuda",
+    "run_id": "1793508011791913579"
+  },
+  {
+    "id": "codeswitch",
+    "text": "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.",
+    "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+    "wall_s": 0.4885929150041193,
+    "temperature": 0,
+    "backend": "cuda",
+    "run_id": "1793508011791913579"
+  }
+]

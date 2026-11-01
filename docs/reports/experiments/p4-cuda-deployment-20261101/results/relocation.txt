@@ -1,0 +1,112 @@
+ca81d6ed38f65b220b7e758aaddf6f57b0f33778495e24e6f606b4386845f4b6
+
+Dynamic section at offset 0xad90 contains 31 entries:
+  Tag        Type                         Name/Value
+ 0x0000000000000001 (NEEDED)             Shared library: [libggml-cpu.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libggml-cuda.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libggml-base.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]
+ 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]
+ 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+ 0x000000000000000e (SONAME)             Library soname: [libggml.so.0]
+ 0x000000000000001d (RUNPATH)            Library runpath: [/src/build/bin:]
+ 0x000000000000000c (INIT)               0x3000
+ 0x000000000000000d (FINI)               0x8548
+ 0x0000000000000019 (INIT_ARRAY)         0xbd80
+ 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)
+ 0x000000000000001a (FINI_ARRAY)         0xbd88
+ 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)
+ 0x000000006ffffef5 (GNU_HASH)           0x2f0
+ 0x0000000000000005 (STRTAB)             0xc48
+ 0x0000000000000006 (SYMTAB)             0x3d8
+ 0x000000000000000a (STRSZ)              3227 (bytes)
+ 0x000000000000000b (SYMENT)             24 (bytes)
+ 0x0000000000000003 (PLTGOT)             0xc000
+ 0x0000000000000002 (PLTRELSZ)           1680 (bytes)
+ 0x0000000000000014 (PLTREL)             RELA
+ 0x0000000000000017 (JMPREL)             0x1ba8
+ 0x0000000000000007 (RELA)               0x1a88
+ 0x0000000000000008 (RELASZ)             288 (bytes)
+ 0x0000000000000009 (RELAENT)            24 (bytes)
+ 0x000000006ffffffe (VERNEED)            0x1998
+ 0x000000006fffffff (VERNEEDNUM)         3
+ 0x000000006ffffff0 (VERSYM)             0x18e4
+ 0x000000006ffffff9 (RELACOUNT)          3
+ 0x0000000000000000 (NULL)               0x0
+CMAKE_BUILD_TYPE=Release
+-- Could NOT find Git (missing: GIT_EXECUTABLE)
+-- Could NOT find Git (missing: GIT_EXECUTABLE)
+CMake Warning at cmake/build-info.cmake:14 (message):
+  Git not found.  Build info will not be accurate.
+Call Stack (most recent call first):
+  CMakeLists.txt:125 (include)
+
+
+-- Warning: ccache not found - consider installing it for faster compilation or disable this warning with GGML_CCACHE=OFF
+-- CMAKE_SYSTEM_PROCESSOR: x86_64
+-- GGML_SYSTEM_ARCH: x86
+-- Including CPU backend
+-- x86 detected
+-- Adding CPU backend variant ggml-cpu: -msse4.2;-mf16c;-mfma;-mbmi2;-mavx;-mavx2 GGML_SSE42;GGML_F16C;GGML_FMA;GGML_BMI2;GGML_AVX;GGML_AVX2
+-- CUDA Toolkit found
+-- Using CMAKE_CUDA_ARCHITECTURES=61 CMAKE_CUDA_ARCHITECTURES_NATIVE=
+-- CUDA host compiler is GNU 11.4.0
+-- Including CUDA backend
+-- ggml version: 0.9.5
+-- ggml commit:  unknown
+CMake Warning at common/CMakeLists.txt:32 (message):
+  Git repository not found; to enable automatic generation of build info,
+  make sure Git is installed and the project is a Git repository.
+
+
+-- Could NOT find OpenSSL, try to set the path to OpenSSL root folder in the system variable OPENSSL_ROOT_DIR (missing: OPENSSL_CRYPTO_LIBRARY OPENSSL_INCLUDE_DIR)
+CMake Warning at vendor/cpp-httplib/CMakeLists.txt:145 (message):
+  OpenSSL not found, HTTPS support disabled
+
+
+-- Generating embedded license file for target: common
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /src/build
+[1/8] Linking CXX shared library bin/libggml-cpu.so.0.9.5
+[2/8] Creating library symlink bin/libggml-cpu.so.0 bin/libggml-cpu.so
+[3/8] Linking CUDA shared library bin/libggml-cuda.so.0.9.5
+[4/8] Creating library symlink bin/libggml-cuda.so.0 bin/libggml-cuda.so
+[5/8] Linking CXX shared library bin/libggml.so.0.9.5
+[6/8] Creating library symlink bin/libggml.so.0 bin/libggml.so
+[7/8] Linking CXX shared library bin/libllama.so.0.0.0
+[8/8] Creating library symlink bin/libllama.so.0 bin/libllama.so
+
+Dynamic section at offset 0xad90 contains 31 entries:
+  Tag        Type                         Name/Value
+ 0x0000000000000001 (NEEDED)             Shared library: [libggml-cpu.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libggml-cuda.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libggml-base.so.0]
+ 0x0000000000000001 (NEEDED)             Shared library: [libstdc++.so.6]
+ 0x0000000000000001 (NEEDED)             Shared library: [libgcc_s.so.1]
+ 0x0000000000000001 (NEEDED)             Shared library: [libc.so.6]
+ 0x000000000000000e (SONAME)             Library soname: [libggml.so.0]
+ 0x000000000000001d (RUNPATH)            Library runpath: [$ORIGIN:]
+ 0x000000000000000c (INIT)               0x3000
+ 0x000000000000000d (FINI)               0x8548
+ 0x0000000000000019 (INIT_ARRAY)         0xbd80
+ 0x000000000000001b (INIT_ARRAYSZ)       8 (bytes)
+ 0x000000000000001a (FINI_ARRAY)         0xbd88
+ 0x000000000000001c (FINI_ARRAYSZ)       8 (bytes)
+ 0x000000006ffffef5 (GNU_HASH)           0x2f0
+ 0x0000000000000005 (STRTAB)             0xc48
+ 0x0000000000000006 (SYMTAB)             0x3d8
+ 0x000000000000000a (STRSZ)              3220 (bytes)
+ 0x000000000000000b (SYMENT)             24 (bytes)
+ 0x0000000000000003 (PLTGOT)             0xc000
+ 0x0000000000000002 (PLTRELSZ)           1680 (bytes)
+ 0x0000000000000014 (PLTREL)             RELA
+ 0x0000000000000017 (JMPREL)             0x1ba0
+ 0x0000000000000007 (RELA)               0x1a80
+ 0x0000000000000008 (RELASZ)             288 (bytes)
+ 0x0000000000000009 (RELAENT)            24 (bytes)
+ 0x000000006ffffffe (VERNEED)            0x1990
+ 0x000000006fffffff (VERNEEDNUM)         3
+ 0x000000006ffffff0 (VERSYM)             0x18dc
+ 0x000000006ffffff9 (RELACOUNT)          3
+ 0x0000000000000000 (NULL)               0x0

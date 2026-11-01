@@ -1,0 +1,46 @@
+{
+  "unit_tests_passed": 106,
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s docker/server/tests -q",
+      "exit_code": 0,
+      "output": "\u5f00\u59cb\u4e0b\u8f7d llama-b7798-cuda-sm61.tar.gz\n\n\u4e0b\u8f7d\u4e2d llama-b7798-cuda-sm61.tar.gz: 100.0%\nllama.cpp Linux \u5171\u4eab\u5e93\u5df2\u51c6\u5907\u5b8c\u6210\uff0cbackend=cuda\n\u53d1\u73b0\u5df2\u9a8c\u8bc1 llama.cpp \u538b\u7f29\u5305\uff0c\u76f4\u63a5\u89e3\u538b: models/.downloads/llama-b7798-cuda-sm61.tar.gz\nllama.cpp Linux \u5171\u4eab\u5e93\u5df2\u51c6\u5907\u5b8c\u6210\uff0cbackend=cuda\n----------------------------------------------------------------------\nRan 73 tests in 1.848s\n\nOK\n"
+    },
+    {
+      "command": "python3 -m unittest discover -s scripts/tests -p test_compose_config.py -q",
+      "exit_code": 0,
+      "output": "----------------------------------------------------------------------\nRan 15 tests in 0.024s\n\nOK\n"
+    },
+    {
+      "command": "python3 -m unittest discover -s fork_server/http_api/tests -p test_env_config.py -q",
+      "exit_code": 0,
+      "output": "----------------------------------------------------------------------\nRan 10 tests in 0.107s\n\nOK\n"
+    },
+    {
+      "command": "python3 -m unittest discover -s scripts/tests -p test_upstream_divergence.py -q",
+      "exit_code": 0,
+      "output": "----------------------------------------------------------------------\nRan 7 tests in 0.003s\n\nOK\n"
+    },
+    {
+      "command": "python3 docs/reports/experiments/p4-cuda-deployment-20261101/test_deploy.py -q",
+      "exit_code": 0,
+      "output": "----------------------------------------------------------------------\nRan 1 test in 0.006s\n\nOK\n"
+    },
+    {
+      "command": "git diff --check",
+      "exit_code": 0
+    },
+    {
+      "command": "sh -n docker/server/build_cuda.sh",
+      "exit_code": 0
+    },
+    {
+      "command": "sh -n docker/server/entrypoint.sh",
+      "exit_code": 0
+    },
+    {
+      "command": "/usr/bin/python3 scripts/check_upstream_divergence.py",
+      "exit_code": 0
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "config": "original-q5",
+    "phase": "quality",
+    "exit": 0,
+    "elapsed_s": 25.759327192005003,
+    "gpu_before": "78, 455, 0, 0, 10.88, Not Active, Not Active",
+    "gpu_after": "84, 1113, 0, 3, 30.27, Not Active, Not Active",
+    "completed_utc": "2026-11-01T03:00:57.336911+00:00"
+  },
+  {
+    "config": "tiro-f16",
+    "phase": "quality",
+    "exit": 0,
+    "elapsed_s": 33.638293716998305,
+    "gpu_before": "78, 455, 0, 0, 10.78, Not Active, Not Active",
+    "gpu_after": "86, 1113, 0, 0, 30.66, Not Active, Not Active",
+    "completed_utc": "2026-11-01T03:02:01.641396+00:00"
+  },
+  {
+    "config": "tiro-q5",
+    "phase": "quality",
+    "exit": 0,
+    "elapsed_s": 25.61112639302155,
+    "gpu_before": "78, 455, 0, 0, 11.07, Not Active, Not Active",
+    "gpu_after": "84, 1113, 0, 0, 30.29, Not Active, Not Active",
+    "completed_utc": "2026-11-01T03:02:57.941651+00:00"
+  },
+  {
+    "config": "tiro-q4",
+    "phase": "quality",
+    "exit": 0,
+    "elapsed_s": 23.299788634991273,
+    "gpu_before": "78, 455, 0, 0, 10.88, Not Active, Not Active",
+    "gpu_after": "83, 1113, 0, 0, 30.17, Not Active, Not Active",
+    "completed_utc": "2026-11-01T03:03:45.844894+00:00"
+  },
+  {
+    "config": "original-q5",
+    "phase": "latency",
+    "exit": 0,
+    "elapsed_s": 20.13549162299023,
+    "gpu_before": "78, 455, 0, 0, 10.88, Not Active, Not Active",
+    "gpu_after": "82, 1113, 0, 0, 29.71, Not Active, Not Active",
+    "completed_utc": "2026-11-01T03:04:27.563581+00:00"
+  },
+  {
+    "config": "tiro-f16",
+    "phase": "latency",
+    "exit": 0,
+    "elapsed_s": 24.200666871998692,
+    "gpu_before": "78, 455, 0, 0, 10.88, Not Active, Not Active",
+    "gpu_after": "83, 1113, 0, 3, 29.90, Not Active, Not Active",
+    "completed_utc": "2026-11-01T03:05:13.357287+00:00"
+  },
+  {
+    "config": "tiro-q5",
+    "phase": "latency",
+    "exit": 0,
+    "elapsed_s": 22.09729097899981,
+    "gpu_before": "78, 455, 0, 0, 10.69, Not Active, Not Active",
+    "gpu_after": "82, 1101, 0, 3, 29.51, Not Active, Not Active",
+    "completed_utc": "2026-11-01T03:06:00.072993+00:00"
+  },
+  {
+    "config": "tiro-q4",
+    "phase": "latency",
+    "exit": 0,
+    "elapsed_s": 20.388310795009602,
+    "gpu_before": "78, 455, 0, 0, 10.88, Not Active, Not Active",
+    "gpu_after": "81, 1113, 0, 0, 29.71, Not Active, Not Active",
+    "completed_utc": "2026-11-01T03:06:39.015346+00:00"
+  }
+]

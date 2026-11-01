@@ -1,0 +1,10 @@
+{
+  "desktop_width": 1024,
+  "mobile_width": 390,
+  "no_page_overflow_both": true,
+  "duration_buttons_tested": [2, 10],
+  "expected_speedups_verified": [4.03, 5.25],
+  "quality_table_rows": 5,
+  "console_errors": 0,
+  "tool": "T3 html_preview"
+}

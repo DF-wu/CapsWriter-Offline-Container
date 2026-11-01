@@ -1,0 +1,616 @@
+{
+  "shipped-cpu-fallback": {
+    "latency_n": 30,
+    "quality_n": 5,
+    "retry_calls": 0,
+    "quality": {
+      "libri-1272-128104-0000": {
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "text": "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 2,
+        "reference_characters": 53,
+        "cer": 0.03773584905660377
+      },
+      "codeswitch": {
+        "text": "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 5,
+        "reference_characters": 50,
+        "cer": 0.1
+      }
+    },
+    "latency_blocks": {
+      "baseline-initial-process": {
+        "samples": 30,
+        "median_wall_s": {
+          "mandarin-10s": 8.603009604499675,
+          "mandarin-2s": 2.598972023501119,
+          "mandarin-5s": 5.375377582509827
+        }
+      }
+    },
+    "snapshots": {
+      "n": 60,
+      "temperature_c": [
+        86.0,
+        88.0
+      ],
+      "graphics_mhz": [
+        885.0,
+        999.0
+      ],
+      "gpu_memory_mib": [
+        2503.0,
+        2503.0
+      ],
+      "sw_thermal_active": 0,
+      "hw_thermal_active": 0
+    }
+  },
+  "vulkan-f16-q5": {
+    "latency_n": 30,
+    "quality_n": 5,
+    "retry_calls": 0,
+    "quality": {
+      "libri-1272-128104-0000": {
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "text": "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 2,
+        "reference_characters": 53,
+        "cer": 0.03773584905660377
+      },
+      "codeswitch": {
+        "text": "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 5,
+        "reference_characters": 50,
+        "cer": 0.1
+      }
+    },
+    "latency_blocks": {
+      "1793468103709170529": {
+        "samples": 12,
+        "median_wall_s": {
+          "mandarin-10s": 3.0000278360021184,
+          "mandarin-2s": 0.6255835334959556,
+          "mandarin-5s": 1.7895096734937397
+        }
+      },
+      "1793468318051072348": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 0.8952148620010121,
+          "mandarin-2s": 0.20166626200079918,
+          "mandarin-5s": 0.53778504600632
+        }
+      },
+      "1793468398431698310": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 3.017699171003187,
+          "mandarin-2s": 0.6286942020087736,
+          "mandarin-5s": 1.79245428199647
+        }
+      }
+    },
+    "snapshots": {
+      "n": 60,
+      "temperature_c": [
+        88.0,
+        89.0
+      ],
+      "graphics_mhz": [
+        455.0,
+        1113.0
+      ],
+      "gpu_memory_mib": [
+        4234.0,
+        4244.0
+      ],
+      "sw_thermal_active": 37,
+      "hw_thermal_active": 0
+    }
+  },
+  "cuda-f16-q5": {
+    "latency_n": 30,
+    "quality_n": 5,
+    "retry_calls": 0,
+    "quality": {
+      "libri-1272-128104-0000": {
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "text": "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "raw_matches_cpu": false,
+        "normalized_matches_cpu": true,
+        "character_edits": 2,
+        "reference_characters": 53,
+        "cer": 0.03773584905660377
+      },
+      "codeswitch": {
+        "text": "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 5,
+        "reference_characters": 50,
+        "cer": 0.1
+      }
+    },
+    "latency_blocks": {
+      "1793468138368741848": {
+        "samples": 12,
+        "median_wall_s": {
+          "mandarin-10s": 1.9549591154936934,
+          "mandarin-2s": 0.4174071989982622,
+          "mandarin-5s": 1.0168135319981957
+        }
+      },
+      "1793468236036840819": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 1.955409497997607,
+          "mandarin-2s": 0.40776641698903404,
+          "mandarin-5s": 1.0156707660062239
+        }
+      },
+      "1793468434559456303": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 1.9476394630037248,
+          "mandarin-2s": 0.41777453999384306,
+          "mandarin-5s": 1.0089815870014718
+        }
+      }
+    },
+    "snapshots": {
+      "n": 60,
+      "temperature_c": [
+        89.0,
+        90.0
+      ],
+      "graphics_mhz": [
+        455.0,
+        455.0
+      ],
+      "gpu_memory_mib": [
+        4225.0,
+        4227.0
+      ],
+      "sw_thermal_active": 60,
+      "hw_thermal_active": 0
+    }
+  },
+  "cuda-f32-q5": {
+    "latency_n": 30,
+    "quality_n": 5,
+    "retry_calls": 0,
+    "quality": {
+      "libri-1272-128104-0000": {
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "text": "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 2,
+        "reference_characters": 53,
+        "cer": 0.03773584905660377
+      },
+      "codeswitch": {
+        "text": "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 5,
+        "reference_characters": 50,
+        "cer": 0.1
+      }
+    },
+    "latency_blocks": {
+      "1793468162621182434": {
+        "samples": 12,
+        "median_wall_s": {
+          "mandarin-10s": 1.9530851594972773,
+          "mandarin-2s": 0.4094790884992108,
+          "mandarin-5s": 1.0488932070002193
+        }
+      },
+      "1793468256933049800": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 1.9610366550041363,
+          "mandarin-2s": 0.41220292198704556,
+          "mandarin-5s": 1.0525786729995161
+        }
+      },
+      "1793468339768071843": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 1.9614346210000804,
+          "mandarin-2s": 0.40837171699968167,
+          "mandarin-5s": 1.0470840140042128
+        }
+      }
+    },
+    "snapshots": {
+      "n": 60,
+      "temperature_c": [
+        88.0,
+        90.0
+      ],
+      "graphics_mhz": [
+        455.0,
+        885.0
+      ],
+      "gpu_memory_mib": [
+        5283.0,
+        5291.0
+      ],
+      "sw_thermal_active": 57,
+      "hw_thermal_active": 0
+    }
+  },
+  "cuda-f16-q4": {
+    "latency_n": 30,
+    "quality_n": 5,
+    "retry_calls": 0,
+    "quality": {
+      "libri-1272-128104-0000": {
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "text": "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "raw_matches_cpu": false,
+        "normalized_matches_cpu": true,
+        "character_edits": 2,
+        "reference_characters": 53,
+        "cer": 0.03773584905660377
+      },
+      "codeswitch": {
+        "text": "I'm alone, all by myself. Je suis tout seul, sono tutto, estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "raw_matches_cpu": false,
+        "normalized_matches_cpu": false,
+        "character_edits": 0,
+        "reference_characters": 50,
+        "cer": 0.0
+      }
+    },
+    "latency_blocks": {
+      "1793468185971220520": {
+        "samples": 12,
+        "median_wall_s": {
+          "mandarin-10s": 2.204403704497963,
+          "mandarin-2s": 0.41909568550181575,
+          "mandarin-5s": 1.1357724840054289
+        }
+      },
+      "1793468277440288945": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 1.8844468180031981,
+          "mandarin-2s": 0.40702987399708945,
+          "mandarin-5s": 1.0302374599996256
+        }
+      },
+      "1793468358088292887": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 1.8860741579992464,
+          "mandarin-2s": 0.40739156599738635,
+          "mandarin-5s": 1.0239986810047412
+        }
+      }
+    },
+    "snapshots": {
+      "n": 60,
+      "temperature_c": [
+        88.0,
+        91.0
+      ],
+      "graphics_mhz": [
+        455.0,
+        455.0
+      ],
+      "gpu_memory_mib": [
+        4085.0,
+        4093.0
+      ],
+      "sw_thermal_active": 60,
+      "hw_thermal_active": 7
+    }
+  },
+  "cuda-int4-q4": {
+    "latency_n": 30,
+    "quality_n": 5,
+    "retry_calls": 0,
+    "quality": {
+      "libri-1272-128104-0000": {
+        "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+        "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 73,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 17,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0001": {
+        "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+        "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 53,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 10,
+        "wer": 0.0
+      },
+      "libri-1272-128104-0002": {
+        "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+        "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+        "raw_matches_cpu": true,
+        "normalized_matches_cpu": true,
+        "character_edits": 0,
+        "reference_characters": 141,
+        "cer": 0.0,
+        "word_edits": 0,
+        "reference_words": 32,
+        "wer": 0.0
+      },
+      "noise2": {
+        "text": "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九，纠正，纠正，不是九六。",
+        "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+        "raw_matches_cpu": false,
+        "normalized_matches_cpu": true,
+        "character_edits": 2,
+        "reference_characters": 53,
+        "cer": 0.03773584905660377
+      },
+      "codeswitch": {
+        "text": "I'm alone, all by myself. Je suis tout seul, sono tutto. Estoy solo.",
+        "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+        "raw_matches_cpu": false,
+        "normalized_matches_cpu": false,
+        "character_edits": 0,
+        "reference_characters": 50,
+        "cer": 0.0
+      }
+    },
+    "latency_blocks": {
+      "1793468210904365086": {
+        "samples": 12,
+        "median_wall_s": {
+          "mandarin-10s": 2.017333450494334,
+          "mandarin-2s": 0.4996978674971615,
+          "mandarin-5s": 1.1212824015019578
+        }
+      },
+      "1793468296429314086": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 2.0210892210016027,
+          "mandarin-2s": 0.5036774399923161,
+          "mandarin-5s": 1.1328603319998365
+        }
+      },
+      "1793468377162923985": {
+        "samples": 9,
+        "median_wall_s": {
+          "mandarin-10s": 2.0177126199996565,
+          "mandarin-2s": 0.4984532459930051,
+          "mandarin-5s": 1.1256188050028868
+        }
+      }
+    },
+    "snapshots": {
+      "n": 60,
+      "temperature_c": [
+        88.0,
+        90.0
+      ],
+      "graphics_mhz": [
+        455.0,
+        455.0
+      ],
+      "gpu_memory_mib": [
+        3351.0,
+        3411.0
+      ],
+      "sw_thermal_active": 60,
+      "hw_thermal_active": 0
+    }
+  },
+  "temperature04_smoke": {
+    "n": 9,
+    "failures": 0,
+    "retry_calls": 0,
+    "note": "One fixed seed per clip/config; not a performance distribution."
+  }
+}

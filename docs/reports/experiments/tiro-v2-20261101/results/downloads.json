@@ -1,0 +1,50 @@
+[
+  {
+    "file": "README.md",
+    "url": "https://huggingface.co/rohansheth/tiro-qwen3-asr-1.7b-v2/resolve/5dd5f33e0dbaa46254fc552a658d90152f1eaf75/README.md",
+    "bytes": 5072,
+    "sha256": "d6c0d02c9687bdcd6768c7b193c14ada7ff6739a3623d1b6b9130233aee253d1"
+  },
+  {
+    "file": "chat_template.jinja",
+    "url": "https://huggingface.co/rohansheth/tiro-qwen3-asr-1.7b-v2/resolve/5dd5f33e0dbaa46254fc552a658d90152f1eaf75/chat_template.jinja",
+    "bytes": 1434,
+    "sha256": "f50e6b694fbf4a683206e37869990d68333fe95d285730f084c838a34b0d98c2"
+  },
+  {
+    "file": "config.json",
+    "url": "https://huggingface.co/rohansheth/tiro-qwen3-asr-1.7b-v2/resolve/5dd5f33e0dbaa46254fc552a658d90152f1eaf75/config.json",
+    "bytes": 2422,
+    "sha256": "d19928194763d6dbd05dc999b8491ef7d2b8781debe7b488b98869e751782a19"
+  },
+  {
+    "file": "generation_config.json",
+    "url": "https://huggingface.co/rohansheth/tiro-qwen3-asr-1.7b-v2/resolve/5dd5f33e0dbaa46254fc552a658d90152f1eaf75/generation_config.json",
+    "bytes": 172,
+    "sha256": "980cf5a080ab94bbc56b6f0ee36d7cc6cafc8b373553723b5da82163ab50744d"
+  },
+  {
+    "file": "model.safetensors",
+    "url": "https://huggingface.co/rohansheth/tiro-qwen3-asr-1.7b-v2/resolve/5dd5f33e0dbaa46254fc552a658d90152f1eaf75/model.safetensors",
+    "bytes": 4076193080,
+    "sha256": "c57399f84b00cadfb3d1d62a3a7b3375f54297e26fdb5dc78138a076a5e8a1b5"
+  },
+  {
+    "file": "processor_config.json",
+    "url": "https://huggingface.co/rohansheth/tiro-qwen3-asr-1.7b-v2/resolve/5dd5f33e0dbaa46254fc552a658d90152f1eaf75/processor_config.json",
+    "bytes": 487,
+    "sha256": "bc0b230081b44e629dd5b9045b78495615c1831b4b9f4cffe97bd37e82a6156a"
+  },
+  {
+    "file": "tokenizer.json",
+    "url": "https://huggingface.co/rohansheth/tiro-qwen3-asr-1.7b-v2/resolve/5dd5f33e0dbaa46254fc552a658d90152f1eaf75/tokenizer.json",
+    "bytes": 11429820,
+    "sha256": "442f0211ed55492317e997ec360a4c005f4fa0d1ec2e66155e622f996ac382d6"
+  },
+  {
+    "file": "tokenizer_config.json",
+    "url": "https://huggingface.co/rohansheth/tiro-qwen3-asr-1.7b-v2/resolve/5dd5f33e0dbaa46254fc552a658d90152f1eaf75/tokenizer_config.json",
+    "bytes": 1102,
+    "sha256": "23f68d020fc8d91d295b170fb29fefddc3469ee2c35f2948e636c45aa5970dc4"
+  }
+]

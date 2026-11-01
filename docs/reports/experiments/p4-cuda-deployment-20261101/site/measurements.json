@@ -1,0 +1,392 @@
+{
+  "latency": [
+    {
+      "seconds": 2,
+      "before": 1.254796763008926,
+      "after": 0.31123055299394764,
+      "speedup": 4.031727447508431,
+      "reduction": 75.19673606364462
+    },
+    {
+      "seconds": 5,
+      "before": 2.3956491760036442,
+      "after": 0.5056648720055819,
+      "speedup": 4.737622304080477,
+      "reduction": 78.8923654986446
+    },
+    {
+      "seconds": 10,
+      "before": 4.149651174986502,
+      "after": 0.7901869470078964,
+      "speedup": 5.251480286658082,
+      "reduction": 80.95775009304327
+    }
+  ],
+  "run_id": "1793508011791913579",
+  "gpu_memory_mib": {
+    "baseline_mib": 1249.0,
+    "deployed_mib": 2987.0
+  },
+  "quality": {
+    "matched_normalized_outputs": 5,
+    "sample_ids": [
+      "codeswitch",
+      "libri-1272-128104-0000",
+      "libri-1272-128104-0001",
+      "libri-1272-128104-0002",
+      "noise2"
+    ],
+    "run_id": "1793508011791913579"
+  },
+  "deployment": {
+    "accepted": true,
+    "provisional": false,
+    "same_container_id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+    "same_image_id": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+    "models_unchanged": true,
+    "settings_unchanged": true,
+    "portainer_parameters_unchanged": true,
+    "full_cuda_offload": true,
+    "gpu": "82, 1113, 2989, 0",
+    "run_id": "1793508011791913579",
+    "services_restored_before_acceptance": true
+  },
+  "baseline_http": [
+    {
+      "id": "mandarin-2s",
+      "wall_s": 1.486385595984757,
+      "text": "王浩。",
+      "gpu": "83, 885, 1249, 0",
+      "repeat": 0,
+      "warmup": true,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-5s",
+      "wall_s": 2.2531695660145488,
+      "text": "何事？请再说一次，请说出您要拨打。",
+      "gpu": "83, 885, 1249, 0",
+      "repeat": 0,
+      "warmup": true,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-10s",
+      "wall_s": 3.8337058129836805,
+      "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+      "gpu": "83, 885, 1249, 0",
+      "repeat": 0,
+      "warmup": true,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-2s",
+      "wall_s": 1.2988135069899727,
+      "text": "王浩。",
+      "gpu": "83, 885, 1249, 0",
+      "repeat": 1,
+      "warmup": false,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-5s",
+      "wall_s": 2.4768964989925735,
+      "text": "哪号？请再说一次，请说出您要拨打。",
+      "gpu": "83, 885, 1249, 0",
+      "repeat": 1,
+      "warmup": false,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-10s",
+      "wall_s": 4.149651174986502,
+      "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+      "gpu": "84, 999, 1249, 0",
+      "repeat": 1,
+      "warmup": false,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-2s",
+      "wall_s": 1.254796763008926,
+      "text": "我哈。",
+      "gpu": "84, 999, 1249, 0",
+      "repeat": 2,
+      "warmup": false,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-5s",
+      "wall_s": 2.3956491760036442,
+      "text": "何事？请再说一次，请说出您要拨打。",
+      "gpu": "84, 999, 1249, 0",
+      "repeat": 2,
+      "warmup": false,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-10s",
+      "wall_s": 4.0632214799989015,
+      "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+      "gpu": "84, 1025, 1249, 0",
+      "repeat": 2,
+      "warmup": false,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-2s",
+      "wall_s": 1.1359428809955716,
+      "text": "王浩。",
+      "gpu": "84, 1025, 1249, 0",
+      "repeat": 3,
+      "warmup": false,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-5s",
+      "wall_s": 2.196823117992608,
+      "text": "什么？请再说一次，请说出您要拨打。",
+      "gpu": "84, 1025, 1249, 0",
+      "repeat": 3,
+      "warmup": false,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-10s",
+      "wall_s": 4.253152835008223,
+      "text": "拨号。请再说一次，请说出您要拨打的号码。13581887557。",
+      "gpu": "84, 1025, 1249, 0",
+      "repeat": 3,
+      "warmup": false,
+      "phase": "baseline-http",
+      "run_id": "1793508011791913579"
+    }
+  ],
+  "deployed_http": [
+    {
+      "id": "mandarin-2s",
+      "wall_s": 0.4538163550023455,
+      "text": "王浩。",
+      "gpu": "79, 1113, 2985, 43",
+      "repeat": 0,
+      "warmup": true,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-5s",
+      "wall_s": 0.531915889994707,
+      "text": "喂。请再说一次。请说出您要拨打。",
+      "gpu": "79, 1088, 2987, 92",
+      "repeat": 0,
+      "warmup": true,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-10s",
+      "wall_s": 0.8149217670143116,
+      "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+      "gpu": "80, 1050, 2987, 92",
+      "repeat": 0,
+      "warmup": true,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-2s",
+      "wall_s": 0.31123055299394764,
+      "text": "王浩。",
+      "gpu": "80, 1113, 2987, 25",
+      "repeat": 1,
+      "warmup": false,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-5s",
+      "wall_s": 0.5065621939720586,
+      "text": "我说，请再说一次，请说出您要拨打。",
+      "gpu": "80, 1113, 2987, 90",
+      "repeat": 1,
+      "warmup": false,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-10s",
+      "wall_s": 0.7901869470078964,
+      "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+      "gpu": "80, 1037, 2987, 92",
+      "repeat": 1,
+      "warmup": false,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-2s",
+      "wall_s": 0.31495268500293605,
+      "text": "王浩。",
+      "gpu": "80, 1113, 2987, 22",
+      "repeat": 2,
+      "warmup": false,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-5s",
+      "wall_s": 0.5056648720055819,
+      "text": "什么？请再说一次，请说出您要拨打。",
+      "gpu": "80, 1075, 2987, 91",
+      "repeat": 2,
+      "warmup": false,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-10s",
+      "wall_s": 0.7720021190179978,
+      "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+      "gpu": "81, 1101, 2987, 92",
+      "repeat": 2,
+      "warmup": false,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-2s",
+      "wall_s": 0.3100745980045758,
+      "text": "王浩。",
+      "gpu": "81, 1113, 2987, 27",
+      "repeat": 3,
+      "warmup": false,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-5s",
+      "wall_s": 0.5047505149850622,
+      "text": "什么？请再说一次，请说出您要拨打。",
+      "gpu": "81, 1113, 2987, 90",
+      "repeat": 3,
+      "warmup": false,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "mandarin-10s",
+      "wall_s": 0.8105621309950948,
+      "text": "拨号，请再说一次，请说出你要拨打的号码。13581887557。",
+      "gpu": "81, 1113, 2987, 77",
+      "repeat": 3,
+      "warmup": false,
+      "phase": "deployed-http",
+      "run_id": "1793508011791913579"
+    }
+  ],
+  "greedy_cpu": [
+    {
+      "id": "libri-1272-128104-0000",
+      "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+      "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+      "wall_s": 6.345978220982943,
+      "temperature": 0,
+      "backend": "cpu",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "libri-1272-128104-0001",
+      "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+      "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+      "wall_s": 3.843854876991827,
+      "temperature": 0,
+      "backend": "cpu",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "libri-1272-128104-0002",
+      "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+      "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+      "wall_s": 9.756943371001398,
+      "temperature": 0,
+      "backend": "cpu",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "noise2",
+      "text": "拨号。请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正，纠正。九六九。纠正，纠正，不是九六。",
+      "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+      "wall_s": 18.482268360996386,
+      "temperature": 0,
+      "backend": "cpu",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "codeswitch",
+      "text": "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.",
+      "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+      "wall_s": 5.881902872992214,
+      "temperature": 0,
+      "backend": "cpu",
+      "run_id": "1793508011791913579"
+    }
+  ],
+  "greedy_cuda": [
+    {
+      "id": "libri-1272-128104-0000",
+      "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+      "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+      "wall_s": 0.5233889539958909,
+      "temperature": 0,
+      "backend": "cuda",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "libri-1272-128104-0001",
+      "text": "Nor is Mister Quilter's manner less interesting than his matter.",
+      "reference": "NOR IS MISTER QUILTER'S MANNER LESS INTERESTING THAN HIS MATTER",
+      "wall_s": 0.3469165550195612,
+      "temperature": 0,
+      "backend": "cuda",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "libri-1272-128104-0002",
+      "text": "He tells us that at this festive season of the year, with Christmas and roast beef looming before us, similes drawn from eating and its results occur most readily to the mind.",
+      "reference": "HE TELLS US THAT AT THIS FESTIVE SEASON OF THE YEAR WITH CHRISTMAS AND ROAST BEEF LOOMING BEFORE US SIMILES DRAWN FROM EATING AND ITS RESULTS OCCUR MOST READILY TO THE MIND",
+      "wall_s": 0.8211472159891855,
+      "temperature": 0,
+      "backend": "cuda",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "noise2",
+      "text": "拨号，请再说一次，请说出你要拨打的号码。幺三五八幺八八七五五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+      "reference": "拨号，请再说一次，请说出您要拨打的号码。幺三五八幺八八七五七。一三五八二八八八幺八八。纠正纠正。九六九。纠正纠正，不是九六。",
+      "wall_s": 1.21363613801077,
+      "temperature": 0,
+      "backend": "cuda",
+      "run_id": "1793508011791913579"
+    },
+    {
+      "id": "codeswitch",
+      "text": "I'm alone, all by myself. Je suis tout seul. Sonne tout. Estoy solo.",
+      "reference": "I'm alone, all by myself. Je suis tout seul. Sono tutto. Estoy solo.",
+      "wall_s": 0.4885929150041193,
+      "temperature": 0,
+      "backend": "cuda",
+      "run_id": "1793508011791913579"
+    }
+  ]
+}

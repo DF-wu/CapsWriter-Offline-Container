@@ -1,0 +1,13 @@
+{
+  "production_before": {
+    "id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+    "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+    "started_at": "2026-10-31T08:28:22.340377717Z",
+    "health": "healthy"
+  },
+  "config_fingerprints_before": {
+    "Config": "10b848091eedb32b5243f7f08863c6c16dd3ce01e45c6b6addf22222af70d257",
+    "HostConfig": "4265ed08640ac4fbcb37857b6d5b1fd6ac917f23f695454deb4304bf2b7848db",
+    "NetworkConfiguration": "4f1cb77d136ae1e78d3bcdeadd8abae3acee48702e9c880afa0b3a4d026c08e3"
+  }
+}

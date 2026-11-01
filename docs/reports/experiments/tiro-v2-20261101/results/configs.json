@@ -1,0 +1,18 @@
+[
+  {
+    "id": "original-q5",
+    "model": "/models-original/Qwen3-ASR/Qwen3-ASR-1.7B"
+  },
+  {
+    "id": "tiro-f16",
+    "model": "/bench/models/tiro-f16"
+  },
+  {
+    "id": "tiro-q5",
+    "model": "/bench/models/tiro-q5"
+  },
+  {
+    "id": "tiro-q4",
+    "model": "/bench/models/tiro-q4"
+  }
+]

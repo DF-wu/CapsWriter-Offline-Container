@@ -83,10 +83,10 @@ release tags.
 
 ### Current candidate and publication boundary
 
-The latest published release is **`fork-v2.0.0`** (2026-09-30).
-**`fork-v2.1.0` is unreleased preparation**, not an already-created tag or RC
-publication. Its runtime/package metadata is `2.1.0` (`fork_server.__version__`
-and `pyproject.toml`); `/health` and `/ready` add `fork_version: "2.1.0"` while
+The latest published release is **`fork-v2.1.0`** (2026-10-31).
+**`fork-v2.2.0` is unreleased preparation**, not an already-created tag or RC
+publication. Its runtime/package metadata is `2.2.0` (`fork_server.__version__`
+and `pyproject.toml`); `/health` and `/ready` add `fork_version: "2.2.0"` while
 retaining upstream `version: "2.6"`. Upstream lineage remains `84912d5`.
 
 The canonical source/image-workflow repository is
@@ -95,7 +95,7 @@ redirects to the same repository. Publishing `master` triggers
 automatic image publication and guarded `latest` promotion; deferring the GitHub
 Release does not defer that side effect. Record the full merge SHA, exact-SHA
 CI/package runs, immutable image tags/digests and provenance separately in the
-[v2.1.0 release draft](../releases/fork-v2.1.0.md). Hardware acceptance and latency
+[v2.2.0 release draft](../releases/fork-v2.2.0.md). Hardware acceptance and latency
 evidence must come from actual qualification, not version strings or mock tests.
 
 The `myServices` recipe must separately be committed/pushed to Portainer's tracked

@@ -20,6 +20,7 @@ if ROOT_DIR.as_posix() not in sys.path:
     sys.path.insert(0, ROOT_DIR.as_posix())
 
 from config_server import ModelPaths, ServerConfig
+from fork_server.llama_backend import tesla_p4_optimization_enabled
 
 DEFAULT_DOWNLOAD_TIMEOUT_SECONDS = 60.0
 MODEL_BOOTSTRAP_LOCK_TIMEOUT_ENV = "CAPSWRITER_MODEL_BOOTSTRAP_LOCK_TIMEOUT"
@@ -501,6 +502,30 @@ LLAMA_CPP_OFFICIAL_MANIFESTS: dict[
         },
     },
 }
+
+
+def _register_bundled_cuda(
+    manifest_path: Path = Path("/opt/capswriter/llama-cuda/runtime.json"),
+) -> None:
+    """Register the root-owned image artifact; normal archive/library checks apply."""
+    if (not tesla_p4_optimization_enabled()
+            or os.getenv("CAPSWRITER_LLAMA_BACKEND", "cpu").strip().lower() != "cuda"
+            or not manifest_path.exists()):
+        return
+    metadata = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if (metadata["source_commit"] != "c301172f660a1fe0b42023da990bf7385d69adb4"
+            or metadata["cuda_architectures"] != "61"):
+        raise ValueError("Unsupported bundled CUDA runtime source/architecture")
+    archive = manifest_path.parent / "llama-b7798-cuda-sm61.tar.gz"
+    manifest = metadata["libraries"]
+    if any(name not in manifest for name in _llama_required_names("cuda")):
+        raise ValueError("Incomplete bundled CUDA runtime")
+    LLAMA_CPP_ASSETS["cuda"] = Asset(
+        name=archive.name, url=archive.resolve().as_uri(),
+        sha256=metadata["archive_sha256"], archive_size=metadata["archive_size"],
+        target_dir=LLAMA_TARGET_DIRS[0], required_files=[],
+    )
+    LLAMA_CPP_OFFICIAL_MANIFESTS["cuda"] = manifest
 
 
 def _download_timeout_seconds() -> float:
@@ -993,6 +1018,8 @@ def _llama_required_names(backend: str) -> List[str]:
     required_names = list(LLAMA_REQUIRED_CPU_LIBRARIES)
     if backend == "vulkan":
         required_names.extend(LLAMA_REQUIRED_VULKAN_LIBRARIES)
+    elif backend == "cuda":
+        required_names.append("libggml-cuda.so")
     return required_names
 
 
@@ -1571,6 +1598,9 @@ def main() -> int:
     except (OSError, RuntimeError, TimeoutError, ValueError) as error:
         print(f"无法取得安全的模型 bootstrap lock: {error}", file=sys.stderr)
         return 1
+
+
+_register_bundled_cuda()
 
 
 if __name__ == "__main__":

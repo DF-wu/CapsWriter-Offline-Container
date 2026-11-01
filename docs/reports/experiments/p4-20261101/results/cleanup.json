@@ -1,0 +1,169 @@
+{
+  "started_utc": "2026-10-31T17:56:23.756792+00:00",
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "top",
+        "capswriter-p4-test-20261101",
+        "-eo",
+        "pid,args"
+      ],
+      "exit": 0,
+      "stdout": "PID                 COMMAND\n4024549             /usr/bin/tail -f /dev/null",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "top",
+        "capswriter-p4-compiler-20261101",
+        "-eo",
+        "pid,args"
+      ],
+      "exit": 0,
+      "stdout": "PID                 COMMAND\n4067959             tail -f /dev/null",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "du",
+        "-sb",
+        "/tmp/capswriter-p4-exp-tudqzlgp"
+      ],
+      "exit": 0,
+      "stdout": "6096732549\t/tmp/capswriter-p4-exp-tudqzlgp",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "capswriter-p4-test-20261101",
+        "python",
+        "-c",
+        "from pathlib import Path;import shutil;p=Path('/bench');[(c.unlink() if c.is_symlink() or c.is_file() else shutil.rmtree(c)) for c in p.iterdir()]"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "capswriter-p4-test-20261101",
+        "capswriter-p4-compiler-20261101"
+      ],
+      "exit": 0,
+      "stdout": "capswriter-p4-test-20261101\ncapswriter-p4-compiler-20261101",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "nvidia/cuda:11.8.0-devel-ubuntu22.04"
+      ],
+      "exit": 0,
+      "stdout": "Untagged: nvidia/cuda:11.8.0-devel-ubuntu22.04\nUntagged: nvidia/cuda@sha256:94fd755736cb58979173d491504f0b573247b1745250249415b07fefc738e41f\nDeleted: sha256:6f9cc9f1ba9ed67d195088555737124e4a2eb54bebaaa7596f44e235428a461c\nDeleted: sha256:895bde318c0b28c605c9b181f2f5b6c0c7ba715edf56d72956b1b3371becc020\nDeleted: sha256:285c81e298a88c8824845f35428a3d1a5d123b643c9728880fd7305bd6878cab",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-aq",
+        "--filter",
+        "label=capswriter.experiment=p4-20261101"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "nvidia-smi",
+        "--query-gpu=temperature.gpu,memory.used,clocks.current.graphics",
+        "--format=csv"
+      ],
+      "exit": 0,
+      "stdout": "temperature.gpu, memory.used [MiB], clocks.current.graphics [MHz]\n84, 1253 MiB, 885 MHz",
+      "stderr": ""
+    }
+  ],
+  "production_before": {
+    "id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+    "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+    "status": "running",
+    "started_at": "2026-10-31T08:28:22.340377717Z",
+    "health": "healthy"
+  },
+  "state": {
+    "scratch": "/tmp/capswriter-p4-exp-tudqzlgp",
+    "container": "capswriter-p4-test-20261101",
+    "base_image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+    "model_volume": "capswriter_capswriter-server-models",
+    "created_images": [
+      "nvidia/cuda:11.8.0-devel-ubuntu22.04"
+    ],
+    "created_volumes": [],
+    "container_id": "070e88006483bcd6a5b731fdb698a73859e2d35a4a5556db91e8d55985530ae1",
+    "compiler_container": "capswriter-p4-compiler-20261101"
+  },
+  "test_resources": [
+    {
+      "name": "capswriter-p4-test-20261101",
+      "id": "070e88006483bcd6a5b731fdb698a73859e2d35a4a5556db91e8d55985530ae1",
+      "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5"
+    },
+    {
+      "name": "capswriter-p4-compiler-20261101",
+      "id": "07477b0891264ad66345fb2c8c1894d4101b059e082ad2bddb4afe2ce0fba533",
+      "image": "sha256:6f9cc9f1ba9ed67d195088555737124e4a2eb54bebaaa7596f44e235428a461c"
+    }
+  ],
+  "model_mount_read_only": true,
+  "original_model_hashes_rechecked": [
+    {
+      "variant": "original-read-only",
+      "filename": "qwen3_asr_encoder_frontend.onnx",
+      "bytes": 24063978,
+      "sha256": "fc288ba9a0ca732251b33628c803cd5188d3dd77a2cd7336f0f0fd37969ed4cd"
+    },
+    {
+      "variant": "original-read-only",
+      "filename": "qwen3_asr_encoder_backend.onnx",
+      "bytes": 611276553,
+      "sha256": "4b0b1e34e8393f29222006aae0719283b0ff28b61f289b6ff8377b3ddbda27e3"
+    },
+    {
+      "variant": "original-read-only",
+      "filename": "qwen3_asr_llm.gguf",
+      "bytes": 1471800896,
+      "sha256": "89e198470f41d487ab5b6b8a36a35400b3b1534451c4499236983050fe9193e5"
+    }
+  ],
+  "scratch_bytes_before": 6096732549,
+  "production_after": {
+    "id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+    "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+    "status": "running",
+    "started_at": "2026-10-31T08:28:22.340377717Z",
+    "health": "healthy"
+  },
+  "checks": {
+    "scratch_removed": true,
+    "state_removed": true,
+    "experiment_containers_remaining": [],
+    "experiment_telemetry_remaining": [],
+    "new_devel_image_removed": true,
+    "base_image_retained": true,
+    "model_volume_retained": true,
+    "production_identity_and_health_unchanged": true
+  },
+  "completed_utc": "2026-10-31T17:56:29.559298+00:00",
+  "complete": true
+}

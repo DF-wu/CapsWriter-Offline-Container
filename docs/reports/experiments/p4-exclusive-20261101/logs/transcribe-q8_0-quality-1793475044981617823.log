@@ -1,0 +1,35 @@
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 7599 MiB):
+  Device 0: Tesla P4, compute capability 6.1, VMM: yes, VRAM: 7599 MiB
+qwen3_asr: using cuda backend: CUDA0
+qwen3_asr: weights copied: 2078.1 MiB in CUDA0 (device keeps weights in its own memory)
+qwen3_asr: gate+up aliased for 28/28 blocks (714.0 MiB not duplicated)
+qwen3_asr@589: sched buffer CUDA0 -> 115.9 MB
+qwen3_asr@589: sched buffer CPU -> 0.3 MB
+qwen3_asr@770: sched buffer CPU -> 0.4 MB
+qwen3_asr@910: sched buffer CPU -> 0.6 MB
+{"config": "transcribe-q8_0", "id": "libri-1272-128104-0000", "warmup": true, "wall_s": 0.6323786089924397, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 115.9 MB
+qwen3_asr@589: sched buffer CPU -> 0.3 MB
+qwen3_asr@770: sched buffer CPU -> 0.4 MB
+qwen3_asr@910: sched buffer CPU -> 0.6 MB
+{"config": "transcribe-q8_0", "id": "libri-1272-128104-0000", "warmup": false, "wall_s": 0.5252737230039202, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 96.5 MB
+qwen3_asr@589: sched buffer CPU -> 0.3 MB
+qwen3_asr@770: sched buffer CPU -> 0.3 MB
+qwen3_asr@910: sched buffer CPU -> 0.5 MB
+{"config": "transcribe-q8_0", "id": "libri-1272-128104-0001", "warmup": false, "wall_s": 0.35662316500383895, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 251.0 MB
+qwen3_asr@589: sched buffer CPU -> 0.7 MB
+qwen3_asr@770: sched buffer CPU -> 0.7 MB
+qwen3_asr@910: sched buffer CPU -> 1.4 MB
+{"config": "transcribe-q8_0", "id": "libri-1272-128104-0002", "warmup": false, "wall_s": 0.8761982919968432, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 309.3 MB
+qwen3_asr@589: sched buffer CPU -> 1.2 MB
+qwen3_asr@770: sched buffer CPU -> 1.3 MB
+qwen3_asr@910: sched buffer CPU -> 2.6 MB
+{"config": "transcribe-q8_0", "id": "noise2", "warmup": false, "wall_s": 1.2771056719939224, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 135.2 MB
+qwen3_asr@589: sched buffer CPU -> 0.4 MB
+qwen3_asr@770: sched buffer CPU -> 0.4 MB
+qwen3_asr@910: sched buffer CPU -> 0.7 MB
+{"config": "transcribe-q8_0", "id": "codeswitch", "warmup": false, "wall_s": 0.5513246189948404, "status": "ok"}

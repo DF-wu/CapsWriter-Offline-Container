@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P4 本機配置比較</title>
+<style>
+body { margin: 0; color: var(--foreground); background: transparent; font-family: var(--font-sans); }
+#p4-results { display: grid; gap: 16px; }
+#p4-results h3, #p4-results p { margin: 0; font-weight: 400; }
+#p4-results h3 { font-weight: 500; }
+#p4-results table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+#p4-results th, #p4-results td { padding: 12px 6px; text-align: right; vertical-align: top; border-bottom: 1px solid var(--border); font-weight: 400; }
+#p4-results th:first-child, #p4-results td:first-child { text-align: left; padding-left: 0; width: 32%; }
+#p4-results th:last-child, #p4-results td:last-child { padding-right: 0; }
+#p4-results th { color: var(--muted-foreground); }
+#p4-results tbody th { color: var(--foreground); }
+#p4-results .secondary { color: var(--muted-foreground); }
+#p4-results .numbers { font-variant-numeric: tabular-nums; white-space: nowrap; }
+#p4-results .track { height: 4px; background: var(--muted); margin-top: 8px; }
+#p4-results .bar { height: 4px; background: var(--chart-1); }
+#p4-results .candidate .bar { background: var(--chart-2); }
+#p4-results .candidate .name { font-weight: 500; }
+#p4-results .label { display: block; margin-top: 4px; }
+#p4-results small { font-size: 12px; }
+@media (max-width: 420px) {
+  #p4-results th, #p4-results td { padding: 10px 4px; }
+  #p4-results th:first-child, #p4-results td:first-child { width: 28%; overflow-wrap: anywhere; }
+}
+</style>
+</head>
+<body>
+<main id="p4-results">
+  <h3>P4 本機：六組配置的 engine 延遲</h3>
+  <p class="secondary">單位：秒，越低越快。主數值為 p50，下方為 p95；每格 10 次。橫條依各欄獨立縮放。</p>
+  <table aria-label="三種音訊長度、六組配置的 p50 與 p95 engine 秒數">
+    <thead><tr><th scope="col">配置</th><th scope="col">2 秒音訊</th><th scope="col">5 秒音訊</th><th scope="col">10 秒音訊</th></tr></thead>
+    <tbody id="p4-body"></tbody>
+  </table>
+  <p><strong>優先整合候選：</strong>CUDA SM61＋原 FP16 encoder／Q5 decoder。Q4 有部分中位數優勢，尾延遲需改善散熱後重測。</p>
+  <p class="secondary"><small>限制：共用 GPU，量測達 86–91°C；Q4 有硬體熱降頻。三個裁切片段來自同一段中文音訊；另有五個品質樣本／配置，不能推廣品質等價。這不是 client 上屏延遲。</small></p>
+</main>
+<script>
+const rows = [
+  ['CPU fallback', '原 FP16／Q5', [[2.598972023501119,3.1433535879914416],[5.375377582509827,5.805128470994532],[8.603009604499675,9.898877238010755]]],
+  ['Vulkan', '原 FP16／Q5・補 EGL', [[0.6255835334959556,0.6460033359908266],[1.7875945634950767,1.7931831640016753],[3.0000278360021184,3.0234134170023026]]],
+  ['CUDA SM61', '原 FP16／Q5・優先候選', [[0.4173776104944409,0.4268323610012885],[1.0145471805080888,1.0277435989992227],[1.9511181630005012,1.9628487239970127]]],
+  ['CUDA SM61', 'FP32 promoted／Q5', [[0.41024901250057155,0.41992513799050357],[1.0507753954952932,1.0589634680072777],[1.959959356005129,1.9777065369999036]]],
+  ['CUDA SM61', '原 FP16／Q4', [[0.40887417949852534,0.5399222690030001],[1.0305175065004732,1.2776688940066379],[1.8898491549989558,2.7324953450006433]]],
+  ['CUDA SM61', 'W4 encoder／Q4', [[0.4991182684971136,0.5082167319924338],[1.127753284505161,1.1468014860001858],[2.0177548680003383,2.032842943997821]]]
+];
+const maxima = [0,1,2].map(i => Math.max(...rows.map(row => row[2][i][0])));
+document.getElementById('p4-body').innerHTML = rows.map((row, index) =>
+  `<tr class="${index === 2 ? 'candidate' : ''}"><th scope="row"><span class="name">${row[0]}</span><small class="secondary label">${row[1]}</small></th>` +
+  row[2].map((value, column) => `<td><div class="numbers">${value[0].toFixed(3)}</div><small class="secondary numbers">p95 ${value[1].toFixed(3)}</small><div class="track" aria-hidden="true"><div class="bar" style="width:${100*value[0]/maxima[column]}%"></div></div></td>`).join('') + '</tr>'
+).join('');
+console.log(JSON.stringify({rows: rows.length, numericCells: document.querySelectorAll('#p4-body td').length, overflow: document.documentElement.scrollWidth > innerWidth}));
+</script>
+</body>
+</html>

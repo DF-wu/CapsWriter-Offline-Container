@@ -2,37 +2,32 @@
 
 > [Documentation home](README.md) · [繁體中文](../zh-TW/release-notes.md) · [Getting started](getting-started.md)
 
-## fork-v2.1.0 — unreleased preparation
+## fork-v2.2.0 — unreleased preparation
 
-This is an **unreleased candidate**, not a published tag/image or a hardware
-acceptance claim. The latest published release remains **fork-v2.0.0** below.
-Upstream stays **v2.6 / `84912d5`**, with Python 3.10–3.12 and llama.cpp b7798.
+Adds an explicit `CAPSWRITER_TESLA_P4_OPTIMIZATION` flag, default `false`.
+Disabled or absent retains the original CPU/Vulkan selection; enabled selects
+the pinned b7798 / CUDA 11.8 / SM61 decoder and verifies actual Tesla P4 devices.
+The original FP16 ONNX encoder and Q5_K_M GGUF weights remain unchanged.
+CPU, low-VRAM and explicit CPU/Vulkan overrides take priority. CUDA startup
+failures stop the service rather than silently serving with a CPU decoder.
 
-- Fork runtime/package metadata becomes `2.1.0`. `/health` and `/ready` add
-  `fork_version: "2.1.0"`; existing upstream `version: "2.6"` stays unchanged.
-- Opt-in NVIDIA pre-boost adds validated enabled/device/memory-clock/idle controls
-  to Docker env and saved settings. Environment values take priority and restart
-  is required; command timeout remains expert env-only. Native universal startup
-  accepts explicit boost env and otherwise preserves existing Python defaults.
-- Worker boost covers HTTP, file and microphone inference, keeps the early mic
-  hint, refreshes after inference, and attempts idle/normal-shutdown reset.
-  Failures are nonfatal with bounded timeout/retry; enabled graceful-stop budgets
-  account for command timeout.
-- Defaults remain `appuser` and boost disabled. The optional
-  `docker-compose.nvidia-boost.yml` follows `docker-compose.gpu.yml` and explicitly
-  grants root/capabilities with 150-second stop grace. It does not itself enable
-  boost: explicit `true` and a supported positive MHz value are required.
+Fork metadata becomes `2.2.0`; upstream remains v2.6 / `84912d5`, Python
+3.10–3.12 and llama.cpp b7798. Builds/tests use disposable containers, with no
+host compiler installation or clock/power changes. This preparation does not
+redeploy the live service. See the [P4 guide](../tesla-p4.md),
+[release draft](../releases/fork-v2.2.0.md) and
+[validation record](../releases/validation-fork-v2.2.0.md) for evidence and limits.
 
-See [NVIDIA boost](../nvidia-boost.md) for all ranges, privileges, single-device
-selection and recovery. Hardware support is not universal; Hopper deferred clocks
-are outside this runtime feature. SIGKILL, host power loss and watchdog forced
-kills cannot guarantee reset. No candidate latency measurement is claimed.
+## fork-v2.1.0 — stable release
 
-The NFS model UID mismatch and pending remote `myServices` named-volume recipe
-are separate deployment work; the actual stack is untouched. Source/image
-publication and pushing the Portainer-tracked recipe are separate deliveries.
-The [concrete draft/checklist](../releases/fork-v2.1.0.md) leaves merge SHA,
-CI URLs, image digests and hardware evidence pending actual verification.
+Published **2026-10-31**: [GitHub Release](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.1.0).
+Added recorded shortcut chords, keypad/X11 autorepeat fixes, client instance
+locking, tray Exit/Restart fixes, and optional NVIDIA pre-boost controls with
+saved-setting validation, worker activity/idle handling and a separate permissions override. Boost remains
+default-off and is independent of GPU inference and the 2.2 P4 runtime flag.
+See [NVIDIA boost](../nvidia-boost.md) for privileges, support and recovery.
+The [original preparation checklist](../releases/fork-v2.1.0.md) is historical;
+its pending fields are not current 2.2 qualification results.
 
 ## fork-v2.0.0 — stable release
 

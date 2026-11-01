@@ -1,0 +1,50 @@
+[
+  {
+    "config": "cpu-fallback",
+    "phase": "latency",
+    "repeats": 10,
+    "warmup": 3,
+    "exit": 0,
+    "elapsed_s": 186.5316383229947,
+    "gpu_before": "78, 455, 3, 0, 10.78, Not Active, Not Active",
+    "gpu_after": "84, 999, 3, 11, 29.32, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:46:32.413883+00:00",
+    "block": "cpu-baseline"
+  },
+  {
+    "config": "vulkan-q5",
+    "phase": "latency",
+    "repeats": 5,
+    "warmup": 3,
+    "exit": 0,
+    "elapsed_s": 25.256639337007073,
+    "gpu_before": "78, 455, 3, 0, 10.78, Not Active, Not Active",
+    "gpu_after": "83, 1113, 3, 0, 30.09, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:47:40.288195+00:00",
+    "block": 0
+  },
+  {
+    "config": "cuda-q5",
+    "phase": "latency",
+    "repeats": 5,
+    "warmup": 3,
+    "exit": 0,
+    "elapsed_s": 12.511886328997207,
+    "gpu_before": "78, 455, 3, 0, 10.78, Not Active, Not Active",
+    "gpu_after": "82, 1113, 3, 3, 29.79, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:48:14.202402+00:00",
+    "block": 0
+  },
+  {
+    "config": "cuda-f32-q5",
+    "phase": "latency",
+    "repeats": 5,
+    "warmup": 3,
+    "exit": 0,
+    "elapsed_s": 14.369040150006185,
+    "gpu_before": "78, 455, 3, 0, 10.69, Not Active, Not Active",
+    "gpu_after": "82, 1037, 3399, 7, 64.75, Not Active, Not Active",
+    "completed_utc": "2026-10-31T18:48:59.065703+00:00",
+    "block": 0
+  }
+]

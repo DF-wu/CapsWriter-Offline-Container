@@ -1,0 +1,95 @@
+ggml_cuda_init: found 1 CUDA devices (Total VRAM: 7599 MiB):
+  Device 0: Tesla P4, compute capability 6.1, VMM: yes, VRAM: 7599 MiB
+qwen3_asr: using cuda backend: CUDA0
+qwen3_asr: weights copied: 2078.1 MiB in CUDA0 (device keeps weights in its own memory)
+qwen3_asr: gate+up aliased for 28/28 blocks (714.0 MiB not duplicated)
+qwen3_asr@589: sched buffer CUDA0 -> 38.6 MB
+qwen3_asr@589: sched buffer CPU -> 0.1 MB
+qwen3_asr@770: sched buffer CPU -> 0.2 MB
+qwen3_asr@910: sched buffer CPU -> 0.2 MB
+{"config": "transcribe-q8_0", "id": "mandarin-2s", "warmup": true, "wall_s": 0.17788623600790743, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 96.5 MB
+qwen3_asr@589: sched buffer CPU -> 0.3 MB
+qwen3_asr@770: sched buffer CPU -> 0.3 MB
+qwen3_asr@910: sched buffer CPU -> 0.5 MB
+{"config": "transcribe-q8_0", "id": "mandarin-5s", "warmup": true, "wall_s": 0.345078044992988, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 193.1 MB
+qwen3_asr@589: sched buffer CPU -> 0.5 MB
+qwen3_asr@770: sched buffer CPU -> 0.6 MB
+qwen3_asr@910: sched buffer CPU -> 1.1 MB
+{"config": "transcribe-q8_0", "id": "mandarin-10s", "warmup": true, "wall_s": 0.6349519240029622, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 38.6 MB
+qwen3_asr@589: sched buffer CPU -> 0.1 MB
+qwen3_asr@770: sched buffer CPU -> 0.2 MB
+qwen3_asr@910: sched buffer CPU -> 0.2 MB
+{"config": "transcribe-q8_0", "id": "mandarin-2s", "warmup": false, "wall_s": 0.13552811299450696, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 96.5 MB
+qwen3_asr@589: sched buffer CPU -> 0.3 MB
+qwen3_asr@770: sched buffer CPU -> 0.3 MB
+qwen3_asr@910: sched buffer CPU -> 0.5 MB
+{"config": "transcribe-q8_0", "id": "mandarin-5s", "warmup": false, "wall_s": 0.332719875004841, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 193.1 MB
+qwen3_asr@589: sched buffer CPU -> 0.5 MB
+qwen3_asr@770: sched buffer CPU -> 0.6 MB
+qwen3_asr@910: sched buffer CPU -> 1.1 MB
+{"config": "transcribe-q8_0", "id": "mandarin-10s", "warmup": false, "wall_s": 0.6416015119903022, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 38.6 MB
+qwen3_asr@589: sched buffer CPU -> 0.1 MB
+qwen3_asr@770: sched buffer CPU -> 0.2 MB
+qwen3_asr@910: sched buffer CPU -> 0.2 MB
+{"config": "transcribe-q8_0", "id": "mandarin-2s", "warmup": false, "wall_s": 0.1282565490109846, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 96.5 MB
+qwen3_asr@589: sched buffer CPU -> 0.3 MB
+qwen3_asr@770: sched buffer CPU -> 0.3 MB
+qwen3_asr@910: sched buffer CPU -> 0.5 MB
+{"config": "transcribe-q8_0", "id": "mandarin-5s", "warmup": false, "wall_s": 0.3364040680025937, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 193.1 MB
+qwen3_asr@589: sched buffer CPU -> 0.5 MB
+qwen3_asr@770: sched buffer CPU -> 0.6 MB
+qwen3_asr@910: sched buffer CPU -> 1.1 MB
+{"config": "transcribe-q8_0", "id": "mandarin-10s", "warmup": false, "wall_s": 0.628375574000529, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 38.6 MB
+qwen3_asr@589: sched buffer CPU -> 0.1 MB
+qwen3_asr@770: sched buffer CPU -> 0.2 MB
+qwen3_asr@910: sched buffer CPU -> 0.2 MB
+{"config": "transcribe-q8_0", "id": "mandarin-2s", "warmup": false, "wall_s": 0.12634344199614134, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 96.5 MB
+qwen3_asr@589: sched buffer CPU -> 0.3 MB
+qwen3_asr@770: sched buffer CPU -> 0.3 MB
+qwen3_asr@910: sched buffer CPU -> 0.5 MB
+{"config": "transcribe-q8_0", "id": "mandarin-5s", "warmup": false, "wall_s": 0.3373182500072289, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 193.1 MB
+qwen3_asr@589: sched buffer CPU -> 0.5 MB
+qwen3_asr@770: sched buffer CPU -> 0.6 MB
+qwen3_asr@910: sched buffer CPU -> 1.1 MB
+{"config": "transcribe-q8_0", "id": "mandarin-10s", "warmup": false, "wall_s": 0.6449038670107257, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 38.6 MB
+qwen3_asr@589: sched buffer CPU -> 0.1 MB
+qwen3_asr@770: sched buffer CPU -> 0.2 MB
+qwen3_asr@910: sched buffer CPU -> 0.2 MB
+{"config": "transcribe-q8_0", "id": "mandarin-2s", "warmup": false, "wall_s": 0.12769297799968626, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 96.5 MB
+qwen3_asr@589: sched buffer CPU -> 0.3 MB
+qwen3_asr@770: sched buffer CPU -> 0.3 MB
+qwen3_asr@910: sched buffer CPU -> 0.5 MB
+{"config": "transcribe-q8_0", "id": "mandarin-5s", "warmup": false, "wall_s": 0.3442508219886804, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 193.1 MB
+qwen3_asr@589: sched buffer CPU -> 0.5 MB
+qwen3_asr@770: sched buffer CPU -> 0.6 MB
+qwen3_asr@910: sched buffer CPU -> 1.1 MB
+{"config": "transcribe-q8_0", "id": "mandarin-10s", "warmup": false, "wall_s": 0.6468617329956032, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 38.6 MB
+qwen3_asr@589: sched buffer CPU -> 0.1 MB
+qwen3_asr@770: sched buffer CPU -> 0.2 MB
+qwen3_asr@910: sched buffer CPU -> 0.2 MB
+{"config": "transcribe-q8_0", "id": "mandarin-2s", "warmup": false, "wall_s": 0.13029721699422225, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 96.5 MB
+qwen3_asr@589: sched buffer CPU -> 0.3 MB
+qwen3_asr@770: sched buffer CPU -> 0.3 MB
+qwen3_asr@910: sched buffer CPU -> 0.5 MB
+{"config": "transcribe-q8_0", "id": "mandarin-5s", "warmup": false, "wall_s": 0.33498755800246727, "status": "ok"}
+qwen3_asr@589: sched buffer CUDA0 -> 193.1 MB
+qwen3_asr@589: sched buffer CPU -> 0.5 MB
+qwen3_asr@770: sched buffer CPU -> 0.6 MB
+qwen3_asr@910: sched buffer CPU -> 1.1 MB
+{"config": "transcribe-q8_0", "id": "mandarin-10s", "warmup": false, "wall_s": 0.6359687150106765, "status": "ok"}

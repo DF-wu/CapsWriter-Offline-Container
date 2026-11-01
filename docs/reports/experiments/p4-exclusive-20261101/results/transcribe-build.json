@@ -1,0 +1,19 @@
+{
+  "commit": "5700f127e38dd53c4735ea23ef743b4b538eacd4",
+  "flags": [
+    "-DTRANSCRIBE_CUDA=ON",
+    "-DCMAKE_CUDA_ARCHITECTURES=61",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DTRANSCRIBE_METAL=OFF",
+    "-DTRANSCRIBE_VULKAN=OFF",
+    "-DTRANSCRIBE_BUILD_TESTS=OFF",
+    "-DTRANSCRIBE_BUILD_EXAMPLES=OFF",
+    "-DTRANSCRIBE_BUILD_TOOLS=OFF",
+    "-DTRANSCRIBE_BUILD_SHARED=ON",
+    "-DTRANSCRIBE_USE_SYSTEM_BLAS=OFF",
+    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/bench/transcribe-build/lib",
+    "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/bench/transcribe-build/bin"
+  ],
+  "target": "transcribe",
+  "compiler_only_stub_ld_library_path": true
+}

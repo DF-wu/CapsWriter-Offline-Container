@@ -1,0 +1,13 @@
+{
+  "accepted": true,
+  "provisional": false,
+  "same_container_id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+  "same_image_id": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+  "models_unchanged": true,
+  "settings_unchanged": true,
+  "portainer_parameters_unchanged": true,
+  "full_cuda_offload": true,
+  "gpu": "82, 1113, 2989, 0",
+  "run_id": "1793508011791913579",
+  "services_restored_before_acceptance": true
+}

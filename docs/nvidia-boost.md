@@ -1,9 +1,9 @@
-# NVIDIA memory-clock pre-boost (fork-v2.1.0 preparation)
+# NVIDIA memory-clock pre-boost
 
-**Unreleased candidate.** The latest published release remains `fork-v2.0.0`.
-This guide describes the v2.1.0 candidate contract, not completed hardware
-qualification or measured latency improvements. See the
-[release draft and verification checklist](releases/fork-v2.1.0.md).
+Introduced in published `fork-v2.1.0` (2026-10-31). This guide describes the
+configuration contract; it does not claim universal hardware support or measured
+boost latency. The separate [Tesla P4 runtime](tesla-p4.md) is opt-in in 2.2 and
+does not enable clock boost. See the [2.2 release preparation](releases/fork-v2.2.0.md).
 
 Pre-boost asks `nvidia-smi` to lock one selected GPU's memory clock before ASR
 work, then reset it after inactivity. It is separate from enabling GPU inference;

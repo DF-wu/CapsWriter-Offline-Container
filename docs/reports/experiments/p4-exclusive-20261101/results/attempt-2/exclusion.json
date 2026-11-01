@@ -1,0 +1,10 @@
+{
+  "reason": "Immich original container started externally at 19:18:57 UTC during FP32 quality process; post-block guard detected Running. Exclude the entire quality process under exclusivity policy, even though snapshots show no external GPU allocation. Start source not established; RestartCount=0; no other daemon modified.",
+  "excluded_config": "cuda-f32-q5",
+  "excluded_phase": "quality",
+  "measured_calls": 5,
+  "warmups": 1,
+  "retained": "All 390 latency calls and first 15 quality calls before external start. Q4 quality additionally completed in subsequent maintenance.",
+  "immich_started_at": "2026-10-31T19:18:57.048790196Z",
+  "both_services_restored_utc": "2026-10-31T19:20:17.958113+00:00"
+}

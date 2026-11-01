@@ -1,8 +1,11 @@
 # coding=utf-8
 from .. import logger
+import os
 try:
     from ...llama import llama
-except:
+except Exception:
+    if os.environ.get("CAPSWRITER_LLAMA_BACKEND") == "cuda":
+        raise
     ...
 
 from .asr import QwenASREngine

@@ -1,0 +1,138 @@
+{
+  "started_utc": "2026-10-31T19:34:03.267357+00:00",
+  "commands": [
+    {
+      "argv": [
+        "du",
+        "-sb",
+        "/tmp/capswriter-p4-exclusive-i3eh5tn4"
+      ],
+      "exit": 0,
+      "stdout": "16785131137\t/tmp/capswriter-p4-exclusive-i3eh5tn4",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "exec",
+        "capswriter-p4-exclusive-test-20261101",
+        "python",
+        "-c",
+        "from pathlib import Path;import shutil;p=Path('/bench');[(c.unlink() if c.is_symlink() or c.is_file() else shutil.rmtree(c)) for c in p.iterdir()]"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "rm",
+        "-f",
+        "capswriter-p4-exclusive-test-20261101",
+        "capswriter-p4-exclusive-compiler-20261101"
+      ],
+      "exit": 0,
+      "stdout": "capswriter-p4-exclusive-test-20261101\ncapswriter-p4-exclusive-compiler-20261101",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "nvidia/cuda:11.8.0-devel-ubuntu22.04"
+      ],
+      "exit": 0,
+      "stdout": "Untagged: nvidia/cuda:11.8.0-devel-ubuntu22.04\nUntagged: nvidia/cuda@sha256:94fd755736cb58979173d491504f0b573247b1745250249415b07fefc738e41f\nDeleted: sha256:6f9cc9f1ba9ed67d195088555737124e4a2eb54bebaaa7596f44e235428a461c\nDeleted: sha256:895bde318c0b28c605c9b181f2f5b6c0c7ba715edf56d72956b1b3371becc020\nDeleted: sha256:285c81e298a88c8824845f35428a3d1a5d123b643c9728880fd7305bd6878cab",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-aq",
+        "--filter",
+        "label=capswriter.experiment=p4-exclusive-20261101"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "production_before_cleanup": [
+    {
+      "name": "capswriter-server",
+      "id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+      "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+      "started_at": "2026-10-31T19:31:08.33154388Z",
+      "fingerprints": {
+        "Config": "10b848091eedb32b5243f7f08863c6c16dd3ce01e45c6b6addf22222af70d257",
+        "HostConfig": "4265ed08640ac4fbcb37857b6d5b1fd6ac917f23f695454deb4304bf2b7848db",
+        "NetworkConfiguration": "4f1cb77d136ae1e78d3bcdeadd8abae3acee48702e9c880afa0b3a4d026c08e3"
+      }
+    },
+    {
+      "name": "immich-aio",
+      "id": "9b775b9cd582524779a2563cea7a7cf1dcc7502c81d6517970ea9a26525552e9",
+      "image": "sha256:113e61b9de6075e5fc4b8b16364d45d0a7c6404d692c13f81da339aaaf147fdc",
+      "started_at": "2026-10-31T19:31:09.107578902Z",
+      "fingerprints": {
+        "Config": "762cdc400a69556d7cee718c5b94f8ae4010a9ebeac2a7aa016c724f629b93ec",
+        "HostConfig": "36989c7f426589603a19d8f13e79bebde128c1cfcce92a97dc6a6df335b5e66e",
+        "NetworkConfiguration": "5002ac313788d2ade6e2b4ceae868c391a4c794abcb4bc3c0de5a3c1d9d6797a"
+      }
+    }
+  ],
+  "test_resources": [
+    {
+      "name": "capswriter-p4-exclusive-test-20261101",
+      "id": "131c9df5e6b0c55bfbbe5db5d5bb948302fa5b94ce01e26c27bbea59d413b9c0",
+      "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5"
+    },
+    {
+      "name": "capswriter-p4-exclusive-compiler-20261101",
+      "id": "2eb9ee3c2764332a65adbb6466392d2f8df33532b2d77629552b879e2ee512e4",
+      "image": "sha256:6f9cc9f1ba9ed67d195088555737124e4a2eb54bebaaa7596f44e235428a461c"
+    }
+  ],
+  "scratch_bytes": 16785131137,
+  "production_after_cleanup": [
+    {
+      "name": "capswriter-server",
+      "id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+      "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+      "started_at": "2026-10-31T19:31:08.33154388Z",
+      "fingerprints": {
+        "Config": "10b848091eedb32b5243f7f08863c6c16dd3ce01e45c6b6addf22222af70d257",
+        "HostConfig": "4265ed08640ac4fbcb37857b6d5b1fd6ac917f23f695454deb4304bf2b7848db",
+        "NetworkConfiguration": "4f1cb77d136ae1e78d3bcdeadd8abae3acee48702e9c880afa0b3a4d026c08e3"
+      }
+    },
+    {
+      "name": "immich-aio",
+      "id": "9b775b9cd582524779a2563cea7a7cf1dcc7502c81d6517970ea9a26525552e9",
+      "image": "sha256:113e61b9de6075e5fc4b8b16364d45d0a7c6404d692c13f81da339aaaf147fdc",
+      "started_at": "2026-10-31T19:31:09.107578902Z",
+      "fingerprints": {
+        "Config": "762cdc400a69556d7cee718c5b94f8ae4010a9ebeac2a7aa016c724f629b93ec",
+        "HostConfig": "36989c7f426589603a19d8f13e79bebde128c1cfcce92a97dc6a6df335b5e66e",
+        "NetworkConfiguration": "5002ac313788d2ade6e2b4ceae868c391a4c794abcb4bc3c0de5a3c1d9d6797a"
+      }
+    }
+  ],
+  "checks": {
+    "scratch_removed": true,
+    "state_removed": true,
+    "test_containers_removed": true,
+    "new_devel_image_removed": true,
+    "original_images_and_volume_retained": true,
+    "model_volume_was_read_only": true,
+    "both_original_containers_ready": true,
+    "same_ids_and_parameters": true,
+    "cleanup_did_not_restart_production": true,
+    "telemetry_remaining": []
+  },
+  "completed_utc": "2026-10-31T19:34:10.698718+00:00",
+  "complete": true
+}

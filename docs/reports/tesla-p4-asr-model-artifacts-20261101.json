@@ -1,0 +1,985 @@
+{
+  "research_date": "2026-11-01",
+  "issue": "https://github.com/DF-wu/CapsWriter-Offline-Container/issues/14",
+  "branch": "research/tesla-p4-asr-model-quantization",
+  "status": "research_only_no_gpu_benchmark",
+  "local_gpu_observation": {
+    "name": "Tesla P4",
+    "compute_capability": "6.1",
+    "driver": "580.196.07",
+    "reported_memory_mib": 7680
+  },
+  "local_code_base": "95912cf66f384aa752f3dda291e02c893070beff",
+  "artifact_metadata_scope": "Publisher/API metadata retrieved; model bytes NOT downloaded or hash-verified locally. File size is not VRAM.",
+  "github_model_releases": [
+    {
+      "name": "Qwen3-ASR-1.7B-q4_k.zip",
+      "size": 1410584449,
+      "digest": "sha256:9b3d2a66a4a26a0404c32085ec838b7c482495a7827919a5aa674de617c2757b",
+      "browser_download_url": "https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q4_k.zip",
+      "updated_at": "2026-05-08T18:14:50Z"
+    },
+    {
+      "name": "Qwen3-ASR-1.7B-q5_k.zip",
+      "size": 1951570656,
+      "digest": "sha256:f40040fe62a5ef0c09f8699fdbcb30f18bb8ae2bcd515ed4954e1f62b8b0e88f",
+      "browser_download_url": "https://github.com/HaujetZhao/CapsWriter-Offline/releases/download/models/Qwen3-ASR-1.7B-q5_k.zip",
+      "updated_at": "2026-05-08T19:57:53Z"
+    }
+  ],
+  "huggingface": [
+    {
+      "repo": "Qwen/Qwen3-ASR-1.7B",
+      "revision": "7278e1e70fe206f11671096ffdd38061171dd6e5",
+      "api_url": "https://huggingface.co/api/models/Qwen/Qwen3-ASR-1.7B?blobs=true",
+      "card_url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B/blob/7278e1e70fe206f11671096ffdd38061171dd6e5/README.md",
+      "safetensors": {
+        "parameters": {
+          "BF16": 2349217408
+        },
+        "total": 2349217408
+      },
+      "files": [
+        {
+          "name": "model-00001-of-00002.safetensors",
+          "bytes": 4220320824,
+          "publisher_lfs_sha256": "a4cd1f1a04d90b757dc7f7dd26254e69a013b19e80efe590a83c6a3bde8608d6",
+          "url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B/resolve/7278e1e70fe206f11671096ffdd38061171dd6e5/model-00001-of-00002.safetensors"
+        },
+        {
+          "name": "model-00002-of-00002.safetensors",
+          "bytes": 478200688,
+          "publisher_lfs_sha256": "6e0b9d9e09e2e0238e7ef3cc8a484ab387e91b90f1900bedf88bc92d7929ccfc",
+          "url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B/resolve/7278e1e70fe206f11671096ffdd38061171dd6e5/model-00002-of-00002.safetensors"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/Qwen/Qwen3-ASR-1.7B/revision/7278e1e70fe206f11671096ffdd38061171dd6e5?blobs=true"
+    },
+    {
+      "repo": "Qwen/Qwen3-ASR-0.6B",
+      "revision": "5eb144179a02acc5e5ba31e748d22b0cf3e303b0",
+      "api_url": "https://huggingface.co/api/models/Qwen/Qwen3-ASR-0.6B?blobs=true",
+      "card_url": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B/blob/5eb144179a02acc5e5ba31e748d22b0cf3e303b0/README.md",
+      "safetensors": {
+        "parameters": {
+          "BF16": 938008576
+        },
+        "total": 938008576
+      },
+      "files": [
+        {
+          "name": "model.safetensors",
+          "bytes": 1876091704,
+          "publisher_lfs_sha256": "79d6cbd4c98c7bbffe9db2edac07f56cd6637d0d5944b27f6c2b8353840323ea",
+          "url": "https://huggingface.co/Qwen/Qwen3-ASR-0.6B/resolve/5eb144179a02acc5e5ba31e748d22b0cf3e303b0/model.safetensors"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/Qwen/Qwen3-ASR-0.6B/revision/5eb144179a02acc5e5ba31e748d22b0cf3e303b0?blobs=true"
+    },
+    {
+      "repo": "ggml-org/Qwen3-ASR-1.7B-GGUF",
+      "revision": "36a678687ba7d07a74ca70ccb0e36902e005fb80",
+      "api_url": "https://huggingface.co/api/models/ggml-org/Qwen3-ASR-1.7B-GGUF?blobs=true",
+      "card_url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF/blob/36a678687ba7d07a74ca70ccb0e36902e005fb80/README.md",
+      "safetensors": null,
+      "files": [
+        {
+          "name": "Qwen3-ASR-1.7B-Q8_0.gguf",
+          "bytes": 2165034944,
+          "publisher_lfs_sha256": "58e22d0532d4eacaf034cfac17a6fed159f37c41390c710186783be439d1fc57",
+          "url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF/resolve/36a678687ba7d07a74ca70ccb0e36902e005fb80/Qwen3-ASR-1.7B-Q8_0.gguf"
+        },
+        {
+          "name": "Qwen3-ASR-1.7B-bf16.gguf",
+          "bytes": 4069674944,
+          "publisher_lfs_sha256": "1af18763dfafde2bbf071ef8a0952f7bee66f140c3565e5ccc5afb07dc1f9227",
+          "url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF/resolve/36a678687ba7d07a74ca70ccb0e36902e005fb80/Qwen3-ASR-1.7B-bf16.gguf"
+        },
+        {
+          "name": "mmproj-Qwen3-ASR-1.7B-Q8_0.gguf",
+          "bytes": 355709344,
+          "publisher_lfs_sha256": "46c1d533af3f354ceb37ce855dbceff7da7fa7cf1e6a523df3b13440bd164c0d",
+          "url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF/resolve/36a678687ba7d07a74ca70ccb0e36902e005fb80/mmproj-Qwen3-ASR-1.7B-Q8_0.gguf"
+        },
+        {
+          "name": "mmproj-Qwen3-ASR-1.7B-bf16.gguf",
+          "bytes": 641773984,
+          "publisher_lfs_sha256": "8882e9ddab3186f9aa71b1417c847177913e1466655ac944cf86e9b846735d62",
+          "url": "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF/resolve/36a678687ba7d07a74ca70ccb0e36902e005fb80/mmproj-Qwen3-ASR-1.7B-bf16.gguf"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/ggml-org/Qwen3-ASR-1.7B-GGUF/revision/36a678687ba7d07a74ca70ccb0e36902e005fb80?blobs=true"
+    },
+    {
+      "repo": "handy-computer/Qwen3-ASR-1.7B-gguf",
+      "revision": "0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f",
+      "api_url": "https://huggingface.co/api/models/handy-computer/Qwen3-ASR-1.7B-gguf?blobs=true",
+      "card_url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/blob/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/README.md",
+      "safetensors": null,
+      "files": [
+        {
+          "name": "Qwen3-ASR-1.7B-BF16.gguf",
+          "bytes": 4083087904,
+          "publisher_lfs_sha256": "57db745f8ec3ad2ea391b0205661e7d74f76158877a33f151e4d4624ed2b7cc9",
+          "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-BF16.gguf"
+        },
+        {
+          "name": "Qwen3-ASR-1.7B-F16.gguf",
+          "bytes": 4091390944,
+          "publisher_lfs_sha256": "edb09c29b8f73822c639168d5ef72aa2dccdf8b4e48fc4b8518885352ff62c71",
+          "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-F16.gguf"
+        },
+        {
+          "name": "Qwen3-ASR-1.7B-Q4_K_M.gguf",
+          "bytes": 1319830496,
+          "publisher_lfs_sha256": "b7afe3674f653fa84f712ed2440353c6e7cf7f93697fef76b05a26538b24844e",
+          "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-Q4_K_M.gguf"
+        },
+        {
+          "name": "Qwen3-ASR-1.7B-Q5_K_M.gguf",
+          "bytes": 1517290464,
+          "publisher_lfs_sha256": "034c557fe92ff8fcd9a9c041cbdaad347be0a86a58d3a348f63cf3f0180879d0",
+          "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-Q5_K_M.gguf"
+        },
+        {
+          "name": "Qwen3-ASR-1.7B-Q6_K.gguf",
+          "bytes": 1692554208,
+          "publisher_lfs_sha256": "c75a961b7134a6c952d89797865cb0d0376876185aee04ef6d12c31c2952e4e1",
+          "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-Q6_K.gguf"
+        },
+        {
+          "name": "Qwen3-ASR-1.7B-Q8_0.gguf",
+          "bytes": 2185030624,
+          "publisher_lfs_sha256": "9a0d81792dfea2d5f278b8a63deb3ea6e02139ce42c2301f32ea19c4f77526b7",
+          "url": "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf/resolve/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f/Qwen3-ASR-1.7B-Q8_0.gguf"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/handy-computer/Qwen3-ASR-1.7B-gguf/revision/0e0a596e3959c3f3f2ab7d443a5b6f0f4a4bba6f?blobs=true"
+    },
+    {
+      "repo": "cstr/qwen3-asr-1.7b-GGUF",
+      "revision": "674df5d44b50a63e7102a18895ed20e3f91de301",
+      "api_url": "https://huggingface.co/api/models/cstr/qwen3-asr-1.7b-GGUF?blobs=true",
+      "card_url": "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF/blob/674df5d44b50a63e7102a18895ed20e3f91de301/README.md",
+      "safetensors": null,
+      "files": [
+        {
+          "name": "qwen3-asr-1.7b-f16.gguf",
+          "bytes": 4704800576,
+          "publisher_lfs_sha256": "ac6c58f9cb0f2bb22290319cde01b0e25a2c1f1ee69aa2f1a9265f29a8bfc9d7",
+          "url": "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF/resolve/674df5d44b50a63e7102a18895ed20e3f91de301/qwen3-asr-1.7b-f16.gguf"
+        },
+        {
+          "name": "qwen3-asr-1.7b-q4_0.gguf",
+          "bytes": 1490915200,
+          "publisher_lfs_sha256": "d2ce9b6a8b6a647317618cb07889236a4eb41201614e4a1d690f107c1c213a69",
+          "url": "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF/resolve/674df5d44b50a63e7102a18895ed20e3f91de301/qwen3-asr-1.7b-q4_0.gguf"
+        },
+        {
+          "name": "qwen3-asr-1.7b-q4_k.gguf",
+          "bytes": 1490915200,
+          "publisher_lfs_sha256": "ec197cef7ccc589fdcae1becc3f4a3de119d0a41e790b898b519b1a048dad8d4",
+          "url": "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF/resolve/674df5d44b50a63e7102a18895ed20e3f91de301/qwen3-asr-1.7b-q4_k.gguf"
+        },
+        {
+          "name": "qwen3-asr-1.7b-q5_k.gguf",
+          "bytes": 1744867200,
+          "publisher_lfs_sha256": "19cf933548253f5fa0f5ce029c816811e8c16478644e494767a49f64a94438ff",
+          "url": "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF/resolve/674df5d44b50a63e7102a18895ed20e3f91de301/qwen3-asr-1.7b-q5_k.gguf"
+        },
+        {
+          "name": "qwen3-asr-1.7b-q8_0.gguf",
+          "bytes": 2506723200,
+          "publisher_lfs_sha256": "9851ab996591a2d0cb0efb216002764b509c86bd40c95e613d7b65b8e69c8a6e",
+          "url": "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF/resolve/674df5d44b50a63e7102a18895ed20e3f91de301/qwen3-asr-1.7b-q8_0.gguf"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/cstr/qwen3-asr-1.7b-GGUF/revision/674df5d44b50a63e7102a18895ed20e3f91de301?blobs=true"
+    },
+    {
+      "repo": "andrewleech/qwen3-asr-1.7b-onnx",
+      "revision": "df916193ac67e59347769891a21e10d81d12acdd",
+      "api_url": "https://huggingface.co/api/models/andrewleech/qwen3-asr-1.7b-onnx?blobs=true",
+      "card_url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/blob/df916193ac67e59347769891a21e10d81d12acdd/README.md",
+      "safetensors": null,
+      "files": [
+        {
+          "name": "decoder_init.int4.onnx",
+          "bytes": 356165,
+          "publisher_lfs_sha256": "c638585ada629b3cf65ce9cb068b7b980fccc9454a7f05e2333b8813730c1999",
+          "url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/resolve/df916193ac67e59347769891a21e10d81d12acdd/decoder_init.int4.onnx"
+        },
+        {
+          "name": "decoder_init.onnx",
+          "bytes": 286423,
+          "publisher_lfs_sha256": "209662efa6ddc74d2bef5dd1ce922409a3896f6fceddb15ab721393059818e39",
+          "url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/resolve/df916193ac67e59347769891a21e10d81d12acdd/decoder_init.onnx"
+        },
+        {
+          "name": "decoder_step.int4.onnx",
+          "bytes": 355662,
+          "publisher_lfs_sha256": "fa138c025c26f6559e12be51cfbba5204a0b6993a1f3bb1177f80a0a65873bb5",
+          "url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/resolve/df916193ac67e59347769891a21e10d81d12acdd/decoder_step.int4.onnx"
+        },
+        {
+          "name": "decoder_step.onnx",
+          "bytes": 285925,
+          "publisher_lfs_sha256": "45e90e376cb937d9c772d1c8d2b8330e34a94555b29730389e0fa8ff0ad2e1c0",
+          "url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/resolve/df916193ac67e59347769891a21e10d81d12acdd/decoder_step.onnx"
+        },
+        {
+          "name": "decoder_weights.data",
+          "bytes": 8126930944,
+          "publisher_lfs_sha256": "a46ff8cf2ef299a3737f7ebd78f39a8fb2ca273f2807f33f9b2a337ef0ebb4bb",
+          "url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/resolve/df916193ac67e59347769891a21e10d81d12acdd/decoder_weights.data"
+        },
+        {
+          "name": "decoder_weights.int4.data",
+          "bytes": 2226321408,
+          "publisher_lfs_sha256": "3f8d8fb695bcffc20ce8d8e823471e011404420785adf7678aac31057ef67333",
+          "url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/resolve/df916193ac67e59347769891a21e10d81d12acdd/decoder_weights.int4.data"
+        },
+        {
+          "name": "embed_tokens.bin",
+          "bytes": 622329856,
+          "publisher_lfs_sha256": "1489075dbd08fcd6b87bc69c5feca278014d29fa5693bd4aa61e47c1a3a160d4",
+          "url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/resolve/df916193ac67e59347769891a21e10d81d12acdd/embed_tokens.bin"
+        },
+        {
+          "name": "encoder.int4.onnx",
+          "bytes": 1270241779,
+          "publisher_lfs_sha256": "c19ff8d702707693877a509ba1867472b0ad964593b93751091891a143edffec",
+          "url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/resolve/df916193ac67e59347769891a21e10d81d12acdd/encoder.int4.onnx"
+        },
+        {
+          "name": "encoder.onnx",
+          "bytes": 1270241779,
+          "publisher_lfs_sha256": "c19ff8d702707693877a509ba1867472b0ad964593b93751091891a143edffec",
+          "url": "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx/resolve/df916193ac67e59347769891a21e10d81d12acdd/encoder.onnx"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/andrewleech/qwen3-asr-1.7b-onnx/revision/df916193ac67e59347769891a21e10d81d12acdd?blobs=true"
+    },
+    {
+      "repo": "vrfai/Qwen3-ASR-1.7B-int8",
+      "revision": "12c3f1a1797f3900deac244ffa8289e515845248",
+      "api_url": "https://huggingface.co/api/models/vrfai/Qwen3-ASR-1.7B-int8?blobs=true",
+      "card_url": "https://huggingface.co/vrfai/Qwen3-ASR-1.7B-int8/blob/12c3f1a1797f3900deac244ffa8289e515845248/README.md",
+      "safetensors": {
+        "parameters": {
+          "F16": 2350306944
+        },
+        "total": 2350306944
+      },
+      "files": [
+        {
+          "name": "model.safetensors",
+          "bytes": 4700780560,
+          "publisher_lfs_sha256": "5fc4188f3f60af9bb102dc72927f3125c5ae88cd977994b8e505365b2ba10502",
+          "url": "https://huggingface.co/vrfai/Qwen3-ASR-1.7B-int8/resolve/12c3f1a1797f3900deac244ffa8289e515845248/model.safetensors"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/vrfai/Qwen3-ASR-1.7B-int8/revision/12c3f1a1797f3900deac244ffa8289e515845248?blobs=true"
+    },
+    {
+      "repo": "Blackwood416/Qwen3-ASR-1.7B-BNB-NF4",
+      "revision": "1098afde6281085f55c90d62937c638e1baef05d",
+      "api_url": "https://huggingface.co/api/models/Blackwood416/Qwen3-ASR-1.7B-BNB-NF4?blobs=true",
+      "card_url": "https://huggingface.co/Blackwood416/Qwen3-ASR-1.7B-BNB-NF4/blob/1098afde6281085f55c90d62937c638e1baef05d/README.md",
+      "safetensors": {
+        "parameters": {
+          "F32": 139328,
+          "BF16": 628766336,
+          "U8": 1453393684
+        },
+        "total": 2082299348
+      },
+      "files": [
+        {
+          "name": "model.safetensors",
+          "bytes": 1984998114,
+          "publisher_lfs_sha256": "3e0bcf3048d955234e0cfe88b822713677f8a62b736674a80746e06d04b4afab",
+          "url": "https://huggingface.co/Blackwood416/Qwen3-ASR-1.7B-BNB-NF4/resolve/1098afde6281085f55c90d62937c638e1baef05d/model.safetensors"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/Blackwood416/Qwen3-ASR-1.7B-BNB-NF4/revision/1098afde6281085f55c90d62937c638e1baef05d?blobs=true"
+    },
+    {
+      "repo": "s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8",
+      "revision": "cc8f9f1a5fda2f22966b0f1814785c2526101b07",
+      "api_url": "https://huggingface.co/api/models/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8?blobs=true",
+      "card_url": "https://huggingface.co/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8/blob/cc8f9f1a5fda2f22966b0f1814785c2526101b07/README.md",
+      "safetensors": null,
+      "files": [
+        {
+          "name": "decoder_init.int8.onnx",
+          "bytes": 403424,
+          "publisher_lfs_sha256": "47beaf7a72c18a0a5eb2dc3f85443b0cb84a698bb9f4490bbceb31ab5a9c8e61",
+          "url": "https://huggingface.co/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8/resolve/cc8f9f1a5fda2f22966b0f1814785c2526101b07/decoder_init.int8.onnx"
+        },
+        {
+          "name": "decoder_init.int8.onnx.data",
+          "bytes": 2032082944,
+          "publisher_lfs_sha256": "c94f31cf831a1ada01ef76e8e978884c73633d1e8e74b46d01db7035ff3b74d3",
+          "url": "https://huggingface.co/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8/resolve/cc8f9f1a5fda2f22966b0f1814785c2526101b07/decoder_init.int8.onnx.data"
+        },
+        {
+          "name": "decoder_step.int8.onnx",
+          "bytes": 402474,
+          "publisher_lfs_sha256": "148a8b0274b425abaf0a0ebc0fdd0c051c26d7367614740193cafc958e0141d9",
+          "url": "https://huggingface.co/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8/resolve/cc8f9f1a5fda2f22966b0f1814785c2526101b07/decoder_step.int8.onnx"
+        },
+        {
+          "name": "decoder_step.int8.onnx.data",
+          "bytes": 1720918016,
+          "publisher_lfs_sha256": "312d67d11a0589f3018f4f3b27840c5fa733e3ec5a3e9480777180c36afaa52b",
+          "url": "https://huggingface.co/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8/resolve/cc8f9f1a5fda2f22966b0f1814785c2526101b07/decoder_step.int8.onnx.data"
+        },
+        {
+          "name": "embed_tokens.bin",
+          "bytes": 622329856,
+          "publisher_lfs_sha256": "1489075dbd08fcd6b87bc69c5feca278014d29fa5693bd4aa61e47c1a3a160d4",
+          "url": "https://huggingface.co/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8/resolve/cc8f9f1a5fda2f22966b0f1814785c2526101b07/embed_tokens.bin"
+        },
+        {
+          "name": "encoder.onnx",
+          "bytes": 1270241779,
+          "publisher_lfs_sha256": "c19ff8d702707693877a509ba1867472b0ad964593b93751091891a143edffec",
+          "url": "https://huggingface.co/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8/resolve/cc8f9f1a5fda2f22966b0f1814785c2526101b07/encoder.onnx"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8/revision/cc8f9f1a5fda2f22966b0f1814785c2526101b07?blobs=true"
+    },
+    {
+      "repo": "Luigi/qwen3-asr-0.6b-rapidspeech-gguf",
+      "revision": "afdbe99228fe9f82b6fb54ea05d06b1dec485056",
+      "api_url": "https://huggingface.co/api/models/Luigi/qwen3-asr-0.6b-rapidspeech-gguf?blobs=true",
+      "card_url": "https://huggingface.co/Luigi/qwen3-asr-0.6b-rapidspeech-gguf/blob/afdbe99228fe9f82b6fb54ea05d06b1dec485056/README.md",
+      "safetensors": null,
+      "files": [
+        {
+          "name": "qwen3-asr-0.6b-f16.gguf",
+          "bytes": 1881933920,
+          "publisher_lfs_sha256": "273ac1c00e0fed2f612f0ae7af53caaadc261ec36a80e7d8f2fd5e01bf48bf21",
+          "url": "https://huggingface.co/Luigi/qwen3-asr-0.6b-rapidspeech-gguf/resolve/afdbe99228fe9f82b6fb54ea05d06b1dec485056/qwen3-asr-0.6b-f16.gguf"
+        },
+        {
+          "name": "qwen3-asr-0.6b-q4_0.gguf",
+          "bytes": 539917408,
+          "publisher_lfs_sha256": "76ed88d2656e02fc7067da3de1c4caa6bbb0fb5d8afdb108785c0bc460131afa",
+          "url": "https://huggingface.co/Luigi/qwen3-asr-0.6b-rapidspeech-gguf/resolve/afdbe99228fe9f82b6fb54ea05d06b1dec485056/qwen3-asr-0.6b-q4_0.gguf"
+        },
+        {
+          "name": "qwen3-asr-0.6b-q8_0.gguf",
+          "bytes": 1006705760,
+          "publisher_lfs_sha256": "9f191c502a8a4b35c3c513dad2d83045f54635a463e3a91246ece3d16684209e",
+          "url": "https://huggingface.co/Luigi/qwen3-asr-0.6b-rapidspeech-gguf/resolve/afdbe99228fe9f82b6fb54ea05d06b1dec485056/qwen3-asr-0.6b-q8_0.gguf"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/Luigi/qwen3-asr-0.6b-rapidspeech-gguf/revision/afdbe99228fe9f82b6fb54ea05d06b1dec485056?blobs=true"
+    },
+    {
+      "repo": "thieunv-asilla/sherpa-onnx-qwen3-asr-1.7B-int8",
+      "revision": "69eb686fd94a4a865bb5340a3d6ac0d7f1fec0d5",
+      "api_url": "https://huggingface.co/api/models/thieunv-asilla/sherpa-onnx-qwen3-asr-1.7B-int8?blobs=true",
+      "card_url": "https://huggingface.co/thieunv-asilla/sherpa-onnx-qwen3-asr-1.7B-int8/blob/69eb686fd94a4a865bb5340a3d6ac0d7f1fec0d5/README.md",
+      "safetensors": null,
+      "files": [
+        {
+          "name": "conv_frontend.onnx",
+          "bytes": 48080441,
+          "publisher_lfs_sha256": "3cb27a9fe94d95c938e476f2012b21aba2ec0bfceef33b0e58acd208946bafdd",
+          "url": "https://huggingface.co/thieunv-asilla/sherpa-onnx-qwen3-asr-1.7B-int8/resolve/69eb686fd94a4a865bb5340a3d6ac0d7f1fec0d5/conv_frontend.onnx"
+        },
+        {
+          "name": "decoder.int8.onnx",
+          "bytes": 2037458645,
+          "publisher_lfs_sha256": "c43c853fa6e97d08365cb8a5502b360b595cd43c00dc60e4d8ca7cc18cad460b",
+          "url": "https://huggingface.co/thieunv-asilla/sherpa-onnx-qwen3-asr-1.7B-int8/resolve/69eb686fd94a4a865bb5340a3d6ac0d7f1fec0d5/decoder.int8.onnx"
+        },
+        {
+          "name": "encoder.int8.onnx",
+          "bytes": 314222162,
+          "publisher_lfs_sha256": "a5deedae034ece715de8ed204378d8c77f889af3a60c2566581135e84cced7cd",
+          "url": "https://huggingface.co/thieunv-asilla/sherpa-onnx-qwen3-asr-1.7B-int8/resolve/69eb686fd94a4a865bb5340a3d6ac0d7f1fec0d5/encoder.int8.onnx"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/thieunv-asilla/sherpa-onnx-qwen3-asr-1.7B-int8/revision/69eb686fd94a4a865bb5340a3d6ac0d7f1fec0d5?blobs=true"
+    },
+    {
+      "repo": "slyusarev/Qwen3-ASR-1.7B-GGUF",
+      "revision": "3f45ea4f5f84f3159a561c9ece8063d56e740648",
+      "api_url": "https://huggingface.co/api/models/slyusarev/Qwen3-ASR-1.7B-GGUF?blobs=true",
+      "card_url": "https://huggingface.co/slyusarev/Qwen3-ASR-1.7B-GGUF/blob/3f45ea4f5f84f3159a561c9ece8063d56e740648/README.md",
+      "safetensors": null,
+      "files": [
+        {
+          "name": "Qwen3-ASR-1.7B-Q4_K_M.gguf",
+          "bytes": 1282435008,
+          "publisher_lfs_sha256": "f53b45df729c90a182612b759227daa9bb72139b012a87e558dd6c204d486ae9",
+          "url": "https://huggingface.co/slyusarev/Qwen3-ASR-1.7B-GGUF/resolve/3f45ea4f5f84f3159a561c9ece8063d56e740648/Qwen3-ASR-1.7B-Q4_K_M.gguf"
+        },
+        {
+          "name": "Qwen3-ASR-1.7B-Q5_K_M.gguf",
+          "bytes": 1257875456,
+          "publisher_lfs_sha256": "33ca947c1a39f80f5fe0774324924dd11f603ef4c08b50aa04ead3133787e54c",
+          "url": "https://huggingface.co/slyusarev/Qwen3-ASR-1.7B-GGUF/resolve/3f45ea4f5f84f3159a561c9ece8063d56e740648/Qwen3-ASR-1.7B-Q5_K_M.gguf"
+        },
+        {
+          "name": "Qwen3-ASR-1.7B-Q8_0.gguf",
+          "bytes": 2165034944,
+          "publisher_lfs_sha256": "58e22d0532d4eacaf034cfac17a6fed159f37c41390c710186783be439d1fc57",
+          "url": "https://huggingface.co/slyusarev/Qwen3-ASR-1.7B-GGUF/resolve/3f45ea4f5f84f3159a561c9ece8063d56e740648/Qwen3-ASR-1.7B-Q8_0.gguf"
+        },
+        {
+          "name": "mmproj-Qwen3-ASR-1.7B-Q8_0.gguf",
+          "bytes": 355709344,
+          "publisher_lfs_sha256": "46c1d533af3f354ceb37ce855dbceff7da7fa7cf1e6a523df3b13440bd164c0d",
+          "url": "https://huggingface.co/slyusarev/Qwen3-ASR-1.7B-GGUF/resolve/3f45ea4f5f84f3159a561c9ece8063d56e740648/mmproj-Qwen3-ASR-1.7B-Q8_0.gguf"
+        }
+      ],
+      "revision_api_url": "https://huggingface.co/api/models/slyusarev/Qwen3-ASR-1.7B-GGUF/revision/3f45ea4f5f84f3159a561c9ece8063d56e740648?blobs=true"
+    }
+  ],
+  "source_commits": [
+    {
+      "repository": "CrispStrobe/CrispASR",
+      "sha": "1dd0bf6fb9e7a8bf5849cb7a14605b2234e6ee93",
+      "date": "2026-10-31T13:47:04Z",
+      "url": "https://github.com/CrispStrobe/CrispASR/commit/1dd0bf6fb9e7a8bf5849cb7a14605b2234e6ee93"
+    },
+    {
+      "repository": "HaujetZhao/Qwen3-ASR-GGUF",
+      "sha": "e790e3bfe9c1c52453da1166df236950a8a8b036",
+      "date": "2026-04-29T15:27:13Z",
+      "url": "https://github.com/HaujetZhao/Qwen3-ASR-GGUF/commit/e790e3bfe9c1c52453da1166df236950a8a8b036"
+    },
+    {
+      "repository": "NVIDIA/TensorRT-Edge-LLM",
+      "sha": "a16b2d162bb12245f98ebef4227a1d7fe9c67757",
+      "date": "2026-10-30T21:05:14Z",
+      "url": "https://github.com/NVIDIA/TensorRT-Edge-LLM/commit/a16b2d162bb12245f98ebef4227a1d7fe9c67757"
+    },
+    {
+      "repository": "andimarafioti/faster-qwen-asr",
+      "sha": "e8d4a8ac336561e11ee4952ff04bf33142a74678",
+      "date": "2026-06-12T10:20:05Z",
+      "url": "https://github.com/andimarafioti/faster-qwen-asr/commit/e8d4a8ac336561e11ee4952ff04bf33142a74678"
+    },
+    {
+      "repository": "andimarafioti/qwenasr.cpp",
+      "sha": "633d9f9aa5d1909cbe3fdde6f3b1abb2cc19d536",
+      "date": "2026-06-11T21:48:48Z",
+      "url": "https://github.com/andimarafioti/qwenasr.cpp/commit/633d9f9aa5d1909cbe3fdde6f3b1abb2cc19d536"
+    },
+    {
+      "repository": "andrewleech/qwen3-asr-onnx",
+      "sha": "4aee2ae0c355c7bc33bd5c09befec9e9eabd4b50",
+      "date": "2026-03-30T04:04:39Z",
+      "url": "https://github.com/andrewleech/qwen3-asr-onnx/commit/4aee2ae0c355c7bc33bd5c09befec9e9eabd4b50"
+    },
+    {
+      "repository": "antirez/qwen-asr",
+      "sha": "924694251d9e0f18e5d86bbd06aa3ab5f870002d",
+      "date": "2026-09-30T21:15:57Z",
+      "url": "https://github.com/antirez/qwen-asr/commit/924694251d9e0f18e5d86bbd06aa3ab5f870002d"
+    },
+    {
+      "repository": "ggml-org/llama.cpp",
+      "sha": "0ec4027a2a0183de87c007069adddc06e665f7de",
+      "date": "2026-10-31T05:13:48Z",
+      "url": "https://github.com/ggml-org/llama.cpp/commit/0ec4027a2a0183de87c007069adddc06e665f7de"
+    },
+    {
+      "repository": "handy-computer/transcribe.cpp",
+      "sha": "5700f127e38dd53c4735ea23ef743b4b538eacd4",
+      "date": "2026-10-27T09:14:23Z",
+      "url": "https://github.com/handy-computer/transcribe.cpp/commit/5700f127e38dd53c4735ea23ef743b4b538eacd4"
+    },
+    {
+      "repository": "leondgarse/qwen_asr_web",
+      "sha": "554217a18f2820db59b36c564b7bd19a2210571d",
+      "date": "2026-10-27T04:48:50Z",
+      "url": "https://github.com/leondgarse/qwen_asr_web/commit/554217a18f2820db59b36c564b7bd19a2210571d"
+    },
+    {
+      "repository": "predict-woo/qwen3-asr.cpp",
+      "sha": "6dcc586e5073fd6e85ee5728e75f0903d6c70c6c",
+      "date": "2026-07-28T16:53:10Z",
+      "url": "https://github.com/predict-woo/qwen3-asr.cpp/commit/6dcc586e5073fd6e85ee5728e75f0903d6c70c6c"
+    },
+    {
+      "repository": "uaysk/vllm-pascal",
+      "sha": "36e14f2c10081d020c4b372884ad67345804c6b7",
+      "date": "2026-03-13T12:19:47Z",
+      "url": "https://github.com/uaysk/vllm-pascal/commit/36e14f2c10081d020c4b372884ad67345804c6b7"
+    }
+  ],
+  "tavily": [
+    {
+      "id": "s01",
+      "query": "Qwen3 ASR 1.7B GGUF quantization Q4 Q8 ONNX int8 Pascal P4",
+      "error": null,
+      "result_urls": [
+        "https://github.com/HaujetZhao/Qwen3-ASR-GGUF",
+        "https://www.modelscope.cn/models/OnsSixMix/QWEN3-ASR-GGUF-Q8-ONNX-INT8",
+        "https://huggingface.co/bartowski/Qwen_Qwen3-1.7B-GGUF",
+        "https://huggingface.co/vrfai/Qwen3-ASR-1.7B-int8/blob/main/README.md",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://llmapi.ai/models/qwen-qwen3-asr-1-7b",
+        "https://github.com/andrewleech/qwen3-asr-onnx",
+        "https://github.com/HaujetZhao/Qwen3-ASR-GGUF/blob/main/04-Quantize-ASR-Encoder.py"
+      ],
+      "request_id": "f18dfb93-5241-4cdf-bcc3-3aab68cdc044"
+    },
+    {
+      "id": "s02",
+      "query": "Qwen3-ASR P4 P40 Pascal GPU CUDA inference benchmark",
+      "error": null,
+      "result_urls": [
+        "https://arxiv.org/html/2601.21337v1",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://arxiv.org/pdf/2601.21337",
+        "https://tinycomputers.io/posts/the-real-cost-of-running-qwen-tts-locally-three-machines-compared.html",
+        "https://deepwiki.com/QwenLM/Qwen3/6.1-performance-benchmarking",
+        "https://deepwiki.com/dseditor/QwenASRMiniTool/3.2.2-gpu-inference-(pytorch-cuda)",
+        "https://medium.com/@wltsankalpa/benchmarking-qwen-models-across-nvidia-gpus-t4-l4-h100-architectures-finding-your-sweet-spot-a59a0adf9043",
+        "https://developer.nvidia.com/blog/new-pascal-gpus-accelerate-inference-in-the-data-center"
+      ],
+      "request_id": "7b3a9fe3-c09b-43e6-adac-fab6403baf53"
+    },
+    {
+      "id": "s03",
+      "query": "Qwen3 ASR 1.7B quantized int8 fp32 encoder onnx model Hugging Face",
+      "error": null,
+      "result_urls": [
+        "https://huggingface.co/OpenVoiceOS/qwen3-asr-1.7b-onnx",
+        "https://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx",
+        "http://huggingface.co/andrewleech/qwen3-asr-1.7b-onnx",
+        "https://huggingface.co/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8",
+        "https://huggingface.co/vrfai/Qwen3-ASR-1.7B-int8",
+        "https://github.com/andrewleech/qwen3-asr-onnx",
+        "https://huggingface.co/tonythethompson/Qwen3-ASR-1.7B-ONNX",
+        "https://huggingface.co/Qwen/Qwen3-ASR-1.7B"
+      ],
+      "request_id": "cc2d026d-5375-450b-88e4-0fd727071388"
+    },
+    {
+      "id": "s04",
+      "query": "Qwen3-ASR optimized GGUF Q4_K Q5_K Q8_0 OpenVINO sherpa ONNX",
+      "error": null,
+      "result_urls": [
+        "https://github.com/HaujetZhao/Qwen3-ASR-GGUF",
+        "https://www.modelscope.cn/models/nzyaltair/Qwen3-ASR-1.7B-gguf",
+        "https://blog.openvino.ai/blog-posts/openvino-genai-supports-gguf-models",
+        "https://github.com/SearchSavior/Qwen3-ASR-OpenVINO",
+        "https://github.com/openvinotoolkit/openvino_notebooks/tree/latest/notebooks/qwen3-asr",
+        "https://localclaw.io/blog/quantization-guide",
+        "https://deepwiki.com/ibm-granite/granite-embedding-models/4.2-optimized-inference-backends:-onnx-openvino-and-gguf",
+        "https://github.com/QwenLM/Qwen3-ASR"
+      ],
+      "request_id": "f215b3af-fdef-4566-a95b-71d0b338e2ff"
+    },
+    {
+      "id": "s05",
+      "query": "Qwen3-ASR Pascal P4 P40",
+      "error": null,
+      "result_urls": [
+        "https://github.com/uaysk/vllm-pascal",
+        "https://github.com/ba2512005/vllm-pascal",
+        "https://github.com/HaujetZhao/Qwen3-ASR-GGUF/blob/main/simpread-Qwen3-ASR%20Technical%20Report.md",
+        "https://github.com/QwenLM/Qwen3-ASR/blob/main/README.md",
+        "https://github.com/QwenLM/Qwen3-ASR/blob/2f9809596b7e3fc080fce9716b99fc87f588f407/README.md",
+        "https://github.com/QwenLM/Qwen3-ASR/blob/main/README.md#qwen3-asr",
+        "https://github.com/QwenLM/Qwen3-ASR/blob/main/README.md#introduction",
+        "https://github.com/gaahrdner/starred/blob/master/README.md"
+      ],
+      "request_id": "d5acaf7c-7737-47c5-b1c8-1c497865739d"
+    },
+    {
+      "id": "s06",
+      "query": "Qwen3-ASR 1.7B GGUF Q8 Q4_K encoder",
+      "error": null,
+      "result_urls": [
+        "https://huggingface.co/epapanita/Qwen3-ASR-1.7B-gguf",
+        "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF/blame/main/README.md",
+        "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF",
+        "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF/commit/e7f51317d9753d4c4dd6125be2fa7c15c8c9768d",
+        "https://huggingface.co/cstr/qwen3-asr-1.7b-ja-anime-GGUF",
+        "https://huggingface.co/audio-cpp/audio.cpp-gguf",
+        "https://huggingface.co/audio-cpp/audio.cpp-gguf/commit/a776907b362419343f4b9996bdd899619efcf3f8",
+        "https://huggingface.co/unslothai/Qwen3-ASR-0.6B-GGUF"
+      ],
+      "request_id": "0c0984fc-4887-414a-a4ac-b9c1bfe5b1b5"
+    },
+    {
+      "id": "s07",
+      "query": "Qwen3-ASR ONNX INT8 CUDAExecutionProvider MatMulInteger CUDA P4",
+      "error": null,
+      "result_urls": [
+        "https://huggingface.co/docs/optimum-onnx/en/onnxruntime/usage_guides/gpu",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://github.com/andrewleech/qwen3-asr-onnx",
+        "https://huggingface.co/Daumee/Qwen3-ASR-0.6B-ONNX-CPU",
+        "https://huggingface.co/vrfai/Qwen3-ASR-1.7B-int8",
+        "https://medium.com/@rangabashyam22/accelerated-inference-on-nvidia-gpus-35b48c6d5419",
+        "https://arxiv.org/pdf/2604.14493",
+        "https://www.typewhisper.com/en/addons/qwen3-asr/windows"
+      ],
+      "request_id": "29cbe816-9fd3-4e0d-ad68-0cbf4147ab25"
+    },
+    {
+      "id": "s08",
+      "query": "Qwen3 ASR fp32 Pascal GPU fastest optimized qwen-asr transcribe.cpp",
+      "error": null,
+      "result_urls": [
+        "https://www.baseten.co/blog/fastest-lowest-cost-qwen3-asr-batch-transcription",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://arxiv.org/html/2601.21337v1",
+        "https://github.com/predict-woo/qwen3-asr.cpp",
+        "https://qwen.ai/blog?id=qwen3asr",
+        "https://www.youtube.com/watch?v=KEo4c2REwXA",
+        "https://huggingface.co/Qwen/Qwen3-ASR-0.6B",
+        "https://forums.developer.nvidia.com/t/how-to-use-qwen3-asr-0-6b-on-jetson-orin-nano/361835"
+      ],
+      "request_id": "37a190c0-8b39-4de7-8b54-1c67680b6602"
+    },
+    {
+      "id": "s09",
+      "query": null,
+      "error": "Error POSTing to endpoint (HTTP 554): ",
+      "result_urls": [],
+      "request_id": null
+    },
+    {
+      "id": "s09r",
+      "query": null,
+      "error": "Error POSTing to endpoint (HTTP 550): ",
+      "result_urls": [],
+      "request_id": null
+    },
+    {
+      "id": "s10",
+      "query": null,
+      "error": "Error POSTing to endpoint (HTTP 554): ",
+      "result_urls": [],
+      "request_id": null
+    },
+    {
+      "id": "s10r",
+      "query": null,
+      "error": "Error POSTing to endpoint (HTTP 554): ",
+      "result_urls": [],
+      "request_id": null
+    },
+    {
+      "id": "s11",
+      "query": "Qwen3 ASR qwen-asr CUDA Pascal fp32 q8 encoder github",
+      "error": null,
+      "result_urls": [
+        "https://github.com/antirez/qwen-asr",
+        "https://github.com/antirez/qwen-asr/blob/main/README.md",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://docs.nvidia.com/nemo/megatron-bridge/0.6.0/models/qwen/qwen3-asr.html",
+        "https://huggingface.co/Qwen/Qwen3-ASR-0.6B",
+        "https://github.com/QwenLM/Qwen3-ASR/issues/119"
+      ],
+      "request_id": "ee33a502-259b-4b8b-91e9-1b36e0918855"
+    },
+    {
+      "id": "s12",
+      "query": null,
+      "error": "Error POSTing to endpoint (HTTP 554): ",
+      "result_urls": [],
+      "request_id": null
+    },
+    {
+      "id": "s12r",
+      "query": null,
+      "error": "Error POSTing to endpoint (HTTP 554): ",
+      "result_urls": [],
+      "request_id": null
+    },
+    {
+      "id": "s13",
+      "query": "Qwen3-ASR quantization Pascal dp4a encoder float32",
+      "error": null,
+      "result_urls": [
+        "https://github.com/andrewleech/qwen3-asr-onnx/blob/main/README.md",
+        "https://github.com/moona3k/mlx-qwen3-asr/blob/main/README.md",
+        "https://github.com/moona3k/mlx-qwen3-asr",
+        "https://github.com/holovchenko/qwen3-asr-swift/blob/main/docs/models/asr-model.md",
+        "https://github.com/EdgarZhong/mlx-qwen3-asr/blob/main/README.md",
+        "https://github.com/moona3k/mlx-qwen3-asr/releases",
+        "https://github.com/EdgarZhong/mlx-qwen3-asr"
+      ],
+      "request_id": "e1f92c50-7490-4f5d-a1e1-0938f5a20e17"
+    },
+    {
+      "id": "s14",
+      "query": "Qwen3-ASR llama.cpp P40 CUDA quantization Q8",
+      "error": null,
+      "result_urls": [
+        "https://github.com/FunAudioLLM/Fun-ASR/tree/4a6c3e53b71739322977aec02d1fb4adf109d35b/runtime/llama.cpp",
+        "https://github.com/QwenAudio/Fun-ASR/blob/main/runtime/llama.cpp",
+        "https://github.com/QwenAudio/Fun-ASR/tree/main/runtime/llama.cpp",
+        "https://github.com/FunAudioLLM/Fun-ASR/blob/main/runtime/llama.cpp",
+        "https://github.com/shershah1024/qwen3-asr-llamacpp",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://github.com/FunAudioLLM/Fun-ASR/tree/1298b3695aa80db378b5a105cb37d6fa04ac5d88/runtime/llama.cpp"
+      ],
+      "request_id": "9edc0329-4bcf-48e3-bc1e-695ef83db477"
+    },
+    {
+      "id": "s15",
+      "query": "Qwen3-ASR Pascal P4 INT8 Q8_0 benchmark GPU",
+      "error": null,
+      "result_urls": [
+        "https://github.com/katya4oyu/qwen3-asr-swift/blob/main/docs/benchmarks/asr-wer.md",
+        "https://github.com/holovchenko/qwen3-asr-swift/blob/main/docs/benchmarks/asr-wer.md",
+        "https://huggingface.co/Luigi/qwen3-asr-0.6b-rapidspeech-gguf",
+        "https://huggingface.co/papers?q=GB%2FT",
+        "https://github.com/localai-org/vllm.cpp/blob/main/docs/BENCHMARKS.md",
+        "https://github.com/CrispStrobe/CrispASR",
+        "https://github.com/MakazhanAlpamys/Soup/blob/main/docs/performance-and-quantization.md",
+        "https://huggingface.co/papers?q=shared+decoder"
+      ],
+      "request_id": "77809b0e-a5f3-47a0-8134-64dfac4636e5"
+    },
+    {
+      "id": "s16",
+      "query": "Qwen3-ASR INT8 encoder P40 P4 CUDA",
+      "error": null,
+      "result_urls": [
+        "https://huggingface.co/Daumee/Qwen3-ASR-0.6B-ONNX-CPU/blob/37e9e190948c38c942ef5697d2a004d7b1874a38/README.md",
+        "https://huggingface.co/shigedonsan/qwen3-asr-1.7b-sherpa-onnx-int8-4096/commit/f0f18e3d6d77f5ff19120399ae76c4e8a11d1dbd",
+        "https://huggingface.co/iamwaqargulzar/handy-qwen3-asr-0.6b-openvino-npu-int8",
+        "https://huggingface.co/FluidInference/qwen3-asr-0.6b-coreml/commit/7587b237c96561057e3932e278e15d6cc86b75da",
+        "https://huggingface.co/thieunv/sherpa-onnx-qwen3-asr-1.7B-int8",
+        "https://huggingface.co/vrfai/Qwen3-ASR-0.6B-int8-QAD",
+        "https://huggingface.co/thieunv/sherpa-onnx-qwen3-asr-0.6B-int8",
+        "https://huggingface.co/thieunv-asilla/sherpa-onnx-qwen3-asr-0.6B-int8"
+      ],
+      "request_id": "d8cc1510-368f-445b-876e-e735ee7479bb"
+    },
+    {
+      "id": "s17",
+      "query": "Qwen3-ASR GGUF llama-server ggml-org support ASR mmproj",
+      "error": null,
+      "result_urls": [
+        "https://github.com/leondgarse/qwen_asr_web",
+        "https://github.com/ggml-org/llama.cpp/issues/22364",
+        "https://github.com/ggml-org/llama.cpp/issues/24765",
+        "https://github.com/ggml-org/llama.cpp/issues/22357",
+        "https://huggingface.co/slyusarev/Qwen3-ASR-1.7B-GGUF",
+        "https://github.com/ggml-org/llama.cpp/issues/17634"
+      ],
+      "request_id": "eadd081a-7b9e-4868-a750-07ed586461c5"
+    },
+    {
+      "id": "s18",
+      "query": "Tesla P4 Qwen3-ASR",
+      "error": null,
+      "result_urls": [
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://arxiv.org/html/2601.21337v1",
+        "https://docs.nvidia.com/nemo/megatron-bridge/0.6.0/models/qwen/qwen3-asr.html",
+        "https://qwen.ai/blog?id=qwen3asr",
+        "https://images.nvidia.com/content/pdf/tesla/184457-Tesla-P4-Datasheet-NV-Final-Letter-Web.pdf",
+        "https://www.youtube.com/watch?v=KEo4c2REwXA",
+        "https://arxiv.org/abs/2601.21337",
+        "https://www.leadtek.com/eng/products/ai_hpc(37)/tesla_p4(10766)/detail"
+      ],
+      "request_id": "b8ede054-9120-4869-be05-fa869c15582a"
+    },
+    {
+      "id": "s19",
+      "query": "Qwen3-ASR GTX 1080",
+      "error": null,
+      "result_urls": [
+        "https://willitrunai.com/can-run/qwen-3-8b-on-gtx-1080-8gb",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://www.reddit.com/r/LocalLLaMA/comments/1v6llio/qwen36_to_gemma4_performance_triple_gpu_gtx_1080",
+        "https://willitrunai.com/can-run/hf-unsloth--qwen3-5-4b-gguf-on-gtx-1080-ti-11gb",
+        "https://arxiv.org/html/2601.21337v1",
+        "https://bric.pe.kr/blog/qwen3-6-35b-a3b-2x-1080-ti-benchmark-2026"
+      ],
+      "request_id": "982315e0-1daa-4488-be25-404f56476567"
+    },
+    {
+      "id": "s20",
+      "query": "Qwen3-ASR Pascal",
+      "error": null,
+      "result_urls": [
+        "https://github.com/k2-fsa/sherpa-onnx/issues/3552",
+        "https://sourceforge.net/projects/qwen3-asr.mirror",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://www.alphaxiv.org/abs/2601.21337",
+        "https://arxiv.org/html/2601.21337v2",
+        "https://docs.nvidia.com/nemo/megatron-bridge/0.6.0/models/qwen/qwen3-asr.html",
+        "https://recipes.vllm.ai/Qwen/Qwen3-ASR-1.7B",
+        "https://www.kaggle.com/models/qwen-lm/qwen3-asr"
+      ],
+      "request_id": "4af41eb9-0a82-40fd-bca9-3f181c0dc5a3"
+    },
+    {
+      "id": "s21",
+      "query": "Qwen3-ASR acceleration distillation quantization CUDA TensorRT P4",
+      "error": null,
+      "result_urls": [
+        "https://github.com/NVIDIA/TensorRT-Edge-LLM/blob/main/docs/source/user_guide/examples/asr.md",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://huggingface.co/vrfai/Qwen3-ASR-1.7B-int8",
+        "https://nvidia.github.io/TensorRT-Edge-LLM/0.7.0/user_guide/getting_started/supported-models.html",
+        "https://www.modelscope.cn/models/Qwen/Qwen3-ASR-1.7B",
+        "https://nvidia.github.io/TensorRT-Edge-LLM/user_guide/getting_started/supported-models.html",
+        "https://docs.rs/crate/qwen3-asr/latest",
+        "https://arxiv.org/html/2604.14493v2"
+      ],
+      "request_id": "7c4640b9-4cfb-4d62-b777-21eb99655c88"
+    },
+    {
+      "id": "s22",
+      "query": "Qwen3-ASR fast inference optimized decoder INT8 FP32 CUDA Pascal",
+      "error": null,
+      "result_urls": [
+        "https://deepwiki.com/antirez/qwen-asr/6.2-decoder-optimizations",
+        "https://github.com/andimarafioti/qwenasr.cpp",
+        "https://deepwiki.com/antirez/qwen-asr/6-performance-optimization",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://raw.githubusercontent.com/andimarafioti/faster-qwen-asr/refs/heads/main/README.md",
+        "https://www.baseten.co/blog/fastest-lowest-cost-qwen3-asr-batch-transcription",
+        "https://hub.docker.com/r/lancelrq/qwen3-asr-service",
+        "https://huggingface.co/vrfai/Qwen3-ASR-1.7B-int8"
+      ],
+      "request_id": "23bd87b6-b0d6-48ec-9e05-a8bc126fb984"
+    },
+    {
+      "id": "s23",
+      "query": "Qwen3-ASR pruning distillation speculative decoding fast inference",
+      "error": null,
+      "result_urls": [
+        "https://liner.com/review/qwen3asr-technical-report",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://arxiv.org/pdf/2601.21337",
+        "https://research.google/blog/looking-back-at-speculative-decoding",
+        "https://kaitchup.substack.com/p/more-qwen35-gguf-evals-and-speculative",
+        "https://www.reddit.com/r/StableDiffusion/comments/1qq92rn/qwen3_asr_speech_to_text_released",
+        "https://www.youtube.com/watch?v=Bti0QJvXUrA",
+        "https://huggingface.co/blog/whisper-speculative-decoding"
+      ],
+      "request_id": "84b7038c-9a95-4087-b2cd-4dcea912d83c"
+    },
+    {
+      "id": "s24",
+      "query": "Qwen3-ASR GGUF Q4_0 Q8_0 Pascal performance DP4A",
+      "error": null,
+      "result_urls": [
+        "https://huggingface.co/Luigi/qwen3-asr-0.6b-rapidspeech-gguf",
+        "https://github.com/QwenLM/Qwen3-ASR",
+        "https://huggingface.co/cstr/qwen3-asr-0.6b-GGUF/blame/main/README.md",
+        "https://github.com/HaujetZhao/Qwen3-ASR-GGUF",
+        "https://arxiv.org/html/2505.09388v1",
+        "https://huggingface.co/Alkd/qwen3-asr-gguf",
+        "https://arxiv.org/html/2601.21337v1",
+        "https://arxiv.org/pdf/2601.21337"
+      ],
+      "request_id": "90f7ade3-0f30-43f4-826b-818822906aef"
+    }
+  ],
+  "tavily_research_request": {
+    "request_id": "af770302-c215-42e7-a41f-321ab7212ce6",
+    "status": "pending",
+    "model": "pro",
+    "created_at": "2026-10-31T16:45:49.915086+00:00",
+    "used_as_evidence": false
+  },
+  "tavily_extractions": [
+    {
+      "id": "e01",
+      "request_id": "9ee82bb4-b617-400c-a94d-ce387250697e",
+      "result_urls": [
+        "https://github.com/HaujetZhao/Qwen3-ASR-GGUF",
+        "https://github.com/andrewleech/qwen3-asr-onnx",
+        "https://huggingface.co/ggml-org/Qwen3-ASR-1.7B-GGUF",
+        "https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf"
+      ],
+      "failed_results": [],
+      "error": null
+    },
+    {
+      "id": "e02",
+      "request_id": "24d25f19-8287-4d58-b39f-fb70e938e268",
+      "result_urls": [
+        "https://huggingface.co/vrfai/Qwen3-ASR-1.7B-int8",
+        "https://github.com/uaysk/vllm-pascal",
+        "https://huggingface.co/cstr/qwen3-asr-1.7b-GGUF"
+      ],
+      "failed_results": [
+        {
+          "error": "Failed to fetch url",
+          "url": "https://www.modelscope.cn/models/OnsSixMix/QWEN3-ASR-GGUF-Q8-ONNX-INT8"
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": "e03",
+      "request_id": "93018f97-f39b-4174-993d-c4d8d7e76936",
+      "result_urls": [
+        "https://k2-fsa.github.io/sherpa/onnx/qwen3-asr/pretrained.html",
+        "https://huggingface.co/s0me-0ne/Qwen3-ASR-1.7B-ONNX-int8",
+        "https://github.com/predict-woo/qwen3-asr.cpp",
+        "https://huggingface.co/Blackwood416/Qwen3-ASR-1.7B-BNB-NF4"
+      ],
+      "failed_results": [],
+      "error": null
+    },
+    {
+      "id": "e04",
+      "request_id": "23b001fa-8b69-4935-b527-f0dcb5e6f3ff",
+      "result_urls": [
+        "https://huggingface.co/Luigi/qwen3-asr-0.6b-rapidspeech-gguf",
+        "https://github.com/leondgarse/qwen_asr_web",
+        "https://github.com/shershah1024/qwen3-asr-llamacpp"
+      ],
+      "failed_results": [],
+      "error": null
+    },
+    {
+      "id": "e05",
+      "request_id": "de57f07e-2f0d-45cf-8c56-b871702e0d39",
+      "result_urls": [
+        "https://github.com/andimarafioti/qwenasr.cpp",
+        "https://www.baseten.co/blog/fastest-lowest-cost-qwen3-asr-batch-transcription",
+        "https://nvidia.github.io/TensorRT-Edge-LLM/0.7.0/user_guide/getting_started/supported-models.html",
+        "https://github.com/andimarafioti/faster-qwen-asr"
+      ],
+      "failed_results": [],
+      "error": null
+    }
+  ],
+  "additional_kernel_sources": [
+    {
+      "url": "https://github.com/ggml-org/llama.cpp/issues/30235",
+      "scope": "Author P4 Q8_0 BGE pp512 tile A/B; not ASR benchmark",
+      "issue_updated_at": "2026-10-26T08:17:03Z"
+    },
+    {
+      "url": "https://github.com/ggml-org/llama.cpp/blob/0ec4027a2a0183de87c007069adddc06e665f7de/ggml/src/ggml-cuda/mmq-config-pascal-dp4a.cuh",
+      "scope": "Pinned current Pascal DP4A config"
+    }
+  ],
+  "background_research": {
+    "report": "p4-asr-hardware-kernel-evidence-20261101.md",
+    "tavily_searches": 36,
+    "deduplicated_candidate_urls": 168,
+    "indexed_primary_source_entries": 76
+  },
+  "verification": {
+    "selected_primary_links_checked": 20,
+    "selected_primary_links_http_200": 20,
+    "artifact_downloaded": false,
+    "local_gpu_benchmark": false
+  }
+}

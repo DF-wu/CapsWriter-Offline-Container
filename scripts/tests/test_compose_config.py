@@ -105,6 +105,14 @@ def active_env_keys(path: Path) -> set[str]:
 
 
 class ComposeConfigTest(unittest.TestCase):
+    def test_tesla_p4_runtime_is_forwarded_with_opt_in_default(self) -> None:
+        for filename in ("docker-compose.yml", "docker-compose.example.yml"):
+            with self.subTest(filename=filename):
+                source = (ROOT / filename).read_text(encoding="utf-8")
+                self.assertIn("${CAPSWRITER_TESLA_P4_OPTIMIZATION:-false}", source)
+        env = (ROOT / ".env.example").read_text(encoding="utf-8")
+        self.assertIn("CAPSWRITER_TESLA_P4_OPTIMIZATION=false", env)
+
     def test_main_compose_passes_http_api_environment(self) -> None:
         keys = active_yaml_keys(ROOT / "docker-compose.yml")
         self.assertTrue(HTTP_ENV_KEYS <= keys)

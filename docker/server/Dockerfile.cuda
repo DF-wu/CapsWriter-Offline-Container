@@ -1,0 +1,9 @@
+FROM nvidia/cuda:11.8.0-devel-ubuntu22.04@sha256:94fd755736cb58979173d491504f0b573247b1745250249415b07fefc738e41f AS builder
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake ninja-build g++ python3 curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+COPY docker/server/build_cuda.sh docker/server/package_cuda.py /scripts/
+RUN sh /scripts/build_cuda.sh
+
+FROM scratch AS artifact
+COPY --from=builder /out/ /

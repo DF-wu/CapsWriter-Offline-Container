@@ -1,0 +1,6 @@
+{
+  "excluded_config": "cuda-f32-q5",
+  "block": 0,
+  "reason": "Immich activated GPU during FP32 block; exclude and repeat. Earlier CPU/Vulkan/CUDA Q5 blocks retained.",
+  "unexpected_process_memory_mib": 4212
+}

@@ -1,0 +1,1989 @@
+{
+  "f16": {
+    "graphs": {
+      "frontend": {
+        "checker": "passed",
+        "input_types": {
+          "chunk_mel": "FLOAT16, 1x128x100"
+        },
+        "initializer_types": {
+          "FLOAT16": 8,
+          "INT64": 2
+        },
+        "operators": {
+          "Unsqueeze": 1,
+          "Conv": 3,
+          "Gelu": 3,
+          "Transpose": 1,
+          "Reshape": 1,
+          "MatMul": 1,
+          "Add": 1
+        }
+      },
+      "backend": {
+        "checker": "Nodes in a graph must be topologically sorted, however input 'node_layer_norm_input_cast_0' of node: \nname: node_layer_norm OpType: LayerNormalization\n is not output of any previous nodes.",
+        "input_types": {
+          "hidden_states": "FLOAT16, batchxtimex1024",
+          "attention_mask": "FLOAT16, batchx1xtimextime"
+        },
+        "initializer_types": {
+          "FLOAT16": 293,
+          "FLOAT": 98,
+          "INT64": 3
+        },
+        "operators": {
+          "Shape": 2,
+          "Concat": 2,
+          "LayerNormalization": 49,
+          "MatMul": 194,
+          "Add": 193,
+          "Reshape": 96,
+          "Transpose": 96,
+          "Mul": 24,
+          "Softmax": 24,
+          "BiasGelu": 25,
+          "Cast": 196
+        }
+      }
+    },
+    "samples": {
+      "mandarin-2s": {
+        "shape": [
+          26,
+          2048
+        ],
+        "finite": true,
+        "cosine": 1.0000000000000002,
+        "min_frame_cosine": 0.9999999999999998,
+        "relative_l2": 0.0,
+        "max_abs_difference": 0.0
+      },
+      "mandarin-5s": {
+        "shape": [
+          65,
+          2048
+        ],
+        "finite": true,
+        "cosine": 0.9999999999999999,
+        "min_frame_cosine": 0.9999999999999998,
+        "relative_l2": 0.0,
+        "max_abs_difference": 0.0
+      },
+      "mandarin-10s": {
+        "shape": [
+          130,
+          2048
+        ],
+        "finite": true,
+        "cosine": 0.9999999999999999,
+        "min_frame_cosine": 0.9999999999999998,
+        "relative_l2": 0.0,
+        "max_abs_difference": 0.0
+      }
+    },
+    "profiles": {
+      "frontend": {
+        "by_provider_op": {
+          "CUDAExecutionProvider/Unsqueeze": {
+            "calls": 19,
+            "duration_us": 1418
+          },
+          "CUDAExecutionProvider/Conv": {
+            "calls": 57,
+            "duration_us": 328502
+          },
+          "CUDAExecutionProvider/Gelu": {
+            "calls": 57,
+            "duration_us": 3806
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "calls": 19,
+            "duration_us": 2930
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "calls": 19,
+            "duration_us": 920
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "calls": 19,
+            "duration_us": 9821
+          },
+          "CUDAExecutionProvider/Add": {
+            "calls": 19,
+            "duration_us": 2736
+          }
+        },
+        "type_examples": {
+          "CUDAExecutionProvider/Unsqueeze": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  128,
+                  100
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  1,
+                  128,
+                  100
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Conv": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  1,
+                  128,
+                  100
+                ]
+              },
+              {
+                "float16": [
+                  480,
+                  1,
+                  3,
+                  3
+                ]
+              },
+              {
+                "float16": [
+                  480
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  480,
+                  64,
+                  50
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Gelu": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  480,
+                  64,
+                  50
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  480,
+                  64,
+                  50
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  480,
+                  16,
+                  13
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  13,
+                  480,
+                  16
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  13,
+                  480,
+                  16
+                ]
+              },
+              {
+                "int64": [
+                  3
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  13,
+                  7680
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  13,
+                  7680
+                ]
+              },
+              {
+                "float16": [
+                  7680,
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  13,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Add": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  13,
+                  1024
+                ]
+              },
+              {
+                "float16": [
+                  1,
+                  13,
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  13,
+                  1024
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "backend": {
+        "by_provider_op": {
+          "CUDAExecutionProvider/Cast": {
+            "calls": 392,
+            "duration_us": 25579
+          },
+          "CUDAExecutionProvider/LayerNormalization": {
+            "calls": 196,
+            "duration_us": 13295
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "calls": 680,
+            "duration_us": 45153
+          },
+          "CUDAExecutionProvider/Add": {
+            "calls": 772,
+            "duration_us": 46917
+          },
+          "CUDAExecutionProvider/Shape": {
+            "calls": 8,
+            "duration_us": 371
+          },
+          "CPUExecutionProvider/Concat": {
+            "calls": 8,
+            "duration_us": 477
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "calls": 384,
+            "duration_us": 18866
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "calls": 384,
+            "duration_us": 24094
+          },
+          "CUDAExecutionProvider/FusedMatMul": {
+            "calls": 96,
+            "duration_us": 7283
+          },
+          "CUDAExecutionProvider/Softmax": {
+            "calls": 96,
+            "duration_us": 7802
+          },
+          "CUDAExecutionProvider/BiasGelu": {
+            "calls": 100,
+            "duration_us": 6343
+          }
+        },
+        "type_examples": {
+          "CUDAExecutionProvider/Cast": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/LayerNormalization": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float16": [
+                  1024,
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Add": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float16": [
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Shape": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  1,
+                  26,
+                  26
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "int64": [
+                  1
+                ]
+              }
+            ]
+          },
+          "CPUExecutionProvider/Concat": {
+            "input_type_shape": [
+              {
+                "int64": [
+                  1
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "int64": [
+                  4
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "int64": [
+                  4
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  16,
+                  64
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  16,
+                  64
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  16,
+                  26,
+                  64
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/FusedMatMul": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  16,
+                  26,
+                  64
+                ]
+              },
+              {
+                "float16": [
+                  1,
+                  16,
+                  64,
+                  26
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Softmax": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/BiasGelu": {
+            "input_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  4096
+                ]
+              },
+              {
+                "float16": [
+                  4096
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float16": [
+                  1,
+                  26,
+                  4096
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "f32-promoted": {
+    "graphs": {
+      "frontend": {
+        "checker": "passed",
+        "input_types": {
+          "chunk_mel": "FLOAT, 1x128x100"
+        },
+        "initializer_types": {
+          "FLOAT": 8,
+          "INT64": 2
+        },
+        "operators": {
+          "Unsqueeze": 1,
+          "Conv": 3,
+          "Gelu": 3,
+          "Transpose": 1,
+          "Reshape": 1,
+          "MatMul": 1,
+          "Add": 1
+        }
+      },
+      "backend": {
+        "checker": "passed",
+        "input_types": {
+          "hidden_states": "FLOAT, batchxtimex1024",
+          "attention_mask": "FLOAT, batchx1xtimextime"
+        },
+        "initializer_types": {
+          "FLOAT": 391,
+          "INT64": 3
+        },
+        "operators": {
+          "Shape": 2,
+          "Cast": 196,
+          "Concat": 2,
+          "LayerNormalization": 49,
+          "MatMul": 194,
+          "Add": 193,
+          "Reshape": 96,
+          "Transpose": 96,
+          "Mul": 24,
+          "Softmax": 24,
+          "BiasGelu": 25
+        }
+      }
+    },
+    "samples": {
+      "mandarin-2s": {
+        "shape": [
+          26,
+          2048
+        ],
+        "finite": true,
+        "cosine": 0.999996756138561,
+        "min_frame_cosine": 0.9999786378531406,
+        "relative_l2": 0.00254710956325962,
+        "max_abs_difference": 0.0005111917853355408
+      },
+      "mandarin-5s": {
+        "shape": [
+          65,
+          2048
+        ],
+        "finite": true,
+        "cosine": 0.9999956489229098,
+        "min_frame_cosine": 0.9999090767413898,
+        "relative_l2": 0.0029499503734951695,
+        "max_abs_difference": 0.0011778250336647034
+      },
+      "mandarin-10s": {
+        "shape": [
+          130,
+          2048
+        ],
+        "finite": true,
+        "cosine": 0.9999640576033053,
+        "min_frame_cosine": 0.9978263513674244,
+        "relative_l2": 0.008478800258109079,
+        "max_abs_difference": 0.005699666100554168
+      }
+    },
+    "profiles": {
+      "frontend": {
+        "by_provider_op": {
+          "CUDAExecutionProvider/Unsqueeze": {
+            "calls": 19,
+            "duration_us": 1364
+          },
+          "CUDAExecutionProvider/Conv": {
+            "calls": 57,
+            "duration_us": 218997
+          },
+          "CUDAExecutionProvider/Gelu": {
+            "calls": 57,
+            "duration_us": 3651
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "calls": 19,
+            "duration_us": 2062
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "calls": 19,
+            "duration_us": 909
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "calls": 19,
+            "duration_us": 2084
+          },
+          "CUDAExecutionProvider/Add": {
+            "calls": 19,
+            "duration_us": 1400
+          }
+        },
+        "type_examples": {
+          "CUDAExecutionProvider/Unsqueeze": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  128,
+                  100
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  1,
+                  128,
+                  100
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Conv": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  1,
+                  128,
+                  100
+                ]
+              },
+              {
+                "float": [
+                  480,
+                  1,
+                  3,
+                  3
+                ]
+              },
+              {
+                "float": [
+                  480
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  480,
+                  64,
+                  50
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Gelu": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  480,
+                  64,
+                  50
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  480,
+                  64,
+                  50
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  480,
+                  16,
+                  13
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  480,
+                  16
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  480,
+                  16
+                ]
+              },
+              {
+                "int64": [
+                  3
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  7680
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  7680
+                ]
+              },
+              {
+                "float": [
+                  7680,
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Add": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1,
+                  13,
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  1024
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "backend": {
+        "by_provider_op": {
+          "CUDAExecutionProvider/LayerNormalization": {
+            "calls": 192,
+            "duration_us": 12302
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "calls": 680,
+            "duration_us": 44589
+          },
+          "CUDAExecutionProvider/Add": {
+            "calls": 764,
+            "duration_us": 46456
+          },
+          "CUDAExecutionProvider/Shape": {
+            "calls": 8,
+            "duration_us": 382
+          },
+          "CPUExecutionProvider/Concat": {
+            "calls": 8,
+            "duration_us": 491
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "calls": 384,
+            "duration_us": 18626
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "calls": 384,
+            "duration_us": 23054
+          },
+          "CUDAExecutionProvider/FusedMatMul": {
+            "calls": 96,
+            "duration_us": 9473
+          },
+          "CUDAExecutionProvider/Softmax": {
+            "calls": 96,
+            "duration_us": 6016
+          },
+          "CUDAExecutionProvider/BiasGelu": {
+            "calls": 100,
+            "duration_us": 6044
+          },
+          "CUDAExecutionProvider/SkipLayerNormalization": {
+            "calls": 4,
+            "duration_us": 1970
+          }
+        },
+        "type_examples": {
+          "CUDAExecutionProvider/LayerNormalization": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024,
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Add": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Shape": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  1,
+                  26,
+                  26
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "int64": [
+                  1
+                ]
+              }
+            ]
+          },
+          "CPUExecutionProvider/Concat": {
+            "input_type_shape": [
+              {
+                "int64": [
+                  1
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "int64": [
+                  4
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "int64": [
+                  4
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  16,
+                  64
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  16,
+                  64
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  64
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/FusedMatMul": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  64
+                ]
+              },
+              {
+                "float": [
+                  1,
+                  16,
+                  64,
+                  26
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Softmax": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/BiasGelu": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  4096
+                ]
+              },
+              {
+                "float": [
+                  4096
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  4096
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/SkipLayerNormalization": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "w4": {
+    "graphs": {
+      "frontend": {
+        "checker": "passed",
+        "input_types": {
+          "chunk_mel": "FLOAT, 1x128x100"
+        },
+        "initializer_types": {
+          "FLOAT": 8,
+          "INT64": 2,
+          "UINT8": 2
+        },
+        "operators": {
+          "Unsqueeze": 1,
+          "Conv": 3,
+          "Gelu": 3,
+          "Transpose": 1,
+          "Reshape": 1,
+          "MatMulNBits": 1,
+          "Add": 1
+        }
+      },
+      "backend": {
+        "checker": "passed",
+        "input_types": {
+          "hidden_states": "FLOAT, batchxtimex1024",
+          "attention_mask": "FLOAT, batchx1xtimextime"
+        },
+        "initializer_types": {
+          "FLOAT": 391,
+          "INT64": 3,
+          "UINT8": 292
+        },
+        "operators": {
+          "Shape": 2,
+          "LayerNormalization": 49,
+          "Concat": 2,
+          "MatMulNBits": 146,
+          "Add": 193,
+          "Reshape": 96,
+          "Transpose": 96,
+          "MatMul": 48,
+          "Mul": 24,
+          "Softmax": 24,
+          "BiasGelu": 25
+        }
+      }
+    },
+    "samples": {
+      "mandarin-2s": {
+        "shape": [
+          26,
+          2048
+        ],
+        "finite": true,
+        "cosine": 0.9733067449409997,
+        "min_frame_cosine": 0.9427246181015668,
+        "relative_l2": 0.2308103875186839,
+        "max_abs_difference": 0.026045782957226038
+      },
+      "mandarin-5s": {
+        "shape": [
+          65,
+          2048
+        ],
+        "finite": true,
+        "cosine": 0.9702345500389666,
+        "min_frame_cosine": 0.801884692794948,
+        "relative_l2": 0.24276961689477336,
+        "max_abs_difference": 0.04264450818300247
+      },
+      "mandarin-10s": {
+        "shape": [
+          130,
+          2048
+        ],
+        "finite": true,
+        "cosine": 0.9694658825775584,
+        "min_frame_cosine": 0.8571069972197874,
+        "relative_l2": 0.2463417263111065,
+        "max_abs_difference": 0.04946787655353546
+      }
+    },
+    "profiles": {
+      "frontend": {
+        "by_provider_op": {
+          "CUDAExecutionProvider/Unsqueeze": {
+            "calls": 19,
+            "duration_us": 1482
+          },
+          "CUDAExecutionProvider/Conv": {
+            "calls": 57,
+            "duration_us": 207876
+          },
+          "CUDAExecutionProvider/Gelu": {
+            "calls": 57,
+            "duration_us": 3828
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "calls": 19,
+            "duration_us": 1324
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "calls": 19,
+            "duration_us": 957
+          },
+          "CUDAExecutionProvider/MatMulNBits": {
+            "calls": 19,
+            "duration_us": 12584
+          },
+          "CUDAExecutionProvider/Add": {
+            "calls": 19,
+            "duration_us": 1525
+          }
+        },
+        "type_examples": {
+          "CUDAExecutionProvider/Unsqueeze": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  128,
+                  100
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  1,
+                  128,
+                  100
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Conv": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  1,
+                  128,
+                  100
+                ]
+              },
+              {
+                "float": [
+                  480,
+                  1,
+                  3,
+                  3
+                ]
+              },
+              {
+                "float": [
+                  480
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  480,
+                  64,
+                  50
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Gelu": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  480,
+                  64,
+                  50
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  480,
+                  64,
+                  50
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  480,
+                  16,
+                  13
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  480,
+                  16
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  480,
+                  16
+                ]
+              },
+              {
+                "int64": [
+                  3
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  7680
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/MatMulNBits": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  7680
+                ]
+              },
+              {
+                "uint8": [
+                  1024,
+                  60,
+                  64
+                ]
+              },
+              {
+                "float": [
+                  61440
+                ]
+              },
+              {
+                "uint8": [
+                  30720
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Add": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1,
+                  13,
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  13,
+                  1024
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "backend": {
+        "by_provider_op": {
+          "CUDAExecutionProvider/LayerNormalization": {
+            "calls": 192,
+            "duration_us": 13550
+          },
+          "CUDAExecutionProvider/MatMulNBits": {
+            "calls": 584,
+            "duration_us": 53743
+          },
+          "CUDAExecutionProvider/Add": {
+            "calls": 764,
+            "duration_us": 50936
+          },
+          "CUDAExecutionProvider/Shape": {
+            "calls": 8,
+            "duration_us": 391
+          },
+          "CPUExecutionProvider/Concat": {
+            "calls": 8,
+            "duration_us": 473
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "calls": 384,
+            "duration_us": 20390
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "calls": 384,
+            "duration_us": 25726
+          },
+          "CUDAExecutionProvider/FusedMatMul": {
+            "calls": 96,
+            "duration_us": 7414
+          },
+          "CUDAExecutionProvider/Softmax": {
+            "calls": 96,
+            "duration_us": 6053
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "calls": 96,
+            "duration_us": 7130
+          },
+          "CUDAExecutionProvider/BiasGelu": {
+            "calls": 100,
+            "duration_us": 6572
+          },
+          "CUDAExecutionProvider/SkipLayerNormalization": {
+            "calls": 4,
+            "duration_us": 290
+          }
+        },
+        "type_examples": {
+          "CUDAExecutionProvider/LayerNormalization": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/MatMulNBits": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "uint8": [
+                  1024,
+                  8,
+                  64
+                ]
+              },
+              {
+                "float": [
+                  8192
+                ]
+              },
+              {
+                "uint8": [
+                  4096
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Add": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Shape": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  1,
+                  26,
+                  26
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "int64": [
+                  1
+                ]
+              }
+            ]
+          },
+          "CPUExecutionProvider/Concat": {
+            "input_type_shape": [
+              {
+                "int64": [
+                  1
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              },
+              {
+                "int64": [
+                  1
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "int64": [
+                  4
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Reshape": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "int64": [
+                  4
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  16,
+                  64
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Transpose": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  16,
+                  64
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  64
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/FusedMatMul": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  64
+                ]
+              },
+              {
+                "float": [
+                  1,
+                  16,
+                  64,
+                  26
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/Softmax": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/MatMul": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  26
+                ]
+              },
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  64
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  16,
+                  26,
+                  64
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/BiasGelu": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  4096
+                ]
+              },
+              {
+                "float": [
+                  4096
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  4096
+                ]
+              }
+            ]
+          },
+          "CUDAExecutionProvider/SkipLayerNormalization": {
+            "input_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              },
+              {
+                "float": [
+                  1024
+                ]
+              }
+            ],
+            "output_type_shape": [
+              {
+                "float": [
+                  1,
+                  26,
+                  1024
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

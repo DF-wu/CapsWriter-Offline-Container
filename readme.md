@@ -16,9 +16,9 @@ English · [繁體中文](README.zh-TW.md)
 
 </div>
 
-Latest published: **fork-v2.0.0** (2026-09-30). **fork-v2.1.0 is unreleased
+Latest published: **fork-v2.1.0** (2026-10-31). **fork-v2.2.0 is unreleased
 preparation**; upstream stays v2.6 / `84912d5`. See the
-[candidate notes](docs/en/release-notes.md) and [draft checklist](docs/releases/fork-v2.1.0.md).
+[candidate notes](docs/en/release-notes.md) and [draft checklist](docs/releases/fork-v2.2.0.md).
 
 ![CapsWriter v2 architecture: desktop, Web, CLI, TUI and OpenAI SDK clients connect to a local CapsWriter Server](docs/assets/overview.svg)
 
@@ -189,7 +189,11 @@ WebSocket `:6016` is now ready for desktop clients (enter this host's IP in thei
 Example for NVIDIA: `docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d capswriter-server`.
 Upgrades, backups and details are in the [deployment guide](docs/en/deployment.md).
 
-The v2.1.0 candidate's optional [NVIDIA pre-boost](docs/nvidia-boost.md) is separate
+Tesla P4 users can opt into the SM61 CUDA runtime with
+`CAPSWRITER_TESLA_P4_OPTIMIZATION=true`; the default is `false`, retaining
+the original CPU/Vulkan selection. See the [P4 guide](docs/tesla-p4.md).
+
+The optional [NVIDIA pre-boost](docs/nvidia-boost.md) is separate
 from GPU inference. Defaults remain `appuser` and boost disabled. The explicit
 `docker-compose.nvidia-boost.yml` permissions override follows the GPU override;
 it also needs explicit enablement and a hardware-supported memory-clock value.
@@ -396,9 +400,9 @@ CPU/GPU or Fun-ASR-Nano with a known clip on your own system.
   (the old repository name redirects here). Publishing `master` triggers image
   publication automatically. The separate `myServices` recipe must be pushed to
   Portainer's tracked branch; its local model-volume fix is not yet deployed.
-- Candidate runtime/package metadata is `2.1.0`; `/health` and `/ready` add
-  `fork_version: "2.1.0"` while retaining upstream `version: "2.6"`. This does not
-  establish a published release. See the [release checklist](docs/releases/fork-v2.1.0.md).
+- Candidate runtime/package metadata is `2.2.0`; `/health` and `/ready` add
+  `fork_version: "2.2.0"` while retaining upstream `version: "2.6"`. This does not
+  establish a published release. See the [release checklist](docs/releases/fork-v2.2.0.md).
 - This fork is based on [HaujetZhao/CapsWriter-Offline](https://github.com/HaujetZhao/CapsWriter-Offline).
   Models, inference algorithms and the desktop experience come from upstream; the fork
   adds cross-platform deployment, the HTTP API, extra clients, safety limits and the

@@ -78,6 +78,10 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         # Keep all GGUF bindings on the verified b7798 native ABI together.
         "core/server/engines/llama/llama.py",
         "core/server/engines/llama/bin/llama.cpp二进制下载到这里.txt",
+        # Issue #18: never swallow the selected CUDA runtime's import failure.
+        "core/server/engines/qwen_asr_gguf/inference/__init__.py",
+        "core/server/engines/fun_asr_gguf/inference/__init__.py",
+        "core/server/engines/force_aligner_gguf/inference/__init__.py",
         "core/server/schema.py",
         "core/server/state.py",
         "core/server/worker/__init__.py",

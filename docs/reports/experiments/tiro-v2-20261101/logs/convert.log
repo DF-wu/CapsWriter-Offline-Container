@@ -1,0 +1,3 @@
+Mapped encoder frontend 7
+Mapped encoder backend 390
+Converted every source tensor; validated token IDs / shapes / ONNX graph.

@@ -1,0 +1,10 @@
+{
+  "stopped_utc": "2026-10-31T18:59:10.372604+00:00",
+  "production_id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+  "services": [
+    "capswriter-server",
+    "immich-aio"
+  ],
+  "watchdog_pid": 563591,
+  "config_before_matched": true
+}

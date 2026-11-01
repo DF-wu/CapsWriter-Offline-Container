@@ -1,0 +1,20 @@
+11.8.0-devel-ubuntu22.04: Pulling from nvidia/cuda
+aece8493d397: Already exists
+5e3b7ee77381: Already exists
+5bd037f007fd: Already exists
+4cda774ad2ec: Already exists
+775f22adee62: Already exists
+263fc748118f: Already exists
+16c36d0187d0: Already exists
+e7a56570655c: Already exists
+507fc9045cba: Already exists
+23b7d8e07c16: Pulling fs layer
+922ac8fcb889: Pulling fs layer
+922ac8fcb889: Download complete
+23b7d8e07c16: Verifying Checksum
+23b7d8e07c16: Download complete
+23b7d8e07c16: Pull complete
+922ac8fcb889: Pull complete
+Digest: sha256:94fd755736cb58979173d491504f0b573247b1745250249415b07fefc738e41f
+Status: Downloaded newer image for nvidia/cuda:11.8.0-devel-ubuntu22.04
+docker.io/nvidia/cuda:11.8.0-devel-ubuntu22.04

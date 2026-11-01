@@ -1,0 +1,11 @@
+Collecting onnx==1.16.2
+  Downloading onnx-1.16.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (16 kB)
+Requirement already satisfied: numpy>=1.20 in /opt/venv/lib/python3.10/site-packages (from onnx==1.16.2) (1.26.4)
+Requirement already satisfied: protobuf>=3.20.2 in /opt/venv/lib/python3.10/site-packages (from onnx==1.16.2) (7.35.1)
+Downloading onnx-1.16.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (15.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 15.9/15.9 MB 47.8 MB/s  0:00:00
+Installing collected packages: onnx
+Successfully installed onnx-1.16.2
+
+[notice] A new release of pip is available: 26.1.2 -> 26.2.2
+[notice] To update, run: pip install --upgrade pip

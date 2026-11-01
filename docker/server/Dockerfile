@@ -1,4 +1,12 @@
+FROM nvidia/cuda:11.8.0-devel-ubuntu22.04@sha256:94fd755736cb58979173d491504f0b573247b1745250249415b07fefc738e41f AS llama-cuda-builder
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    cmake ninja-build g++ python3 curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+COPY docker/server/build_cuda.sh docker/server/package_cuda.py /scripts/
+RUN sh /scripts/build_cuda.sh
+
 FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04@sha256:85fb7ac694079fff1061a0140fd5b5a641997880e12112d92589c3bbb1e8b7ca
+COPY --from=llama-cuda-builder /out/ /opt/capswriter/llama-cuda/
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -14,7 +22,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     CAPSWRITER_INTERACTIVE_ERRORS=false
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends python3 python3-venv python3-pip python3-tk tini libgomp1 libvulkan1 mesa-vulkan-drivers ca-certificates ffmpeg \
+    && apt-get install -y --no-install-recommends python3 python3-venv python3-pip python3-tk tini libgomp1 libvulkan1 libegl1 mesa-vulkan-drivers ca-certificates ffmpeg \
     && python3 -m venv /opt/venv \
     && /opt/venv/bin/python -m pip install \
         packaging==26.2 \

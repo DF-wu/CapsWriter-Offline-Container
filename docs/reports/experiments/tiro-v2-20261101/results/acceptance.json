@@ -1,0 +1,62 @@
+{
+  "normal_completion": true,
+  "accepted_utc": "2026-11-01T03:07:38.145290+00:00",
+  "blocks": [
+    {
+      "config": "original-q5",
+      "phase": "quality",
+      "run_id": "1793502036295466492",
+      "accepted": true,
+      "basis": "all 8 blocks returned zero, output validation passed, EVERY post-block exclusivity check passed as proven by normal-completion restoration"
+    },
+    {
+      "config": "tiro-f16",
+      "phase": "quality",
+      "run_id": "1793502093783121090",
+      "accepted": true,
+      "basis": "all 8 blocks returned zero, output validation passed, EVERY post-block exclusivity check passed as proven by normal-completion restoration"
+    },
+    {
+      "config": "tiro-q5",
+      "phase": "quality",
+      "run_id": "1793502157208677817",
+      "accepted": true,
+      "basis": "all 8 blocks returned zero, output validation passed, EVERY post-block exclusivity check passed as proven by normal-completion restoration"
+    },
+    {
+      "config": "tiro-q4",
+      "phase": "quality",
+      "run_id": "1793502206511426570",
+      "accepted": true,
+      "basis": "all 8 blocks returned zero, output validation passed, EVERY post-block exclusivity check passed as proven by normal-completion restoration"
+    },
+    {
+      "config": "original-q5",
+      "phase": "latency",
+      "run_id": "1793502252058409450",
+      "accepted": true,
+      "basis": "all 8 blocks returned zero, output validation passed, EVERY post-block exclusivity check passed as proven by normal-completion restoration"
+    },
+    {
+      "config": "tiro-f16",
+      "phase": "latency",
+      "run_id": "1793502295838089724",
+      "accepted": true,
+      "basis": "all 8 blocks returned zero, output validation passed, EVERY post-block exclusivity check passed as proven by normal-completion restoration"
+    },
+    {
+      "config": "tiro-q5",
+      "phase": "latency",
+      "run_id": "1793502343178393589",
+      "accepted": true,
+      "basis": "all 8 blocks returned zero, output validation passed, EVERY post-block exclusivity check passed as proven by normal-completion restoration"
+    },
+    {
+      "config": "tiro-q4",
+      "phase": "latency",
+      "run_id": "1793502384220275910",
+      "accepted": true,
+      "basis": "all 8 blocks returned zero, output validation passed, EVERY post-block exclusivity check passed as proven by normal-completion restoration"
+    }
+  ]
+}

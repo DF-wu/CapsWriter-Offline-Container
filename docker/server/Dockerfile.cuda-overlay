@@ -1,0 +1,15 @@
+# Local validation/recovery image: use the exact deployed base image ID.
+# Context is prepared by docs/reports/experiments/p4-cuda-deployment-20261101/prepare.py.
+ARG BASE_IMAGE=ghcr.io/df-wu/capswriter-offline-server:latest
+FROM ${BASE_IMAGE}
+USER root
+COPY bundle/ /opt/capswriter/llama-cuda/
+COPY overlay/ /app/
+RUN apt-get update && apt-get install -y --no-install-recommends libegl1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && CAPSWRITER_TESLA_P4_OPTIMIZATION=true CAPSWRITER_LLAMA_BACKEND=cuda python -c \
+       'from docker.server.download_models import _prepare_llama_binaries; raise SystemExit(_prepare_llama_binaries())' \
+    && chmod +x /app/docker/server/entrypoint.sh \
+    && chown -R appuser:appuser /app/docker/server /app/fork_server \
+       /app/core/server/engines
+USER appuser

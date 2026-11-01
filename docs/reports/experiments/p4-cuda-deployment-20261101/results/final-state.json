@@ -1,0 +1,35 @@
+{
+  "model_hashes": {
+    "qwen3_asr_encoder_backend.onnx": "4b0b1e34e8393f29222006aae0719283b0ff28b61f289b6ff8377b3ddbda27e3",
+    "qwen3_asr_encoder_frontend.onnx": "fc288ba9a0ca732251b33628c803cd5188d3dd77a2cd7336f0f0fd37969ed4cd",
+    "qwen3_asr_llm.gguf": "89e198470f41d487ab5b6b8a36a35400b3b1534451c4499236983050fe9193e5"
+  },
+  "source_hashes": {
+    "docker/server/entrypoint.sh": "c3a990bb8ffa92f3a604486014192c495214ad968f02e9fc322f22ba3d606f04",
+    "docker/server/download_models.py": "f5bb1b6f680330543a435fe1408451f93b6ae871a56a8219bdc4337402c3854c",
+    "core/server/engines/llama/llama.py": "c504f74af44c205d0b86c2bef940cfd0d6018c6d12d34b34b7d032ab765e5a0f",
+    "fork_server/llama_backend.py": "d69c427b115201b5fa6ead9ece4d0241bd0fc4b0d52868133862056a8cf16787",
+    "core/server/engines/qwen_asr_gguf/inference/__init__.py": "70f3a07d29291b5e52247d1880e37a5fb63bfc589456d4e3ae68305724b9b882",
+    "core/server/engines/fun_asr_gguf/inference/__init__.py": "f72c0076a2cf9312b081663314561586d8937eb48a69d51e7306aa782955b884",
+    "core/server/engines/force_aligner_gguf/inference/__init__.py": "70f3a07d29291b5e52247d1880e37a5fb63bfc589456d4e3ae68305724b9b882"
+  },
+  "runtime_integrity_valid": true,
+  "services": [
+    {
+      "name": "capswriter-server",
+      "id": "d6ab96c622d146f10429fbdc8afd37f7804e474a53a3f372b7bc58f6eb94a37c",
+      "image": "sha256:b413de423317afd354ddeaa17898fabbd4ae03bcb8040f261dc029ec451f5ea5",
+      "parameters_unchanged": true,
+      "health": "healthy"
+    },
+    {
+      "name": "immich-aio",
+      "id": "9b775b9cd582524779a2563cea7a7cf1dcc7502c81d6517970ea9a26525552e9",
+      "image": "sha256:113e61b9de6075e5fc4b8b16364d45d0a7c6404d692c13f81da339aaaf147fdc",
+      "parameters_unchanged": true,
+      "health": null
+    }
+  ],
+  "capswriter_http_ready": true,
+  "immich_http_pong": true
+}

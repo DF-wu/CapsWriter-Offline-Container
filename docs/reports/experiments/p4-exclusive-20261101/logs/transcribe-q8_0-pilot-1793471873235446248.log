@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/bench/run_transcribe.py", line 140, in <module>
+    main()
+  File "/bench/run_transcribe.py", line 78, in main
+    checked(bind('transcribe_model_load_file', [C.c_char_p, C.POINTER(LoadParams), C.POINTER(C.c_void_p)], C.c_int)(
+  File "/bench/run_transcribe.py", line 71, in checked
+    if status != 0:raise RuntimeError(status_string(status).decode())
+RuntimeError: unsupported architecture

@@ -15,6 +15,6 @@ fork_server — Linux container 化貼皮層 (sidecar)
 同步時參見 docs/upstream-sync-guide.md。
 """
 
-__version__ = "2.1.0"
+__version__ = "2.2.0"
 
 __all__ = ["bootstrap"]
