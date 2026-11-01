@@ -73,7 +73,9 @@ class ComposeRenderTest(unittest.TestCase):
         self.assertEqual(mounts["/app/logs"]["source"], "capswriter-server-logs")
         self.assertEqual(mounts["/app/settings"]["source"], "capswriter-server-settings")
         self.assertTrue(mounts["/app/hot-server.txt"]["read_only"])
-        self.assertFalse(mounts["/app/hot-server.txt"]["bind"]["create_host_path"])
+        # Compose v2 omits this false value; newer CLI versions emit it.
+        # The source-contract test also requires the explicit YAML false.
+        self.assertFalse(mounts["/app/hot-server.txt"].get("bind", {}).get("create_host_path", False))
 
     def test_web_profile_adds_web_without_forcing_server_api_or_public_key(self):
         model = self.render(profile="web")
