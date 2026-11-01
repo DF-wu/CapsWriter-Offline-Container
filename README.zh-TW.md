@@ -172,25 +172,16 @@ docker compose logs -f capswriter-server   # 第一次會下載模型，請耐�
 
 啟動完成後，WebSocket `:6016` 就能給桌面 Client 使用（在設定視窗填這台主機的 IP）。
 
-| 想要 | 追加的 Compose 檔 |
-|---|---|
-| NVIDIA GPU | `-f docker-compose.gpu.yml` |
-| Intel／AMD 內顯（Vulkan） | `-f docker-compose.igpu.yml` |
-| 較低延遲、較小的 Fun-ASR-Nano 模型 | `-f docker-compose.fun-asr.yml` |
-| 自己管理 `./models` 目錄 | `-f docker-compose.models-bind.yml` |
-| 在 Web 上管理 Server 設定 | `-f docker-compose.settings.yml`（見[日常設定](docs/settings.md)） |
-
-例如 NVIDIA：`docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d capswriter-server`。
-完整說明、升級與備份請看[部署指南](docs/zh-TW/deployment.md)。
+全部部署選項已整合為**一份 [`docker-compose.yml`](docker-compose.yml)**。
+按硬體取消同檔 NVIDIA／DRI 區塊註解；模型、儲存與設定管理使用 `.env`。
+Web 選用 `docker compose --profile web up -d`，不需疊加 YAML。
+完整操作及 Portainer 遷移見[單一 Compose 指南](docs/compose.md)。
 
 Tesla P4 可設定 `CAPSWRITER_TESLA_P4_OPTIMIZATION=true` 選用 SM61 CUDA runtime；
 預設 `false`，保留原 CPU／Vulkan 選擇。詳見 [P4 指南](docs/tesla-p4.md)。
 
-選用的 [NVIDIA 預加速](docs/nvidia-boost.md)與 GPU 推論分開；預設仍為
-`appuser` 且 boost 關閉。選用 `docker-compose.nvidia-boost.yml` 權限 override 時，
-須接在 GPU override 後，並明確啟用及指定硬體支援的顯存頻率。此功能不保證所有
-NVIDIA 裝置支援，也無候選版延遲實測宣稱；root 寫入的 volume 回到 `appuser` 前，
-請先依指南檢查所有權。
+選用的 [NVIDIA 預加速](docs/nvidia-boost.md)使用同檔 NVIDIA_BOOST 註解區塊。
+預設仍為非 root appuser、boost 關閉；P4 推論不需要該權限區塊。
 
 ### 啟用 HTTP API（給 Web／CLI／TUI／SDK）
 
@@ -204,15 +195,8 @@ CAPSWRITER_HTTP_API_PORT=6017
 CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080,http://127.0.0.1:5173,http://localhost:5173
 ```
 
-再到 [`docker-compose.yml`](docker-compose.yml) 取消第二個 port mapping 的註解：
-
-```yaml
-ports:
-  - "127.0.0.1:6016:6016"
-  - "127.0.0.1:6017:6017"
-```
-
-重建並檢查：`/health` 只代表程序活著，`/ready` 才代表模型已可接收音訊。
+[`docker-compose.yml`](docker-compose.yml) 的 `ports:` HTTP mapping 已在同檔提供，預設僅發布到 host loopback；API listener 仍須明確
+啟用。重建後檢查 `/health` 與 `/ready`：
 
 ```bash
 docker compose up -d --force-recreate capswriter-server
@@ -233,7 +217,7 @@ curl http://127.0.0.1:6017/ready
 
 ```bash
 CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017 \
-  docker compose -f docker-compose.web.yml up -d --build capswriter-web
+  docker compose --profile web up -d capswriter-web
 ```
 
 開啟 `http://127.0.0.1:8080`，在 API 欄位確認 `http://127.0.0.1:6017`，於遮罩欄位

@@ -385,7 +385,7 @@ def main():
             f"  1. 启动命令: {bold('python start_server_docker.py')}  (NOT start_server.py)"
         )
         print(f"  2. 环境变量: {bold('CAPSWRITER_HTTP_API_ENABLE=true')}")
-        print(f"  3. Docker: 取消 docker-compose.yml 中 HTTP_API 相关注释\n")
+        print(f"  3. Docker: 确认 docker-compose.yml 的 HTTP port mapping 与发布地址，再重建服务\n")
         return 1
     except Exception as e:
         fail(str(e))

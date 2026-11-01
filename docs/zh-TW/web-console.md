@@ -33,7 +33,7 @@ CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080,htt
 `8080`、`5173` 分別是 production container 與 Vite development origin；沒有
 使用的 origin 應移除。
 
-取消 `docker-compose.yml` 內 `ports:` 下 HTTP mapping 的註解，重建 Server 並確認
+HTTP mapping 已在唯一 `docker-compose.yml` 內提供，啟用 API、重建 Server 並確認
 readiness：
 
 ```bash
@@ -44,10 +44,12 @@ curl http://127.0.0.1:6017/ready
 
 ## 2. 啟動 production Web Client
 
-Build 本機 static image，並只發布在 loopback：
+以同檔 web profile 啟動公開 Web image，預設只發布在 loopback。若需本機 build，
+先在 `.env` 保存 `CAPSWRITER_WEB_IMAGE=capswriter-web:local`，執行
+`docker compose --profile web build capswriter-web` 後再 up：
 
 ```bash
-docker compose -f docker-compose.web.yml up -d --build capswriter-web
+docker compose --profile web up -d capswriter-web
 curl http://127.0.0.1:8080/health
 ```
 

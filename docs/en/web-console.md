@@ -33,8 +33,8 @@ CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080,htt
 Ports `8080` and `5173` are the production-container and Vite-development
 origins respectively. Remove origins you do not use.
 
-Uncomment the HTTP mapping under `ports:` in `docker-compose.yml`, recreate the
-server, and verify readiness:
+The HTTP port mapping is already in the single `docker-compose.yml`; enable the
+API, recreate the server and verify readiness:
 
 ```bash
 docker compose up -d --force-recreate capswriter-server
@@ -44,10 +44,10 @@ curl http://127.0.0.1:6017/ready
 
 ## 2. Run the production Web client
 
-Build the local static image and publish it only on loopback:
+Start the optional Web image on loopback using the same Compose file:
 
 ```bash
-docker compose -f docker-compose.web.yml up -d --build capswriter-web
+docker compose --profile web up -d capswriter-web
 curl http://127.0.0.1:8080/health
 ```
 

@@ -20,7 +20,7 @@ API boundary.
 | Windows desktop-local | `start_server_universal.py` or packaged server | Packaged/upstream desktop client | Keep WebSocket and optional HTTP API on loopback unless another local user needs access |
 | Linux X11 desktop-local | `start_server_universal.py` | Source desktop client | X11 session only; keep service loopback-local |
 | Linux container (`linux/amd64`) | `docker-compose.yml` | Desktop, CLI, TUI, SDK | Default loopback publishing; use a key and trusted network/TLS when remote |
-| Server + Web Console | Server Compose + `docker-compose.web.yml` | Modern browser | Browser must reach API directly; configure exact CORS origins and secure-context microphone access |
+| Server + Web Console | `docker-compose.yml` + `web` profile | Modern browser | Browser must reach API directly; configure exact CORS origins and secure-context microphone access |
 | Headless automation | Source/container server | CLI or SDK | Prefer key files, bounded timeouts, readiness checks, and a service supervisor |
 
 ## Linux container profile
@@ -60,41 +60,36 @@ CAPSWRITER_SERVER_MAX_WEBSOCKET_CONNECTIONS=8
 CAPSWRITER_SERVER_MAX_WEBSOCKET_TASK_SECONDS=3600
 ```
 
-The base Compose file has no GPU reservation and therefore starts on CPU-only
-Docker hosts without requiring an NVIDIA runtime. For an intentional CPU
-deployment, set `CAPSWRITER_INFERENCE_HARDWARE=cpu` and use only the base file.
-To expose NVIDIA devices, set `CAPSWRITER_GPU_DEVICE_COUNT` to `all` or a
-positive integer and add `-f docker-compose.gpu.yml`:
+Only **one `docker-compose.yml`** is used. Its default has no GPU device
+reservation and works on CPU-only hosts. Uncomment the same file's **NVIDIA**
+block for NVIDIA, or **DRI** block for Intel/AMD; leave the other block commented.
+Docker checks devices before the entrypoint, so a missing device/runtime cannot
+be repaired by application CPU fallback. See the [single-file guide](../compose.md).
 
-```bash
-CAPSWRITER_GPU_DEVICE_COUNT=all \
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml \
-  up -d --force-recreate capswriter-server
-```
-
-With the GPU override, `auto` prefers a usable backend. If either GPU runtime
-bootstrap or configured engine construction fails, the entrypoint must disable
-every CUDA and Vulkan path, prepare the CPU runtime again, and pass a second CPU
-engine probe before startup. A failed or timed-out CPU probe refuses startup;
-there is no unverified fallback. Each supervised probe uses
-`CAPSWRITER_BACKEND_PROBE_TIMEOUT` (default `300` seconds, valid range `> 0`
-through `1800`). This cannot recover from a host-level Docker GPU reservation
-failure, which happens before the entrypoint and is why the override is explicit.
-
-Linux Intel/AMD iGPUs use the separate `/dev/dri` override. Record the host's
-numeric render/card group IDs in `.env`, then recreate the service:
+For NVIDIA, `CAPSWRITER_GPU_DEVICE_COUNT=all` or a positive count controls the
+reservation. Tesla P4 can additionally opt into
+`CAPSWRITER_TESLA_P4_OPTIMIZATION=true`; this flag does not grant GPU access.
+For DRI, read the actual host GIDs:
 
 ```bash
 stat -c '%n %g' /dev/dri/renderD* /dev/dri/card*
-# CAPSWRITER_DRI_RENDER_GID=<renderD node GID>
-# CAPSWRITER_DRI_VIDEO_GID=<card node GID>
-docker compose -f docker-compose.yml -f docker-compose.igpu.yml \
-  up -d --force-recreate capswriter-server
+# Set CAPSWRITER_DRI_RENDER_GID and CAPSWRITER_DRI_VIDEO_GID in .env.
+docker compose config --quiet
+docker compose up -d --force-recreate capswriter-server
 ```
 
-The image includes the Mesa Vulkan ICD. The host kernel driver, device nodes,
-and correct group access are still required; the fallback GIDs `109` and `44`
-are not portable across distributions.
+The image includes Mesa's Vulkan ICD; the host driver, device nodes and group
+access are still required. Legacy CPU/Vulkan GPU failures require a verified
+full-CPU fallback probe; selected P4 CUDA failures instead refuse startup.
+Each probe uses `CAPSWRITER_BACKEND_PROBE_TIMEOUT` (default 300, range >0..1800).
+
+### Qwen prefill and audio length
+
+See the [Qwen tuning guide](../qwen-tuning.md) and its English summary for batch,
+micro-batch, context, VRAM and transcript tradeoffs. The current server submits
+one full prefill: a too-small `N_BATCH` can abort longer inputs. `CHUNK_SIZE=80`
+truncates a recognition call, rather than automatically splitting it. Alternative
+ubatch/context combinations are trial settings, not measured P4 speedups.
 
 ### Model persistence and bootstrap locking
 
@@ -103,8 +98,8 @@ volume. Docker preserves it across container recreation and initializes its
 ownership for the image's non-root `appuser`; `docker compose down -v`
 deliberately removes it.
 
-For operator-managed host files, use the explicit bind override after making
-the directory writable by the image user:
+For operator-managed files, first grant the image user write access, then set
+`CAPSWRITER_MODELS_SOURCE=./models` in `.env`:
 
 ```bash
 image="$(docker compose config --images | sed -n '1p')"
@@ -112,8 +107,7 @@ uid="$(docker run --rm --entrypoint id "$image" -u appuser)"
 gid="$(docker run --rm --entrypoint id "$image" -g appuser)"
 mkdir -p models
 sudo chown -R "$uid:$gid" models
-docker compose -f docker-compose.yml -f docker-compose.models-bind.yml \
-  up -d capswriter-server
+CAPSWRITER_MODELS_SOURCE=./models docker compose up -d capswriter-server
 ```
 
 During bootstrap, `appuser` must be able to create the lock, download,
@@ -149,11 +143,12 @@ CAPSWRITER_HTTP_API_CORS_ORIGINS=
 ```
 
 The key-file path must exist inside the container; add a read-only secret mount
-in a local Compose override. Explicit `CAPSWRITER_HTTP_API_KEY` takes precedence
+in the same Compose file. Explicit `CAPSWRITER_HTTP_API_KEY` takes precedence
 if both forms are configured.
 
-Uncomment the HTTP mapping under `ports:` in `docker-compose.yml`, then recreate
-the service. Keep `CAPSWRITER_HTTP_API_PUBLISH_HOST=127.0.0.1` unless a remote
+The HTTP mapping is already present; enabling the API still requires its flag
+and key, then recreation. Port 6017 is reserved even while the API is disabled.
+Keep `CAPSWRITER_HTTP_API_PUBLISH_HOST=127.0.0.1` unless a remote
 client genuinely needs direct access.
 
 An enabled API bound inside the container to `0.0.0.0` is still host-loopback
@@ -206,11 +201,13 @@ libraries. See [desktop portability](desktop-portability.md).
 
 ## Web Console profile
 
-Build and start the static application:
+Start the optional published Web image. For a local source build, first persist
+`CAPSWRITER_WEB_IMAGE=capswriter-web:local` in `.env`, then run
+`docker compose --profile web build capswriter-web` before the same `up` command:
 
 ```bash
 CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017 \
-  docker compose -f docker-compose.web.yml up -d --build capswriter-web
+  docker compose --profile web up -d capswriter-web
 curl http://127.0.0.1:8080/health
 curl http://127.0.0.1:8080/config.js
 ```
@@ -235,11 +232,11 @@ See the dedicated [Web Console client guide](web-console.md).
 
 | State | Location | Backup guidance |
 |---|---|---|
-| Models and archive cache | `capswriter-server-models` named volume; optional `./models` bind override | Back up only if download cost/availability warrants it; keep provenance and checksums with copied assets |
+| Models and archive cache | `capswriter-server-models` named volume; optional `CAPSWRITER_MODELS_SOURCE=./models` bind source | Back up only if download cost/availability warrants it; keep provenance and checksums with copied assets |
 | Downloaded llama runtime | Container writable layer | Recreated by verified bootstrap; do not treat it as persistent backup |
 | Server hotwords | Read-only `./hot-server.txt` bind | Back up as configuration; review before moving between model types |
 | Server logs | `capswriter-server-logs` named volume | Retain according to privacy/operations policy; transcript logging is off by default |
-| `.env` and Compose overrides | Deployment host only | Back up securely; never commit keys or local paths |
+| `.env` and the single Compose file | Deployment host only | Back up securely; never commit keys or local paths |
 | Web history/settings | Browser localStorage | The latest transcript/raw history is plaintext and potentially sensitive; per-browser, best effort, and not a server backup or encrypted-record system |
 | TUI/CLI transcript output | User-selected filesystem path | Back up like any other user document |
 
@@ -247,8 +244,8 @@ Compose bind-mounts only the existing `./hot-server.txt` file read-only by
 default and refuses to auto-create a missing source path; models and logs use
 named volumes. Deleting a container does not remove either named volume or the
 host hotword file, while `docker compose down -v` removes named volumes. With
-`docker-compose.models-bind.yml`, `./models` becomes operator-managed host
-state.
+`CAPSWRITER_MODELS_SOURCE=./models`, the directory becomes operator-managed
+host state; switching sources does not migrate data.
 
 ## Remote access and TLS
 
@@ -264,7 +261,7 @@ mechanism for non-browser clients.
 ## Upgrade and rollback
 
 1. Read [release notes](release-notes.md) and [version policy](versioning.md).
-2. Back up `.env`, hotwords, Compose overrides, and any irreplaceable model
+2. Back up `.env`, hotwords, the single Compose file, and any irreplaceable model
    assets or logs.
 3. Pin the candidate source commit or image digest.
 4. Run the repository/image gate and a known-audio readiness/transcription test.

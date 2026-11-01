@@ -69,8 +69,7 @@ docker/                                 ← Container 構建 (上游無此目錄
 │   ├── probe_backend.py                ← 啟動前 GPU smoke test
 │   └── healthcheck.py                  ← WebSocket probe + optional HTTP /ready
 docker-compose.yml                      ← 主 compose
-docker-compose.fun-asr.yml              ← Fun-ASR override
-docker-compose.example.yml              ← 範例
+docs/compose.md                        ← 單檔部署／Portainer 遷移指南
 .env.example                            ← env 變數一覽
 .dockerignore
 requirements/server-docker.txt          ← Linux GPU 版 top-level 依賴

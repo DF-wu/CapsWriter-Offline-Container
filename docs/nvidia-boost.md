@@ -76,23 +76,22 @@ legacy Python shell-command configuration has the typed env path's restrictions.
 
 ## Opt-in Docker permissions
 
-The default image still runs as `appuser`, with boost disabled. No setting
-automatically elevates privileges. The candidate adds
-`docker-compose.nvidia-boost.yml`, applied **after** `docker-compose.gpu.yml`:
+The default image runs as `appuser`, with boost disabled. No env switch
+automatically elevates privileges. In the single `docker-compose.yml`, uncomment
+the **NVIDIA** hardware block and, separately, **NVIDIA_BOOST** permissions block.
+See [single-file configuration and migration](compose.md).
 
 ```bash
-docker compose -f docker-compose.yml \
-  -f docker-compose.gpu.yml \
-  -f docker-compose.nvidia-boost.yml up -d capswriter-server
+docker compose config --quiet
+docker compose up -d capswriter-server
 ```
 
-This is an opt-in deployment example, not a step performed during release
-preparation. The permissions override uses `user: "0:0"`, adds `SYS_ADMIN`,
-`DAC_OVERRIDE`, `CHOWN` and `FOWNER`, and sets `stop_grace_period: 150s`.
-It broadens container privileges; it alone does **not** enable boost or select a
-frequency. Both explicit enablement and a supported positive MHz value are needed.
-Host driver/container runtime support remains a prerequisite, not a guarantee.
-Keep any other required settings/HTTP overrides in the deployment as well.
+The permissions block uses `user: "0:0"`, adds `SYS_ADMIN`, `DAC_OVERRIDE`,
+`CHOWN`, `FOWNER`, and sets `stop_grace_period: 150s`. It alone does not enable
+boost or choose a frequency. Set `CAPSWRITER_GPU_BOOST_ENABLED=true` and a
+supported positive MHz explicitly. GPU/driver support remains required.
+P4 CUDA optimization does not require this root/permissions block. Preserve
+other injected settings when migrating from older multi-file configurations.
 
 ## Worker lifecycle and recovery
 

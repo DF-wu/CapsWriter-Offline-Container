@@ -8,11 +8,11 @@
 CAPSWRITER_TESLA_P4_OPTIMIZATION=true
 ```
 
-使用包含新 runtime 的 server image，並搭配既有 `docker-compose.gpu.yml` 暴露 NVIDIA
-GPU。一般 Compose 使用方式：
+使用包含新 runtime 的 server image，取消唯一 `docker-compose.yml` 內 NVIDIA
+區塊的註解以暴露 GPU（見[單檔指南](compose.md)），再啟動：
 
 ```sh
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+docker compose up -d
 ```
 
 這是**執行時選用旗標**，不需要在 host 安裝 CUDA／編譯器。runtime 在 image 的免洗
@@ -47,11 +47,19 @@ Tesla P4；P40、RTX、混合 P4／其他 GPU 都不會被當成已驗證硬體�
   CUDA 11.8、`CMAKE_CUDA_ARCHITECTURES=61` 與可重定位 `$ORIGIN`。
 - 驗證原始碼 archive、runtime archive 與每份 DSO 的 SHA-256，沿用既有 atomic
   staging/promote。Windows／CPU／其他 GPU 不會自動使用此 runtime。
-- 保留 `appuser`，不需要 boost override 的 root 或額外 capabilities。
+- 保留 `appuser`，不需要 NVIDIA_BOOST 區塊的 root 或額外 capabilities。
 
 此處的 P4 專用部分是 runtime／kernel，GGUF 權重格式仍是原 Q5_K_M。GPU decoder
 會增加顯存占用；先前本機觀測約由 1.2 GiB 增至 2.9 GiB，與 Immich 競爭時須留足
 顯存及散熱餘裕。
+
+## Prefill 與音訊長度調校
+
+P4 flag 只選用已驗證 decoder runtime，不改 batch、ubatch、context 或模型精度。
+既有短音訊基準為 requested batch4096／effective2048、ubatch512、context2048。
+較低 micro-batch 可能省暫存，但未證明更快；Server `CHUNK_SIZE=80` 超過即截斷，
+不能靠減小該值取得同品質加速。完整參數取捨、音訊位置預算與試驗矩陣見
+[Qwen prefill 調校指南](qwen-tuning.md)。
 
 ## 實測與限制
 

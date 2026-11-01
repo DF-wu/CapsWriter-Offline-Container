@@ -178,27 +178,18 @@ docker compose logs -f capswriter-server   # the first start downloads the model
 
 WebSocket `:6016` is now ready for desktop clients (enter this host's IP in their settings).
 
-| For | Add this Compose file |
-|---|---|
-| NVIDIA GPU | `-f docker-compose.gpu.yml` |
-| Intel / AMD iGPU (Vulkan) | `-f docker-compose.igpu.yml` |
-| Lower-latency, smaller Fun-ASR-Nano model | `-f docker-compose.fun-asr.yml` |
-| Managing `./models` yourself | `-f docker-compose.models-bind.yml` |
-| Server settings in the Web UI | `-f docker-compose.settings.yml` (see [daily settings](docs/settings.md)) |
-
-Example for NVIDIA: `docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d capswriter-server`.
-Upgrades, backups and details are in the [deployment guide](docs/en/deployment.md).
+All deployment options live in **one [`docker-compose.yml`](docker-compose.yml)**.
+Uncomment its NVIDIA or DRI hardware block when needed; model selection, storage
+and settings use `.env`. Web is optional via `docker compose --profile web up -d`.
+See the [single-file guide and migration notes](docs/compose.md).
 
 Tesla P4 users can opt into the SM61 CUDA runtime with
 `CAPSWRITER_TESLA_P4_OPTIMIZATION=true`; the default is `false`, retaining
 the original CPU/Vulkan selection. See the [P4 guide](docs/tesla-p4.md).
 
-The optional [NVIDIA pre-boost](docs/nvidia-boost.md) is separate
-from GPU inference. Defaults remain `appuser` and boost disabled. The explicit
-`docker-compose.nvidia-boost.yml` permissions override follows the GPU override;
-it also needs explicit enablement and a hardware-supported memory-clock value.
-It is not a universal NVIDIA feature or a measured latency promise. Review the
-guide's ownership checks before returning root-written volumes to `appuser`.
+The optional [NVIDIA pre-boost](docs/nvidia-boost.md) uses the same file's
+commented NVIDIA_BOOST permissions block. It remains off, with non-root appuser,
+unless explicitly enabled. P4 inference does not need that privilege block.
 
 ### Enable the HTTP API (for Web / CLI / TUI / SDK)
 
@@ -212,15 +203,8 @@ CAPSWRITER_HTTP_API_PORT=6017
 CAPSWRITER_HTTP_API_CORS_ORIGINS=http://127.0.0.1:8080,http://localhost:8080,http://127.0.0.1:5173,http://localhost:5173
 ```
 
-Then uncomment the second port mapping in [`docker-compose.yml`](docker-compose.yml):
-
-```yaml
-ports:
-  - "127.0.0.1:6016:6016"
-  - "127.0.0.1:6017:6017"
-```
-
-Recreate and check. `/health` only means the process is alive; `/ready` means the model can accept audio.
+The HTTP mapping under `ports:` is already present and defaults to host loopback; the API
+listener remains disabled until the flag is enabled. Recreate and check. `/health` only means the process is alive; `/ready` means the model can accept audio.
 
 ```bash
 docker compose up -d --force-recreate capswriter-server
@@ -242,7 +226,7 @@ These examples assume the HTTP API is at `http://127.0.0.1:6017` with the key
 
 ```bash
 CAPSWRITER_WEB_API_BASE=http://127.0.0.1:6017 \
-  docker compose -f docker-compose.web.yml up -d --build capswriter-web
+  docker compose --profile web up -d capswriter-web
 ```
 
 Open `http://127.0.0.1:8080`, confirm the API root `http://127.0.0.1:6017`, paste the

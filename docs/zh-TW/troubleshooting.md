@@ -109,12 +109,12 @@ docker compose run --rm --no-deps --entrypoint python capswriter-server \
 docker compose start capswriter-server
 ```
 
-Intel／AMD iGPU 另請確認 override 與實際 host GID：
+Intel／AMD iGPU 另請確認同檔 DRI 區塊與實際 host GID：
 
 ```bash
 stat -c '%n %g' /dev/dri/renderD* /dev/dri/card*
-docker compose -f docker-compose.yml -f docker-compose.igpu.yml config
-docker compose -f docker-compose.yml -f docker-compose.igpu.yml exec capswriter-server id
+docker compose config
+docker compose exec capswriter-server id
 ```
 
 把 node 的 numeric GID 寫入 `.env` 的 `CAPSWRITER_DRI_RENDER_GID`／
@@ -127,16 +127,15 @@ CPU-only host：
 CAPSWRITER_INFERENCE_HARDWARE=cpu
 ```
 
-只使用 `docker-compose.yml`，不要加入 `docker-compose.gpu.yml` 或
-`docker-compose.igpu.yml`。Device exposure／reservation 是 Docker admission
+在唯一 `docker-compose.yml` 保持 NVIDIA／DRI 區塊註解。Device exposure／reservation 是 Docker admission
 階段的決定；host runtime 或 device node 不可用時，container 內的 fallback
 尚未開始，無法修復這類失敗。
 
 ### Readiness 顯示 ffmpeg 或 model unavailable
 
 - Source deployment 確認已安裝 ffmpeg；image 則確認 binary 存在。
-- 預設 `capswriter-server-models` named volume 在 bootstrap 期間必須可寫；若加入
-  `docker-compose.models-bind.yml`，則 `./models` 的整個 directory（不只是既有
+- 預設 `capswriter-server-models` named volume 在 bootstrap 期間必須可寫；若設定
+  `CAPSWRITER_MODELS_SOURCE=./models`，則 `./models` 的整個 directory（不只是既有
   model files）必須可由 image `appuser` 寫入。
 - 多個 container 共用 model storage 時，確認 filesystem 提供 coherent POSIX
   advisory lock，重試前先查 `CAPSWRITER_MODEL_BOOTSTRAP_LOCK_TIMEOUT` 錯誤。
