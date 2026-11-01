@@ -1,0 +1,17 @@
+{
+  "model_id": "rohansheth/tiro-qwen3-asr-1.7b-v2",
+  "revision": "5dd5f33e0dbaa46254fc552a658d90152f1eaf75",
+  "language_scope": "English only",
+  "published_dtype": "BF16",
+  "ffasr_wer": {
+    "base": 13.41,
+    "tiro": 12.01,
+    "relative_error_reduction_pct": 10.439970171513798
+  },
+  "near_field_wer": {
+    "base": 3.76,
+    "tiro": 3.8
+  },
+  "status": "publisher-reported; not independently reproduced; not P4 speed measurements",
+  "source": "https://huggingface.co/rohansheth/tiro-qwen3-asr-1.7b-v2/blob/5dd5f33e0dbaa46254fc552a658d90152f1eaf75/README.md"
+}

@@ -1,0 +1,123 @@
+{
+  "_id": "6aa3bff31e8778f33b989a79",
+  "id": "rohansheth/tiro-qwen3-asr-1.7b-v2",
+  "private": false,
+  "pipeline_tag": "automatic-speech-recognition",
+  "tags": [
+    "safetensors",
+    "qwen3_asr",
+    "automatic-speech-recognition",
+    "far-field",
+    "noise-robust",
+    "knowledge-distillation",
+    "en",
+    "arxiv:1708.05466",
+    "arxiv:1901.02348",
+    "base_model:Qwen/Qwen3-ASR-1.7B-hf",
+    "base_model:finetune:Qwen/Qwen3-ASR-1.7B-hf",
+    "license:apache-2.0",
+    "region:us"
+  ],
+  "downloads": 175,
+  "likes": 2,
+  "modelId": "rohansheth/tiro-qwen3-asr-1.7b-v2",
+  "author": "rohansheth",
+  "sha": "5dd5f33e0dbaa46254fc552a658d90152f1eaf75",
+  "lastModified": "2026-09-25T01:34:29.000Z",
+  "gated": false,
+  "disabled": false,
+  "model-index": null,
+  "config": {
+    "architectures": [
+      "Qwen3ASRForConditionalGeneration"
+    ],
+    "model_type": "qwen3_asr",
+    "tokenizer_config": {
+      "bos_token": null,
+      "eos_token": "<|im_end|>",
+      "unk_token": null,
+      "pad_token": "<|endoftext|>"
+    },
+    "chat_template_jinja": "{%- set ns = namespace(system_text='') -%}{%- for m in messages -%}{%- if m.role == 'system' -%}{%- if m.content is string -%}{%- set ns.system_text = ns.system_text + m.content -%}{%- else -%}{%- for c in m.content -%}{%- if c.type == 'text' and (c.text is defined) -%}{%- set ns.system_text = ns.system_text + c.text -%}{%- endif -%}{%- endfor -%}{%- endif -%}{%- endif -%}{%- endfor -%}{%- set ns2 = namespace(audio_tokens='') -%}{%- for m in messages -%}{%- if m.content is not string -%}{%- for c in m.content -%}{%- if c.type == 'audio' or ('audio' in c) or ('audio_url' in c) -%}{%- set ns2.audio_tokens = ns2.audio_tokens + '<|audio_start|><|audio_pad|><|audio_end|>' -%}{%- endif -%}{%- endfor -%}{%- endif -%}{%- endfor -%}{{- '<|im_start|>system\n' + ns.system_text + '<|im_end|>\n' -}}{{- '<|im_start|>user\n' + ns2.audio_tokens + '<|im_end|>\n' -}}{%- for m in messages -%}{%- if m.role == 'assistant' -%}{%- set ns3 = namespace(assistant_text='') -%}{%- if m.content is string -%}{%- set ns3.assistant_text = m.content -%}{%- else -%}{%- for c in m.content -%}{%- if c.type == 'text' and (c.text is defined) -%}{%- set ns3.assistant_text = ns3.assistant_text + c.text -%}{%- endif -%}{%- endfor -%}{%- endif -%}{{- '<|im_start|>assistant\n' -}}{% generation %}{{- ns3.assistant_text + '<|im_end|>\n' -}}{% endgeneration %}{%- endif -%}{%- endfor -%}{%- if add_generation_prompt -%}{{- '<|im_start|>assistant\n' -}}{%- endif -%}"
+  },
+  "cardData": {
+    "license": "apache-2.0",
+    "base_model": "Qwen/Qwen3-ASR-1.7B-hf",
+    "tags": [
+      "automatic-speech-recognition",
+      "far-field",
+      "noise-robust",
+      "knowledge-distillation"
+    ],
+    "language": [
+      "en"
+    ],
+    "pipeline_tag": "automatic-speech-recognition"
+  },
+  "siblings": [
+    {
+      "rfilename": ".gitattributes",
+      "blobId": "52373fe24473b1aa44333d318f578ae6bf04b49b",
+      "size": 1570
+    },
+    {
+      "rfilename": "README.md",
+      "blobId": "a060da662353956f8aa7174de9ed4327a51cd64c",
+      "size": 5072
+    },
+    {
+      "rfilename": "chat_template.jinja",
+      "blobId": "491fff331513a97316daf53591c7b9b9da53ef8c",
+      "size": 1434
+    },
+    {
+      "rfilename": "config.json",
+      "blobId": "6bdedd49a27ad716f2a9958eee48c3a133220af9",
+      "size": 2422
+    },
+    {
+      "rfilename": "generation_config.json",
+      "blobId": "78708b62f374decca423497820ed88356e2958be",
+      "size": 172
+    },
+    {
+      "rfilename": "model.safetensors",
+      "blobId": "e1eef3d9f93a2a829e7103c4c5d91a96d603dd1a",
+      "size": 4076193080,
+      "lfs": {
+        "sha256": "c57399f84b00cadfb3d1d62a3a7b3375f54297e26fdb5dc78138a076a5e8a1b5",
+        "size": 4076193080,
+        "pointerSize": 135
+      }
+    },
+    {
+      "rfilename": "processor_config.json",
+      "blobId": "a07dff48032bed341260501d6688036c6fd7f3ef",
+      "size": 487
+    },
+    {
+      "rfilename": "tokenizer.json",
+      "blobId": "d3a7bcae104b38ab068d1f6ed81433753bd73dda",
+      "size": 11429820,
+      "lfs": {
+        "sha256": "442f0211ed55492317e997ec360a4c005f4fa0d1ec2e66155e622f996ac382d6",
+        "size": 11429820,
+        "pointerSize": 133
+      }
+    },
+    {
+      "rfilename": "tokenizer_config.json",
+      "blobId": "bd89a026a328e6ac4f05a837ce1dbe7e20a198ec",
+      "size": 1102
+    }
+  ],
+  "spaces": [],
+  "createdAt": "2026-09-11T08:46:43.000Z",
+  "safetensors": {
+    "parameters": {
+      "BF16": 2038052480
+    },
+    "total": 2038052480
+  },
+  "usedStorage": 4087622900
+}

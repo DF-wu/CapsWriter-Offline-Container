@@ -1,0 +1,20 @@
+{
+  "site_name": "tiro-v2-p4-20261101",
+  "share_id": 107,
+  "public": true,
+  "raw_only": true,
+  "csp_preset": "site",
+  "verified_http": 200,
+  "content_type": "text/html",
+  "content_matches_local": true,
+  "cache_max_age_s": 300,
+  "browser_checks": {
+    "conditions": 6,
+    "samples": 14,
+    "model_outputs_per_sample": 4,
+    "remote_json_http": 200,
+    "remote_data_calls": 92,
+    "desktop_and_mobile_no_overflow": true
+  },
+  "public_url_record": "Issue #17; final response (public link token not committed)"
+}
