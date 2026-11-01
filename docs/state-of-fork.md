@@ -1,12 +1,12 @@
 # Fork 現況（State of Fork）
 
-> **更新時間**：2026-10-30
+> **更新時間**：2026-11-01
 >
 > **`master` 上游基底**：`84912d5`（merge `a1cdd45`，PR #4）
 >
-> **最新發布**：`fork-v2.0.0`（見 [release notes](zh-TW/release-notes.md)）
+> **最新發布**：`fork-v2.1.0`（2026-10-31）（見 [release notes](zh-TW/release-notes.md)）
 >
-> **準備中**：`fork-v2.1.0`（未發布；[發布草稿／檢查表](releases/fork-v2.1.0.md)）
+> **準備中**：`fork-v2.2.0`（未發布；[發布草稿／檢查表](releases/fork-v2.2.0.md)）
 >
 > **歷史 v2 產品合併點**：`afc8c58`（PR #2）；下方既有驗證紀錄屬於該基線
 
@@ -19,7 +19,19 @@ v1 已透過 PR #5 完成**一次性完整上游同步至 `84912d5`**，包含
 `fork-pre-reset-20260525-1411` 保持不可變。兩軌發布管道仍然獨立，詳見
 [雙軌維護政策](zh-TW/versioning.md)。
 
-## fork-v2.1.0 準備狀態
+## fork-v2.2.0 準備狀態
+
+- 新增預設關閉的 `CAPSWRITER_TESLA_P4_OPTIMIZATION`；開啟才選用 P4 CUDA SM61
+  decoder，未開啟保留原 CPU／Vulkan。CPU／低顯存／明確 backend 選擇優先。
+- Fork metadata 為 `2.2.0`，上游 `2.6` 不變；模型維持原 FP16 ONNX＋Q5_K_M GGUF。
+- [P4 使用指南](tesla-p4.md)與[本輪驗證](releases/validation-fork-v2.2.0.md)說明選用、
+  歷史實測限制及免洗容器邊界。現行 writable-layer hotfix 未在此輪重新部署。
+- PR／2.2 發版準備不包含 master merge、正式發布或 Portainer recreate。
+
+## fork-v2.1.0 原準備紀錄（歷史）
+
+以下為發布前快照；2.1 已於 2026-10-31 發布。待填驗證與部署敘述保留當時狀態，
+不能代替本次 2.2 證據；下方舊基線的檔案統計也不是本分支重新盤點結果。
 
 - Fork runtime／套件 metadata 為 `2.1.0`；`/health`、`/ready` 新增
   `fork_version: "2.1.0"`，既有 `version: "2.6"` 與上游 `84912d5` 不變。

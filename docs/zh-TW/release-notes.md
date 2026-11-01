@@ -2,32 +2,27 @@
 
 > [文件首頁](README.md) · [English](../en/release-notes.md) · [開始使用](getting-started.md)
 
-## fork-v2.1.0 — 未發布準備
+## fork-v2.2.0 — 未發布準備
 
-這是**尚未發布的候選版**，不代表已有 tag／image 或完成實機驗收。
-最新已發布版仍為下方的 **fork-v2.0.0**。上游維持 **v2.6／`84912d5`**，
-保留 Python 3.10–3.12 與 llama.cpp b7798。
+新增 `CAPSWRITER_TESLA_P4_OPTIMIZATION` 明確選用旗標，預設 `false`。
+未設定或關閉時保留原 CPU／Vulkan 選擇；開啟才使用固定 b7798／CUDA 11.8／SM61
+decoder，並驗證實際 CUDA 裝置為 Tesla P4。權重仍為原 FP16 ONNX encoder＋Q5_K_M
+GGUF。CPU、低顯存 preset 與明確 CPU／Vulkan 選擇優先；已選定 CUDA 的啟動錯誤
+會中止服務，不會偷偷退回 CPU decoder。
 
-- Fork runtime／套件版本改為 `2.1.0`；`/health`、`/ready` 新增
-  `fork_version: "2.1.0"`，既有上游 `version: "2.6"` 不變。
-- NVIDIA 預加速採選用設定，Docker env／保存設定提供有型別驗證的開關、裝置索引、
-  顯存頻率、閒置秒數；env 優先且須重啟，命令 timeout 仍僅由進階 env 設定。
-  Native 通用入口接受明確 boost env，未指定時保留原有 Python 預設。
-- Worker 在 HTTP、檔案、麥克風推論前確保 boost，保留麥克風提早提示、推論後更新
-  活動時間，並在閒置／正常退出時嘗試還原。命令失敗不阻斷辨識，timeout／重試有界；
-  啟用時的 graceful-stop 預算會計入命令 timeout。
-- 預設仍為 `appuser` 且 boost 關閉；選用的 `docker-compose.nvidia-boost.yml`
-  接在 `docker-compose.gpu.yml` 後，明確授予 root／capabilities 與 150 秒停止寬限。
-  此 override 本身不開啟 boost，仍須明確 `true` 與硬體支援的正 MHz 值。
+Fork metadata 為 `2.2.0`；上游維持 v2.6／`84912d5`、Python 3.10–3.12 及
+llama.cpp b7798。編譯與測試均在免洗容器內，不安裝 host compiler、不調整時脈／
+功耗。此次準備未重新部署線上服務。實測範圍與限制見 [P4 指南](../tesla-p4.md)、
+[發布草稿](../releases/fork-v2.2.0.md)及[驗證紀錄](../releases/validation-fork-v2.2.0.md)。
 
-完整範圍、權限、單卡選擇及復原請見 [NVIDIA 預加速](../nvidia-boost.md)。
-並非所有 NVIDIA 裝置皆支援；Hopper deferred clocks 不在此 runtime 功能範圍。
-SIGKILL、主機斷電、watchdog 強制終止不保證還原；候選版沒有延遲實測宣稱。
+## fork-v2.1.0 — 穩定版
 
-NFS 模型 UID 不符與待遠端發布的 `myServices` named-volume recipe 屬於另一項部署
-工作，實際 stack 未變更。原始碼／image 發布與推送 Portainer 追蹤的 recipe 必須
-分別交付。[具體發布草稿／檢查表](../releases/fork-v2.1.0.md)保留 merge SHA、CI URL、
-image digest、實機證據欄位，待實際驗證後填入。
+已於 **2026-10-31** [正式發布](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.1.0)。
+新增快捷鍵錄製、數字鍵盤／X11 自動重複修正、Client 實例鎖、托盤退出／重啟修正，
+以及選用 NVIDIA 預加速、保存設定驗證、worker 活動／閒置管理及獨立權限 override。
+Boost 仍預設關閉，與 GPU 推論及 2.2 的 P4 runtime 旗標分開；權限、支援與復原見
+[NVIDIA boost](../nvidia-boost.md)。[原準備檢查表](../releases/fork-v2.1.0.md)為歷史紀錄，
+其中待填欄位不代表本次 2.2 驗證結果。
 
 ## fork-v2.0.0 — 穩定版
 

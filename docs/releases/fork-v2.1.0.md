@@ -1,5 +1,8 @@
 # fork-v2.1.0 — draft release body and checklist
 
+> 歷史準備快照：2.1 已於 2026-10-31 [發布](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.1.0)。
+> 原待填欄位保留當時狀態；目前候選版見 [2.2 發版準備](fork-v2.2.0.md)。
+
 **Status: unreleased preparation; not a published tag or release.** Latest
 published: `fork-v2.0.0` (2026-09-30). No new CI, image, hardware or latency
 acceptance is claimed here. Replace every `PENDING` with actual evidence before
