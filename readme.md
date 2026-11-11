@@ -37,6 +37,7 @@ preparation**; upstream stays v2.6 / `84912d5`. See the
 - [Documentation map](#documentation-map)
 - [FAQ](#faq)
 - [Versions, upstream and license](#versions-upstream-and-license)
+- [Star History](#star-history)
 
 ## What it does
 
@@ -394,3 +395,13 @@ CPU/GPU or Fun-ASR-Nano with a known clip on your own system.
   [the upstream author](https://github.com/HaujetZhao/CapsWriter-Offline) too.
 
 License: [MIT](LICENSE).
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=DF-wu/CapsWriter-Offline-Container&amp;type=date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=DF-wu/CapsWriter-Offline-Container&amp;type=Date&amp;theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=DF-wu/CapsWriter-Offline-Container&amp;type=Date" />
+    <img alt="GitHub stars over time for DF-wu/CapsWriter-Offline-Container" src="https://api.star-history.com/svg?repos=DF-wu/CapsWriter-Offline-Container&amp;type=Date" />
+  </picture>
+</a>
