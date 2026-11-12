@@ -23,7 +23,8 @@ PIN_PATTERN = re.compile(
     r"(?P<name>[A-Za-z0-9_.-]+)==(?P<version>[A-Za-z0-9_.!+~-]+)"
 )
 LOCK_PIN_PATTERN = re.compile(
-    r"(?P<name>[A-Za-z0-9_.-]+)==(?P<version>[A-Za-z0-9_.!+~-]+)"
+    r"(?P<name>[A-Za-z0-9_.-]+)(?:\[[A-Za-z0-9_.-]+(?:,[A-Za-z0-9_.-]+)*\])?"
+    r"==(?P<version>[A-Za-z0-9_.!+~-]+)"
     r"(?:\s*;\s*[^\\]+)?\s*\\?"
 )
 REQUIRED_IMPORTS = {
