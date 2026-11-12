@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: en-US
+enable_free_tier: true
+tone_instructions: >-
+  Use concise engineering English. Prioritize actionable correctness, security,
+  and regression findings with concrete evidence. Avoid style-only nitpicks,
+  praise, and repeated summaries.
+reviews:
+  profile: chill
+  auto_approvals:
+    enabled: true
+  high_level_summary: false
+  poem: false
+  in_progress_fortune: false
+  sequence_diagrams: false
+  suggested_labels: false
+  suggested_reviewers: false
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 0
+    drafts: false
+    base_branches:
+      - ".*"
+  path_instructions:
+    - path: "core/server/**"
+      instructions: >-
+        Check audio framing and segmentation bounds, per-connection isolation,
+        worker-process state ownership and cleanup, and event-loop responsiveness.
+        Preserve transcript and timestamp semantics across streaming chunks.
+    - path: "fork_server/**"
+      instructions: >-
+        Check HTTP upload limits before resource allocation, authentication and
+        settings validation, and safe CPU/GPU fallback. GPU boost must remain
+        explicitly opt-in, with bounded subprocess calls and cleanup.
+chat:
+  auto_reply: false

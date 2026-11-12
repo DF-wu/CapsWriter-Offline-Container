@@ -3,7 +3,7 @@
 # Regenerate from the lowest supported interpreter so conditional backports are
 # retained for Python 3.10 while markers omit them on Python 3.12:
 #   uv pip compile requirements/tui.txt --universal --python-version 3.10 \
-#     --generate-hashes --no-emit-index-url --output-file requirements/tui.lock
+#     --generate-hashes --no-strip-extras --no-emit-index-url --output-file requirements/tui.lock
 anyio==4.14.2 \
     --hash=sha256:9f505dda5ac9f0c8309b5e8bd445a8c2bf7246f3ce950121e45ea15bc41d1494 \
     --hash=sha256:cfa139f3ed1a23ee8f88a145ddb5ac7605b8bbfd8592baacd7ce3d8bb4313c7f
@@ -40,7 +40,7 @@ linkify-it-py==2.1.0 \
     --hash=sha256:0d252c1594ecba2ecedc444053db5d3a9b7ec1b0dd929c8f1d74dce89f86c05e \
     --hash=sha256:43360231720999c10e9328dc3691160e27a718e280673d444c38d7d3aaa3b98b
     # via markdown-it-py
-markdown-it-py==4.2.0 \
+markdown-it-py[linkify]==4.2.0 \
     --hash=sha256:04a21681d6fbb623de53f6f364d352309d4094dd4194040a10fd51833e418d49 \
     --hash=sha256:9f7ebbcd14fe59494226453aed97c1070d83f8d24b6fc3a3bcf9a38092641c4a
     # via

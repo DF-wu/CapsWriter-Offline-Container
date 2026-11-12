@@ -26,6 +26,24 @@ class VerifyTuiTest(unittest.TestCase):
             with self.subTest(distribution=distribution):
                 self.assertTrue(modules)
 
+    def test_load_locked_versions_preserves_extras_pin_and_marker(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            path = Path(temporary_directory) / "tui.lock"
+            path.write_text(
+                "# Generated lock\n"
+                "Markdown_It_Py[linkify,testing]==4.2.0 \\\n"
+                "    --hash=sha256:" + "a" * 64 + "\n"
+                "exceptiongroup==1.3.1 ; python_full_version < '3.11' \\\n"
+                "    --hash=sha256:" + "b" * 64 + "\n"
+                "httpx==0.28.1\n",
+                encoding="utf-8",
+            )
+
+            self.assertEqual(
+                verify_tui.load_locked_versions(path),
+                {"markdown-it-py": "4.2.0", "exceptiongroup": "1.3.1", "httpx": "0.28.1"},
+            )
+
     def test_load_direct_pins_rejects_non_exact_requirement(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             path = Path(temporary_directory) / "requirements.txt"
