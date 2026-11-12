@@ -35,6 +35,7 @@
 - [文件導覽](#文件導覽)
 - [常見問題](#常見問題)
 - [版本、Upstream 與授權](#版本upstream-與授權)
+- [Star 趨勢](#star-趨勢)
 
 ## 它能做什麼
 
@@ -378,3 +379,13 @@ Server 的 `CAPSWRITER_HTTP_API_KEY` 相同。
   [upstream 作者](https://github.com/HaujetZhao/CapsWriter-Offline)。
 
 授權：[MIT](LICENSE)。
+
+## Star 趨勢
+
+<a href="https://www.star-history.com/?repos=DF-wu/CapsWriter-Offline-Container&amp;type=date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=DF-wu/CapsWriter-Offline-Container&amp;type=Date&amp;theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=DF-wu/CapsWriter-Offline-Container&amp;type=Date" />
+    <img alt="DF-wu/CapsWriter-Offline-Container 的 GitHub 星數隨時間變化圖" src="https://api.star-history.com/svg?repos=DF-wu/CapsWriter-Offline-Container&amp;type=Date" />
+  </picture>
+</a>
