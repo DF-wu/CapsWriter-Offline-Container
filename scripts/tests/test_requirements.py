@@ -283,13 +283,16 @@ class RequirementsTest(unittest.TestCase):
             SUPPORTED_TUI_RUNTIME,
         )
         self.assertIn("--universal --python-version 3.10", source)
+        self.assertIn("--no-strip-extras", source)
+        self.assertIn("markdown-it-py[linkify]==4.2.0", source)
         self.assertIn("exceptiongroup==1.3.1 ; python_full_version < '3.11'", source)
         for entry in entries:
             with self.subTest(entry=entry.splitlines()[0]):
                 first_line, *hash_lines = entry.splitlines()
                 self.assertRegex(
                     first_line,
-                    r"^[A-Za-z0-9_.-]+==[A-Za-z0-9_.!+~-]+"
+                    r"^[A-Za-z0-9_.-]+(?:\[[A-Za-z0-9_.-]+(?:,[A-Za-z0-9_.-]+)*\])?"
+                    r"==[A-Za-z0-9_.!+~-]+"
                     r"(?: ; python_full_version < '3\.11')? \\?$",
                 )
                 self.assertTrue(hash_lines)
