@@ -1,0 +1,310 @@
+[
+  {
+    "index": 0,
+    "name": "reference",
+    "phase": "first-request",
+    "embedding_relative_l2": 0.03768892247462869,
+    "embedding_cosine": 0.9992985801590629,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/0"
+    }
+  },
+  {
+    "index": 1,
+    "name": "reference",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.03768892247462869,
+    "embedding_cosine": 0.9992985801590629,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/1"
+    }
+  },
+  {
+    "index": 2,
+    "name": "reference",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.03768892247462869,
+    "embedding_cosine": 0.9992985801590629,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/2"
+    }
+  },
+  {
+    "index": 3,
+    "name": "short",
+    "phase": "new-shape",
+    "embedding_relative_l2": 0.0466691324071217,
+    "embedding_cosine": 0.9989106174828061,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/3"
+    }
+  },
+  {
+    "index": 4,
+    "name": "short",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.0466691324071217,
+    "embedding_cosine": 0.9989106174828061,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/4"
+    }
+  },
+  {
+    "index": 5,
+    "name": "short",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.0466691324071217,
+    "embedding_cosine": 0.9989106174828061,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/5"
+    }
+  },
+  {
+    "index": 6,
+    "name": "long",
+    "phase": "new-shape",
+    "embedding_relative_l2": 0.05795516151782084,
+    "embedding_cosine": 0.9983275431983691,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/6"
+    }
+  },
+  {
+    "index": 7,
+    "name": "long",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.05795516151782084,
+    "embedding_cosine": 0.9983275431983691,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/7"
+    }
+  },
+  {
+    "index": 8,
+    "name": "long",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.05795516151782084,
+    "embedding_cosine": 0.9983275431983691,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/8"
+    }
+  },
+  {
+    "index": 9,
+    "name": "mandarin",
+    "phase": "new-shape",
+    "embedding_relative_l2": 0.036888849942249974,
+    "embedding_cosine": 0.9993270121874579,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/9"
+    }
+  },
+  {
+    "index": 10,
+    "name": "mandarin",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.036888849942249974,
+    "embedding_cosine": 0.9993270121874579,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/10"
+    }
+  },
+  {
+    "index": 11,
+    "name": "mandarin",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.036888849942249974,
+    "embedding_cosine": 0.9993270121874579,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/11"
+    }
+  },
+  {
+    "index": 12,
+    "name": "mandarin_long",
+    "phase": "new-shape",
+    "embedding_relative_l2": 0.04561610678777716,
+    "embedding_cosine": 0.9989591364241543,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/12"
+    }
+  },
+  {
+    "index": 13,
+    "name": "mandarin_long",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.04561610678777716,
+    "embedding_cosine": 0.9989591364241543,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/13"
+    }
+  },
+  {
+    "index": 14,
+    "name": "mandarin_long",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.04561610678777716,
+    "embedding_cosine": 0.9989591364241543,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/14"
+    }
+  },
+  {
+    "index": 15,
+    "name": "noninteger",
+    "phase": "new-shape",
+    "embedding_relative_l2": 0.04599727235134808,
+    "embedding_cosine": 0.9989425195960433,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/15"
+    }
+  },
+  {
+    "index": 16,
+    "name": "noninteger",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.04599727235134808,
+    "embedding_cosine": 0.9989425195960433,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/16"
+    }
+  },
+  {
+    "index": 17,
+    "name": "noninteger",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.04599727235134808,
+    "embedding_cosine": 0.9989425195960433,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/17"
+    }
+  },
+  {
+    "index": 18,
+    "name": "reference",
+    "phase": "returned-shape",
+    "embedding_relative_l2": 0.03768892247462869,
+    "embedding_cosine": 0.9992985801590629,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/18"
+    }
+  },
+  {
+    "index": 19,
+    "name": "reference",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.03768892247462869,
+    "embedding_cosine": 0.9992985801590629,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/19"
+    }
+  },
+  {
+    "index": 20,
+    "name": "short",
+    "phase": "returned-shape",
+    "embedding_relative_l2": 0.0466691324071217,
+    "embedding_cosine": 0.9989106174828061,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/20"
+    }
+  },
+  {
+    "index": 21,
+    "name": "short",
+    "phase": "repeat",
+    "embedding_relative_l2": 0.0466691324071217,
+    "embedding_cosine": 0.9989106174828061,
+    "conservative_numerical_gate_pass": false,
+    "exact_text_parity_to_hybrid": true,
+    "exact_decoder_ids_parity_to_hybrid": true,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+      "selector": "/comparisons/21"
+    }
+  }
+]

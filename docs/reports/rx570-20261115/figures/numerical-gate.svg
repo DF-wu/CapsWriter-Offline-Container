@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="650" viewBox="0 0 1120 650" role="img"><title>All 22 installed MIGraphX embedding comparisons fail the original gate</title><desc>Acceptance requires relative L2 &lt;2% AND cosine &gt;0.999. Text/token agreement does not change this criterion.</desc>
+<rect width="1120" height="100%" fill="white"/>
+<style>text{font-family:DejaVu Sans,Arial,sans-serif;fill:#20323f;font-size:15px}.small{font-size:13px;fill:#52616b}.title{font-size:25px;font-weight:700}.sub{font-size:15px;fill:#52616b}</style>
+<text x="34.00" y="40.00" class="title" text-anchor="start">All 22 installed MIGraphX embedding comparisons fail the original gate</text>
+<text x="34.00" y="68.00" class="sub" text-anchor="start">Acceptance requires relative L2 &lt;2% AND cosine &gt;0.999. Text/token agreement does not change this criterion.</text>
+<line x1="270.00" y1="150.00" x2="270.00" y2="510.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="270.00" y="542.00" class="" text-anchor="middle">0</text>
+<line x1="374.62" y1="150.00" x2="374.62" y2="510.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="374.62" y="542.00" class="" text-anchor="middle">2</text>
+<line x1="479.23" y1="150.00" x2="479.23" y2="510.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="479.23" y="542.00" class="" text-anchor="middle">4</text>
+<line x1="583.85" y1="150.00" x2="583.85" y2="510.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="583.85" y="542.00" class="" text-anchor="middle">6</text>
+<line x1="374.62" y1="135.00" x2="374.62" y2="510.00" stroke="#8a2942" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="374.62" y="122.00" class="" text-anchor="middle" style="fill:#8a2942">strict gate</text>
+<text x="440.00" y="580.00" class="" text-anchor="middle">CPU-relative L2 (%)</text>
+<text x="245.00" y="177.00" class="" text-anchor="end">Short English (n=5)</text>
+<circle cx="514.12" cy="160.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="514.12" cy="166.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="514.12" cy="172.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="514.12" cy="178.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="514.12" cy="184.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="523.12" y="177.00" class="small" text-anchor="start">4.667</text>
+<text x="245.00" y="236.00" class="" text-anchor="end">Reference English (n=5)</text>
+<circle cx="467.14" cy="219.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="467.14" cy="225.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="467.14" cy="231.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="467.14" cy="237.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="467.14" cy="243.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="476.14" y="236.00" class="small" text-anchor="start">3.769</text>
+<text x="245.00" y="295.00" class="" text-anchor="end">Mandarin (n=3)</text>
+<circle cx="462.96" cy="284.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="462.96" cy="290.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="462.96" cy="296.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="471.96" y="295.00" class="small" text-anchor="start">3.689</text>
+<text x="245.00" y="354.00" class="" text-anchor="end">Long English (n=3)</text>
+<circle cx="573.15" cy="343.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="573.15" cy="349.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="573.15" cy="355.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="582.15" y="354.00" class="small" text-anchor="start">5.796</text>
+<text x="245.00" y="413.00" class="" text-anchor="end">Synthetic Mandarin-long (n=3)</text>
+<circle cx="508.61" cy="402.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="508.61" cy="408.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="508.61" cy="414.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="517.61" y="413.00" class="small" text-anchor="start">4.562</text>
+<text x="245.00" y="472.00" class="" text-anchor="end">Noninteger English (n=3)</text>
+<circle cx="510.60" cy="461.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="510.60" cy="467.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="510.60" cy="473.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="519.60" y="472.00" class="small" text-anchor="start">4.600</text>
+<line x1="710.00" y1="150.00" x2="710.00" y2="510.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="710.00" y="542.00" class="" text-anchor="middle">0.998</text>
+<line x1="871.90" y1="150.00" x2="871.90" y2="510.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="871.90" y="542.00" class="" text-anchor="middle">0.999</text>
+<line x1="1033.81" y1="150.00" x2="1033.81" y2="510.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="1033.81" y="542.00" class="" text-anchor="middle">1</text>
+<line x1="871.90" y1="135.00" x2="871.90" y2="510.00" stroke="#8a2942" stroke-width="2" stroke-dasharray="5 4"/>
+<text x="871.90" y="122.00" class="" text-anchor="middle" style="fill:#8a2942">strict gate</text>
+<text x="880.00" y="580.00" class="" text-anchor="middle">Cosine similarity (expanded scale)</text>
+<circle cx="857.43" cy="160.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="857.43" cy="166.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="857.43" cy="172.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="857.43" cy="178.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="857.43" cy="184.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="866.43" y="177.00" class="small" text-anchor="start">0.9989106</text>
+<circle cx="920.25" cy="219.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="920.25" cy="225.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="920.25" cy="231.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="920.25" cy="237.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="920.25" cy="243.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="929.25" y="236.00" class="small" text-anchor="start">0.9992986</text>
+<circle cx="924.85" cy="284.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="924.85" cy="290.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="924.85" cy="296.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="933.85" y="295.00" class="small" text-anchor="start">0.9993270</text>
+<circle cx="763.03" cy="343.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="763.03" cy="349.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="763.03" cy="355.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="772.03" y="354.00" class="small" text-anchor="start">0.9983275</text>
+<circle cx="865.29" cy="402.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="865.29" cy="408.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="865.29" cy="414.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="874.29" y="413.00" class="small" text-anchor="start">0.9989591</text>
+<circle cx="862.60" cy="461.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="862.60" cy="467.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="862.60" cy="473.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="871.60" y="472.00" class="small" text-anchor="start">0.9989425</text>
+<text x="34.00" y="625.00" class="small" text-anchor="start">Each point is a retained request comparison; overlapping x values are vertically separated. L2 uses zero baseline; cosine axis is expanded.</text>
+</svg>

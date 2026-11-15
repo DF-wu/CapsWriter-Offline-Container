@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="660" viewBox="0 0 1120 660" role="img"><title>One recognition pipeline, three measured placements</title><desc>Schematic: boxes encode responsibility and placement, not measured time or proportional compute.</desc>
+<rect width="1120" height="100%" fill="white"/>
+<style>text{font-family:DejaVu Sans,Arial,sans-serif;fill:#20323f;font-size:15px}.small{font-size:13px;fill:#52616b}.title{font-size:25px;font-weight:700}.sub{font-size:15px;fill:#52616b}</style>
+<text x="34.00" y="40.00" class="title" text-anchor="start">One recognition pipeline, three measured placements</text>
+<text x="34.00" y="68.00" class="sub" text-anchor="start">Schematic: boxes encode responsibility and placement, not measured time or proportional compute.</text>
+<rect x="35.00" y="190.00" width="190.00" height="82.00" rx="8" fill="#eef3f5" stroke="#bac7ce"/>
+<text x="130.00" y="220.00" class="" text-anchor="middle">Client / transport</text>
+<text x="130.00" y="246.00" class="small" text-anchor="middle">HTTP file or PCM WS</text>
+<line x1="228.00" y1="231.00" x2="255.00" y2="231.00" stroke="#52616b" stroke-width="2"/>
+<text x="250.00" y="237.00" class="" text-anchor="start">›</text>
+<rect x="265.00" y="190.00" width="190.00" height="82.00" rx="8" fill="#eef3f5" stroke="#bac7ce"/>
+<text x="360.00" y="220.00" class="" text-anchor="middle">CPU preparation</text>
+<text x="360.00" y="246.00" class="small" text-anchor="middle">FFmpeg → PCM → mel</text>
+<line x1="458.00" y1="231.00" x2="485.00" y2="231.00" stroke="#52616b" stroke-width="2"/>
+<text x="480.00" y="237.00" class="" text-anchor="start">›</text>
+<rect x="495.00" y="190.00" width="190.00" height="82.00" rx="8" fill="#eef3f5" stroke="#bac7ce"/>
+<text x="590.00" y="220.00" class="" text-anchor="middle">FP16 split encoder</text>
+<text x="590.00" y="246.00" class="small" text-anchor="middle">ONNX frontend + backend</text>
+<line x1="688.00" y1="231.00" x2="715.00" y2="231.00" stroke="#52616b" stroke-width="2"/>
+<text x="710.00" y="237.00" class="" text-anchor="start">›</text>
+<rect x="735.00" y="190.00" width="190.00" height="82.00" rx="8" fill="#eef3f5" stroke="#bac7ce"/>
+<text x="830.00" y="220.00" class="" text-anchor="middle">Q5_K_M decoder</text>
+<text x="830.00" y="246.00" class="small" text-anchor="middle">llama.cpp b7798</text>
+<line x1="928.00" y1="231.00" x2="955.00" y2="231.00" stroke="#52616b" stroke-width="2"/>
+<text x="950.00" y="237.00" class="" text-anchor="start">›</text>
+<rect x="965.00" y="190.00" width="120.00" height="82.00" rx="8" fill="#eef3f5" stroke="#bac7ce"/>
+<text x="1025.00" y="220.00" class="" text-anchor="middle">Text</text>
+<text x="1025.00" y="246.00" class="small" text-anchor="middle">Format</text>
+<text x="590.00" y="165.00" class="small" text-anchor="middle">[T, 2048] audio embeddings</text>
+<text x="829.00" y="165.00" class="small" text-anchor="middle">Prompt + autoregressive tokens</text>
+<text x="35.00" y="350.00" class="" text-anchor="start" style="fill:#586777">CPU</text>
+<rect x="265.00" y="325.00" width="190.00" height="46.00" rx="6" fill="#f8fafb" stroke="#586777"/>
+<text x="360.00" y="354.00" class="" text-anchor="middle">CPU</text>
+<rect x="495.00" y="325.00" width="190.00" height="46.00" rx="6" fill="#f8fafb" stroke="#586777"/>
+<text x="590.00" y="354.00" class="" text-anchor="middle">ORT / CPU</text>
+<rect x="735.00" y="325.00" width="190.00" height="46.00" rx="6" fill="#f8fafb" stroke="#586777"/>
+<text x="830.00" y="354.00" class="" text-anchor="middle">CPU</text>
+<text x="35.00" y="430.00" class="" text-anchor="start" style="fill:#007f83">CPU + Vulkan</text>
+<rect x="265.00" y="405.00" width="190.00" height="46.00" rx="6" fill="#f8fafb" stroke="#007f83"/>
+<text x="360.00" y="434.00" class="" text-anchor="middle">CPU</text>
+<rect x="495.00" y="405.00" width="190.00" height="46.00" rx="6" fill="#f8fafb" stroke="#007f83"/>
+<text x="590.00" y="434.00" class="" text-anchor="middle">ORT / CPU</text>
+<rect x="735.00" y="405.00" width="190.00" height="46.00" rx="6" fill="#f8fafb" stroke="#007f83"/>
+<text x="830.00" y="434.00" class="" text-anchor="middle">Vulkan / RX570</text>
+<text x="35.00" y="510.00" class="" text-anchor="start" style="fill:#b95524">MIGraphX + Vulkan</text>
+<rect x="265.00" y="485.00" width="190.00" height="46.00" rx="6" fill="#f8fafb" stroke="#b95524"/>
+<text x="360.00" y="514.00" class="" text-anchor="middle">CPU</text>
+<rect x="495.00" y="485.00" width="190.00" height="46.00" rx="6" fill="#f8fafb" stroke="#b95524"/>
+<text x="590.00" y="514.00" class="" text-anchor="middle">MIGraphX / RX570</text>
+<rect x="735.00" y="485.00" width="190.00" height="46.00" rx="6" fill="#f8fafb" stroke="#b95524"/>
+<text x="830.00" y="514.00" class="" text-anchor="middle">Vulkan / RX570</text>
+<text x="35.00" y="604.00" class="" text-anchor="start">Hybrid: all 29 reported decoder layers placed on Vulkan. MIGraphX: both encoder graphs execute strictly on GPU.</text>
+<text x="35.00" y="630.00" class="small" text-anchor="start">CPU remains responsible for mel, transport, queue and formatting. Optional aligner disabled; no CUDA execution on RX570.</text>
+</svg>

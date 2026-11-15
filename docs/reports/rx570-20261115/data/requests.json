@@ -1,0 +1,1124 @@
+[
+  {
+    "mode": "cpu",
+    "index": 0,
+    "name": "reference",
+    "phase": "first-request",
+    "seconds": 2.0913102619997517,
+    "rtf": 0.3571836485055084,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:4"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 1,
+    "name": "reference",
+    "phase": "repeat",
+    "seconds": 2.0220456440001726,
+    "rtf": 0.34535365397099443,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:5"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 2,
+    "name": "reference",
+    "phase": "repeat",
+    "seconds": 2.0199644129988883,
+    "rtf": 0.34499819180168884,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:6"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 3,
+    "name": "short",
+    "phase": "new-shape",
+    "seconds": 1.1198257220003143,
+    "rtf": 0.49880878485537383,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:7"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 4,
+    "name": "short",
+    "phase": "repeat",
+    "seconds": 1.1066813409997849,
+    "rtf": 0.49295382672596205,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:8"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 5,
+    "name": "short",
+    "phase": "repeat",
+    "seconds": 1.1068002819993126,
+    "rtf": 0.4930068071266425,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:9"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 6,
+    "name": "long",
+    "phase": "new-shape",
+    "seconds": 7.44823162800094,
+    "rtf": 0.25334121183676667,
+    "audio_s": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "reference_units": 68,
+    "edits": 4,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mr. Birkit Foster's landscapes smile at one much in the same way that Mr. Carker used to flash his teeth, and Mr. John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:10"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 7,
+    "name": "long",
+    "phase": "repeat",
+    "seconds": 7.717439525000373,
+    "rtf": 0.26249794302722357,
+    "audio_s": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "reference_units": 68,
+    "edits": 4,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mr. Birkit Foster's landscapes smile at one much in the same way that Mr. Carker used to flash his teeth, and Mr. John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:11"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 8,
+    "name": "long",
+    "phase": "repeat",
+    "seconds": 7.441319133999059,
+    "rtf": 0.2531060929931653,
+    "audio_s": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "reference_units": 68,
+    "edits": 4,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mr. Birkit Foster's landscapes smile at one much in the same way that Mr. Carker used to flash his teeth, and Mr. John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:12"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 9,
+    "name": "mandarin",
+    "phase": "new-shape",
+    "seconds": 1.2782130680006958,
+    "rtf": 0.2985781518338463,
+    "audio_s": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "reference_units": 12,
+    "edits": 0,
+    "text": "广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:13"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 10,
+    "name": "mandarin",
+    "phase": "repeat",
+    "seconds": 1.3336027530003776,
+    "rtf": 0.3115166440084975,
+    "audio_s": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "reference_units": 12,
+    "edits": 0,
+    "text": "广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:14"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 11,
+    "name": "mandarin",
+    "phase": "repeat",
+    "seconds": 1.348845638000057,
+    "rtf": 0.3150772338238863,
+    "audio_s": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "reference_units": 12,
+    "edits": 0,
+    "text": "广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:15"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 12,
+    "name": "mandarin_long",
+    "phase": "new-shape",
+    "seconds": 5.090604371000154,
+    "rtf": 0.188988876262257,
+    "audio_s": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "reference_units": 72,
+    "edits": 12,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:16"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 13,
+    "name": "mandarin_long",
+    "phase": "repeat",
+    "seconds": 5.0868233459987096,
+    "rtf": 0.18884850556870766,
+    "audio_s": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "reference_units": 72,
+    "edits": 12,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:17"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 14,
+    "name": "mandarin_long",
+    "phase": "repeat",
+    "seconds": 5.183714716000395,
+    "rtf": 0.19244560127711594,
+    "audio_s": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "reference_units": 72,
+    "edits": 12,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:18"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 15,
+    "name": "noninteger",
+    "phase": "new-shape",
+    "seconds": 2.0174330200006807,
+    "rtf": 0.33745860893030943,
+    "audio_s": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:19"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 16,
+    "name": "noninteger",
+    "phase": "repeat",
+    "seconds": 1.9930778039997676,
+    "rtf": 0.3333846807104459,
+    "audio_s": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:20"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 17,
+    "name": "noninteger",
+    "phase": "repeat",
+    "seconds": 2.039273342999877,
+    "rtf": 0.34111186777203045,
+    "audio_s": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:21"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 18,
+    "name": "reference",
+    "phase": "returned-shape",
+    "seconds": 2.0063180300003296,
+    "rtf": 0.34266746883011606,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:22"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 19,
+    "name": "reference",
+    "phase": "repeat",
+    "seconds": 2.006667961999483,
+    "rtf": 0.34272723518351544,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:23"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 20,
+    "name": "short",
+    "phase": "returned-shape",
+    "seconds": 1.1003361509992828,
+    "rtf": 0.4901274614696137,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:24"
+    }
+  },
+  {
+    "mode": "cpu",
+    "index": 21,
+    "name": "short",
+    "phase": "repeat",
+    "seconds": 1.1054325759996573,
+    "rtf": 0.49239758396421257,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:25"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 0,
+    "name": "reference",
+    "phase": "first-request",
+    "seconds": 1.2617571789996873,
+    "rtf": 0.2155007991459756,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:4"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 1,
+    "name": "reference",
+    "phase": "repeat",
+    "seconds": 1.051833235000231,
+    "rtf": 0.1796470085397491,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:5"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 2,
+    "name": "reference",
+    "phase": "repeat",
+    "seconds": 1.012205709999762,
+    "rtf": 0.17287885738680817,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:6"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 3,
+    "name": "short",
+    "phase": "new-shape",
+    "seconds": 0.6673887590004597,
+    "rtf": 0.297277843652766,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:7"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 4,
+    "name": "short",
+    "phase": "repeat",
+    "seconds": 0.6660168870002963,
+    "rtf": 0.2966667648108224,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:8"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 5,
+    "name": "short",
+    "phase": "repeat",
+    "seconds": 0.6672607970012905,
+    "rtf": 0.29722084498943896,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:9"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 6,
+    "name": "long",
+    "phase": "new-shape",
+    "seconds": 3.4040777089994663,
+    "rtf": 0.11578495608841723,
+    "audio_s": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "reference_units": 68,
+    "edits": 4,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:10"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 7,
+    "name": "long",
+    "phase": "repeat",
+    "seconds": 3.409235985000123,
+    "rtf": 0.11596040765306541,
+    "audio_s": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "reference_units": 68,
+    "edits": 4,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:11"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 8,
+    "name": "long",
+    "phase": "repeat",
+    "seconds": 3.4420175089999248,
+    "rtf": 0.11707542547618792,
+    "audio_s": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "reference_units": 68,
+    "edits": 4,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:12"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 9,
+    "name": "mandarin",
+    "phase": "new-shape",
+    "seconds": 0.7449090310001338,
+    "rtf": 0.1740035110955697,
+    "audio_s": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "reference_units": 12,
+    "edits": 0,
+    "text": "广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:13"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 10,
+    "name": "mandarin",
+    "phase": "repeat",
+    "seconds": 0.7378736270002264,
+    "rtf": 0.1723601090867149,
+    "audio_s": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "reference_units": 12,
+    "edits": 0,
+    "text": "广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:14"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 11,
+    "name": "mandarin",
+    "phase": "repeat",
+    "seconds": 0.7419002370006638,
+    "rtf": 0.1733006860548152,
+    "audio_s": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "reference_units": 12,
+    "edits": 0,
+    "text": "广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:15"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 12,
+    "name": "mandarin_long",
+    "phase": "new-shape",
+    "seconds": 2.2238732919995527,
+    "rtf": 0.08256137852686192,
+    "audio_s": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "reference_units": 72,
+    "edits": 12,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:16"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 13,
+    "name": "mandarin_long",
+    "phase": "repeat",
+    "seconds": 2.0588048089994118,
+    "rtf": 0.07643320496730813,
+    "audio_s": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "reference_units": 72,
+    "edits": 12,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:17"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 14,
+    "name": "mandarin_long",
+    "phase": "repeat",
+    "seconds": 2.058273831000406,
+    "rtf": 0.07641349238938247,
+    "audio_s": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "reference_units": 72,
+    "edits": 12,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:18"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 15,
+    "name": "noninteger",
+    "phase": "new-shape",
+    "seconds": 1.0065299779998895,
+    "rtf": 0.16836356045286852,
+    "audio_s": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:19"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 16,
+    "name": "noninteger",
+    "phase": "repeat",
+    "seconds": 1.012804830001187,
+    "rtf": 0.16941316299560902,
+    "audio_s": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:20"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 17,
+    "name": "noninteger",
+    "phase": "repeat",
+    "seconds": 1.0065465779989609,
+    "rtf": 0.16836633715600527,
+    "audio_s": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:21"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 18,
+    "name": "reference",
+    "phase": "returned-shape",
+    "seconds": 1.013242614999399,
+    "rtf": 0.1730559547394362,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:22"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 19,
+    "name": "reference",
+    "phase": "repeat",
+    "seconds": 1.0180140280008345,
+    "rtf": 0.17387088437247386,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:23"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 20,
+    "name": "short",
+    "phase": "returned-shape",
+    "seconds": 0.6716579999992973,
+    "rtf": 0.2991795100219587,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:24"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "index": 21,
+    "name": "short",
+    "phase": "repeat",
+    "seconds": 0.6755003449998185,
+    "rtf": 0.30089102227163406,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:25"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 0,
+    "name": "reference",
+    "phase": "first-request",
+    "seconds": 22.12422237500141,
+    "rtf": 3.7786887062342283,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:4"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 1,
+    "name": "reference",
+    "phase": "repeat",
+    "seconds": 1.6699323919983726,
+    "rtf": 0.28521475525164347,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:5"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 2,
+    "name": "reference",
+    "phase": "repeat",
+    "seconds": 1.6774477979997755,
+    "rtf": 0.28649834295470117,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:6"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 3,
+    "name": "short",
+    "phase": "new-shape",
+    "seconds": 20.94200056900081,
+    "rtf": 9.328285331403478,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:7"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 4,
+    "name": "short",
+    "phase": "repeat",
+    "seconds": 0.9260062610010209,
+    "rtf": 0.4124749492209447,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:8"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 5,
+    "name": "short",
+    "phase": "repeat",
+    "seconds": 0.9433838519998972,
+    "rtf": 0.42021552427612346,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:9"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 6,
+    "name": "long",
+    "phase": "new-shape",
+    "seconds": 26.36173723400134,
+    "rtf": 0.8966577290476646,
+    "audio_s": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "reference_units": 68,
+    "edits": 4,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:10"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 7,
+    "name": "long",
+    "phase": "repeat",
+    "seconds": 5.837744636000934,
+    "rtf": 0.19856274272112023,
+    "audio_s": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "reference_units": 68,
+    "edits": 4,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:11"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 8,
+    "name": "long",
+    "phase": "repeat",
+    "seconds": 5.840553639998689,
+    "rtf": 0.19865828707478533,
+    "audio_s": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "reference_units": 68,
+    "edits": 4,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:12"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 9,
+    "name": "mandarin",
+    "phase": "new-shape",
+    "seconds": 20.930056971999875,
+    "rtf": 4.889057923849539,
+    "audio_s": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "reference_units": 12,
+    "edits": 0,
+    "text": "广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:13"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 10,
+    "name": "mandarin",
+    "phase": "repeat",
+    "seconds": 0.9192547959992226,
+    "rtf": 0.21472898761953343,
+    "audio_s": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "reference_units": 12,
+    "edits": 0,
+    "text": "广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:14"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 11,
+    "name": "mandarin",
+    "phase": "repeat",
+    "seconds": 0.9339202049995947,
+    "rtf": 0.2181546846530238,
+    "audio_s": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "reference_units": 12,
+    "edits": 0,
+    "text": "广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:15"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 12,
+    "name": "mandarin_long",
+    "phase": "new-shape",
+    "seconds": 23.6141509400004,
+    "rtf": 0.8766762303237452,
+    "audio_s": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "reference_units": 72,
+    "edits": 12,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:16"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 13,
+    "name": "mandarin_long",
+    "phase": "repeat",
+    "seconds": 2.8040290259996254,
+    "rtf": 0.10409968168991779,
+    "audio_s": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "reference_units": 72,
+    "edits": 12,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:17"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 14,
+    "name": "mandarin_long",
+    "phase": "repeat",
+    "seconds": 2.8031740530004754,
+    "rtf": 0.10406794078558343,
+    "audio_s": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "reference_units": 72,
+    "edits": 12,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:18"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 15,
+    "name": "noninteger",
+    "phase": "new-shape",
+    "seconds": 21.442440057999193,
+    "rtf": 3.586704451799599,
+    "audio_s": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:19"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 16,
+    "name": "noninteger",
+    "phase": "repeat",
+    "seconds": 1.670500105001338,
+    "rtf": 0.2794266952424012,
+    "audio_s": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:20"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 17,
+    "name": "noninteger",
+    "phase": "repeat",
+    "seconds": 1.6741434870000376,
+    "rtf": 0.2800361284225335,
+    "audio_s": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:21"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 18,
+    "name": "reference",
+    "phase": "returned-shape",
+    "seconds": 17.706381976000557,
+    "rtf": 3.024147220495398,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:22"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 19,
+    "name": "reference",
+    "phase": "repeat",
+    "seconds": 1.6716829460001463,
+    "rtf": 0.28551373970967486,
+    "audio_s": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "reference_units": 17,
+    "edits": 0,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:23"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 20,
+    "name": "short",
+    "phase": "returned-shape",
+    "seconds": 16.921447753000393,
+    "rtf": 7.537393208463427,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:24"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "index": 21,
+    "name": "short",
+    "phase": "repeat",
+    "seconds": 0.9343858460015326,
+    "rtf": 0.4162075037868742,
+    "audio_s": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "reference_units": 5,
+    "edits": 0,
+    "text": "By Harry Quilter, M.A.",
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:25"
+    }
+  }
+]

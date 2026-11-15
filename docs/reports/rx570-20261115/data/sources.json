@@ -1,0 +1,107 @@
+{
+  "INSTALLED/baseline-complete/audio-manifest.json": {
+    "sha256": "9d1eed73d829b4096cb05e8cb9d8d571718674def8a321c10d20718c865a962c",
+    "bytes": 3686,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/cpu-client.jsonl": {
+    "sha256": "4ed3a79e73e47c87621f16b635e7a059d49fe6d6817691599697c3e235c61fe6",
+    "bytes": 16690,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/cpu-instrument-2522.jsonl": {
+    "sha256": "419a47afd38a14b9ae2eb0bc6819b841a2f4f85c0f82e9d1fad9d29733cb75c0",
+    "bytes": 3281,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl": {
+    "sha256": "6aa48ebe067631c1950b5e4bc435f61026acebf6235d6e6fd67f2219cb225d09",
+    "bytes": 82500,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/cpu-samples.jsonl": {
+    "sha256": "591f964467123c5dbaf914fb2656b9de2dd5663d648a0c4085b745b6162888c7",
+    "bytes": 46020,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/hybrid-client.jsonl": {
+    "sha256": "ad84a8c0a649d067994258857c8b364cb6d3d60ce3ebe9eefbb1b69756a156f3",
+    "bytes": 16813,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/hybrid-instrument-3769.jsonl": {
+    "sha256": "45f5391fe76020b772d59205672c5713ddc5054ecaaa55c29e54eeb24b1a35b3",
+    "bytes": 3362,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl": {
+    "sha256": "632cbb859e7affff0dd7a085d2eba1bd54f5c6435fde8f50a93c85d39d56be35",
+    "bytes": 83304,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/hybrid-samples.jsonl": {
+    "sha256": "61588a56829c3e758e9557f2281e3ed3796ef064a9526cad578973d5db3a3075",
+    "bytes": 24228,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl": {
+    "sha256": "af9940cb93709b6439c3a624e8abc456b56b9e0bb667307c439881d2952e5892",
+    "bytes": 17887,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20221.jsonl": {
+    "sha256": "b70c8b6093df374886c91ab41516366a9188bab0c70a32ce1a1b725bd8d5b5eb",
+    "bytes": 3426,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl": {
+    "sha256": "221b7d7fa972175b764da2ee1ef77895598fd0d877f05f3029e91cb6387e243d",
+    "bytes": 85313,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/mgx-resume-complete/evidence/dynamic-samples.jsonl": {
+    "sha256": "bc35d00995253ad9e687721f0ac9a3fc19fde864daeb13fe78d8bf8b6288d902",
+    "bytes": 161376,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/mgx-resume-complete/evidence/summary.json": {
+    "sha256": "a43fb3c429b59d4a09e6ed11cedab756fa39df8cf437a1ae8bcf541536429dd8",
+    "bytes": 524108,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/mgx-resume-complete/evidence/app-20221-frontend_2026-11-15_13-20-39_182.json": {
+    "sha256": "8b4ee189f39b8252b83b9ef9a8009e1797505924b11bb1ff3bdf76a84501c0cc",
+    "bytes": 441599,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/mgx-resume-complete/evidence/app-20221-backend_2026-11-15_13-20-47_476.json": {
+    "sha256": "65dcd02fd5c0164bc04b89b620e327d1331dac7df63994c6a813410a8a0b639a",
+    "bytes": 42472,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/summary.json": {
+    "sha256": "40dce6d7a01965ade700ab0071fe1c4e08bd1e20c6d00931e85d9610511e294f",
+    "bytes": 367823,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/provenance.json": {
+    "sha256": "086a07f4297d2a9c61d27c74a72228aea69a186a9e1858763a18faf2784ba189",
+    "bytes": 573,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/mgx-resume-complete/evidence/decoder-library-sha256.json": {
+    "sha256": "974fabd0b555e6e35160e104e6d49a391f317d19206fa3d9741fb287ae02ab95",
+    "bytes": 2610,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/baseline-complete/preflight.json": {
+    "sha256": "8e55a7e0b35853d39f62fa7f2c92477212086ad2f05154c214ac7bcc4adc80a1",
+    "bytes": 276,
+    "retention": "private raw source; public allowlisted extract only"
+  },
+  "INSTALLED/REPORT.md": {
+    "sha256": "660a0b3ddae314b5972ebfd2a85aec1d050f35b9f30914fc909b9d5abf2df3bb",
+    "bytes": 13814,
+    "retention": "private retained synthesis; selected artifact/configuration claims only"
+  }
+}
