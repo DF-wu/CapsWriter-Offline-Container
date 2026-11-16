@@ -306,8 +306,8 @@ class _TraySystem:
                     user32.ShowWindow(self.hwnd, SW_HIDE)
             time.sleep(0.2)
 
-    def on_restart(self, icon, item) -> None:
-        """新客戶端等待舊實例釋放鎖；退出走與選單相同的完整流程。"""
+    def on_restart(self, icon, item) -> bool:
+        """新客戶端等待舊實例釋放鎖；退出走與選單相同的完整流程。回傳是否已啟動新實例。"""
         logger.info("托盘重启: 用户点击重启菜单，准备重启程序")
         try:
             if getattr(sys, 'frozen', False):
@@ -318,9 +318,10 @@ class _TraySystem:
             _launch_detached_process(cmd)
         except Exception as e:
             logger.error(f"重启失败: {e}")
-            return
+            return False
 
         self.on_exit(icon, item)
+        return True
 
     def on_exit(self, icon, item) -> None:
         """托盘退出处理"""
@@ -452,8 +453,7 @@ def request_restart() -> bool:
         instance = _tray_instance
     if instance is None or instance.should_exit:
         return False
-    instance.on_restart(None, None)
-    return True
+    return bool(instance.on_restart(None, None))
 
 
 def stop_tray() -> None:

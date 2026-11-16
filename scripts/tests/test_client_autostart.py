@@ -265,10 +265,14 @@ class TrayRequestRestartTest(unittest.TestCase):
             from core.ui import tray
         except ImportError as exc:
             self.skipTest(f"desktop UI dependencies unavailable: {exc}")
-        instance = SimpleNamespace(should_exit=False, on_restart=Mock())
+        instance = SimpleNamespace(should_exit=False, on_restart=Mock(return_value=True))
         with patch.object(tray, "_tray_instance", instance):
             self.assertTrue(tray.request_restart())
         instance.on_restart.assert_called_once_with(None, None)
+        # 新程序啟動失敗時，設定監看執行緒必須知道重啟沒有發生。
+        instance.on_restart.return_value = False
+        with patch.object(tray, "_tray_instance", instance):
+            self.assertFalse(tray.request_restart())
         instance.should_exit = True
         with patch.object(tray, "_tray_instance", instance):
             self.assertFalse(tray.request_restart())
@@ -354,6 +358,41 @@ class SettingsSystemPageTest(unittest.TestCase):
         error.assert_called_once()
         self.assertFalse(self.path.exists())
         self.assertTrue(self.window.autostart_dirty)
+
+
+class SettingsSystemPageRegistryErrorTest(unittest.TestCase):
+    def test_unreadable_autostart_state_disables_option_without_blocking_settings(self):
+        try:
+            import tkinter as tk
+            from fork_client.settings_ui import SettingsWindow
+        except ImportError as exc:
+            self.skipTest(f"Tk unavailable: {exc}")
+        try:
+            root = tk.Tk()
+        except tk.TclError as exc:
+            self.skipTest(f"Display unavailable (run with xvfb-run): {exc}")
+        self.addCleanup(root.destroy)
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        path = Path(temporary.name) / "client.json"
+        environment = patch.dict(os.environ, {"CAPSWRITER_CLIENT_SETTINGS": str(path)})
+        environment.start()
+        self.addCleanup(environment.stop)
+        from config_client import ClientConfig
+
+        registry = FakeRegistry()
+        registry.get = Mock(side_effect=PermissionError("denied"))
+        registry.set = Mock()
+        registry.delete = Mock()
+        window = SettingsWindow(root, ClientConfig, autostart=Autostart(registry, command=COMMAND))
+        self.assertIn("無法讀取", window.autostart_status.get())
+        self.assertIn("disabled", window.autostart_check.state())
+        self.assertFalse(window.autostart_dirty)
+        window.variables["addr"].set("axolotl")
+        self.assertTrue(window.save())
+        registry.set.assert_not_called()
+        registry.delete.assert_not_called()
+        self.assertTrue(path.exists())
 
 
 if __name__ == "__main__":

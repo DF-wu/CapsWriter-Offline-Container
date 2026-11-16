@@ -320,13 +320,19 @@ class SettingsWindow:
 
     def system_page(self):
         page = self.pages["啟動與系統"]
-        status = self.autostart.status()
-        self.autostart_var = tk.BooleanVar(value=status.enabled)
+        try:
+            status = self.autostart.status()
+            description = status.describe()
+        except OSError as exc:
+            # 登錄檔讀取失敗不應讓整個設定視窗打不開；停用此選項，未勾動就不會寫入。
+            status = None
+            description = f"無法讀取開機自動啟動狀態：{exc}"
+        self.autostart_var = tk.BooleanVar(value=status is not None and status.enabled)
         self.autostart_check = ttk.Checkbutton(page, text="登入 Windows 時自動啟動 Client（背景執行並常駐系統匣）", variable=self.autostart_var)
         self.autostart_check.grid(row=0, column=0, columnspan=2, sticky="w")
-        if status.state == UNSUPPORTED:
+        if status is None or status.state == UNSUPPORTED:
             self.autostart_check.state(["disabled"])
-        self.autostart_status = tk.StringVar(value=status.describe())
+        self.autostart_status = tk.StringVar(value=description)
         ttk.Label(page, textvariable=self.autostart_status, wraplength=650).grid(row=1, column=0, columnspan=2, sticky="w", pady=4)
         ttk.Label(page, text="使用目前使用者的「啟動應用程式」，不需系統管理員權限，也可在工作管理員停用。儲存時立即生效，不需重新啟動 Client。", wraplength=650).grid(row=2, column=0, columnspan=2, sticky="w", pady=(0, 16))
         self.autostart_var.trace_add("write", self.mark_autostart_dirty)

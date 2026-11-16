@@ -174,7 +174,9 @@ class TrayManager:
     def _open_logs(self):
         """开启日志資料夾，排查问题的唯一入口"""
         try:
-            folder = os.environ.get('CAPSWRITER_LOG_DIR') or os.path.join(self.app.base_dir, 'logs')
+            # 與 core.logger 使用同一個根目錄，托盤與設定視窗開啟的是同一個資料夾。
+            from config_client import BASE_DIR
+            folder = os.environ.get('CAPSWRITER_LOG_DIR') or os.path.join(BASE_DIR, 'logs')
             os.makedirs(folder, exist_ok=True)
             _open_with_default_app(str(folder))
         except Exception as error:
