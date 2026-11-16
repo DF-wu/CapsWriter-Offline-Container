@@ -49,6 +49,8 @@ def editor(path):
     window.status = Variable()
     window.read_error = None
     window.shortcut_draft_dirty = False
+    window.autostart_dirty = False
+    window.from_client = False
     window.root = None
     window.saved = False
     window.render_sources = Mock()

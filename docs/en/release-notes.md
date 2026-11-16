@@ -4,6 +4,12 @@
 
 ## fork-v2.2.0 — unreleased preparation
 
+**Windows desktop:** optional start at login (per-user `Run` entry, toggled from the
+settings window's Startup & system tab or the tray), a background `--autostart` launch
+that keeps only the tray icon, *Save and restart client* in the tray-opened settings
+window, a single settings window at a time, and tray/settings shortcuts to the log
+folder. See [daily settings](../settings.md).
+
 Adds an explicit `CAPSWRITER_TESLA_P4_OPTIMIZATION` flag, default `false`.
 Disabled or absent retains the original CPU/Vulkan selection; enabled selects
 the pinned b7798 / CUDA 11.8 / SM61 decoder and verifies actual Tesla P4 devices.

@@ -57,6 +57,7 @@ jobs:
           scripts.tests.test_client_settings_runtime
           scripts.tests.test_client_settings_devices
           scripts.tests.test_client_settings_concurrency
+          scripts.tests.test_client_autostart
           scripts.tests.test_client_review
           scripts.tests.test_protocol
           scripts.tests.test_requirements

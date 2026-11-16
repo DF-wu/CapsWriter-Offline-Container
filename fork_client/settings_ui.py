@@ -4,11 +4,16 @@ from __future__ import annotations
 import asyncio
 import copy
 import json
+import os
+from pathlib import Path
 import queue
+import subprocess
+import sys
 import threading
 import tkinter as tk
 from tkinter import messagebox, ttk
 
+from .autostart import Autostart, UNSUPPORTED
 from .devices import device_label, input_device_choices
 from .shortcut_capture import ShortcutCapture
 from .settings import (
@@ -18,10 +23,14 @@ from .settings import (
 
 
 class SettingsWindow:
-    def __init__(self, root: tk.Tk, config):
+    def __init__(self, root: tk.Tk, config, from_client: bool = False, autostart: Autostart | None = None):
         self.root = root
         self.config = config
         self.path = settings_path()
+        self.from_client = from_client
+        self.autostart = Autostart() if autostart is None else autostart
+        self.autostart_dirty = False
+        self.restart_requested = False
         self.saved = False
         self.pending = queue.Queue()
         self.closed = False
@@ -51,11 +60,11 @@ class SettingsWindow:
         outer.pack(fill="both", expand=True)
         ttk.Label(outer, text="讓說話成為輸入", font=("Microsoft JhengHei UI", 18, "bold")).pack(anchor="w")
         ttk.Label(outer, text="按住快捷鍵說話 → Server 辨識 → 輸入目前視窗", padding=(0, 8)).pack(anchor="w")
-        self.status = tk.StringVar(value="所有變更皆於重新啟動 Client 後生效。")
+        self.status = tk.StringVar(value="快捷鍵、麥克風等變更於重新啟動 Client 後生效；開機自動啟動於儲存時立即更新。")
         self.notebook = ttk.Notebook(outer)
         self.notebook.pack(fill="both", expand=True, pady=12)
         self.pages = {}
-        for name in ("連線", "錄音與快捷鍵", "輸出", "設定來源"):
+        for name in ("連線", "錄音與快捷鍵", "輸出", "啟動與系統", "設定來源"):
             page = ttk.Frame(self.notebook, padding=16)
             page.columnconfigure(1, weight=1)
             self.notebook.add(page, text=name)
@@ -63,12 +72,16 @@ class SettingsWindow:
         self.connection_page()
         self.recording_page()
         self.output_page()
+        self.system_page()
         self.sources_page()
         ttk.Label(outer, textvariable=self.status, wraplength=740).pack(fill="x", pady=(4, 12))
         actions = ttk.Frame(outer)
         actions.pack(fill="x")
         ttk.Button(actions, text="恢復 Python 設定", command=self.reset).pack(side="left")
         ttk.Button(actions, text="關閉", command=self.close).pack(side="right")
+        if from_client:
+            # 由執行中 Client 開啟時，一次完成儲存與重新啟動，不必再回到托盤操作。
+            ttk.Button(actions, text="儲存並重新啟動 Client", command=self.save_and_restart).pack(side="right", padx=(0, 8))
         ttk.Button(actions, text="儲存設定  Ctrl+S", command=self.save).pack(side="right", padx=8)
         self.poll_after_id = root.after(100, self.poll)
         if self.read_error:
@@ -305,6 +318,49 @@ class SettingsWindow:
         self.field(page, 8, "trash_punc_thresh", "短句去尾端標點門檻", "單詞數低於此值時，移除進階設定指定的尾端標點。0 停用。")
         self.field(page, 10, "llm_enabled", "啟用 LLM 潤色", "需另於 LLM/ 角色檔配置服務；首次使用可先關閉。", boolean=True)
 
+    def system_page(self):
+        page = self.pages["啟動與系統"]
+        status = self.autostart.status()
+        self.autostart_var = tk.BooleanVar(value=status.enabled)
+        self.autostart_check = ttk.Checkbutton(page, text="登入 Windows 時自動啟動 Client（背景執行並常駐系統匣）", variable=self.autostart_var)
+        self.autostart_check.grid(row=0, column=0, columnspan=2, sticky="w")
+        if status.state == UNSUPPORTED:
+            self.autostart_check.state(["disabled"])
+        self.autostart_status = tk.StringVar(value=status.describe())
+        ttk.Label(page, textvariable=self.autostart_status, wraplength=650).grid(row=1, column=0, columnspan=2, sticky="w", pady=4)
+        ttk.Label(page, text="使用目前使用者的「啟動應用程式」，不需系統管理員權限，也可在工作管理員停用。儲存時立即生效，不需重新啟動 Client。", wraplength=650).grid(row=2, column=0, columnspan=2, sticky="w", pady=(0, 16))
+        self.autostart_var.trace_add("write", self.mark_autostart_dirty)
+        folders = ttk.Frame(page)
+        folders.grid(row=3, column=0, columnspan=2, sticky="w")
+        for column, (label, path) in enumerate((("開啟日誌資料夾", log_directory()), ("開啟設定資料夾", self.path.parent), ("開啟程式資料夾", program_directory()))):
+            ttk.Button(folders, text=label, command=lambda path=path: self.open_folder(path)).grid(row=0, column=column, sticky="w", padx=(0, 8))
+        ttk.Label(page, text="排查問題請先看日誌資料夾的 client_latest.log；進階參數位於程式資料夾的 config_client.py。", wraplength=650).grid(row=4, column=0, columnspan=2, sticky="w", pady=(8, 0))
+
+    def mark_autostart_dirty(self, *_args):
+        self.autostart_dirty = True
+        self.status.set("有尚未儲存的變更；開機自動啟動會在儲存時立即更新。")
+
+    def apply_autostart(self) -> bool:
+        try:
+            status = self.autostart.set_enabled(self.autostart_var.get())
+        except OSError as exc:
+            messagebox.showerror("無法更新開機自動啟動", str(exc), parent=self.root)
+            return False
+        self.autostart_var.set(status.enabled)
+        self.autostart_status.set(status.describe())
+        self.autostart_dirty = False
+        return True
+
+    def open_folder(self, path: Path):
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+            if sys.platform == "win32":
+                os.startfile(path)
+            else:
+                subprocess.Popen(["open" if sys.platform == "darwin" else "xdg-open", str(path)])
+        except OSError as exc:
+            messagebox.showerror("無法開啟資料夾", f"{path}\n{exc}", parent=self.root)
+
     def sources_page(self):
         page = self.pages["設定來源"]
         ttk.Label(page, text=f"日常設定：{self.path}\n進階設定：config_client.py\n此表為已儲存、下次啟動將採用的值；不代表其他執行中的 Client 已套用。", wraplength=650).pack(anchor="w", pady=(0, 12))
@@ -359,27 +415,41 @@ class SettingsWindow:
                     widget.focus_set()
             return None
 
-    def save(self):
+    def save(self) -> bool:
         if self.read_error:
+            # 開機自動啟動存於登錄檔，與無法讀取的 JSON 無關，仍可單獨套用。
+            if self.autostart_dirty:
+                self.apply_autostart()
             messagebox.showerror("原設定檔需要修復", "為避免覆蓋無法讀取的設定，請先修正原檔，或選擇「恢復 Python 設定」。", parent=self.root)
-            return
+            return False
         if self.shortcut_draft_dirty:
             self.notebook.select(self.pages["錄音與快捷鍵"])
             self.status.set("快捷鍵編輯尚未套用；請先按「套用按鍵」或「新增」，再儲存設定。")
-            return
+            return False
         values = self.validate_form()
         if values is None:
-            return
+            return False
+        if self.autostart_dirty and not self.apply_autostart():
+            return False
         try:
             self.overrides = update_overrides(values, self.path)
         except (OSError, SettingsError) as exc:
             messagebox.showerror("儲存失敗", str(exc), parent=self.root)
-            return
+            return False
         self.reload_fields()
         self.touched.clear()
         self.saved = True
         self.render_sources()
-        self.status.set("已儲存。請結束並重新啟動 Client；執行中的錄音與設定不會被中途變更。")
+        if self.from_client:
+            self.status.set("已儲存。按「儲存並重新啟動 Client」立即套用，或稍後從系統匣選擇「重启」。")
+        else:
+            self.status.set("已儲存。Client 執行中時請從系統匣選擇「重启」套用；執行中的錄音不會被中途變更。")
+        return True
+
+    def save_and_restart(self):
+        if self.save():
+            self.restart_requested = True
+            self.close()
 
     def reset(self):
         if not messagebox.askyesno("恢復 Python 設定", "移除此裝置的所有日常覆寫，回到 config_client.py？下次啟動生效。", parent=self.root):
@@ -465,7 +535,7 @@ class SettingsWindow:
         self.poll_after_id = self.root.after(100, self.poll)
 
     def close(self):
-        if (self.touched or self.shortcut_draft_dirty) and not messagebox.askyesno("尚未儲存", "捨棄尚未儲存的變更並關閉？", parent=self.root):
+        if (self.touched or self.shortcut_draft_dirty or self.autostart_dirty) and not messagebox.askyesno("尚未儲存", "捨棄尚未儲存的變更並關閉？", parent=self.root):
             return
         self.closed = True
         if self.cancel_capture is not None:
@@ -476,10 +546,25 @@ class SettingsWindow:
         self.root.destroy()
 
 
-def run_settings() -> bool:
+def program_directory() -> Path:
+    import config_client
+
+    return Path(config_client.BASE_DIR)
+
+
+def log_directory() -> Path:
+    # 與 core.logger 相同：可用 CAPSWRITER_LOG_DIR 覆寫。
+    return Path(os.environ.get("CAPSWRITER_LOG_DIR") or program_directory() / "logs")
+
+
+def open_settings(from_client: bool = False) -> SettingsWindow:
     from config_client import ClientConfig
 
     root = tk.Tk()
-    window = SettingsWindow(root, ClientConfig)
+    window = SettingsWindow(root, ClientConfig, from_client=from_client)
     root.mainloop()
-    return window.saved
+    return window
+
+
+def run_settings() -> bool:
+    return open_settings().saved

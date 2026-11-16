@@ -13,6 +13,9 @@ from .settings import settings_path
 
 RESTART_WAIT_ARGUMENT = "--wait-for-client-exit"
 RESTART_WAIT_SECONDS = 10.0
+# 托盤開啟的設定視窗以此結束代碼要求原 Client 重新啟動以套用設定。
+SETTINGS_FROM_CLIENT_ARGUMENT = "--from-client"
+SETTINGS_RESTART_EXIT_CODE = 75
 
 
 class ClientInstance:
