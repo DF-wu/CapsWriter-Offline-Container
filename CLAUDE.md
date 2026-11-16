@@ -8,7 +8,7 @@
     - **Client**: 轻量启动，负责全局快捷键监听、录音采集、UI 展示。
 - **源代码开放**: 入口 [`start_server.py`](start_server.py) / [`start_client.py`](start_client.py) 为冻结入口；核心源码在 [`core/`](core/) 目录，发行版保留为源码供用户修改。
 - **配置化**: [`config_client.py`](config_client.py) / [`config_server.py`](config_server.py) 及 `hot*.txt`、[`LLM/*.py`](LLM/) 位于根目录。
-- **版本**: 最新已发布 fork-v2.1.0（2026-10-31）；fork-v2.2.0 为未发布准备，上游仍为 v2.6 / `84912d5`。
+- **版本**: 最新已发布 fork-v2.2.0（2026-11-16，tag 指向 `90f9c66`）；上游仍为 v2.6 / `84912d5`。
 
 ### 单一 Compose 部署
 
@@ -17,13 +17,14 @@
 - 模型／P4／settings 用env；models source默认保留named volume，可显式改bind。
 - GUI管理的daily env需明确`KEY=`，删除key会恢复Compose默认。见[指南](docs/compose.md)。
 
-### fork-v2.2.0 候选边界
+### fork-v2.2.0 发布边界
 
 - `CAPSWRITER_TESLA_P4_OPTIMIZATION` 默认 false；只在开启后使用 CUDA 11.8 SM61
   b7798 decoder，实际 CUDA 装置必须为 Tesla P4。CPU／低显存／明确 backend 优先。
 - Fork metadata 为 `2.2.0`，上游 `2.6` 不变；原 FP16 ONNX＋Q5_K_M 权重不变。
 - 编译／测试仅限免洗容器；不安装 host 套件、不改时脉／功耗，不改现行 Portainer。
-- 见 [P4 指南](docs/tesla-p4.md)及 [2.2 发布准备](docs/releases/fork-v2.2.0.md)。
+- 见 [P4 指南](docs/tesla-p4.md)、[2.2 发布记录](docs/releases/fork-v2.2.0.md)及 [GitHub Release](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0)。
+- 2.2 另含 Windows 开机自动启动／设定流程（PR #26）与单一 Compose（PR #21，breaking）。
 
 ### fork-v2.1.0 原候选边界（历史）
 

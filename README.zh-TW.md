@@ -16,9 +16,9 @@
 
 </div>
 
-最新已發布：**fork-v2.1.0**（2026-10-31）。**fork-v2.2.0 尚在未發布準備**，
-上游仍為 v2.6／`84912d5`。見[候選版說明](docs/zh-TW/release-notes.md)與
-[發布草稿／檢查表](docs/releases/fork-v2.2.0.md)。
+最新已發布：**[fork-v2.2.0](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0)**（2026-11-16）——Windows 開機自動啟動、
+更順的設定流程與選用 Tesla P4 runtime；上游仍為 v2.6／`84912d5`。
+見 [release notes](docs/zh-TW/release-notes.md)。
 
 ![CapsWriter v2 架構：桌面、Web、CLI、TUI、OpenAI SDK 五種 Client 連到本機的 CapsWriter Server](docs/assets/overview.svg)
 

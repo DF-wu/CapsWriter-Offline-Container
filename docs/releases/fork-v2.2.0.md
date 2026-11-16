@@ -1,5 +1,9 @@
 # fork-v2.2.0 — 發版草稿與檢查表
 
+> 歷史準備快照：2.2 已於 2026-11-16 [發布](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0)，tag 指向
+> `90f9c660b12f5b2e4557a1a6717cc8d0991c1102`。最終 workflow、Windows ZIP checksum、
+> image digest 與驗證限制見 Release 及附件 `VALIDATION.md`；下方待辦欄位保留準備時狀態。
+
 狀態：**準備中，尚未發布**。最新正式版為
 [fork-v2.1.0](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.1.0)
 （2026-10-31）。本草稿不代表 master 已合併、tag 已建立或 image／Windows artifacts

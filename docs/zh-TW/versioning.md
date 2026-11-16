@@ -70,18 +70,18 @@ v1 server／容器／API 行為、通過獨立 v1 檢查，並經自己的 PR �
 
 上游 tag 僅代表上游版本，本 fork 不會用相同名稱重建 release tag。
 
-### 目前候選版與發布邊界
+### 目前版本與發布邊界
 
-最新已發布版為 **`fork-v2.1.0`**（2026-10-31）。**`fork-v2.2.0` 尚在未發布準備**，
-不代表已建立 tag 或發布 RC。候選 runtime／套件 metadata 為 `2.2.0`
+最新已發布版為 **[`fork-v2.2.0`](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0)**（2026-11-16），tag 指向 `90f9c66`。
+runtime／套件 metadata 為 `2.2.0`
 （`fork_server.__version__`、`pyproject.toml`）；`/health`、`/ready` 新增
 `fork_version: "2.2.0"`，既有上游 `version: "2.6"` 不變，上游基底仍是 `84912d5`。
 
 原始碼與 image workflow 的 canonical repo 同為 `DF-wu/CapsWriter-Offline-Container`；
 舊名稱 `DF-wu/CapsWriter-Offline` 會重導向同一個 repo。發布 `master` 會觸發 image 自動發布與
-guarded `latest` promotion；延後 GitHub Release 並不會延後此副作用。請在
-[v2.2.0 發布草稿](../releases/fork-v2.2.0.md)分別記錄完整 merge SHA、相同 SHA 的
-CI／套件 workflow、不可變 image tag／digest 及 provenance。版本字串與 mock 測試
+guarded `latest` promotion；延後 GitHub Release 並不會延後此副作用。完整 merge SHA、
+相同 SHA 的 CI／套件 workflow、不可變 image tag／digest 及 provenance 記錄於 GitHub
+Release 與附件 `VALIDATION.md`；[v2.2.0 檢查表](../releases/fork-v2.2.0.md)保留準備時快照。版本字串與 mock 測試
 不能替代實機驗收或延遲量測。
 
 `myServices` recipe 必須另行 commit／push 至 Portainer 追蹤的 branch。本機

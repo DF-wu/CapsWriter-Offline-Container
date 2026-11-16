@@ -1,12 +1,10 @@
 # Fork 現況（State of Fork）
 
-> **更新時間**：2026-11-01
+> **更新時間**：2026-11-16
 >
 > **`master` 上游基底**：`84912d5`（merge `a1cdd45`，PR #4）
 >
-> **最新發布**：`fork-v2.1.0`（2026-10-31）（見 [release notes](zh-TW/release-notes.md)）
->
-> **準備中**：`fork-v2.2.0`（未發布；[發布草稿／檢查表](releases/fork-v2.2.0.md)）
+> **最新發布**：`fork-v2.2.0`（2026-11-16，[GitHub Release](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0)；見 [release notes](zh-TW/release-notes.md)）
 >
 > **歷史 v2 產品合併點**：`afc8c58`（PR #2）；下方既有驗證紀錄屬於該基線
 
@@ -19,14 +17,16 @@ v1 已透過 PR #5 完成**一次性完整上游同步至 `84912d5`**，包含
 `fork-pre-reset-20260525-1411` 保持不可變。兩軌發布管道仍然獨立，詳見
 [雙軌維護政策](zh-TW/versioning.md)。
 
-## fork-v2.2.0 準備狀態
+## fork-v2.2.0 發布內容
 
 - 新增預設關閉的 `CAPSWRITER_TESLA_P4_OPTIMIZATION`；開啟才選用 P4 CUDA SM61
   decoder，未開啟保留原 CPU／Vulkan。CPU／低顯存／明確 backend 選擇優先。
 - Fork metadata 為 `2.2.0`，上游 `2.6` 不變；模型維持原 FP16 ONNX＋Q5_K_M GGUF。
 - [P4 使用指南](tesla-p4.md)與[本輪驗證](releases/validation-fork-v2.2.0.md)說明選用、
   歷史實測限制及免洗容器邊界。現行 writable-layer hotfix 未在此輪重新部署。
-- PR／2.2 發版準備不包含 master merge、正式發布或 Portainer recreate。
+- Windows 桌面：開機自動啟動、`--autostart` 背景啟動、「儲存並重新啟動 Client」與托盤日誌捷徑（PR #26）。
+- 單一 `docker-compose.yml` 取代舊 overlay 檔（PR #21，breaking），見 [Compose 指南](compose.md)。
+- 已於 2026-11-16 以 `90f9c66` 發布；Portainer 現行服務未隨發布重新部署。
 
 ## fork-v2.1.0 原準備紀錄（歷史）
 

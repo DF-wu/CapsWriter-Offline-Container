@@ -2,7 +2,12 @@
 
 > [Documentation home](README.md) · [繁體中文](../zh-TW/release-notes.md) · [Getting started](getting-started.md)
 
-## fork-v2.2.0 — unreleased preparation
+## fork-v2.2.0 — stable release
+
+Published **2026-11-16**: [GitHub Release](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0), tag target `90f9c66`.
+
+**Breaking for Docker:** the eight Compose overlay/example files were replaced by a
+single `docker-compose.yml` (PR #21). Migrate `-f` stacks using [Compose](../compose.md).
 
 **Windows desktop:** optional start at login (per-user `Run` entry, toggled from the
 settings window's Startup & system tab or the tray), a background `--autostart` launch
@@ -19,9 +24,9 @@ failures stop the service rather than silently serving with a CPU decoder.
 
 Fork metadata becomes `2.2.0`; upstream remains v2.6 / `84912d5`, Python
 3.10–3.12 and llama.cpp b7798. Builds/tests use disposable containers, with no
-host compiler installation or clock/power changes. This preparation does not
-redeploy the live service. See the [P4 guide](../tesla-p4.md),
-[release draft](../releases/fork-v2.2.0.md) and
+host compiler installation or clock/power changes. Publishing does not
+redeploy existing services. See the [P4 guide](../tesla-p4.md),
+[release checklist](../releases/fork-v2.2.0.md) and
 [validation record](../releases/validation-fork-v2.2.0.md) for evidence and limits.
 
 ## fork-v2.1.0 — stable release

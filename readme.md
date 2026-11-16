@@ -16,9 +16,9 @@ English · [繁體中文](README.zh-TW.md)
 
 </div>
 
-Latest published: **fork-v2.1.0** (2026-10-31). **fork-v2.2.0 is unreleased
-preparation**; upstream stays v2.6 / `84912d5`. See the
-[candidate notes](docs/en/release-notes.md) and [draft checklist](docs/releases/fork-v2.2.0.md).
+Latest published: **[fork-v2.2.0](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0)** (2026-11-16) — Windows start at login,
+a smoother settings workflow and the opt-in Tesla P4 runtime; upstream stays v2.6 / `84912d5`.
+See the [release notes](docs/en/release-notes.md).
 
 ![CapsWriter v2 architecture: desktop, Web, CLI, TUI and OpenAI SDK clients connect to a local CapsWriter Server](docs/assets/overview.svg)
 

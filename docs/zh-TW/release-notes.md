@@ -2,7 +2,12 @@
 
 > [文件首頁](README.md) · [English](../en/release-notes.md) · [開始使用](getting-started.md)
 
-## fork-v2.2.0 — 未發布準備
+## fork-v2.2.0 — 穩定版
+
+已於 **2026-11-16** [正式發布](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0)，tag 指向 `90f9c66`。
+
+**Docker 升級注意：** 8 個 Compose overlay／範例檔已改為單一 `docker-compose.yml`
+（PR #21）；以 `-f` 疊加的部署請依 [Compose 指南](../compose.md)遷移。
 
 **Windows 桌面：** 新增可選的開機自動啟動（目前使用者的 `Run` 項目，可在設定視窗
 「啟動與系統」頁或托盤切換）、只保留托盤圖示的 `--autostart` 背景啟動、從托盤開啟
@@ -17,8 +22,8 @@ GGUF。CPU、低顯存 preset 與明確 CPU／Vulkan 選擇優先；已選定 CU
 
 Fork metadata 為 `2.2.0`；上游維持 v2.6／`84912d5`、Python 3.10–3.12 及
 llama.cpp b7798。編譯與測試均在免洗容器內，不安裝 host compiler、不調整時脈／
-功耗。此次準備未重新部署線上服務。實測範圍與限制見 [P4 指南](../tesla-p4.md)、
-[發布草稿](../releases/fork-v2.2.0.md)及[驗證紀錄](../releases/validation-fork-v2.2.0.md)。
+功耗。發布本身不會重新部署既有服務。實測範圍與限制見 [P4 指南](../tesla-p4.md)、
+[發版檢查表](../releases/fork-v2.2.0.md)及[驗證紀錄](../releases/validation-fork-v2.2.0.md)。
 
 ## fork-v2.1.0 — 穩定版
 

@@ -3,7 +3,7 @@
 Introduced in published `fork-v2.1.0` (2026-10-31). This guide describes the
 configuration contract; it does not claim universal hardware support or measured
 boost latency. The separate [Tesla P4 runtime](tesla-p4.md) is opt-in in 2.2 and
-does not enable clock boost. See the [2.2 release preparation](releases/fork-v2.2.0.md).
+does not enable clock boost. See the [2.2 release checklist](releases/fork-v2.2.0.md).
 
 Pre-boost asks `nvidia-smi` to lock one selected GPU's memory clock before ASR
 work, then reset it after inactivity. It is separate from enabling GPU inference;

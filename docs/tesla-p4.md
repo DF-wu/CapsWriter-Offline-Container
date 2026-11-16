@@ -1,6 +1,6 @@
 # Tesla P4 選用優化
 
-適用於 fork-v2.2.0 候選版的 Linux NVIDIA Docker Server。此版本尚在發版準備。
+適用於 [fork-v2.2.0](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0)（2026-11-16 發布）起的 Linux NVIDIA Docker Server。
 
 在 Portainer Stack 的環境變數或 Compose `.env` 設定：
 
@@ -70,7 +70,7 @@ p50 約提升 4.03–5.25 倍，基準是當時 Vulkan 未找到裝置而使用 
 
 五份完整音訊的 greedy 正規化輸出相同。既有 HTTP worker 實際仍使用預設
 temperature=0.4，即使 API 接受 0；本版未改動此行為。完整 image、Windows 打包、
-發版 SHA／digest 與 CI 狀態見 [2.2 發版準備](releases/fork-v2.2.0.md)。
+發版 SHA／digest 與 CI 狀態見 [GitHub Release](https://github.com/DF-wu/CapsWriter-Offline-Container/releases/tag/fork-v2.2.0)。
 
 ## 關閉與升級
 
