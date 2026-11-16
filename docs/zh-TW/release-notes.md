@@ -4,6 +4,11 @@
 
 ## fork-v2.2.0 — 未發布準備
 
+**Windows 桌面：** 新增可選的開機自動啟動（目前使用者的 `Run` 項目，可在設定視窗
+「啟動與系統」頁或托盤切換）、只保留托盤圖示的 `--autostart` 背景啟動、從托盤開啟
+設定時的「儲存並重新啟動 Client」、同時只開一個設定視窗，以及托盤／設定視窗開啟
+日誌資料夾。詳見[日常設定](../settings.md)。
+
 新增 `CAPSWRITER_TESLA_P4_OPTIMIZATION` 明確選用旗標，預設 `false`。
 未設定或關閉時保留原 CPU／Vulkan 選擇；開啟才使用固定 b7798／CUDA 11.8／SM61
 decoder，並驗證實際 CUDA 裝置為 Tesla P4。權重仍為原 FP16 ONNX encoder＋Q5_K_M

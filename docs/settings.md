@@ -41,6 +41,33 @@ Windows desktop acceptance check.
 以最後儲存為準。「恢復 Python 設定」會清除所有覆寫，舊視窗下次儲存不會
 帶回未修改的舊值。同目錄的 `.lock` 檔為持續保留的鎖，無須手動刪除。
 
+## 開機自動啟動與套用設定 / Start at login and applying changes
+
+「啟動與系統」頁或托盤的「開機自動啟動」會在
+`HKCU\Software\Microsoft\Windows\CurrentVersion\Run` 寫入 `CapsWriter Client`，
+命令為 `start_client.exe --autostart`（原始碼版為目前 Python 加 `start_client.py --autostart`）。
+不需系統管理員權限，也不寫入 `client-settings.json`；狀態以登錄檔為準，
+可在「工作管理員 → 啟動應用程式」停用。視窗會分辨三種異常：被工作管理員停用、
+程式資料夾搬移後路徑不符、非 Windows 平臺；重新勾選並儲存即更新路徑並清除停用標記。
+
+`--autostart` 與一般啟動相同，只是在載入音訊與快捷鍵前先隱藏主控台；托盤停用
+（`enable_tray = False`）或托盤無法建立時會保留／還原主控台，確保仍可操作與退出。
+已有 Client 執行時，登入啟動會直接結束，不會多開。
+
+從托盤開啟的設定視窗多一個「儲存並重新啟動 Client」：儲存成功後，設定視窗以結束代碼
+通知原 Client，原 Client 走與托盤「重启」相同的流程重新啟動。直接執行
+`start_client.exe --settings` 時沒有此按鈕，請儲存後從托盤選「重启」。
+托盤同時只開啟一個設定視窗。
+
+The Startup & system tab and the tray's *Start at login* item register
+`start_client.exe --autostart` under the per-user `Run` key (no admin rights, not
+stored in the JSON file). Task Manager can still disable it; the window reports a
+disabled entry or a moved installation, and re-ticking + saving repairs both.
+`--autostart` hides the console before loading audio/hooks, but restores it when
+the tray is disabled or unavailable. A settings window opened from the tray offers
+*Save and restart client*, which saves and then restarts the running client through
+the tray's normal restart path.
+
 ## 組合快捷鍵與錄製 / Shortcut combinations and recording
 
 在「錄音與快捷鍵」選取要修改的項目，可手動填入按鍵名稱，也可按「錄製按鍵」，

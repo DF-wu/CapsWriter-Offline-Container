@@ -269,8 +269,12 @@ class _TraySystem:
 
         # 添加额外选项
         if more_options:
-            for opt_name, opt_func in more_options:
-                menu_items.append(item(opt_name, opt_func))
+            # (名稱, 回呼) 或 (名稱, 回呼, checked)，後者顯示為可勾選項目。
+            for opt_name, opt_func, *checked in more_options:
+                if checked:
+                    menu_items.append(item(opt_name, opt_func, checked=checked[0]))
+                else:
+                    menu_items.append(item(opt_name, opt_func))
 
         menu_items.append(item('🔄 重启', self.on_restart))
         menu_items.append(item('❌ 退出', self.on_exit))
@@ -302,8 +306,8 @@ class _TraySystem:
                     user32.ShowWindow(self.hwnd, SW_HIDE)
             time.sleep(0.2)
 
-    def on_restart(self, icon, item) -> None:
-        """新客戶端等待舊實例釋放鎖；退出走與選單相同的完整流程。"""
+    def on_restart(self, icon, item) -> bool:
+        """新客戶端等待舊實例釋放鎖；退出走與選單相同的完整流程。回傳是否已啟動新實例。"""
         logger.info("托盘重启: 用户点击重启菜单，准备重启程序")
         try:
             if getattr(sys, 'frozen', False):
@@ -314,9 +318,10 @@ class _TraySystem:
             _launch_detached_process(cmd)
         except Exception as e:
             logger.error(f"重启失败: {e}")
-            return
+            return False
 
         self.on_exit(icon, item)
+        return True
 
     def on_exit(self, icon, item) -> None:
         """托盘退出处理"""
@@ -387,7 +392,7 @@ class _TraySystem:
         self._monitor_thread.start()
 
 
-def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = None, exit_callback=None, more_options: list = None, restart_args: Optional[list[str]] = None) -> None:
+def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = None, exit_callback=None, more_options: list = None, restart_args: Optional[list[str]] = None) -> bool:
     """
     启用最小化到托盘功能
 
@@ -398,7 +403,10 @@ def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = No
         name: 托盘图标显示的名称，默认使用程序名称
         icon_path: 图标文件路径，默认动态生成
         exit_callback: 退出回调函数，当用户点击托盘退出菜单时调用
-        more_options: 额外菜单项列表，格式为 [(名称, 回调函数), ...]
+        more_options: 额外菜单项列表，格式为 [(名称, 回调函数), ...] 或 [(名称, 回调函数, checked), ...]
+
+    Returns:
+        托盤是否已建立；False 時呼叫端應保留主控台作為操作入口。
     """
     global _tray_instance
 
@@ -409,7 +417,7 @@ def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = No
     # 检查托盘功能是否可用
     if not _check_tray_available():
         logger.info("托盘功能不可用，跳过启用")
-        return
+        return False
 
     # DPI 感知设置
     try:
@@ -420,11 +428,32 @@ def enable_min_to_tray(name: Optional[str] = None, icon_path: Optional[str] = No
 
     with _lock:
         if _tray_instance is not None:
-            return  # 已启动
+            return True  # 已启动
 
         _tray_instance = _TraySystem(name, icon_path, more_options, restart_args)
         _tray_instance.start()
+    return True
 
+
+
+def refresh_menu() -> None:
+    """選單外部改變了勾選狀態（如設定視窗）時，重新產生 Windows 選單。"""
+    with _lock:
+        instance = _tray_instance
+    if instance is not None and not instance.should_exit:
+        try:
+            instance.icon.update_menu()
+        except Exception as e:
+            logger.debug(f"更新托盘菜单失败: {e}")
+
+
+def request_restart() -> bool:
+    """供其他執行緒（如設定視窗結束後）要求與托盤「重启」相同的流程。"""
+    with _lock:
+        instance = _tray_instance
+    if instance is None or instance.should_exit:
+        return False
+    return bool(instance.on_restart(None, None))
 
 
 def stop_tray() -> None:

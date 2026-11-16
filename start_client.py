@@ -17,15 +17,27 @@ def main(argv: list[str] | None = None) -> int | None:
         run_settings()
         return 0
 
+    from fork_client.autostart import AUTOSTART_ARGUMENT
     from fork_client.instance import (
-        ClientInstance, RESTART_WAIT_ARGUMENT, RESTART_WAIT_SECONDS, report_status,
+        ClientInstance, RESTART_WAIT_ARGUMENT, RESTART_WAIT_SECONDS,
+        SETTINGS_FROM_CLIENT_ARGUMENT, SETTINGS_RESTART_EXIT_CODE, report_status,
     )
+
+    if selected_args == ["--settings", SETTINGS_FROM_CLIENT_ARGUMENT]:
+        from fork_client.settings_ui import open_settings
+
+        # 由執行中 Client 的托盤開啟；以結束代碼要求該 Client 自行重新啟動。
+        window = open_settings(from_client=True)
+        return SETTINGS_RESTART_EXIT_CODE if window.restart_requested else 0
 
     if selected_args == ["--status"]:
         return report_status()
     restart = selected_args == [RESTART_WAIT_ARGUMENT]
-    if restart:
+    autostart = selected_args == [AUTOSTART_ARGUMENT]
+    if restart or autostart:
         selected_args = []
+    if autostart:
+        _hide_console_for_autostart()
     # 在首次設定、logger、音訊與快捷鍵 import 之前取得鎖。檔案轉錄不占用麥克風鎖。
     instance = ClientInstance() if not selected_args else None
     try:
@@ -42,6 +54,16 @@ def main(argv: list[str] | None = None) -> int | None:
     finally:
         if instance is not None:
             instance.release()
+
+
+def _hide_console_for_autostart() -> None:
+    """登入啟動時立即隱藏主控台；只在托盤可作為操作入口時才隱藏。"""
+    from config_client import ClientConfig
+
+    if ClientConfig.enable_tray:
+        from fork_client.console_window import hide_console
+
+        hide_console()
 
 
 def _run_client(selected_args: list[str]) -> int | None:

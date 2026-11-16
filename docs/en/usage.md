@@ -73,7 +73,8 @@ The client console shows duration, latency and result for every recording:
 ## 3. Settings window
 
 Run `start_client.exe --settings` (from source: `python scripts/dev.py client --settings`)
-or choose **設定 (Settings)** in the tray menu. Changes apply after **restarting the client**.
+or choose **設定 (Settings)** in the tray menu. Changes apply after **restarting the client**;
+when opened from the tray, **儲存並重新啟動 Client (Save and restart client)** does both in one step.
 
 | Connection (連線) | Recording & shortcuts (錄音與快捷鍵) | Output (輸出) |
 |---|---|---|
@@ -88,6 +89,10 @@ or choose **設定 (Settings)** in the tray menu. Changes apply after **restarti
   (阻擋原按鍵) a short press re-sends the original key.
 - **Output**: tick "convert to Traditional Chinese" (轉為繁體中文) and choose `zh-hant`,
   `zh-tw` or `zh-hk`.
+- **Startup & system** (啟動與系統): tick "start the client when I sign in to Windows" to
+  launch it in the background at login (tray only, no console window). It uses the per-user
+  startup list, needs no administrator rights, and applies immediately on save. Buttons open
+  the log, settings and program folders.
 - **Settings source** (設定來源): shows the settings file; "restore Python settings" clears
   every override and falls back to `config_client.py`.
 
@@ -100,7 +105,9 @@ edit [`config_client.py`](../../config_client.py). See [daily settings](../setti
 | Item | Purpose |
 |---|---|
 | 显示/隐藏 (show/hide) | Toggle the client console (double-click the icon also works) |
-| **設定 (Settings)** | Open the settings window above |
+| **設定 (Settings)** | Open the settings window above (only one window at a time) |
+| **開機自動啟動 (Start at login)** | Tick/untick starting the client when you sign in to Windows |
+| **日誌 (Logs)** | Open the log folder (`client_latest.log`) |
 | 复制结果 (copy result) | Copy the last recognition result |
 | 日记 (diary) | Open this month's diary folder |
 | 上下文 (context) | Edit the prompt sent to the model (names, jargon) |
