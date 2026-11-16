@@ -63,6 +63,7 @@ API; the desktop client uses WebSocket and normally does not.
 | [v1/v2 maintenance policy](versioning.md) | Maintainers and users planning upgrades |
 | [Architecture](../architecture.md) | Contributors changing server, sidecar, or routing integration |
 | [Current fork state](../state-of-fork.md) | Reviewers checking implementation and evidence inventory |
+| [Qwen3-ASR quantization and RX570 research](rx570-research-20261115.md) | November 10–15 scientific report, static figures, historical evidence and offline reproduction |
 | [Upstream synchronization](../upstream-sync-guide.md) | Maintainers merging released upstream changes |
 | [Upstream product changelog](../CHANGELOG.md) | Recognition-engine and upstream desktop history |
 

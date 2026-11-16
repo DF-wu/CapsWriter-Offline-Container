@@ -1,0 +1,266 @@
+[
+  {
+    "index": 0,
+    "name": "reference",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/0"
+    }
+  },
+  {
+    "index": 1,
+    "name": "reference",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/1"
+    }
+  },
+  {
+    "index": 2,
+    "name": "reference",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/2"
+    }
+  },
+  {
+    "index": 3,
+    "name": "short",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/3"
+    }
+  },
+  {
+    "index": 4,
+    "name": "short",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/4"
+    }
+  },
+  {
+    "index": 5,
+    "name": "short",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/5"
+    }
+  },
+  {
+    "index": 6,
+    "name": "long",
+    "exact_text_parity": false,
+    "exact_decoder_id_parity": false,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0000000000000002,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/6"
+    }
+  },
+  {
+    "index": 7,
+    "name": "long",
+    "exact_text_parity": false,
+    "exact_decoder_id_parity": false,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0000000000000002,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/7"
+    }
+  },
+  {
+    "index": 8,
+    "name": "long",
+    "exact_text_parity": false,
+    "exact_decoder_id_parity": false,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0000000000000002,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/8"
+    }
+  },
+  {
+    "index": 9,
+    "name": "mandarin",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/9"
+    }
+  },
+  {
+    "index": 10,
+    "name": "mandarin",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/10"
+    }
+  },
+  {
+    "index": 11,
+    "name": "mandarin",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/11"
+    }
+  },
+  {
+    "index": 12,
+    "name": "mandarin_long",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 0.9999999999999998,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/12"
+    }
+  },
+  {
+    "index": 13,
+    "name": "mandarin_long",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 0.9999999999999998,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/13"
+    }
+  },
+  {
+    "index": 14,
+    "name": "mandarin_long",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 0.9999999999999998,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/14"
+    }
+  },
+  {
+    "index": 15,
+    "name": "noninteger",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/15"
+    }
+  },
+  {
+    "index": 16,
+    "name": "noninteger",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/16"
+    }
+  },
+  {
+    "index": 17,
+    "name": "noninteger",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/17"
+    }
+  },
+  {
+    "index": 18,
+    "name": "reference",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/18"
+    }
+  },
+  {
+    "index": 19,
+    "name": "reference",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/19"
+    }
+  },
+  {
+    "index": 20,
+    "name": "short",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/20"
+    }
+  },
+  {
+    "index": 21,
+    "name": "short",
+    "exact_text_parity": true,
+    "exact_decoder_id_parity": true,
+    "cpu_encoder_embedding_relative_l2": 0.0,
+    "cpu_encoder_embedding_cosine": 1.0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/summary.json",
+      "selector": "/comparison/21"
+    }
+  }
+]

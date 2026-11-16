@@ -1,0 +1,110 @@
+[
+  {
+    "mode": "cpu",
+    "stage": "readiness",
+    "seconds": 4.732740340999953,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:2"
+    }
+  },
+  {
+    "mode": "cpu",
+    "stage": "encoder_load_and_builtin_warmup",
+    "seconds": 1.3994609890014544,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:1"
+    }
+  },
+  {
+    "mode": "cpu",
+    "stage": "decoder_model_load",
+    "seconds": 1.59774910699889,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:2"
+    }
+  },
+  {
+    "mode": "cpu",
+    "stage": "engine_load",
+    "seconds": 3.0594447839994245,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:3"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "stage": "readiness",
+    "seconds": 3.728905506999581,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:2"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "stage": "encoder_load_and_builtin_warmup",
+    "seconds": 1.3813709240002936,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:1"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "stage": "decoder_model_load",
+    "seconds": 0.5965234529994632,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:2"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "stage": "engine_load",
+    "seconds": 2.083358550999037,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:3"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "stage": "readiness",
+    "seconds": 31.107709824000267,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:2"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "stage": "encoder_load_and_builtin_warmup",
+    "seconds": 28.612410376999833,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:1"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "stage": "decoder_model_load",
+    "seconds": 0.6861827100001392,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:2"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "stage": "engine_load",
+    "seconds": 29.41079640299904,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:3"
+    }
+  }
+]

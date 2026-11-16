@@ -1,0 +1,267 @@
+{
+  "source_root_label": "RX-SOURCE",
+  "scenarios": {
+    "status": "Illustrative assumptions, not measured RX570 ASR or statistical intervals",
+    "formula": "T = mel + encoder + prompt_positions/r_prefill + text_tokens/r_decode + overhead",
+    "rows": [
+      {
+        "audio_s": 2,
+        "prompt_positions": 46,
+        "text_tokens": 3,
+        "backend": "Patched HIP",
+        "decoder_s": [
+          0.1295,
+          0.42666666666666664
+        ],
+        "other_budget_s": [
+          0.1,
+          0.5
+        ],
+        "q5_total_s": [
+          0.2295,
+          0.9266666666666666
+        ],
+        "q6_total_s": [
+          0.2036,
+          1.0546666666666666
+        ]
+      },
+      {
+        "audio_s": 2,
+        "prompt_positions": 46,
+        "text_tokens": 3,
+        "backend": "Vulkan",
+        "decoder_s": [
+          0.076,
+          0.23904761904761904
+        ],
+        "other_budget_s": [
+          0.1,
+          0.5
+        ],
+        "q5_total_s": [
+          0.176,
+          0.7390476190476191
+        ],
+        "q6_total_s": [
+          0.1608,
+          0.8107619047619048
+        ]
+      },
+      {
+        "audio_s": 5,
+        "prompt_positions": 85,
+        "text_tokens": 11,
+        "backend": "Patched HIP",
+        "decoder_s": [
+          0.3075,
+          1.0066666666666666
+        ],
+        "other_budget_s": [
+          0.15,
+          0.85
+        ],
+        "q5_total_s": [
+          0.4575,
+          1.8566666666666665
+        ],
+        "q6_total_s": [
+          0.396,
+          2.1586666666666665
+        ]
+      },
+      {
+        "audio_s": 5,
+        "prompt_positions": 85,
+        "text_tokens": 11,
+        "backend": "Vulkan",
+        "decoder_s": [
+          0.195,
+          0.5976190476190476
+        ],
+        "other_budget_s": [
+          0.15,
+          0.85
+        ],
+        "q5_total_s": [
+          0.345,
+          1.4476190476190476
+        ],
+        "q6_total_s": [
+          0.30600000000000005,
+          1.6269047619047619
+        ]
+      },
+      {
+        "audio_s": 10,
+        "prompt_positions": 150,
+        "text_tokens": 24,
+        "backend": "Patched HIP",
+        "decoder_s": [
+          0.6,
+          1.96
+        ],
+        "other_budget_s": [
+          0.25,
+          1.5
+        ],
+        "q5_total_s": [
+          0.85,
+          3.46
+        ],
+        "q6_total_s": [
+          0.73,
+          4.048
+        ]
+      },
+      {
+        "audio_s": 10,
+        "prompt_positions": 150,
+        "text_tokens": 24,
+        "backend": "Vulkan",
+        "decoder_s": [
+          0.39,
+          1.1857142857142857
+        ],
+        "other_budget_s": [
+          0.25,
+          1.5
+        ],
+        "q5_total_s": [
+          0.64,
+          2.685714285714286
+        ],
+        "q6_total_s": [
+          0.562,
+          3.041428571428572
+        ]
+      },
+      {
+        "audio_s": 30,
+        "prompt_positions": 410,
+        "text_tokens": 72,
+        "backend": "Patched HIP",
+        "decoder_s": [
+          1.72,
+          5.613333333333333
+        ],
+        "other_budget_s": [
+          0.65,
+          4.5
+        ],
+        "q5_total_s": [
+          2.37,
+          10.113333333333333
+        ],
+        "q6_total_s": [
+          2.0260000000000002,
+          11.797333333333334
+        ]
+      },
+      {
+        "audio_s": 30,
+        "prompt_positions": 410,
+        "text_tokens": 72,
+        "backend": "Vulkan",
+        "decoder_s": [
+          1.13,
+          3.4238095238095236
+        ],
+        "other_budget_s": [
+          0.65,
+          4.5
+        ],
+        "q5_total_s": [
+          1.7799999999999998,
+          7.923809523809524
+        ],
+        "q6_total_s": [
+          1.5539999999999998,
+          8.95095238095238
+        ]
+      }
+    ]
+  },
+  "historical_p4": {
+    "source": "REPOSITORY/docs/reports/experiments/p4-exclusive-20261101/results/summary.json",
+    "date": "2026-11-01",
+    "provenance": "Historical local P4 experiment; no measurements performed in this task",
+    "configurations": {
+      "cuda-q5": {
+        "mandarin-10s": {
+          "wall_s": 0.5831109829960042,
+          "encoder_s": 0.08828143100254238,
+          "frontend_s": 0.029219097501481883,
+          "backend_s": 0.03739633099758066,
+          "prefill_s": 0.011028647422790527,
+          "generate_s": 0.4704078435897827,
+          "n_generate": 24.0
+        },
+        "mandarin-2s": {
+          "wall_s": 0.13346191799791995,
+          "encoder_s": 0.026248662506986875,
+          "frontend_s": 0.006369339498633053,
+          "backend_s": 0.014472391994786449,
+          "prefill_s": 0.009824275970458984,
+          "generate_s": 0.08425307273864746,
+          "n_generate": 3.0
+        },
+        "mandarin-5s": {
+          "wall_s": 0.30259669150109403,
+          "encoder_s": 0.04932179950264981,
+          "frontend_s": 0.014646652998635545,
+          "backend_s": 0.023497420006606262,
+          "prefill_s": 0.010391712188720703,
+          "generate_s": 0.22851884365081787,
+          "n_generate": 11.0
+        }
+      },
+      "cuda-q6": {
+        "mandarin-10s": {
+          "wall_s": 0.6559182339988183,
+          "encoder_s": 0.09444263999466784,
+          "frontend_s": 0.03120886599936057,
+          "backend_s": 0.03940371499629691,
+          "prefill_s": 0.012671828269958496,
+          "generate_s": 0.5299947261810303,
+          "n_generate": 24.0
+        },
+        "mandarin-2s": {
+          "wall_s": 0.14404498949443223,
+          "encoder_s": 0.028266753499337938,
+          "frontend_s": 0.0066802599976654164,
+          "backend_s": 0.014667520001239609,
+          "prefill_s": 0.01131582260131836,
+          "generate_s": 0.09223759174346924,
+          "n_generate": 3.0
+        },
+        "mandarin-5s": {
+          "wall_s": 0.35651004149985965,
+          "encoder_s": 0.05287152749224333,
+          "frontend_s": 0.015548654497251846,
+          "backend_s": 0.024355939000088256,
+          "prefill_s": 0.011837363243103027,
+          "generate_s": 0.2779552936553955,
+          "n_generate": 12.0
+        }
+      }
+    }
+  },
+  "sources": [
+    {
+      "file": "scenarios.json",
+      "sha256": "5cc2195c15ea140c7e87e242ed21ba8b685e6e683ff887cafec910c0b5a539d5",
+      "bytes": 3380
+    },
+    {
+      "file": "evidence/historical-p4-selected.json",
+      "sha256": "0b6e95f77f88c9649201bc2eae5aaf9682de3b61173ea99feb01c62314175bf9",
+      "bytes": 2182
+    },
+    {
+      "file": "REPORT.md",
+      "sha256": "116e450a2ce7ad6412424fc8966cba4a4fab170e1c2dc1b686e80029e6c14596",
+      "bytes": 19738
+    }
+  ]
+}

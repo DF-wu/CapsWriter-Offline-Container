@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="750" viewBox="0 0 1120 750" role="img"><title>Installed system: hybrid has the lowest repeat HTTP latency</title><desc>Bars: medians; outlined points: all repeats. n=3 reference/short, n=2 otherwise. Serial instrumented runs.</desc>
+<rect width="1120" height="100%" fill="white"/>
+<style>text{font-family:DejaVu Sans,Arial,sans-serif;fill:#20323f;font-size:15px}.small{font-size:13px;fill:#52616b}.title{font-size:25px;font-weight:700}.sub{font-size:15px;fill:#52616b}</style>
+<text x="34.00" y="40.00" class="title" text-anchor="start">Installed system: hybrid has the lowest repeat HTTP latency</text>
+<text x="34.00" y="68.00" class="sub" text-anchor="start">Bars: medians; outlined points: all repeats. n=3 reference/short, n=2 otherwise. Serial instrumented runs.</text>
+<rect x="34.00" y="88.00" width="18.00" height="13.00" rx="0" fill="#586777" stroke="none"/>
+<text x="62.00" y="100.00" class="" text-anchor="start">CPU</text>
+<rect x="354.00" y="88.00" width="18.00" height="13.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="382.00" y="100.00" class="" text-anchor="start">CPU + Vulkan</text>
+<rect x="674.00" y="88.00" width="18.00" height="13.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="702.00" y="100.00" class="" text-anchor="start">MIGraphX + Vulkan</text>
+<line x1="260.00" y1="140.00" x2="260.00" y2="650.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="260.00" y="680.00" class="" text-anchor="middle">0</text>
+<line x1="355.00" y1="140.00" x2="355.00" y2="650.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="355.00" y="680.00" class="" text-anchor="middle">1</text>
+<line x1="450.00" y1="140.00" x2="450.00" y2="650.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="450.00" y="680.00" class="" text-anchor="middle">2</text>
+<line x1="545.00" y1="140.00" x2="545.00" y2="650.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="545.00" y="680.00" class="" text-anchor="middle">3</text>
+<line x1="640.00" y1="140.00" x2="640.00" y2="650.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="640.00" y="680.00" class="" text-anchor="middle">4</text>
+<line x1="735.00" y1="140.00" x2="735.00" y2="650.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="735.00" y="680.00" class="" text-anchor="middle">5</text>
+<line x1="830.00" y1="140.00" x2="830.00" y2="650.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="830.00" y="680.00" class="" text-anchor="middle">6</text>
+<line x1="925.00" y1="140.00" x2="925.00" y2="650.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="925.00" y="680.00" class="" text-anchor="middle">7</text>
+<line x1="1020.00" y1="140.00" x2="1020.00" y2="650.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="1020.00" y="680.00" class="" text-anchor="middle">8</text>
+<text x="245.00" y="162.00" class="" text-anchor="end">Short English</text>
+<text x="245.00" y="183.00" class="small" text-anchor="end">2.245 s audio</text>
+<rect x="260.00" y="145.00" width="105.13" height="16.00" rx="0" fill="#586777" stroke="none"/>
+<circle cx="365.13" cy="150.00" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<circle cx="365.15" cy="153.00" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<circle cx="365.02" cy="156.00" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<text x="375.15" y="158.00" class="small" text-anchor="start">1.107</text>
+<rect x="260.00" y="166.00" width="63.39" height="16.00" rx="0" fill="#007f83" stroke="none"/>
+<circle cx="323.27" cy="171.00" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<circle cx="323.39" cy="174.00" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<circle cx="324.17" cy="177.00" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<text x="334.17" y="179.00" class="small" text-anchor="start">0.667</text>
+<rect x="260.00" y="187.00" width="88.77" height="16.00" rx="0" fill="#b95524" stroke="none"/>
+<circle cx="347.97" cy="192.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="349.62" cy="195.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="348.77" cy="198.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="359.62" y="200.00" class="small" text-anchor="start">0.934</text>
+<text x="245.00" y="246.00" class="" text-anchor="end">Reference English</text>
+<text x="245.00" y="267.00" class="small" text-anchor="end">5.855 s audio</text>
+<rect x="260.00" y="229.00" width="191.90" height="16.00" rx="0" fill="#586777" stroke="none"/>
+<circle cx="452.09" cy="234.00" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<circle cx="451.90" cy="237.00" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<circle cx="450.63" cy="240.00" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<text x="462.09" y="242.00" class="small" text-anchor="start">2.020</text>
+<rect x="260.00" y="250.00" width="96.71" height="16.00" rx="0" fill="#007f83" stroke="none"/>
+<circle cx="359.92" cy="255.00" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<circle cx="356.16" cy="258.00" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<circle cx="356.71" cy="261.00" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<text x="369.92" y="263.00" class="small" text-anchor="start">1.018</text>
+<rect x="260.00" y="271.00" width="158.81" height="16.00" rx="0" fill="#b95524" stroke="none"/>
+<circle cx="418.64" cy="276.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="419.36" cy="279.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="418.81" cy="282.00" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="429.36" y="284.00" class="small" text-anchor="start">1.672</text>
+<text x="245.00" y="330.00" class="" text-anchor="end">Mandarin</text>
+<text x="245.00" y="351.00" class="small" text-anchor="end">4.281 s audio</text>
+<rect x="260.00" y="313.00" width="127.42" height="16.00" rx="0" fill="#586777" stroke="none"/>
+<circle cx="386.69" cy="319.50" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<circle cx="388.14" cy="322.50" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<text x="398.14" y="326.00" class="small" text-anchor="start">1.341</text>
+<rect x="260.00" y="334.00" width="70.29" height="16.00" rx="0" fill="#007f83" stroke="none"/>
+<circle cx="330.10" cy="340.50" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<circle cx="330.48" cy="343.50" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<text x="340.48" y="347.00" class="small" text-anchor="start">0.740</text>
+<rect x="260.00" y="355.00" width="88.03" height="16.00" rx="0" fill="#b95524" stroke="none"/>
+<circle cx="347.33" cy="361.50" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="348.72" cy="364.50" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="358.72" y="368.00" class="small" text-anchor="start">0.927</text>
+<text x="245.00" y="414.00" class="" text-anchor="end">Long English</text>
+<text x="245.00" y="435.00" class="small" text-anchor="end">29.4 s audio</text>
+<rect x="260.00" y="397.00" width="720.04" height="16.00" rx="0" fill="#586777" stroke="none"/>
+<circle cx="993.16" cy="403.50" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<circle cx="966.93" cy="406.50" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<text x="1003.16" y="410.00" class="small" text-anchor="start">7.579</text>
+<rect x="260.00" y="418.00" width="325.43" height="16.00" rx="0" fill="#007f83" stroke="none"/>
+<circle cx="583.88" cy="424.50" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<circle cx="586.99" cy="427.50" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<text x="596.99" y="431.00" class="small" text-anchor="start">3.426</text>
+<rect x="260.00" y="439.00" width="554.72" height="16.00" rx="0" fill="#b95524" stroke="none"/>
+<circle cx="814.59" cy="445.50" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="814.85" cy="448.50" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="824.85" y="452.00" class="small" text-anchor="start">5.839</text>
+<text x="245.00" y="498.00" class="" text-anchor="end">Synthetic Mandarin-long</text>
+<text x="245.00" y="519.00" class="small" text-anchor="end">26.936 s audio</text>
+<rect x="260.00" y="481.00" width="487.85" height="16.00" rx="0" fill="#586777" stroke="none"/>
+<circle cx="743.25" cy="487.50" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<circle cx="752.45" cy="490.50" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<text x="762.45" y="494.00" class="small" text-anchor="start">5.135</text>
+<rect x="260.00" y="502.00" width="195.56" height="16.00" rx="0" fill="#007f83" stroke="none"/>
+<circle cx="455.59" cy="508.50" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<circle cx="455.54" cy="511.50" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<text x="465.59" y="515.00" class="small" text-anchor="start">2.059</text>
+<rect x="260.00" y="523.00" width="266.34" height="16.00" rx="0" fill="#b95524" stroke="none"/>
+<circle cx="526.38" cy="529.50" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="526.30" cy="532.50" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="536.38" y="536.00" class="small" text-anchor="start">2.804</text>
+<text x="245.00" y="582.00" class="" text-anchor="end">Noninteger English</text>
+<text x="245.00" y="603.00" class="small" text-anchor="end">5.97831 s audio</text>
+<rect x="260.00" y="565.00" width="191.54" height="16.00" rx="0" fill="#586777" stroke="none"/>
+<circle cx="449.34" cy="571.50" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<circle cx="453.73" cy="574.50" r="3" fill="white" stroke="#586777" stroke-width="2"/>
+<text x="463.73" y="578.00" class="small" text-anchor="start">2.016</text>
+<rect x="260.00" y="586.00" width="95.92" height="16.00" rx="0" fill="#007f83" stroke="none"/>
+<circle cx="356.22" cy="592.50" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<circle cx="355.62" cy="595.50" r="3" fill="white" stroke="#007f83" stroke-width="2"/>
+<text x="366.22" y="599.00" class="small" text-anchor="start">1.010</text>
+<rect x="260.00" y="607.00" width="158.87" height="16.00" rx="0" fill="#b95524" stroke="none"/>
+<circle cx="418.70" cy="613.50" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<circle cx="419.04" cy="616.50" r="3" fill="white" stroke="#b95524" stroke-width="2"/>
+<text x="429.04" y="620.00" class="small" text-anchor="start">1.672</text>
+<text x="640.00" y="717.00" class="" text-anchor="middle">HTTP CLI file-to-transcript wall time (seconds); zero baseline</text>
+</svg>

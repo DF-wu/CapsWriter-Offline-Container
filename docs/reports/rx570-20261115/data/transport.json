@@ -1,0 +1,113 @@
+[
+  {
+    "mode": "cpu",
+    "type": "websocket_result",
+    "seconds": 1.7017767740017007,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:26"
+    }
+  },
+  {
+    "mode": "cpu",
+    "type": "websocket_invalid",
+    "close_code": 1008,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:27"
+    }
+  },
+  {
+    "mode": "cpu",
+    "type": "http_invalid",
+    "status": 400,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:28"
+    }
+  },
+  {
+    "mode": "cpu",
+    "type": "server_stopped",
+    "seconds": 0.5640945039995131,
+    "exit_code": 0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+      "selector": "line:29"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "type": "websocket_result",
+    "seconds": 0.7343056949994207,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:26"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "type": "websocket_invalid",
+    "close_code": 1008,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:27"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "type": "http_invalid",
+    "status": 400,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:28"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "type": "server_stopped",
+    "seconds": 0.5655971159994806,
+    "exit_code": 0,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+      "selector": "line:29"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "type": "websocket_result",
+    "seconds": 17.20366759799981,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:26"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "type": "websocket_invalid",
+    "close_code": 1008,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:27"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "type": "http_invalid",
+    "status": 400,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:28"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "type": "server_stopped",
+    "seconds": 0.5643904939988715,
+    "exit_code": 0,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+      "selector": "line:29"
+    }
+  }
+]

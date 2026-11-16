@@ -1,0 +1,4790 @@
+[
+  {
+    "mode": "cpu",
+    "sequence": 0,
+    "queue_s": 0.013457775115966797,
+    "pipeline_s": 1.742448269000306,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.012418443000569823,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.09041550200163329,
+    "backend_s": 0.11267564799891261,
+    "encoder_s": 0.21552763300132938,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.002294023999638739,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.5043904929989367,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.8202817440032959,
+        "t_generate": 0.673520565032959,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:4"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 1,
+    "queue_s": 0.0010578632354736328,
+    "pipeline_s": 1.7310399699999834,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.02049355300005118,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.09694571599902702,
+    "backend_s": 0.11230912300015916,
+    "encoder_s": 0.2297655719994509,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0019198580012016464,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.4976595349999116,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.816892147064209,
+        "t_generate": 0.6707911491394043,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:5"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 2,
+    "queue_s": 0.0010633468627929688,
+    "pipeline_s": 1.7321417760012991,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.024648492000778788,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.10109036900030333,
+    "backend_s": 0.11197391800124024,
+    "encoder_s": 0.23772996899970167,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0018306869988009566,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.490939346000232,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.8088774681091309,
+        "t_generate": 0.6715667247772217,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:6"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 3,
+    "queue_s": 0.0008628368377685547,
+    "pipeline_s": 0.8258269859998109,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.004270211999028106,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.05772717899890267,
+    "backend_s": 0.05922229200041329,
+    "encoder_s": 0.12123804400107474,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0016481929997098632,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.7015826980004931,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.44661521911621094,
+        "t_generate": 0.2444901466369629,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:7"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 4,
+    "queue_s": 0.0009667873382568359,
+    "pipeline_s": 0.8132772619992465,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.0013906610001868103,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.06094165800095652,
+    "backend_s": 0.058417119000296225,
+    "encoder_s": 0.12076581800101849,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0016377640004066052,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.6894206889992347,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.4376091957092285,
+        "t_generate": 0.24203872680664062,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:8"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 5,
+    "queue_s": 0.000980377197265625,
+    "pipeline_s": 0.8099077730003046,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.011793293999289745,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.051953105999928084,
+    "backend_s": 0.05751005499951134,
+    "encoder_s": 0.12127407600019069,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0016559340001549572,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.6856336330001795,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.4335756301879883,
+        "t_generate": 0.24197101593017578,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:9"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 6,
+    "queue_s": 0.002240419387817383,
+    "pipeline_s": 7.148565368999698,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 1881600,
+    "mel_s": 0.036284343999795965,
+    "mel_shape": [
+      128,
+      2940
+    ],
+    "frontend_s": 0.2938639759995567,
+    "backend_s": 0.39297414399879926,
+    "encoder_s": 0.723141744001623,
+    "embedding_shape": [
+      382,
+      2048
+    ],
+    "prompt_s": 0.003105555999354692,
+    "prompt_shape": [
+      404,
+      2048
+    ],
+    "decoder_s": 6.4188405470013095,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mr. Birkit Foster's landscapes smile at one much in the same way that Mr. Carker used to flash his teeth, and Mr. John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "attempts": [
+      {
+        "stable_tokens": [
+          50597,
+          613,
+          594,
+          9185,
+          525,
+          264,
+          3378,
+          315,
+          3138,
+          69285,
+          323,
+          15037,
+          35592,
+          11,
+          323,
+          28827,
+          594,
+          58608,
+          877,
+          24705,
+          82,
+          525,
+          438,
+          5313,
+          438,
+          264,
+          502,
+          27908,
+          32794,
+          13,
+          4392,
+          13,
+          36819,
+          8226,
+          38174,
+          594,
+          54790,
+          15289,
+          518,
+          825,
+          1753,
+          304,
+          279,
+          1852,
+          1616,
+          429,
+          4392,
+          13,
+          356,
+          12856,
+          1483,
+          311,
+          8217,
+          806,
+          17832,
+          11,
+          323,
+          4392,
+          13,
+          3757,
+          4254,
+          5623,
+          6696,
+          806,
+          2444,
+          465,
+          264,
+          70314,
+          50052,
+          389,
+          279,
+          1182,
+          1573,
+          566,
+          2727,
+          11,
+          1075,
+          264,
+          61932,
+          261,
+          304,
+          264,
+          23734,
+          8885,
+          11,
+          330,
+          5847,
+          883,
+          1189
+        ],
+        "t_prefill": 3.4305479526519775,
+        "t_generate": 2.9783005714416504,
+        "n_prefill": 404,
+        "n_generate": 89,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:10"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 7,
+    "queue_s": 0.0018248558044433594,
+    "pipeline_s": 7.421467709000353,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 1881600,
+    "mel_s": 0.027685196999300388,
+    "mel_shape": [
+      128,
+      2940
+    ],
+    "frontend_s": 0.2870963470013521,
+    "backend_s": 0.6509240119994502,
+    "encoder_s": 0.9657254260000627,
+    "embedding_shape": [
+      382,
+      2048
+    ],
+    "prompt_s": 0.00305214499894646,
+    "prompt_shape": [
+      404,
+      2048
+    ],
+    "decoder_s": 6.449077264000152,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mr. Birkit Foster's landscapes smile at one much in the same way that Mr. Carker used to flash his teeth, and Mr. John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "attempts": [
+      {
+        "stable_tokens": [
+          50597,
+          613,
+          594,
+          9185,
+          525,
+          264,
+          3378,
+          315,
+          3138,
+          69285,
+          323,
+          15037,
+          35592,
+          11,
+          323,
+          28827,
+          594,
+          58608,
+          877,
+          24705,
+          82,
+          525,
+          438,
+          5313,
+          438,
+          264,
+          502,
+          27908,
+          32794,
+          13,
+          4392,
+          13,
+          36819,
+          8226,
+          38174,
+          594,
+          54790,
+          15289,
+          518,
+          825,
+          1753,
+          304,
+          279,
+          1852,
+          1616,
+          429,
+          4392,
+          13,
+          356,
+          12856,
+          1483,
+          311,
+          8217,
+          806,
+          17832,
+          11,
+          323,
+          4392,
+          13,
+          3757,
+          4254,
+          5623,
+          6696,
+          806,
+          2444,
+          465,
+          264,
+          70314,
+          50052,
+          389,
+          279,
+          1182,
+          1573,
+          566,
+          2727,
+          11,
+          1075,
+          264,
+          61932,
+          261,
+          304,
+          264,
+          23734,
+          8885,
+          11,
+          330,
+          5847,
+          883,
+          1189
+        ],
+        "t_prefill": 3.4196667671203613,
+        "t_generate": 3.018498659133911,
+        "n_prefill": 404,
+        "n_generate": 89,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:11"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 8,
+    "queue_s": 0.002039670944213867,
+    "pipeline_s": 7.140977402999852,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 1881600,
+    "mel_s": 0.03641352600061509,
+    "mel_shape": [
+      128,
+      2940
+    ],
+    "frontend_s": 0.32066569100061315,
+    "backend_s": 0.3952256180000404,
+    "encoder_s": 0.752323474998775,
+    "embedding_shape": [
+      382,
+      2048
+    ],
+    "prompt_s": 0.0031011859991849633,
+    "prompt_shape": [
+      404,
+      2048
+    ],
+    "decoder_s": 6.381996858999628,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mr. Birkit Foster's landscapes smile at one much in the same way that Mr. Carker used to flash his teeth, and Mr. John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "attempts": [
+      {
+        "stable_tokens": [
+          50597,
+          613,
+          594,
+          9185,
+          525,
+          264,
+          3378,
+          315,
+          3138,
+          69285,
+          323,
+          15037,
+          35592,
+          11,
+          323,
+          28827,
+          594,
+          58608,
+          877,
+          24705,
+          82,
+          525,
+          438,
+          5313,
+          438,
+          264,
+          502,
+          27908,
+          32794,
+          13,
+          4392,
+          13,
+          36819,
+          8226,
+          38174,
+          594,
+          54790,
+          15289,
+          518,
+          825,
+          1753,
+          304,
+          279,
+          1852,
+          1616,
+          429,
+          4392,
+          13,
+          356,
+          12856,
+          1483,
+          311,
+          8217,
+          806,
+          17832,
+          11,
+          323,
+          4392,
+          13,
+          3757,
+          4254,
+          5623,
+          6696,
+          806,
+          2444,
+          465,
+          264,
+          70314,
+          50052,
+          389,
+          279,
+          1182,
+          1573,
+          566,
+          2727,
+          11,
+          1075,
+          264,
+          61932,
+          261,
+          304,
+          264,
+          23734,
+          8885,
+          11,
+          330,
+          5847,
+          883,
+          1189
+        ],
+        "t_prefill": 3.414506435394287,
+        "t_generate": 2.957439422607422,
+        "n_prefill": 404,
+        "n_generate": 89,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:12"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 9,
+    "queue_s": 0.0010094642639160156,
+    "pipeline_s": 0.9816062099998817,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 273984,
+    "mel_s": 0.008577165001042886,
+    "mel_shape": [
+      128,
+      428
+    ],
+    "frontend_s": 0.08047107400125242,
+    "backend_s": 0.0689062860001286,
+    "encoder_s": 0.15797123499942245,
+    "embedding_shape": [
+      56,
+      2048
+    ],
+    "prompt_s": 0.0016867150006873999,
+    "prompt_shape": [
+      78,
+      2048
+    ],
+    "decoder_s": 0.8204685079999763,
+    "text": "广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.6283566951751709,
+        "t_generate": 0.18234658241271973,
+        "n_prefill": 78,
+        "n_generate": 6,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:13"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 10,
+    "queue_s": 0.0009126663208007812,
+    "pipeline_s": 1.0371548479997728,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 273984,
+    "mel_s": 0.011986024999714573,
+    "mel_shape": [
+      128,
+      428
+    ],
+    "frontend_s": 0.08198659700065036,
+    "backend_s": 0.08998784499999601,
+    "encoder_s": 0.1839778479989036,
+    "embedding_shape": [
+      56,
+      2048
+    ],
+    "prompt_s": 0.0017419859996152809,
+    "prompt_shape": [
+      78,
+      2048
+    ],
+    "decoder_s": 0.8499676629999158,
+    "text": "广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.6574525833129883,
+        "t_generate": 0.1820068359375,
+        "n_prefill": 78,
+        "n_generate": 6,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:14"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 11,
+    "queue_s": 0.001131296157836914,
+    "pipeline_s": 1.048634807999406,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 273984,
+    "mel_s": 0.002237843000330031,
+    "mel_shape": [
+      128,
+      428
+    ],
+    "frontend_s": 0.08966141000018979,
+    "backend_s": 0.09016118799991091,
+    "encoder_s": 0.18207740100115188,
+    "embedding_shape": [
+      56,
+      2048
+    ],
+    "prompt_s": 0.0017410950003977632,
+    "prompt_shape": [
+      78,
+      2048
+    ],
+    "decoder_s": 0.8633082990018011,
+    "text": "广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.6698763370513916,
+        "t_generate": 0.1829690933227539,
+        "n_prefill": 78,
+        "n_generate": 6,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:15"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 12,
+    "queue_s": 0.0018277168273925781,
+    "pipeline_s": 4.7853966479997325,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 1723904,
+    "mel_s": 0.025632548000430688,
+    "mel_shape": [
+      128,
+      2693
+    ],
+    "frontend_s": 0.2639714159995492,
+    "backend_s": 0.34966665700085287,
+    "encoder_s": 0.6392903510004544,
+    "embedding_shape": [
+      350,
+      2048
+    ],
+    "prompt_s": 0.002991794999616104,
+    "prompt_shape": [
+      372,
+      2048
+    ],
+    "decoder_s": 4.139942895999411,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 3.1446385383605957,
+        "t_generate": 0.985222339630127,
+        "n_prefill": 372,
+        "n_generate": 30,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:16"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 13,
+    "queue_s": 0.0020363330841064453,
+    "pipeline_s": 4.785417349001364,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 1723904,
+    "mel_s": 0.024012394998862874,
+    "mel_shape": [
+      128,
+      2693
+    ],
+    "frontend_s": 0.2697565999988001,
+    "backend_s": 0.35870248199898924,
+    "encoder_s": 0.652490137001223,
+    "embedding_shape": [
+      350,
+      2048
+    ],
+    "prompt_s": 0.00297469300130615,
+    "prompt_shape": [
+      372,
+      2048
+    ],
+    "decoder_s": 4.126668610999332,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 3.130000352859497,
+        "t_generate": 0.9866898059844971,
+        "n_prefill": 372,
+        "n_generate": 30,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:17"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 14,
+    "queue_s": 0.0018072128295898438,
+    "pipeline_s": 4.884453029000724,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 1723904,
+    "mel_s": 0.024712713000553777,
+    "mel_shape": [
+      128,
+      2693
+    ],
+    "frontend_s": 0.31302528900050675,
+    "backend_s": 0.38800143099979323,
+    "encoder_s": 0.7257569729990792,
+    "embedding_shape": [
+      350,
+      2048
+    ],
+    "prompt_s": 0.0028695720011455705,
+    "prompt_shape": [
+      372,
+      2048
+    ],
+    "decoder_s": 4.152648637000311,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 3.1522438526153564,
+        "t_generate": 0.9904117584228516,
+        "n_prefill": 372,
+        "n_generate": 30,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:18"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 15,
+    "queue_s": 0.0011217594146728516,
+    "pipeline_s": 1.7199191700001393,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 382612,
+    "mel_s": 0.018270866999955615,
+    "mel_shape": [
+      128,
+      597
+    ],
+    "frontend_s": 0.09313424200081499,
+    "backend_s": 0.09970068800066656,
+    "encoder_s": 0.2111210269995354,
+    "embedding_shape": [
+      78,
+      2048
+    ],
+    "prompt_s": 0.0017675759991107043,
+    "prompt_shape": [
+      100,
+      2048
+    ],
+    "decoder_s": 1.5053539509990514,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.8247196674346924,
+        "t_generate": 0.6708204746246338,
+        "n_prefill": 100,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:19"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 16,
+    "queue_s": 0.0009713172912597656,
+    "pipeline_s": 1.6980744489992503,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 382612,
+    "mel_s": 0.0029655540001840563,
+    "mel_shape": [
+      128,
+      597
+    ],
+    "frontend_s": 0.08997608499885246,
+    "backend_s": 0.08625209000092582,
+    "encoder_s": 0.17921135899996443,
+    "embedding_shape": [
+      78,
+      2048
+    ],
+    "prompt_s": 0.001856348000728758,
+    "prompt_shape": [
+      100,
+      2048
+    ],
+    "decoder_s": 1.5152602779999143,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.8333055973052979,
+        "t_generate": 0.6720755100250244,
+        "n_prefill": 100,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:20"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 17,
+    "queue_s": 0.0009708404541015625,
+    "pipeline_s": 1.7464074519994028,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 382612,
+    "mel_s": 0.01692349900076806,
+    "mel_shape": [
+      128,
+      597
+    ],
+    "frontend_s": 0.09110389200031932,
+    "backend_s": 0.11539264000020921,
+    "encoder_s": 0.22343684099905659,
+    "embedding_shape": [
+      78,
+      2048
+    ],
+    "prompt_s": 0.0018304069999430794,
+    "prompt_shape": [
+      100,
+      2048
+    ],
+    "decoder_s": 1.5194724399989354,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.8377535343170166,
+        "t_generate": 0.6711740493774414,
+        "n_prefill": 100,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:21"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 18,
+    "queue_s": 0.0013153553009033203,
+    "pipeline_s": 1.7093865469996672,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.016815844999655383,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.09138340600111405,
+    "backend_s": 0.09207463600068877,
+    "encoder_s": 0.20029044700095255,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0017574159992364002,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.5057311300006404,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.821873664855957,
+        "t_generate": 0.6740765571594238,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:22"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 19,
+    "queue_s": 0.0011603832244873047,
+    "pipeline_s": 1.7102932699999656,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.01336452699979418,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.09365083899865567,
+    "backend_s": 0.1042961369985278,
+    "encoder_s": 0.211328023000533,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0017556059992784867,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.49562499700005,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.8147521018981934,
+        "t_generate": 0.6711602210998535,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:23"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 20,
+    "queue_s": 0.0008580684661865234,
+    "pipeline_s": 0.8089799420013151,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.0013834000001224922,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.059049977999166,
+    "backend_s": 0.05904002199895331,
+    "encoder_s": 0.1194892700004857,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.001612394000403583,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.686559218000184,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.43527817726135254,
+        "t_generate": 0.2415623664855957,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:24"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 21,
+    "queue_s": 0.0008389949798583984,
+    "pipeline_s": 0.8107797180000489,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.0013533700002881233,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.05865235499913979,
+    "backend_s": 0.06187798000064504,
+    "encoder_s": 0.12190052600089984,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.001752256001054775,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.685806727000454,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.4345378875732422,
+        "t_generate": 0.2415142059326172,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:25"
+    }
+  },
+  {
+    "mode": "cpu",
+    "sequence": 22,
+    "queue_s": 0.0006978511810302734,
+    "pipeline_s": 1.6740409479989466,
+    "source": "mic",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.018074876999889966,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.08911025199995493,
+    "backend_s": 0.08547339899996587,
+    "encoder_s": 0.1926757480014203,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0017203949992108392,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.4778712289989926,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.7959778308868408,
+        "t_generate": 0.6721625328063965,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+      "selector": "line:26"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 0,
+    "queue_s": 0.02926778793334961,
+    "pipeline_s": 0.9335247399994842,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.015306495999539038,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.09733470500032126,
+    "backend_s": 0.08884147000026132,
+    "encoder_s": 0.20150226100122381,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0020785799988516374,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 0.7096588910007995,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.26518893241882324,
+        "t_generate": 0.3969452381134033,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:4"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 1,
+    "queue_s": 0.0012617111206054688,
+    "pipeline_s": 0.7408223699985683,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.018482782999853953,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.09114813399901323,
+    "backend_s": 0.1165883470002882,
+    "encoder_s": 0.22623740500057465,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0018724380006460706,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 0.5109688630000164,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.0023965835571289062,
+        "t_generate": 0.46362757682800293,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:5"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 2,
+    "queue_s": 0.001146078109741211,
+    "pipeline_s": 0.7036515130002954,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.015539710000666673,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.08698782200008282,
+    "backend_s": 0.08668877799937036,
+    "encoder_s": 0.18923248999999487,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0018504870004107943,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 0.5109400710007321,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.0025076866149902344,
+        "t_generate": 0.4635162353515625,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:6"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 3,
+    "queue_s": 0.0010063648223876953,
+    "pipeline_s": 0.357890765000775,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.004451486000107252,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.052433122000365984,
+    "backend_s": 0.05769329099894094,
+    "encoder_s": 0.11459484000079101,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0016563749995839316,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.24026984100055415,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.002362489700317383,
+        "t_generate": 0.1931159496307373,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:7"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 4,
+    "queue_s": 0.0010433197021484375,
+    "pipeline_s": 0.35791921700001694,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.0013217599989729933,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.05925186300009955,
+    "backend_s": 0.05411726700003783,
+    "encoder_s": 0.11470741999983147,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0016406140002800385,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.2402300119993015,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.002311229705810547,
+        "t_generate": 0.19311070442199707,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:8"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 5,
+    "queue_s": 0.0009920597076416016,
+    "pipeline_s": 0.3563605330000428,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.0013163589992473135,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.053262645000359043,
+    "backend_s": 0.056617596001160564,
+    "encoder_s": 0.11121459000059986,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.001668183998845052,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.24216281900044123,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.0023126602172851562,
+        "t_generate": 0.19518089294433594,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:9"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 6,
+    "queue_s": 0.002178668975830078,
+    "pipeline_s": 3.0892017870010022,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 1881600,
+    "mel_s": 0.026431528000102844,
+    "mel_shape": [
+      128,
+      2940
+    ],
+    "frontend_s": 0.27768093399936333,
+    "backend_s": 0.38381839800058515,
+    "encoder_s": 0.6879501900002651,
+    "embedding_shape": [
+      382,
+      2048
+    ],
+    "prompt_s": 0.0030503149992000544,
+    "prompt_shape": [
+      404,
+      2048
+    ],
+    "decoder_s": 2.394678319000377,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "attempts": [
+      {
+        "stable_tokens": [
+          50597,
+          613,
+          594,
+          9185,
+          525,
+          264,
+          3378,
+          315,
+          3138,
+          69285,
+          323,
+          15037,
+          35592,
+          11,
+          323,
+          28827,
+          594,
+          58608,
+          877,
+          24705,
+          82,
+          525,
+          438,
+          5313,
+          438,
+          264,
+          502,
+          27908,
+          32794,
+          13,
+          91608,
+          36819,
+          8226,
+          38174,
+          594,
+          54790,
+          15289,
+          518,
+          825,
+          1753,
+          304,
+          279,
+          1852,
+          1616,
+          429,
+          91608,
+          356,
+          12856,
+          1483,
+          311,
+          8217,
+          806,
+          17832,
+          11,
+          323,
+          91608,
+          3757,
+          4254,
+          5623,
+          6696,
+          806,
+          2444,
+          465,
+          264,
+          70314,
+          50052,
+          389,
+          279,
+          1182,
+          1573,
+          566,
+          2727,
+          11,
+          1075,
+          264,
+          61932,
+          261,
+          304,
+          264,
+          23734,
+          8885,
+          11,
+          330,
+          5847,
+          883,
+          1189
+        ],
+        "t_prefill": 0.0043413639068603516,
+        "t_generate": 2.3431966304779053,
+        "n_prefill": 404,
+        "n_generate": 86,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:10"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 7,
+    "queue_s": 0.0020837783813476562,
+    "pipeline_s": 3.0970479030002025,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 1881600,
+    "mel_s": 0.023349253000560566,
+    "mel_shape": [
+      128,
+      2940
+    ],
+    "frontend_s": 0.2809621220003464,
+    "backend_s": 0.38862611900003685,
+    "encoder_s": 0.692956534001496,
+    "embedding_shape": [
+      382,
+      2048
+    ],
+    "prompt_s": 0.0030754460003663553,
+    "prompt_shape": [
+      404,
+      2048
+    ],
+    "decoder_s": 2.397475620999103,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "attempts": [
+      {
+        "stable_tokens": [
+          50597,
+          613,
+          594,
+          9185,
+          525,
+          264,
+          3378,
+          315,
+          3138,
+          69285,
+          323,
+          15037,
+          35592,
+          11,
+          323,
+          28827,
+          594,
+          58608,
+          877,
+          24705,
+          82,
+          525,
+          438,
+          5313,
+          438,
+          264,
+          502,
+          27908,
+          32794,
+          13,
+          91608,
+          36819,
+          8226,
+          38174,
+          594,
+          54790,
+          15289,
+          518,
+          825,
+          1753,
+          304,
+          279,
+          1852,
+          1616,
+          429,
+          91608,
+          356,
+          12856,
+          1483,
+          311,
+          8217,
+          806,
+          17832,
+          11,
+          323,
+          91608,
+          3757,
+          4254,
+          5623,
+          6696,
+          806,
+          2444,
+          465,
+          264,
+          70314,
+          50052,
+          389,
+          279,
+          1182,
+          1573,
+          566,
+          2727,
+          11,
+          1075,
+          264,
+          61932,
+          261,
+          304,
+          264,
+          23734,
+          8885,
+          11,
+          330,
+          5847,
+          883,
+          1189
+        ],
+        "t_prefill": 0.003998756408691406,
+        "t_generate": 2.3462471961975098,
+        "n_prefill": 404,
+        "n_generate": 86,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:11"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 8,
+    "queue_s": 0.001867532730102539,
+    "pipeline_s": 3.1261436519998824,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 1881600,
+    "mel_s": 0.026650693000192405,
+    "mel_shape": [
+      128,
+      2940
+    ],
+    "frontend_s": 0.3138496760002454,
+    "backend_s": 0.38592193000113184,
+    "encoder_s": 0.7264418390004721,
+    "embedding_shape": [
+      382,
+      2048
+    ],
+    "prompt_s": 0.0030783160000282805,
+    "prompt_shape": [
+      404,
+      2048
+    ],
+    "decoder_s": 2.393128635998437,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "attempts": [
+      {
+        "stable_tokens": [
+          50597,
+          613,
+          594,
+          9185,
+          525,
+          264,
+          3378,
+          315,
+          3138,
+          69285,
+          323,
+          15037,
+          35592,
+          11,
+          323,
+          28827,
+          594,
+          58608,
+          877,
+          24705,
+          82,
+          525,
+          438,
+          5313,
+          438,
+          264,
+          502,
+          27908,
+          32794,
+          13,
+          91608,
+          36819,
+          8226,
+          38174,
+          594,
+          54790,
+          15289,
+          518,
+          825,
+          1753,
+          304,
+          279,
+          1852,
+          1616,
+          429,
+          91608,
+          356,
+          12856,
+          1483,
+          311,
+          8217,
+          806,
+          17832,
+          11,
+          323,
+          91608,
+          3757,
+          4254,
+          5623,
+          6696,
+          806,
+          2444,
+          465,
+          264,
+          70314,
+          50052,
+          389,
+          279,
+          1182,
+          1573,
+          566,
+          2727,
+          11,
+          1075,
+          264,
+          61932,
+          261,
+          304,
+          264,
+          23734,
+          8885,
+          11,
+          330,
+          5847,
+          883,
+          1189
+        ],
+        "t_prefill": 0.0039997100830078125,
+        "t_generate": 2.3416430950164795,
+        "n_prefill": 404,
+        "n_generate": 86,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:12"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 9,
+    "queue_s": 0.00115203857421875,
+    "pipeline_s": 0.43291636100002506,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 273984,
+    "mel_s": 0.013247934000901296,
+    "mel_shape": [
+      128,
+      428
+    ],
+    "frontend_s": 0.07553591499890899,
+    "backend_s": 0.06801529199947254,
+    "encoder_s": 0.15681667100034247,
+    "embedding_shape": [
+      56,
+      2048
+    ],
+    "prompt_s": 0.0017773359995771898,
+    "prompt_shape": [
+      78,
+      2048
+    ],
+    "decoder_s": 0.2728531610009668,
+    "text": "广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.0023746490478515625,
+        "t_generate": 0.22565031051635742,
+        "n_prefill": 78,
+        "n_generate": 6,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:13"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 10,
+    "queue_s": 0.0010793209075927734,
+    "pipeline_s": 0.4271540259996982,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 273984,
+    "mel_s": 0.0022040330004529096,
+    "mel_shape": [
+      128,
+      428
+    ],
+    "frontend_s": 0.0802533919995767,
+    "backend_s": 0.0679503819992533,
+    "encoder_s": 0.15042559699941194,
+    "embedding_shape": [
+      56,
+      2048
+    ],
+    "prompt_s": 0.0017542660007165978,
+    "prompt_shape": [
+      78,
+      2048
+    ],
+    "decoder_s": 0.27347245100099826,
+    "text": "广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.002336740493774414,
+        "t_generate": 0.22631144523620605,
+        "n_prefill": 78,
+        "n_generate": 6,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:14"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 11,
+    "queue_s": 0.0010802745819091797,
+    "pipeline_s": 0.4269517539996741,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 273984,
+    "mel_s": 0.002223763000074541,
+    "mel_shape": [
+      128,
+      428
+    ],
+    "frontend_s": 0.08007467000061297,
+    "backend_s": 0.06804867299979378,
+    "encoder_s": 0.15036452599997574,
+    "embedding_shape": [
+      56,
+      2048
+    ],
+    "prompt_s": 0.0017558359995746287,
+    "prompt_shape": [
+      78,
+      2048
+    ],
+    "decoder_s": 0.27334408999922744,
+    "text": "广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.002460002899169922,
+        "t_generate": 0.22593283653259277,
+        "n_prefill": 78,
+        "n_generate": 6,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:15"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 12,
+    "queue_s": 0.0018537044525146484,
+    "pipeline_s": 1.9057103329996607,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 1723904,
+    "mel_s": 0.027346744000169565,
+    "mel_shape": [
+      128,
+      2693
+    ],
+    "frontend_s": 0.2549728879985196,
+    "backend_s": 0.502646230001119,
+    "encoder_s": 0.7849854630003392,
+    "embedding_shape": [
+      350,
+      2048
+    ],
+    "prompt_s": 0.0028991620001761476,
+    "prompt_shape": [
+      372,
+      2048
+    ],
+    "decoder_s": 1.1145866309998382,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.00377655029296875,
+        "t_generate": 1.0632729530334473,
+        "n_prefill": 372,
+        "n_generate": 30,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:16"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 13,
+    "queue_s": 0.0016791820526123047,
+    "pipeline_s": 1.7411050250011613,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 1723904,
+    "mel_s": 0.014988269998866599,
+    "mel_shape": [
+      128,
+      2693
+    ],
+    "frontend_s": 0.25788335200013535,
+    "backend_s": 0.34875922199898923,
+    "encoder_s": 0.6216503140003624,
+    "embedding_shape": [
+      350,
+      2048
+    ],
+    "prompt_s": 0.0029194429989729542,
+    "prompt_shape": [
+      372,
+      2048
+    ],
+    "decoder_s": 1.113292840000213,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.003907203674316406,
+        "t_generate": 1.062171459197998,
+        "n_prefill": 372,
+        "n_generate": 30,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:17"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 14,
+    "queue_s": 0.0019378662109375,
+    "pipeline_s": 1.7415450520002196,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 1723904,
+    "mel_s": 0.012432303001332912,
+    "mel_shape": [
+      128,
+      2693
+    ],
+    "frontend_s": 0.2616145169995434,
+    "backend_s": 0.3486702689988306,
+    "encoder_s": 0.6227365189988632,
+    "embedding_shape": [
+      350,
+      2048
+    ],
+    "prompt_s": 0.002945803000329761,
+    "prompt_shape": [
+      372,
+      2048
+    ],
+    "decoder_s": 1.1126871020005638,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.0039005279541015625,
+        "t_generate": 1.0612423419952393,
+        "n_prefill": 372,
+        "n_generate": 30,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:18"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 15,
+    "queue_s": 0.001140594482421875,
+    "pipeline_s": 0.6941777129995899,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 382612,
+    "mel_s": 0.0029873439998482354,
+    "mel_shape": [
+      128,
+      597
+    ],
+    "frontend_s": 0.08899626200036437,
+    "backend_s": 0.0851611550006055,
+    "encoder_s": 0.17716286200084141,
+    "embedding_shape": [
+      78,
+      2048
+    ],
+    "prompt_s": 0.0018435670008329907,
+    "prompt_shape": [
+      100,
+      2048
+    ],
+    "decoder_s": 0.5135328510004911,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.002475738525390625,
+        "t_generate": 0.46616578102111816,
+        "n_prefill": 100,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:19"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 16,
+    "queue_s": 0.001134634017944336,
+    "pipeline_s": 0.7015425620011229,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 382612,
+    "mel_s": 0.015233955000439892,
+    "mel_shape": [
+      128,
+      597
+    ],
+    "frontend_s": 0.08531319699977757,
+    "backend_s": 0.08440977400096017,
+    "encoder_s": 0.18497432700132777,
+    "embedding_shape": [
+      78,
+      2048
+    ],
+    "prompt_s": 0.0018648269997356692,
+    "prompt_shape": [
+      100,
+      2048
+    ],
+    "decoder_s": 0.5130580530003499,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.0024352073669433594,
+        "t_generate": 0.4657247066497803,
+        "n_prefill": 100,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:20"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 17,
+    "queue_s": 0.0011429786682128906,
+    "pipeline_s": 0.6969269029996212,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 382612,
+    "mel_s": 0.01348068900006183,
+    "mel_shape": [
+      128,
+      597
+    ],
+    "frontend_s": 0.08351183100057824,
+    "backend_s": 0.08422885100117128,
+    "encoder_s": 0.18123998199916969,
+    "embedding_shape": [
+      78,
+      2048
+    ],
+    "prompt_s": 0.0018244460006826557,
+    "prompt_shape": [
+      100,
+      2048
+    ],
+    "decoder_s": 0.512203160998979,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.0024242401123046875,
+        "t_generate": 0.4648776054382324,
+        "n_prefill": 100,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:21"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 18,
+    "queue_s": 0.0011386871337890625,
+    "pipeline_s": 0.7028346620008961,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.01612031799959368,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.08703305299968633,
+    "backend_s": 0.08286366100037412,
+    "encoder_s": 0.18603360199995223,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.001834636999774375,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 0.513353817999814,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.002408266067504883,
+        "t_generate": 0.466094970703125,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:22"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 19,
+    "queue_s": 0.001168966293334961,
+    "pipeline_s": 0.7073267369996756,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.015586129999064724,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.09298417099853395,
+    "backend_s": 0.08318918599979952,
+    "encoder_s": 0.1917759070001921,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0018556880004325649,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 0.5121022989987978,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.002470731735229492,
+        "t_generate": 0.46472811698913574,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:23"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 20,
+    "queue_s": 0.0010328292846679688,
+    "pipeline_s": 0.36137680700085184,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.009386867999637616,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.05596686600074463,
+    "backend_s": 0.05259517400008917,
+    "encoder_s": 0.11796527899969078,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0016666640003677458,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.24041963400122768,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.0027511119842529297,
+        "t_generate": 0.19301581382751465,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:24"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 21,
+    "queue_s": 0.000946044921875,
+    "pipeline_s": 0.3660594430002675,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.013220155999078997,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.06218180600080814,
+    "backend_s": 0.048021139000411495,
+    "encoder_s": 0.12343855099970824,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.001633674000913743,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.23965767799927562,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.002265453338623047,
+        "t_generate": 0.19278407096862793,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:25"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "sequence": 22,
+    "queue_s": 0.0006558895111083984,
+    "pipeline_s": 0.7053404870002851,
+    "source": "mic",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.01758741900084715,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.08796769699983997,
+    "backend_s": 0.08361900199997763,
+    "encoder_s": 0.18919005999850924,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0018131069991795812,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 0.512632666999707,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.002455472946166992,
+        "t_generate": 0.465317964553833,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+      "selector": "line:26"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 0,
+    "queue_s": 0.028458118438720703,
+    "pipeline_s": 21.73022696100088,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.014903187999152578,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.0383798190014204,
+    "backend_s": 20.266241127001194,
+    "encoder_s": 20.31954405400029,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.001383793000059086,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.388751204000073,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.23798251152038574,
+        "t_generate": 1.1052839756011963,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:4"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 1,
+    "queue_s": 0.0012831687927246094,
+    "pipeline_s": 1.305650129001151,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.018197740999312373,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.026855865000470658,
+    "backend_s": 0.04245334099869069,
+    "encoder_s": 0.08751787900109775,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0010547370002313983,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.2153702739997243,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.0025730133056640625,
+        "t_generate": 1.1675870418548584,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:5"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 2,
+    "queue_s": 0.0012214183807373047,
+    "pipeline_s": 1.3132660680003028,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.015258012001140742,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.026966185998389847,
+    "backend_s": 0.048321330001272145,
+    "encoder_s": 0.09056733899888059,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0010332479996577604,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.219985813000676,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.0025200843811035156,
+        "t_generate": 1.1721594333648682,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:6"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 3,
+    "queue_s": 0.0009582042694091797,
+    "pipeline_s": 20.573260268998638,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.0013119619998178678,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.0142108449999796,
+    "backend_s": 20.050557702999868,
+    "encoder_s": 20.06609544999992,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0008152129994414281,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.5050454240008548,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.0023651123046875,
+        "t_generate": 0.45726656913757324,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:7"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 4,
+    "queue_s": 0.0010383129119873047,
+    "pipeline_s": 0.5604900469988934,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.00129853200087382,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.014383527000973118,
+    "backend_s": 0.03788942500068515,
+    "encoder_s": 0.05358018400147557,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.001003047000267543,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.5046158859986463,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.002278566360473633,
+        "t_generate": 0.4568822383880615,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:8"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 5,
+    "queue_s": 0.0010776519775390625,
+    "pipeline_s": 0.5788851670004078,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.01232929399884597,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.01940569799990044,
+    "backend_s": 0.03972571499980404,
+    "encoder_s": 0.07147774800068873,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0011133280004287371,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.5049328090008203,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.0023429393768310547,
+        "t_generate": 0.4571993350982666,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:9"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 6,
+    "queue_s": 0.002318143844604492,
+    "pipeline_s": 25.99300564999976,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 1881600,
+    "mel_s": 0.03147857899966766,
+    "mel_shape": [
+      128,
+      2940
+    ],
+    "frontend_s": 0.13929251400077192,
+    "backend_s": 20.603252098000667,
+    "encoder_s": 20.77404431100149,
+    "embedding_shape": [
+      382,
+      2048
+    ],
+    "prompt_s": 0.002242158001536154,
+    "prompt_shape": [
+      404,
+      2048
+    ],
+    "decoder_s": 5.213305753999521,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "attempts": [
+      {
+        "stable_tokens": [
+          50597,
+          613,
+          594,
+          9185,
+          525,
+          264,
+          3378,
+          315,
+          3138,
+          69285,
+          323,
+          15037,
+          35592,
+          11,
+          323,
+          28827,
+          594,
+          58608,
+          877,
+          24705,
+          82,
+          525,
+          438,
+          5313,
+          438,
+          264,
+          502,
+          27908,
+          32794,
+          13,
+          91608,
+          36819,
+          8226,
+          38174,
+          594,
+          54790,
+          15289,
+          518,
+          825,
+          1753,
+          304,
+          279,
+          1852,
+          1616,
+          429,
+          91608,
+          356,
+          12856,
+          1483,
+          311,
+          8217,
+          806,
+          17832,
+          11,
+          323,
+          91608,
+          3757,
+          4254,
+          5623,
+          6696,
+          806,
+          2444,
+          465,
+          264,
+          70314,
+          50052,
+          389,
+          279,
+          1182,
+          1573,
+          566,
+          2727,
+          11,
+          1075,
+          264,
+          61932,
+          261,
+          304,
+          264,
+          23734,
+          8885,
+          11,
+          330,
+          5847,
+          883,
+          1189
+        ],
+        "t_prefill": 0.004530429840087891,
+        "t_generate": 5.1625752449035645,
+        "n_prefill": 404,
+        "n_generate": 86,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:10"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 7,
+    "queue_s": 0.0022513866424560547,
+    "pipeline_s": 5.468106817001171,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 1881600,
+    "mel_s": 0.013645033999637235,
+    "mel_shape": [
+      128,
+      2940
+    ],
+    "frontend_s": 0.129431929999555,
+    "backend_s": 0.10672608999993827,
+    "encoder_s": 0.24982086599993636,
+    "embedding_shape": [
+      382,
+      2048
+    ],
+    "prompt_s": 0.0022780469989811536,
+    "prompt_shape": [
+      404,
+      2048
+    ],
+    "decoder_s": 5.212506328000018,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "attempts": [
+      {
+        "stable_tokens": [
+          50597,
+          613,
+          594,
+          9185,
+          525,
+          264,
+          3378,
+          315,
+          3138,
+          69285,
+          323,
+          15037,
+          35592,
+          11,
+          323,
+          28827,
+          594,
+          58608,
+          877,
+          24705,
+          82,
+          525,
+          438,
+          5313,
+          438,
+          264,
+          502,
+          27908,
+          32794,
+          13,
+          91608,
+          36819,
+          8226,
+          38174,
+          594,
+          54790,
+          15289,
+          518,
+          825,
+          1753,
+          304,
+          279,
+          1852,
+          1616,
+          429,
+          91608,
+          356,
+          12856,
+          1483,
+          311,
+          8217,
+          806,
+          17832,
+          11,
+          323,
+          91608,
+          3757,
+          4254,
+          5623,
+          6696,
+          806,
+          2444,
+          465,
+          264,
+          70314,
+          50052,
+          389,
+          279,
+          1182,
+          1573,
+          566,
+          2727,
+          11,
+          1075,
+          264,
+          61932,
+          261,
+          304,
+          264,
+          23734,
+          8885,
+          11,
+          330,
+          5847,
+          883,
+          1189
+        ],
+        "t_prefill": 0.004190206527709961,
+        "t_generate": 5.1621809005737305,
+        "n_prefill": 404,
+        "n_generate": 86,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:11"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 8,
+    "queue_s": 0.0021371841430664062,
+    "pipeline_s": 5.471567906999553,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 1881600,
+    "mel_s": 0.013622584001495852,
+    "mel_shape": [
+      128,
+      2940
+    ],
+    "frontend_s": 0.12988827600020159,
+    "backend_s": 0.10807009999916772,
+    "encoder_s": 0.2516008510010579,
+    "embedding_shape": [
+      382,
+      2048
+    ],
+    "prompt_s": 0.0022407159995054826,
+    "prompt_shape": [
+      404,
+      2048
+    ],
+    "decoder_s": 5.214253464999274,
+    "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+    "attempts": [
+      {
+        "stable_tokens": [
+          50597,
+          613,
+          594,
+          9185,
+          525,
+          264,
+          3378,
+          315,
+          3138,
+          69285,
+          323,
+          15037,
+          35592,
+          11,
+          323,
+          28827,
+          594,
+          58608,
+          877,
+          24705,
+          82,
+          525,
+          438,
+          5313,
+          438,
+          264,
+          502,
+          27908,
+          32794,
+          13,
+          91608,
+          36819,
+          8226,
+          38174,
+          594,
+          54790,
+          15289,
+          518,
+          825,
+          1753,
+          304,
+          279,
+          1852,
+          1616,
+          429,
+          91608,
+          356,
+          12856,
+          1483,
+          311,
+          8217,
+          806,
+          17832,
+          11,
+          323,
+          91608,
+          3757,
+          4254,
+          5623,
+          6696,
+          806,
+          2444,
+          465,
+          264,
+          70314,
+          50052,
+          389,
+          279,
+          1182,
+          1573,
+          566,
+          2727,
+          11,
+          1075,
+          264,
+          61932,
+          261,
+          304,
+          264,
+          23734,
+          8885,
+          11,
+          330,
+          5847,
+          883,
+          1189
+        ],
+        "t_prefill": 0.004088878631591797,
+        "t_generate": 5.163849830627441,
+        "n_prefill": 404,
+        "n_generate": 86,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:12"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 9,
+    "queue_s": 0.0011761188507080078,
+    "pipeline_s": 20.563907832998666,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 273984,
+    "mel_s": 0.0022571380013687303,
+    "mel_shape": [
+      128,
+      428
+    ],
+    "frontend_s": 0.022762493001209805,
+    "backend_s": 20.048219446000076,
+    "encoder_s": 20.07325257699995,
+    "embedding_shape": [
+      56,
+      2048
+    ],
+    "prompt_s": 0.0010099570008605951,
+    "prompt_shape": [
+      78,
+      2048
+    ],
+    "decoder_s": 0.4881785050001781,
+    "text": "广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.002397298812866211,
+        "t_generate": 0.4403858184814453,
+        "n_prefill": 78,
+        "n_generate": 6,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:13"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 10,
+    "queue_s": 0.001199483871459961,
+    "pipeline_s": 0.5529803700010234,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 273984,
+    "mel_s": 0.0022193969998625107,
+    "mel_shape": [
+      128,
+      428
+    ],
+    "frontend_s": 0.022732801000529435,
+    "backend_s": 0.03773262399954547,
+    "encoder_s": 0.06269600199993874,
+    "embedding_shape": [
+      56,
+      2048
+    ],
+    "prompt_s": 0.0012632109992409823,
+    "prompt_shape": [
+      78,
+      2048
+    ],
+    "decoder_s": 0.48747959200045443,
+    "text": "广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.0024900436401367188,
+        "t_generate": 0.439589262008667,
+        "n_prefill": 78,
+        "n_generate": 6,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:14"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 11,
+    "queue_s": 0.0011510848999023438,
+    "pipeline_s": 0.5667001929996331,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 273984,
+    "mel_s": 0.015729127000668086,
+    "mel_shape": [
+      128,
+      428
+    ],
+    "frontend_s": 0.02268238000033307,
+    "backend_s": 0.03694016200097394,
+    "encoder_s": 0.07536730900028488,
+    "embedding_shape": [
+      56,
+      2048
+    ],
+    "prompt_s": 0.0009634059988457011,
+    "prompt_shape": [
+      78,
+      2048
+    ],
+    "decoder_s": 0.48887365399968985,
+    "text": "广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.002440929412841797,
+        "t_generate": 0.4409022331237793,
+        "n_prefill": 78,
+        "n_generate": 6,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:15"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 12,
+    "queue_s": 0.0018110275268554688,
+    "pipeline_s": 23.24126353599968,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 1723904,
+    "mel_s": 0.025909919999321573,
+    "mel_shape": [
+      128,
+      2693
+    ],
+    "frontend_s": 0.1160603619991889,
+    "backend_s": 20.904364840998824,
+    "encoder_s": 21.04635818299903,
+    "embedding_shape": [
+      350,
+      2048
+    ],
+    "prompt_s": 0.0022000059998390498,
+    "prompt_shape": [
+      372,
+      2048
+    ],
+    "decoder_s": 2.189446405000126,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.003837108612060547,
+        "t_generate": 2.1398284435272217,
+        "n_prefill": 372,
+        "n_generate": 30,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:16"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 13,
+    "queue_s": 0.0022726058959960938,
+    "pipeline_s": 2.4325937809990137,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 1723904,
+    "mel_s": 0.02127302500048245,
+    "mel_shape": [
+      128,
+      2693
+    ],
+    "frontend_s": 0.11653762000059942,
+    "backend_s": 0.09770647400000598,
+    "encoder_s": 0.2355402890007099,
+    "embedding_shape": [
+      350,
+      2048
+    ],
+    "prompt_s": 0.00217812499977299,
+    "prompt_shape": [
+      372,
+      2048
+    ],
+    "decoder_s": 2.191756014999555,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.0037894248962402344,
+        "t_generate": 2.14206862449646,
+        "n_prefill": 372,
+        "n_generate": 30,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:17"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 14,
+    "queue_s": 0.002449512481689453,
+    "pipeline_s": 2.432937477999076,
+    "source": "file",
+    "language": "chinese",
+    "audio_bytes": 1723904,
+    "mel_s": 0.021361416000218014,
+    "mel_shape": [
+      128,
+      2693
+    ],
+    "frontend_s": 0.11654112900032487,
+    "backend_s": 0.09656628500124498,
+    "encoder_s": 0.23448389999975916,
+    "embedding_shape": [
+      350,
+      2048
+    ],
+    "prompt_s": 0.0021631750005326467,
+    "prompt_shape": [
+      372,
+      2048
+    ],
+    "decoder_s": 2.193200080999304,
+    "text": "广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。广州市房地产中介协会分析。",
+    "attempts": [
+      {
+        "stable_tokens": [
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773,
+          106805,
+          104021,
+          102842,
+          100715,
+          101042,
+          1773
+        ],
+        "t_prefill": 0.0038585662841796875,
+        "t_generate": 2.1432840824127197,
+        "n_prefill": 372,
+        "n_generate": 30,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:18"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 15,
+    "queue_s": 0.0011646747589111328,
+    "pipeline_s": 21.07325828499961,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 382612,
+    "mel_s": 0.017710897998767905,
+    "mel_shape": [
+      128,
+      597
+    ],
+    "frontend_s": 0.026998147999620414,
+    "backend_s": 19.805783490000977,
+    "encoder_s": 19.850508116000128,
+    "embedding_shape": [
+      78,
+      2048
+    ],
+    "prompt_s": 0.0010125460012204712,
+    "prompt_shape": [
+      100,
+      2048
+    ],
+    "decoder_s": 1.2200571759985905,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.0024497509002685547,
+        "t_generate": 1.1722114086151123,
+        "n_prefill": 100,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:19"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 16,
+    "queue_s": 0.0011632442474365234,
+    "pipeline_s": 1.3030447099990852,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 382612,
+    "mel_s": 0.012186895999548142,
+    "mel_shape": [
+      128,
+      597
+    ],
+    "frontend_s": 0.026752702999147004,
+    "backend_s": 0.040918250000686385,
+    "encoder_s": 0.07986904899917135,
+    "embedding_shape": [
+      78,
+      2048
+    ],
+    "prompt_s": 0.0010510579995752778,
+    "prompt_shape": [
+      100,
+      2048
+    ],
+    "decoder_s": 1.2204235359986342,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.002527952194213867,
+        "t_generate": 1.1723737716674805,
+        "n_prefill": 100,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:20"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 17,
+    "queue_s": 0.0011992454528808594,
+    "pipeline_s": 1.3076416399999289,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 382612,
+    "mel_s": 0.016044179999880726,
+    "mel_shape": [
+      128,
+      597
+    ],
+    "frontend_s": 0.027031566000005114,
+    "backend_s": 0.0411943050003174,
+    "encoder_s": 0.08428166100020462,
+    "embedding_shape": [
+      78,
+      2048
+    ],
+    "prompt_s": 0.001049507000061567,
+    "prompt_shape": [
+      100,
+      2048
+    ],
+    "decoder_s": 1.220517422998455,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.0025184154510498047,
+        "t_generate": 1.1725850105285645,
+        "n_prefill": 100,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:21"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 18,
+    "queue_s": 0.0011398792266845703,
+    "pipeline_s": 17.340516443000524,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.009277979001126369,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.026743432999865036,
+    "backend_s": 16.081376931000705,
+    "encoder_s": 16.11741258300026,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0010661269989213906,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.2202449239994166,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.002469301223754883,
+        "t_generate": 1.1725032329559326,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:22"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 19,
+    "queue_s": 0.0013413429260253906,
+    "pipeline_s": 1.304107488000227,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.013455837000947213,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.026994163999916054,
+    "backend_s": 0.040762756998447,
+    "encoder_s": 0.08122408800045378,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0010211259996140143,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.2201985770007013,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.0025548934936523438,
+        "t_generate": 1.1721973419189453,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:23"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 20,
+    "queue_s": 0.0010695457458496094,
+    "pipeline_s": 16.555071337999834,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.012491060999309411,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.014213557999028126,
+    "backend_s": 16.021639856000547,
+    "encoder_s": 16.048361615999966,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0008956839992606547,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.5044924360008736,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.0023386478424072266,
+        "t_generate": 0.4570930004119873,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:24"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 21,
+    "queue_s": 0.0010988712310791016,
+    "pipeline_s": 0.5702601430002687,
+    "source": "file",
+    "language": "english",
+    "audio_bytes": 143680,
+    "mel_s": 0.011564407001060317,
+    "mel_shape": [
+      128,
+      224
+    ],
+    "frontend_s": 0.014218276999599766,
+    "backend_s": 0.03768308500002604,
+    "encoder_s": 0.06348432900085754,
+    "embedding_shape": [
+      29,
+      2048
+    ],
+    "prompt_s": 0.0010484869999345392,
+    "prompt_shape": [
+      51,
+      2048
+    ],
+    "decoder_s": 0.5043464749996929,
+    "text": "By Harry Quilter, M.A.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          1359,
+          13928,
+          3406,
+          2044,
+          11,
+          386,
+          875,
+          13
+        ],
+        "t_prefill": 0.00231170654296875,
+        "t_generate": 0.4566977024078369,
+        "n_prefill": 51,
+        "n_generate": 8,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:25"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "sequence": 22,
+    "queue_s": 0.0006747245788574219,
+    "pipeline_s": 17.174944766999033,
+    "source": "mic",
+    "language": "english",
+    "audio_bytes": 374720,
+    "mel_s": 0.017494489999080542,
+    "mel_shape": [
+      128,
+      585
+    ],
+    "frontend_s": 0.02663342800042301,
+    "backend_s": 15.911522018999676,
+    "encoder_s": 15.955663447000916,
+    "embedding_shape": [
+      76,
+      2048
+    ],
+    "prompt_s": 0.0010800569998536957,
+    "prompt_shape": [
+      98,
+      2048
+    ],
+    "decoder_s": 1.2164483440010372,
+    "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+    "attempts": [
+      {
+        "stable_tokens": [
+          12275,
+          13,
+          3406,
+          2044,
+          374,
+          279,
+          38471,
+          273,
+          315,
+          279,
+          6149,
+          6846,
+          11,
+          323,
+          582,
+          525,
+          15713,
+          311,
+          10565,
+          806,
+          41482,
+          13
+        ],
+        "t_prefill": 0.002470731735229492,
+        "t_generate": 1.1683602333068848,
+        "n_prefill": 98,
+        "n_generate": 22,
+        "is_aborted": false
+      }
+    ],
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+      "selector": "line:26"
+    }
+  }
+]

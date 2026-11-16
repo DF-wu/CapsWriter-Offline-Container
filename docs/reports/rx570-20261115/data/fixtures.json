@@ -1,0 +1,99 @@
+[
+  {
+    "name": "reference",
+    "file": "reference.flac",
+    "text": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+    "id": "1272-128104-0000",
+    "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy/resolve/5be91486e11a2d616f4ec5db8d3fd248585ac07a/clean/validation-00000-of-00001.parquet",
+    "source_sha256": "4e69a06fa5edc90921e5e7e39a7084881f8b3ed9c805c574f4f39c6fde27c603",
+    "language": "en",
+    "samples": 93680,
+    "sample_rate": 16000,
+    "seconds": 5.855,
+    "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/audio-manifest.json",
+      "selector": "/0"
+    }
+  },
+  {
+    "name": "short",
+    "file": "short.flac",
+    "text": "BY HARRY QUILTER M A",
+    "id": "1272-128104-0014",
+    "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy/resolve/5be91486e11a2d616f4ec5db8d3fd248585ac07a/clean/validation-00000-of-00001.parquet",
+    "source_sha256": "4e69a06fa5edc90921e5e7e39a7084881f8b3ed9c805c574f4f39c6fde27c603",
+    "language": "en",
+    "samples": 35920,
+    "sample_rate": 16000,
+    "seconds": 2.245,
+    "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/audio-manifest.json",
+      "selector": "/1"
+    }
+  },
+  {
+    "name": "long",
+    "file": "long.flac",
+    "text": "LINNELL'S PICTURES ARE A SORT OF UP GUARDS AND AT EM PAINTINGS AND MASON'S EXQUISITE IDYLLS ARE AS NATIONAL AS A JINGO POEM MISTER BIRKET FOSTER'S LANDSCAPES SMILE AT ONE MUCH IN THE SAME WAY THAT MISTER CARKER USED TO FLASH HIS TEETH AND MISTER JOHN COLLIER GIVES HIS SITTER A CHEERFUL SLAP ON THE BACK BEFORE HE SAYS LIKE A SHAMPOOER IN A TURKISH BATH NEXT MAN",
+    "id": "1272-128104-0004",
+    "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy/resolve/5be91486e11a2d616f4ec5db8d3fd248585ac07a/clean/validation-00000-of-00001.parquet",
+    "source_sha256": "4e69a06fa5edc90921e5e7e39a7084881f8b3ed9c805c574f4f39c6fde27c603",
+    "language": "en",
+    "samples": 470400,
+    "sample_rate": 16000,
+    "seconds": 29.4,
+    "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/audio-manifest.json",
+      "selector": "/2"
+    }
+  },
+  {
+    "name": "mandarin",
+    "file": "mandarin.wav",
+    "text": "广州市房地产中介协会分析",
+    "source": "https://raw.githubusercontent.com/wenet-e2e/wenet/be6ad97fdb512589df113042f7ff3a29d392fb38/test/resources/aishell-BAC009S0724W0121.wav",
+    "reference_source": "https://raw.githubusercontent.com/wenet-e2e/wenet/be6ad97fdb512589df113042f7ff3a29d392fb38/test/resources/dataset/text",
+    "language": "zh",
+    "samples": 68496,
+    "sample_rate": 16000,
+    "seconds": 4.281,
+    "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/audio-manifest.json",
+      "selector": "/3"
+    }
+  },
+  {
+    "name": "noninteger",
+    "file": "noninteger.flac",
+    "text": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+    "source": "derived reference + 1973 zero samples",
+    "language": "en",
+    "samples": 95653,
+    "sample_rate": 16000,
+    "seconds": 5.9783125,
+    "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/audio-manifest.json",
+      "selector": "/4"
+    }
+  },
+  {
+    "name": "mandarin_long",
+    "file": "mandarin-long.wav",
+    "text": "广州市房地产中介协会分析广州市房地产中介协会分析广州市房地产中介协会分析广州市房地产中介协会分析广州市房地产中介协会分析广州市房地产中介协会分析",
+    "language": "zh",
+    "samples": 430976,
+    "sample_rate": 16000,
+    "seconds": 26.936,
+    "sha256": "59523b08ec4afd8499c3919300431ae2b2dcb751ec3ee61c19a64305d84328b4",
+    "source": "synthetic: retained Mandarin recording repeated six times, 0.25s gaps; duration stress only",
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/audio-manifest.json",
+      "selector": "/5"
+    }
+  }
+]
