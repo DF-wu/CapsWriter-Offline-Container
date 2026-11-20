@@ -96,7 +96,13 @@ Server 提供兩個介面，給不同的 Client 使用：
 下載 `CapsWriter-Offline-windows-x86_64.zip`，**整個資料夾**解壓到一般路徑（例如
 `D:\CapsWriter-Offline`）。可先用附帶的 `SHA256SUMS` 驗證檔案。
 
-資料夾內有兩個程式，角色不能互換，也不要單獨搬出其中一個 EXE：
+| Release 檔案 | 適用情境 |
+|---|---|
+| `CapsWriter-Offline-windows-x86_64.zip` | Server 與 Client 都在這台電腦（完全離線、單機） |
+| `CapsWriter-Offline-Client-windows-x86_64.zip` | Server 已在別處執行，例如 [Linux Docker](#快速開始-blinux-docker-server)。只有 Client，大小約完整版的三分之一；略過第 2 步，第 3 步填 Server 位址 |
+| `CapsWriter-Offline-source.zip` | 此 release tag 的原始碼 |
+
+完整版資料夾內有兩個程式，角色不能互換，也不要單獨搬出其中一個 EXE：
 
 ```text
 CapsWriter-Offline/
@@ -153,9 +159,10 @@ Qwen3-ASR 需要兩個檔案（都有固定 SHA-256）：
 ![聽寫四步驟：點進輸入框、按住 CapsLock 說話、放開、文字自動輸入](docs/assets/dictation-flow.svg)
 
 > [!NOTE]
-> 發行 ZIP 由 GitHub Actions 的 `windows-package` job 以 hash lock 建置
-> PyInstaller 套件，搬離 checkout 後壓縮／解壓、拒絕 reparse point，並讓兩個
-> EXE 各自通過 `--artifact-self-check`。真實麥克風、托盤、快捷鍵、模型與 GPU
+> 發行 ZIP 由 GitHub Actions 的 `windows-package` workflow 以 hash lock 建置
+> PyInstaller 套件，搬離 checkout 後壓縮／解壓、拒絕 reparse point，並讓每個
+> EXE 各自通過 `--artifact-self-check`（僅 Client 版另外證明不含任何 Server
+> runtime）。真實麥克風、托盤、快捷鍵、模型與 GPU
 > 仍請在你的電腦上確認；想自行建置請看 [BUILD_GUIDE](assets/BUILD_GUIDE.md)。
 
 ## 快速開始 B：Linux Docker Server

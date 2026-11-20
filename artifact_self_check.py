@@ -5,11 +5,17 @@ The release workflow invokes this module through both frozen entrypoints.  It
 does not construct a server/client, bind a socket, open an audio device, create
 a tray icon, or load a model.  It verifies the portable directory layout and
 imports the runtime surfaces that PyInstaller must make available.
+
+Packaged builds record their variant in ``internal/capswriter-package.json``:
+``full`` carries both executables and ``client`` only the desktop client.  The
+client variant must not ship server-only runtimes, so their absence is part of
+the same contract.
 """
 
 from __future__ import annotations
 
 import importlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -18,6 +24,8 @@ from typing import Iterable
 
 
 SELF_CHECK_MARKER = "CAPSWRITER_ARTIFACT_SELF_CHECK="
+PACKAGE_MARKER = Path("internal") / "capswriter-package.json"
+PACKAGE_VARIANTS = ("full", "client")
 
 REQUIRED_DIRECTORIES = ("core", "LLM", "assets", "docs", "models", "logs")
 REQUIRED_ROOT_FILES = (
@@ -32,6 +40,41 @@ REQUIRED_ROOT_FILES = (
 )
 PACKAGED_DIRECTORIES = ("internal",)
 PACKAGED_FILES = ("start_server.exe", "start_client.exe")
+
+CLIENT_REQUIRED_DIRECTORIES = ("core", "LLM", "assets", "docs", "logs")
+CLIENT_REQUIRED_ROOT_FILES = (
+    "config_client.py",
+    "hot.txt",
+    "hot-rule.txt",
+    "readme.md",
+    "README.zh-TW.md",
+    "LICENSE",
+)
+CLIENT_PACKAGED_FILES = ("start_client.exe",)
+# A client package that still carries these is the full package mislabeled.
+CLIENT_FORBIDDEN_PATHS = (
+    "start_server.exe",
+    "config_server.py",
+    "hot-server.txt",
+    "models",
+    "core/server",
+)
+# Keep in sync with build.spec's server_only_packages (a contract test checks).
+SERVER_ONLY_MODULES = (
+    "fastapi",
+    "fork_server",
+    "gguf",
+    "llvmlite",
+    "multipart",
+    "numba",
+    "onnxruntime",
+    "python_multipart",
+    "sentencepiece",
+    "sherpa_onnx",
+    "soundfile",
+    "starlette",
+    "uvicorn",
+)
 
 COMMON_IMPORTS = (
     "PIL.Image",
@@ -61,6 +104,7 @@ SERVER_IMPORTS = COMMON_IMPORTS + (
     "multipart",
     "python_multipart",
     "gguf",
+    "numba",
     "onnxruntime",
     "sentencepiece",
     "sherpa_onnx",
@@ -82,7 +126,6 @@ CLIENT_IMPORTS = COMMON_IMPORTS + (
     "openai",
     "ollama",
     "httpx",
-    "numba",
     "rapidfuzz",
     "srt",
     "tkhtmlview",
@@ -129,19 +172,47 @@ def _linked_paths(root: Path) -> list[Path]:
     return linked
 
 
-def validate_artifact_layout(root: Path, *, packaged: bool) -> None:
+def read_package_variant(root: Path) -> str:
+    """Return the variant that build.spec recorded for a packaged artifact."""
+
+    marker = Path(root) / PACKAGE_MARKER
+    try:
+        data = json.loads(marker.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise ArtifactSelfCheckError(
+            f"cannot read package marker {PACKAGE_MARKER.as_posix()}: {exc}"
+        ) from exc
+    variant = data.get("variant") if isinstance(data, dict) else None
+    if variant not in PACKAGE_VARIANTS:
+        raise ArtifactSelfCheckError(f"unknown package variant: {variant!r}")
+    return variant
+
+
+def validate_artifact_layout(
+    root: Path,
+    *,
+    packaged: bool,
+    variant: str = "full",
+) -> None:
     """Validate required paths and reject links/junctions in the whole tree."""
 
+    if variant not in PACKAGE_VARIANTS:
+        raise ValueError(f"unknown package variant: {variant}")
     root = Path(root)
     if not root.is_dir() or _is_link_or_junction(root):
         raise ArtifactSelfCheckError(f"artifact root is not a real directory: {root}")
 
+    client_only = variant == "client"
+    directories = CLIENT_REQUIRED_DIRECTORIES if client_only else REQUIRED_DIRECTORIES
+    root_files = CLIENT_REQUIRED_ROOT_FILES if client_only else REQUIRED_ROOT_FILES
+    packaged_files = CLIENT_PACKAGED_FILES if client_only else PACKAGED_FILES
+
     missing: list[str] = []
-    for relative in REQUIRED_DIRECTORIES:
+    for relative in directories:
         candidate = root / relative
         if not candidate.is_dir() or _is_link_or_junction(candidate):
             missing.append(relative + "/")
-    for relative in REQUIRED_ROOT_FILES:
+    for relative in root_files:
         candidate = root / relative
         if not candidate.is_file() or _is_link_or_junction(candidate):
             missing.append(relative)
@@ -150,7 +221,7 @@ def validate_artifact_layout(root: Path, *, packaged: bool) -> None:
             candidate = root / relative
             if not candidate.is_dir() or _is_link_or_junction(candidate):
                 missing.append(relative + "/")
-        for relative in PACKAGED_FILES:
+        for relative in packaged_files:
             candidate = root / relative
             if not candidate.is_file() or _is_link_or_junction(candidate):
                 missing.append(relative)
@@ -159,6 +230,16 @@ def validate_artifact_layout(root: Path, *, packaged: bool) -> None:
             "missing required artifact paths: " + ", ".join(sorted(missing))
         )
 
+    if client_only:
+        unexpected = [
+            relative for relative in CLIENT_FORBIDDEN_PATHS
+            if (root / relative).exists()
+        ]
+        if unexpected:
+            raise ArtifactSelfCheckError(
+                "client package contains server paths: " + ", ".join(unexpected)
+            )
+
     linked = _linked_paths(root)
     if linked:
         rendered = ", ".join(
@@ -166,6 +247,21 @@ def validate_artifact_layout(root: Path, *, packaged: bool) -> None:
         )
         raise ArtifactSelfCheckError(
             "artifact contains symbolic links or junctions: " + rendered
+        )
+
+
+def reject_server_only_modules(
+    module_names: Iterable[str] = SERVER_ONLY_MODULES,
+) -> None:
+    """Fail when a client-only package can still import a server runtime."""
+
+    present = [
+        module_name for module_name in module_names
+        if importlib.util.find_spec(module_name) is not None
+    ]
+    if present:
+        raise ArtifactSelfCheckError(
+            "client package bundles server-only modules: " + ", ".join(present)
         )
 
 
@@ -198,10 +294,19 @@ def run_artifact_self_check(
         raise ValueError(f"unknown artifact entrypoint: {entrypoint}")
     selected_root = artifact_root() if root is None else Path(root)
     is_packaged = bool(getattr(sys, "frozen", False)) if packaged is None else packaged
+    variant = "full"
 
     try:
-        validate_artifact_layout(selected_root, packaged=is_packaged)
+        if is_packaged:
+            variant = read_package_variant(selected_root)
+        if variant == "client" and entrypoint != "client":
+            raise ArtifactSelfCheckError(
+                f"{entrypoint} entrypoint is not part of the client package"
+            )
+        validate_artifact_layout(selected_root, packaged=is_packaged, variant=variant)
         imported = import_runtime_surface(ENTRYPOINT_IMPORTS[entrypoint])
+        if variant == "client":
+            reject_server_only_modules()
     except Exception as exc:
         print(
             _render_report(
@@ -209,6 +314,7 @@ def run_artifact_self_check(
                     "entrypoint": entrypoint,
                     "error": f"{type(exc).__name__}: {exc}",
                     "status": "error",
+                    "variant": variant,
                 }
             ),
             file=sys.stderr,
@@ -223,6 +329,7 @@ def run_artifact_self_check(
                 "imports": len(imported),
                 "python": f"{sys.version_info.major}.{sys.version_info.minor}",
                 "status": "ok",
+                "variant": variant,
             }
         )
     )

@@ -155,7 +155,9 @@
 ## 打包与部署 (Build)
 
 - Python 3.10–3.12；Windows 可携式套件使用 [`build.spec`](build.spec)，操作及验证见 [`assets/BUILD_GUIDE.md`](assets/BUILD_GUIDE.md)。
-- `zip_release.py` 仅接受 `dist/CapsWriter-Offline`；旧版 client-only 产物不再归档。
+- `CAPSWRITER_BUILD_VARIANT=full|client` 选择打包变体：`full`（默认）为服务端+客户端，`client` 产出不含任何服务端 runtime 的 `dist/CapsWriter-Offline-Client`；变体写入 `internal/capswriter-package.json`。
+- CI：可复用的 `.github/workflows/windows-package.yml` 由 `portability.yml`（每次 push/PR）与 `release.yml`（`fork-v*` tag → 测试 → 两个 Windows ZIP + source ZIP + `SHA256SUMS` → draft release）调用，见 [`docs/en/releasing.md`](docs/en/releasing.md)。
+- `zip_release.py` 打包 `dist/CapsWriter-Offline` 与带变体标记的 `dist/CapsWriter-Offline-Client`；无标记的旧版 client-only 产物不再归档。
 - `build-client.spec` 已停用；不再支持 Win7／Python 3.8 client-only 套件。
 
 ## 模型支持 (Models)
