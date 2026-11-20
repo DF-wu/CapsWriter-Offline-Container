@@ -50,6 +50,7 @@ datas = []
 # 客户端（及共用）运行时；服务端在此基础上追加推理依赖。
 hiddenimports = [
     'artifact_self_check',
+    'user_config',
     'websockets',
     'websockets.client',
     'websockets.server',

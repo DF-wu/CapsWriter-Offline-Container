@@ -352,10 +352,11 @@ class DesktopPortabilityTest(unittest.TestCase):
                 "core.server": server_package,
                 "core.server.app": server_app,
             },
-        ):
+        ), patch("user_config.seed") as seed:
             start_server_universal.main()
 
         self.assertEqual(started, ["upstream"])
+        seed.assert_called_once_with(server=True)
 
     def test_universal_entrypoint_uses_fork_server_when_http_is_on(self):
         started = []
@@ -372,10 +373,13 @@ class DesktopPortabilityTest(unittest.TestCase):
             start_server_universal,
             "configure_http_api",
             return_value=settings,
-        ), patch.dict(sys.modules, {"fork_server.bootstrap": bootstrap}):
+        ), patch.dict(sys.modules, {"fork_server.bootstrap": bootstrap}), patch(
+            "user_config.seed"
+        ) as seed:
             start_server_universal.main()
 
         self.assertEqual(started, ["fork"])
+        seed.assert_called_once_with(server=True)
 
     def test_x11_callbacks_dispatch_keyboard_and_side_mouse_events(self):
         with loaded_shortcut_manager() as module:

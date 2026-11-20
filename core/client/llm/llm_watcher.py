@@ -47,6 +47,9 @@ class LLMFileWatcher(FileSystemEventHandler):
         from config_client import BASE_DIR
         self.base_dir = Path(BASE_DIR)
         self.llm_dir = self.base_dir / 'LLM'
+        # Fork：同时监控 user/LLM/（优先）与 LLM/
+        from user_config import role_dirs
+        self.llm_dirs = [d for d in role_dirs() if d.is_dir()] or [self.llm_dir]
 
         # 防抖 + 延迟执行
         self._last_event: Optional[tuple] = None  # (file_path, time)
@@ -69,7 +72,7 @@ class LLMFileWatcher(FileSystemEventHandler):
         # 使用 Path 进行更严谨的路径比较
         try:
             path = Path(file_path).resolve()
-            return path.parent == self.llm_dir.resolve()
+            return any(path.parent == d.resolve() for d in self.llm_dirs)
         except Exception:
             return False
 
@@ -204,7 +207,8 @@ class LLMFileWatcher(FileSystemEventHandler):
     def start(self):
         """启动监控"""
         # 监控 LLM 目录
-        self.observer.schedule(self, str(self.llm_dir), recursive=False)
+        for llm_dir in self.llm_dirs:
+            self.observer.schedule(self, str(llm_dir), recursive=False)
         # 同时也监控 Base 目录（为了 hot files），non-recursive
         self.observer.schedule(self, str(self.base_dir), recursive=False)
         

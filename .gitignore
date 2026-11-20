@@ -211,3 +211,6 @@ release
 *.exe
 
 models/**/*.cfg
+
+# 升級安全的使用者設定（見 docs/en/user-config.md），永不進入版本控制或發行包
+/user/

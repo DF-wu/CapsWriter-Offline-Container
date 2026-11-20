@@ -152,6 +152,11 @@ jobs:
               throw "Client-only artifact must not contain: $relative"
             }
           }
+          # user/ holds upgrade-safe settings; a package that ships it would
+          # overwrite them when extracted over an existing install.
+          if (Test-Path -LiteralPath (Join-Path $artifact 'user')) {
+            throw 'Artifact must not contain user/'
+          }
 
           $reparsePoints = @(
             Get-ChildItem -LiteralPath $artifact -Force -Recurse |
@@ -212,6 +217,37 @@ jobs:
           foreach ($executable in $executables) {
             Invoke-ArtifactSelfCheck $executable
           }
+
+          # Functional upgrade check: settings in user/ must survive extracting
+          # the same package over an existing install, and the frozen client
+          # must apply them.
+          $userDir = Join-Path $artifact 'user'
+          New-Item -ItemType Directory -Path (Join-Path $userDir 'LLM') -Force | Out-Null
+          Set-Content -LiteralPath (Join-Path $userDir 'config_client.py') -Encoding utf8 `
+            -Value "class ClientConfig:`n    addr = '192.0.2.10'`n"
+          Set-Content -LiteralPath (Join-Path $userDir 'hot.txt') -Encoding utf8 `
+            -Value 'CapsWriterUpgradeMarker'
+          Set-Content -LiteralPath (Join-Path $userDir 'LLM\upgrade_marker.py') -Encoding utf8 `
+            -Value "name = 'upgrade-marker'`nenabled = False`nprovider = 'ollama'`nmodel = 'marker'`n"
+          $userHashes = {
+            Get-ChildItem -LiteralPath $userDir -Recurse -File |
+              Sort-Object FullName |
+              ForEach-Object { "$($_.FullName)=$((Get-FileHash -LiteralPath $_.FullName).Hash)" }
+          }
+          $before = & $userHashes
+          Expand-Archive -LiteralPath $env:CAPSWRITER_WINDOWS_ARCHIVE -DestinationPath $extractRoot -Force
+          $after = & $userHashes
+          if (Compare-Object -ReferenceObject $before -DifferenceObject $after) {
+            throw "Extracting the package over an install changed user/: $($after -join ', ')"
+          }
+          $upgraded = Invoke-Packaged 'start_client.exe' @('--artifact-self-check')
+          if ($upgraded.ExitCode -ne 0 -or
+              $upgraded.Stdout -notmatch '"user_overrides":\["ClientConfig.addr"\]') {
+            Write-Host $upgraded.Stdout
+            Write-Error $upgraded.Stderr
+            throw 'Packaged client did not apply user/config_client.py after the upgrade'
+          }
+          Write-Host $upgraded.Stdout
 
           # Functional smoke: the frozen client must reach its instance lock and
           # report that no client is running without opening audio. An

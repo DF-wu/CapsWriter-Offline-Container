@@ -56,6 +56,9 @@ asset change after publication.
    generated markers, attach `VALIDATION.md`, and check the image digests in the
    draft notes. If an image is listed as "not published yet", wait for its
    workflow and rerun step 3; your notes are kept.
+   Upgrade notes can rely on the [`user/` folder](user-config.md): users extract
+   the new ZIP over the old folder. For the first release that introduces it,
+   tell users of older releases to run `start_client.exe --import-config <old folder>`.
 5. Publish the draft.
 
 Tags on `maintenance/v1` do not run this workflow: the tagged v1 tree has no

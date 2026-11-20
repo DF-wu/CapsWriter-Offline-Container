@@ -67,8 +67,10 @@ def _save_hotwords(text: str) -> None:
     Args:
         text: 热词文本（支持多行）
     """
-    hot_file = Path('hot.txt')
-    
+    # Fork：写入升级时不会被覆写的 user/hot.txt（存在时）
+    from user_config import data_file
+    hot_file = data_file('hot.txt')
+
     # 确保文件存在
     if not hot_file.exists():
         hot_file.touch()

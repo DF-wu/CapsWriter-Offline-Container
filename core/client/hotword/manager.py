@@ -62,9 +62,11 @@ class HotwordManager:
             threshold: 纠错阈值
             similar_threshold: 相似度阈值
         """
+        # Fork：优先使用升级时不会被覆写的 user/ 内热词文件
+        from user_config import data_file
         self.files = hotword_files or {
-            'hot': Path('hot.txt'),
-            'rule': Path('hot-rule.txt'),
+            'hot': data_file('hot.txt'),
+            'rule': data_file('hot-rule.txt'),
         }
 
         self.threshold = threshold

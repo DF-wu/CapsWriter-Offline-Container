@@ -6,6 +6,10 @@ LLM 角色模块 - 仅用于角色配置
 
 # 此文件为空，仅用于标识 LLM 为 Python 包，请勿删除本文件
 
+# Fork：user/LLM/ 内的同名角色优先于本目录（升级时不会被覆写）
+from user_config import extend_role_package as _extend_role_package
+_extend_role_package(__path__)
+
 
 
 """
