@@ -100,7 +100,13 @@ Download `CapsWriter-Offline-windows-x86_64.zip` from
 extract the **whole folder** to a normal path such as `D:\CapsWriter-Offline`. Verify
 it with the attached `SHA256SUMS` if you like.
 
-It contains two programs with different jobs — never move one EXE out on its own:
+| Release file | Choose it when |
+|---|---|
+| `CapsWriter-Offline-windows-x86_64.zip` | Server and client on this PC (fully offline, single machine) |
+| `CapsWriter-Offline-Client-windows-x86_64.zip` | The server already runs elsewhere, e.g. [Docker on Linux](#quick-start-b-linux-docker-server). Client only, about a third of the size; skip step 2 and set the server address in step 3 |
+| `CapsWriter-Offline-source.zip` | Source code at the release tag |
+
+The full package contains two programs with different jobs — never move one EXE out on its own:
 
 ```text
 CapsWriter-Offline/
@@ -158,9 +164,10 @@ everything else comes from `config_client.py`. See [daily settings](docs/setting
 ![Four dictation steps: click into a text field, hold CapsLock and speak, release, text is typed](docs/assets/dictation-flow.svg)
 
 > [!NOTE]
-> The release ZIP is built by the GitHub Actions `windows-package` job: a hash-locked
+> The release ZIPs are built by the GitHub Actions `windows-package` workflow: a hash-locked
 > PyInstaller build that is moved out of the checkout, zipped and re-extracted with
-> reparse points rejected, then both EXEs pass `--artifact-self-check`. Please still
+> reparse points rejected, then every EXE passes `--artifact-self-check` (the client-only
+> package also proves it carries no server runtime). Please still
 > confirm microphone, tray, hotkeys, model and GPU on your own PC. To build it
 > yourself, see [BUILD_GUIDE](assets/BUILD_GUIDE.md).
 

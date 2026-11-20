@@ -5,6 +5,8 @@
 """
 
 from importlib.util import find_spec
+import json
+import os
 from os.path import basename
 from pathlib import Path
 from platform import system
@@ -20,7 +22,19 @@ from PyInstaller.utils.hooks import collect_all, collect_submodules
 # - False: 不包含 CUDA provider，只使用 CPU 模式（打包体积更小，兼容性更好）
 INCLUDE_CUDA_PROVIDER = False
 
+# 打包变体（环境变量 CAPSWRITER_BUILD_VARIANT）
+# - full  : 服务端 + 客户端（默认，dist/CapsWriter-Offline）
+# - client: 仅客户端，连接远端/容器 Server（dist/CapsWriter-Offline-Client）
+BUILD_VARIANT = os.environ.get('CAPSWRITER_BUILD_VARIANT', 'full').strip().lower() or 'full'
+
 # ====================================================
+
+if BUILD_VARIANT not in ('full', 'client'):
+    raise RuntimeError(
+        f'CAPSWRITER_BUILD_VARIANT must be full or client, not {BUILD_VARIANT!r}'
+    )
+INCLUDE_SERVER = BUILD_VARIANT == 'full'
+DIST_NAME = 'CapsWriter-Offline' if INCLUDE_SERVER else 'CapsWriter-Offline-Client'
 
 if system() != 'Windows':
     raise RuntimeError('build.spec supports only Windows production artifacts')
@@ -33,6 +47,7 @@ if sys.maxsize <= 2**32:
 # 初始化空列表
 binaries = []
 datas = []
+# 客户端（及共用）运行时；服务端在此基础上追加推理依赖。
 hiddenimports = [
     'artifact_self_check',
     'websockets',
@@ -46,8 +61,6 @@ hiddenimports = [
     'pynput',
     'pyclip',
     'numpy',
-    'numba',
-    'soundfile',
     'sounddevice',
     'pypinyin',
     'rapidfuzz',
@@ -55,10 +68,6 @@ hiddenimports = [
     'typer',
     'colorama',
     'srt',
-    'sherpa_onnx',
-    'sentencepiece',
-    'onnxruntime',
-    'gguf',
     'PIL',
     'PIL.Image',
     'pystray',
@@ -68,6 +77,20 @@ hiddenimports = [
     'markdown',
     'tkhtmlview',
 ]
+# 仅服务端推理需要；客户端从不 import，client 变体也会显式排除。
+server_only_hiddenimports = [
+    'numba',
+    'soundfile',
+    'sherpa_onnx',
+    'sentencepiece',
+    'onnxruntime',
+    'gguf',
+]
+server_only_packages = (
+    'numba', 'llvmlite', 'soundfile', 'sherpa_onnx', 'sentencepiece',
+    'onnxruntime', 'gguf', 'fork_server', 'fastapi', 'starlette', 'uvicorn',
+    'multipart', 'python_multipart',
+)
 
 
 def require_importable(package, import_name=None):
@@ -96,34 +119,41 @@ def without_cuda_provider(entries):
 # Sherpa/Pillow carry native/data files that static analysis cannot infer.
 # These are production requirements: a missing package or failed collection
 # must stop the build instead of producing a subtly incomplete artifact.
-require_importable('sherpa-onnx', 'sherpa_onnx')
-sherpa_datas, sherpa_binaries, sherpa_hiddenimports = collect_all('sherpa_onnx')
-if not INCLUDE_CUDA_PROVIDER:
-    sherpa_datas = without_cuda_provider(sherpa_datas)
-    sherpa_binaries = without_cuda_provider(sherpa_binaries)
-datas += sherpa_datas
-binaries += sherpa_binaries
-hiddenimports += sherpa_hiddenimports
-
+# 客户端只需要 Pillow（托盘图标）；Sherpa/SentencePiece 只交给服务端 Analysis。
 require_importable('Pillow', 'PIL')
 pillow_datas, pillow_binaries, pillow_hiddenimports = collect_all('PIL')
 datas += pillow_datas
 binaries += pillow_binaries
 hiddenimports += pillow_hiddenimports
 
-require_importable('sentencepiece')
-sentencepiece_datas, sentencepiece_binaries, sentencepiece_hiddenimports = collect_all(
-    'sentencepiece'
-)
-datas += sentencepiece_datas
-binaries += sentencepiece_binaries
-hiddenimports += sentencepiece_hiddenimports
+server_binaries = list(binaries)
+server_datas = list(datas)
+server_hiddenimports = list(hiddenimports) + server_only_hiddenimports
+if INCLUDE_SERVER:
+    require_importable('sherpa-onnx', 'sherpa_onnx')
+    sherpa_datas, sherpa_binaries, sherpa_hiddenimports = collect_all('sherpa_onnx')
+    if not INCLUDE_CUDA_PROVIDER:
+        sherpa_datas = without_cuda_provider(sherpa_datas)
+        sherpa_binaries = without_cuda_provider(sherpa_binaries)
+    server_datas += sherpa_datas
+    server_binaries += sherpa_binaries
+    server_hiddenimports += sherpa_hiddenimports
+
+    require_importable('sentencepiece')
+    sentencepiece_datas, sentencepiece_binaries, sentencepiece_hiddenimports = collect_all(
+        'sentencepiece'
+    )
+    server_datas += sentencepiece_datas
+    server_binaries += sentencepiece_binaries
+    server_hiddenimports += sentencepiece_hiddenimports
 
 # The settings window is loaded on demand from the tray or --settings.
 # Collect it explicitly so the frozen client can open it before ASR startup.
 require_importable('fork_client')
 hiddenimports += collect_submodules('fork_client')
 hiddenimports += ['tkinter', 'tkinter.ttk', 'tkinter.messagebox']
+server_hiddenimports += collect_submodules('fork_client')
+server_hiddenimports += ['tkinter', 'tkinter.ttk', 'tkinter.messagebox']
 
 # Fork server runtime. The Windows distribution uses the universal entrypoint:
 # it selects the exact upstream server lifecycle by default and the fork server
@@ -131,8 +161,7 @@ hiddenimports += ['tkinter', 'tkinter.ttk', 'tkinter.messagebox']
 # plugin-driven package trees because FastAPI/Pydantic/Uvicorn contain dynamic
 # imports that static analysis does not reliably discover across supported
 # Python versions.
-server_hiddenimports = list(hiddenimports)
-for package in (
+server_packages = (
     'fork_server',
     'fastapi',
     'starlette',
@@ -141,65 +170,67 @@ for package in (
     'pydantic_core',
     'multipart',
     'python_multipart',
-):
+)
+for package in server_packages if INCLUDE_SERVER else ():
     require_importable(package)
     try:
         if package == 'fork_server':
-            collected = collect_submodules(
+            package_modules = collect_submodules(
                 package,
                 filter=lambda name: '.tests' not in name,
             )
         else:
-            collected = collect_submodules(package)
+            package_modules = collect_submodules(package)
     except Exception as error:
         raise RuntimeError(f'Cannot collect HTTP API package {package}') from error
-    server_hiddenimports += collected
+    server_hiddenimports += package_modules
 
 # # 对所有模块用 .py 源码而非 .pyc（猴子补丁 _get_module_collection_mode）
 # import PyInstaller.building.build_main as _bm
 # _bm._get_module_collection_mode = lambda md, n, na=False: _bm._ModuleCollectionMode.PY
 
-a_1 = Analysis(
-    ['start_server_universal.py'],
-    pathex=[],
-    binaries=binaries,
-    datas=datas,
-    hiddenimports=server_hiddenimports,
-    hookspath=[],
-    hooksconfig={},
-    runtime_hooks=['build_hook.py'],
-    excludes=['IPython',
-              'PySide6', 'PySide2', 'PyQt5',
-              'matplotlib', 'wx',
-              'funasr', 'torch',
-              ],
-    noarchive=True,
-)
-
-# 过滤掉从二进制依赖分析中收集的 DLL
-# 这些 DLL 是 PyInstaller 在分析 DLL 依赖时自动收集的
-# 我们排除从系统 CUDA 安装目录收集的 DLL（它们应该运行时从系统加载）
-filtered_binaries = []
-for name, src, type in a_1.binaries:
-    src_lower = src.lower() if isinstance(src, str) else ''
-    is_system_cuda_dll = (
-        '\\nvidia gpu computing toolkit\\cuda\\' in src_lower or
-        '\\nvidia\\cudnn\\' in src_lower or
-        ('\\cuda\\v' in src_lower and '\\bin\\' in src_lower)
-    )
-    is_unwanted_onnx_dll = (
-        'onnxruntime_providers_cuda.dll' in name.lower() 
+if INCLUDE_SERVER:
+    a_1 = Analysis(
+        ['start_server_universal.py'],
+        pathex=[],
+        binaries=server_binaries,
+        datas=server_datas,
+        hiddenimports=server_hiddenimports,
+        hookspath=[],
+        hooksconfig={},
+        runtime_hooks=['build_hook.py'],
+        excludes=['IPython',
+                  'PySide6', 'PySide2', 'PyQt5',
+                  'matplotlib', 'wx',
+                  'funasr', 'torch',
+                  ],
+        noarchive=True,
     )
 
-    if not is_system_cuda_dll and not is_unwanted_onnx_dll:
-        filtered_binaries.append((name, src, type))
-    else:
-        reason = "system CUDA DLL" if is_system_cuda_dll else "redundant ONNX DLL"
-        print(
-            f"[INFO] Excluding {reason}: {ascii(name)} "
-            f"(collected from {ascii(src)})"
+    # 过滤掉从二进制依赖分析中收集的 DLL
+    # 这些 DLL 是 PyInstaller 在分析 DLL 依赖时自动收集的
+    # 我们排除从系统 CUDA 安装目录收集的 DLL（它们应该运行时从系统加载）
+    filtered_binaries = []
+    for name, src, type in a_1.binaries:
+        src_lower = src.lower() if isinstance(src, str) else ''
+        is_system_cuda_dll = (
+            '\\nvidia gpu computing toolkit\\cuda\\' in src_lower or
+            '\\nvidia\\cudnn\\' in src_lower or
+            ('\\cuda\\v' in src_lower and '\\bin\\' in src_lower)
         )
-a_1.binaries = filtered_binaries
+        is_unwanted_onnx_dll = (
+            'onnxruntime_providers_cuda.dll' in name.lower() 
+        )
+
+        if not is_system_cuda_dll and not is_unwanted_onnx_dll:
+            filtered_binaries.append((name, src, type))
+        else:
+            reason = "system CUDA DLL" if is_system_cuda_dll else "redundant ONNX DLL"
+            print(
+                f"[INFO] Excluding {reason}: {ascii(name)} "
+                f"(collected from {ascii(src)})"
+            )
+    a_1.binaries = filtered_binaries
 
 a_2 = Analysis(
     ['start_client.py'],
@@ -213,6 +244,8 @@ a_2 = Analysis(
     excludes=['IPython',
               'PySide6', 'PySide2', 'PyQt5',
               'matplotlib', 'wx',
+              'funasr', 'torch',
+              *server_only_packages,
               ],
     noarchive=True,
 )
@@ -245,7 +278,9 @@ a_2.binaries = filtered_binaries
 # 排除不要打包的模块（这些将作为源文件复制）
 private_module = ['core', 'config_client', 'config_server', 'LLM', ]
 
-for which in (a_1, a_2):
+analyses = (a_1, a_2) if INCLUDE_SERVER else (a_2,)
+
+for which in analyses:
     filtered = []
     for name, src, type in which.pure:
         if not any(name == m or name.startswith(m + '.') for m in private_module):
@@ -253,7 +288,7 @@ for which in (a_1, a_2):
     which.pure = filtered
 
 # noarchive 会将私有模块也编译成 .pyc 放进 datas，排除掉以保持源码运行
-for which in (a_1, a_2):
+for which in analyses:
     filtered = []
     for name, src, type in which.datas:
         is_private = any(
@@ -265,30 +300,33 @@ for which in (a_1, a_2):
     which.datas = filtered
 
 
-pyz_1 = PYZ(a_1.pure)
 pyz_2 = PYZ(a_2.pure)
 
+collected = []
+if INCLUDE_SERVER:
+    pyz_1 = PYZ(a_1.pure)
+    exe_1 = EXE(
+        pyz_1,
+        a_1.scripts,
+        [],
+        exclude_binaries=True,
+        name='start_server',
+        debug=False,
+        bootloader_ignore_signals=False,
+        strip=False,
+        upx=True,
+        console=True,
+        disable_windowed_traceback=False,
+        argv_emulation=False,
+        target_arch=None,
+        codesign_identity=None,
+        entitlements_file=None,
+        icon=['assets\\\\icon.ico'],
+        # 所有第三方依赖放入 internal 目录
+        contents_directory='internal',
+    )
+    collected += [exe_1, a_1.binaries, a_1.datas]
 
-exe_1 = EXE(
-    pyz_1,
-    a_1.scripts,
-    [],
-    exclude_binaries=True,
-    name='start_server',
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    console=True,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-    icon=['assets\\\\icon.ico'],
-    # 所有第三方依赖放入 internal 目录
-    contents_directory='internal',
-)
 exe_2 = EXE(
     pyz_2,
     a_2.scripts,
@@ -311,19 +349,14 @@ exe_2 = EXE(
     contents_directory='internal',
 )
 
+collected += [exe_2, a_2.binaries, a_2.datas]
+
 coll = COLLECT(
-    exe_1,
-    a_1.binaries,
-    a_1.datas,
-
-    exe_2,
-    a_2.binaries,
-    a_2.datas,
-
+    *collected,
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='CapsWriter-Offline',
+    name=DIST_NAME,
 )
 
 
@@ -335,16 +368,17 @@ source_root = Path(SPECPATH).resolve()
 dest_root = Path(DISTPATH) / basename(coll.name)
 required_files = (
     'config_client.py',
-    'config_server.py',
     'hot.txt',
-    'hot-server.txt',
     'hot-rule.txt',
     'readme.md',
     'README.zh-TW.md',
     'LICENSE',
 )
 required_folders = ('core', 'LLM', 'assets', 'docs')
-mutable_folders = ('models', 'logs')
+mutable_folders = ('logs',)
+if INCLUDE_SERVER:
+    required_files += ('config_server.py', 'hot-server.txt')
+    mutable_folders += ('models',)
 
 ignored_directory_names = {
     '__pycache__',
@@ -382,7 +416,9 @@ def portable_copy_ignore(directory, names):
         candidate = Path(directory) / name
         lower_name = name.lower()
         if (
-            lower_name in ignored_directory_names
+            # 仅客户端包不携带服务端源码与推理引擎。
+            (not INCLUDE_SERVER and candidate.resolve() == source_root / 'core' / 'server')
+            or lower_name in ignored_directory_names
             or lower_name.startswith('.env')
             or lower_name.endswith(ignored_suffixes)
             or '.so.' in lower_name
@@ -420,3 +456,9 @@ for relative in mutable_folders:
             raise RuntimeError(f'Windows artifact mutable path must be empty: {relative}')
     else:
         destination.mkdir()
+
+# 记录打包变体，供 --artifact-self-check 选择对应的目录契约。
+(dest_root / 'internal' / 'capswriter-package.json').write_text(
+    json.dumps({'variant': BUILD_VARIANT}, sort_keys=True) + '\n',
+    encoding='utf-8',
+)

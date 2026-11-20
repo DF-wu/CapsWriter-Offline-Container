@@ -4,11 +4,12 @@
 打包脚本 - 使用 7zip 压缩 dist 目录中的构建产物
 
 功能：
-1. 打包 CapsWriter-Offline（服务端+客户端）
+1. 打包 CapsWriter-Offline（服务端+客户端）与 CapsWriter-Offline-Client（仅客户端）
 3. 智能排除模型文件（.onnx, .dll, .json 等），但保留说明文档
 """
 
 import os
+import json
 import math
 import subprocess
 from pathlib import Path
@@ -44,6 +45,16 @@ def zip_release_timeout_seconds():
         ZIP_RELEASE_TIMEOUT_ENV,
         DEFAULT_ZIP_RELEASE_TIMEOUT_SECONDS,
     )
+
+
+def package_variant(dist_folder):
+    """读取 build.spec 写入的打包变体；旧产物没有标记时返回 None。"""
+    marker = Path(dist_folder) / 'internal' / 'capswriter-package.json'
+    try:
+        data = json.loads(marker.read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return None
+    return data.get('variant') if isinstance(data, dict) else None
 
 
 def find_7zip():
@@ -278,9 +289,18 @@ def main():
             'name': '服务端+客户端'
         })
 
-    # 旧 client-only 目录可能来自过往构建，不可重新包装成当前发行。
-    if (dist_dir / 'CapsWriter-Offline-Client').exists():
-        print("跳过已停用的 client-only 产物；请使用当前 build.spec 完整构建。")
+    # 仅客户端包（CAPSWRITER_BUILD_VARIANT=client）带有变体标记；
+    # 无标记的同名目录来自已停用的旧版 client-only 构建，不可重新包装成当前发行。
+    client_dist = dist_dir / 'CapsWriter-Offline-Client'
+    if client_dist.exists():
+        if package_variant(client_dist) == 'client':
+            packages.append({
+                'source': client_dist,
+                'output': release_dir / f'CapsWriter-Offline-Client-{timestamp}.zip',
+                'name': '仅客户端'
+            })
+        else:
+            print("跳过已停用的 client-only 产物；请使用当前 build.spec 构建。")
 
     if not packages:
         print(f"\n错误: dist 目录中没有找到构建产物")

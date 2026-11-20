@@ -161,5 +161,28 @@ class ZipReleaseTest(unittest.TestCase):
             finally:
                 os.chdir(previous_cwd)
 
+    def test_marked_client_variant_is_packaged(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            client = root / "dist" / "CapsWriter-Offline-Client"
+            (client / "internal").mkdir(parents=True)
+            (client / "internal" / "capswriter-package.json").write_text(
+                '{"variant": "client"}\n',
+                encoding="utf-8",
+            )
+            (client / "start_client.exe").write_text("binary", encoding="utf-8")
+            previous_cwd = Path.cwd()
+            output = io.StringIO()
+            try:
+                os.chdir(root)
+                with patch.object(zip_release, "package_with_7zip") as package, redirect_stdout(output):
+                    zip_release.main()
+            finally:
+                os.chdir(previous_cwd)
+
+            package.assert_called_once()
+            self.assertEqual(package.call_args.args[0], Path("dist") / "CapsWriter-Offline-Client")
+            self.assertNotIn("跳过已停用", output.getvalue())
+
 if __name__ == "__main__":
     unittest.main()

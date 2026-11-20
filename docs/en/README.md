@@ -58,6 +58,7 @@ API; the desktop client uses WebSocket and normally does not.
 | Document | Audience and purpose |
 |---|---|
 | [Release notes](release-notes.md) | Users reviewing changes, migration, limits, and release evidence |
+| [Releasing](releasing.md) | Maintainers cutting a release: asset matrix, CI gates, draft workflow |
 | [Troubleshooting](troubleshooting.md) | Users/operators following a server-first diagnostic ladder |
 | [Verification and cleanup](../verification.md) | Contributors and release operators |
 | [v1/v2 maintenance policy](versioning.md) | Maintainers and users planning upgrades |

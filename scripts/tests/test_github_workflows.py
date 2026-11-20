@@ -14,6 +14,7 @@ PINNED_ACTIONS = {
     "actions/setup-python": "a26af69be951a213d495a4c3e4e4022e16d87065",
     "actions/setup-node": "49933ea5288caeca8642d1e84afbd3f7d6820020",
     "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+    "actions/download-artifact": "d3f86a106a0bac45b974a628896c90dbdf5c8093",
     "docker/setup-buildx-action": "8d2750c68a42422c14e847fe6c8ac0403b4cbd6f",
     "docker/login-action": "c94ce9fb468520275223c153574b00df6fe4bcc9",
     "docker/metadata-action": "c299e40c65443455700f0fdfc63efafe5b349051",
@@ -24,6 +25,18 @@ PINNED_RUNNERS = {"ubuntu-24.04", "windows-2022"}
 
 def read_workflow(filename: str) -> str:
     return (WORKFLOWS / filename).read_text(encoding="utf-8")
+
+
+def run_blocks(source: str) -> str:
+    """Return the bodies of every multi-line ``run:`` script in a workflow."""
+
+    return "\n".join(
+        re.findall(r"(?ms)run: [|>]-?\n(.*?)(?=^\s+- name:|\Z)", source)
+    )
+
+
+def unittest_modules(job: str) -> list[str]:
+    return re.findall(r"(?m)^\s+(scripts\.tests\.test_\w+)\s*$", job)
 
 
 def workflow_job(source: str, job_name: str) -> str:
@@ -73,18 +86,27 @@ class GitHubWorkflowTest(unittest.TestCase):
             for action, sha in PINNED_ACTIONS.items():
                 if action.startswith("docker/") and filename == "ci.yml":
                     continue
-                if action == "actions/upload-artifact":
+                if action in ("actions/upload-artifact", "actions/download-artifact"):
                     continue
                 with self.subTest(filename=filename, action=action):
                     self.assertIn(f"uses: {action}@{sha}", source)
 
-        portability = read_workflow("portability.yml")
+        package = read_workflow("windows-package.yml")
         for action in (
             "actions/checkout",
             "actions/setup-python",
             "actions/upload-artifact",
         ):
-            self.assertIn(f"uses: {action}@{PINNED_ACTIONS[action]}", portability)
+            self.assertIn(f"uses: {action}@{PINNED_ACTIONS[action]}", package)
+
+        release = read_workflow("release.yml")
+        for action in (
+            "actions/checkout",
+            "actions/setup-python",
+            "actions/setup-node",
+            "actions/download-artifact",
+        ):
+            self.assertIn(f"uses: {action}@{PINNED_ACTIONS[action]}", release)
 
     def test_checkout_steps_do_not_persist_credentials(self) -> None:
         checkout = f"actions/checkout@{PINNED_ACTIONS['actions/checkout']}"
@@ -143,14 +165,34 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertIn("docs/en/desktop-portability.md", job)
         self.assertIn("docs/zh-TW/desktop-portability.md", job)
 
-    def test_portability_builds_relocates_and_smokes_windows_package(self) -> None:
+    def test_portability_builds_both_windows_package_variants(self) -> None:
         source = read_workflow("portability.yml")
         job = workflow_job(source, "windows-package")
 
+        self.assertIn("uses: ./.github/workflows/windows-package.yml", job)
+        self.assertIn("variant: [full, client]", job)
+        self.assertIn("fail-fast: false", job)
+        self.assertIn("variant: ${{ matrix.variant }}", job)
+
+    def test_windows_package_builds_relocates_and_smokes_selected_variant(self) -> None:
+        source = read_workflow("windows-package.yml")
+        trigger = source.split("\njobs:", 1)[0]
+        job = workflow_job(source, "package")
+
+        self.assertIn("workflow_call:", trigger)
+        self.assertNotIn("push:", trigger)
+        self.assertNotIn("pull_request:", trigger)
         self.assertIn("runs-on: windows-2022", job)
         self.assertIn("timeout-minutes: 60", job)
         self.assertIn('python-version: "3.12"', job)
         self.assertIn('PYTHONNOUSERSITE: "1"', job)
+        self.assertIn("CAPSWRITER_BUILD_VARIANT: ${{ inputs.variant }}", job)
+        self.assertIn("ref: ${{ inputs.ref }}", job)
+        # Inputs reach scripts only through the environment, never inline.
+        self.assertNotIn("${{ inputs.", run_blocks(job))
+        self.assertIn('throw "Unsupported package variant', job)
+        self.assertIn("'CapsWriter-Offline-windows-x86_64'", job)
+        self.assertIn("'CapsWriter-Offline-Client-windows-x86_64'", job)
         self.assertIn("python -m pip install", job)
         self.assertIn("--no-deps", job)
         self.assertIn(
@@ -168,16 +210,92 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertIn("Get-FileHash -LiteralPath $archive -Algorithm SHA256", job)
         self.assertIn("Expand-Archive", job)
         self.assertIn("ReparsePoint", job)
-        self.assertIn("@('models', 'logs')", job)
+        self.assertIn("$mutable = @('logs')", job)
+        self.assertIn("$mutable += @('models')", job)
+        self.assertIn("'internal\\capswriter-package.json'", job)
+        client_forbidden = job.split("$forbidden = @(", 2)[2]
+        for forbidden in ("'start_server.exe'", "'core\\server'", "'internal\\onnxruntime'"):
+            with self.subTest(forbidden=forbidden):
+                self.assertIn(forbidden, client_forbidden)
         self.assertIn("--artifact-self-check", job)
-        self.assertIn("Invoke-ArtifactSelfCheck 'start_server.exe'", job)
-        self.assertIn("Invoke-ArtifactSelfCheck 'start_client.exe'", job)
+        self.assertIn('"variant":"', job)
+        self.assertIn("Invoke-ArtifactSelfCheck $executable", job)
+        self.assertIn("$executables = @('start_server.exe') + $executables", job)
+        self.assertIn("Invoke-Packaged 'start_client.exe' @('--status')", job)
+        self.assertIn("$status.ExitCode -ne 1", job)
         self.assertIn(
             f"uses: actions/upload-artifact@{PINNED_ACTIONS['actions/upload-artifact']}",
             job,
         )
+        self.assertIn("name: ${{ env.CAPSWRITER_ARCHIVE_NAME }}", job)
+        self.assertIn("retention-days: ${{ inputs.retention-days }}", job)
         self.assertNotIn("6016", job)
         self.assertNotIn("6017", job)
+
+    def test_release_runs_only_for_fork_tags_on_master(self) -> None:
+        source = read_workflow("release.yml")
+        trigger = source.split("\njobs:", 1)[0]
+        resolve = workflow_job(source, "resolve")
+
+        self.assertIn('      - "fork-v*"', trigger)
+        self.assertIn("workflow_dispatch:", trigger)
+        self.assertNotIn("branches:", trigger)
+        self.assertNotIn("pull_request", trigger)
+        self.assertIn("permissions:\n  contents: read", trigger)
+        self.assertIn("cancel-in-progress: false", trigger)
+        self.assertIn("fetch-depth: 0", resolve)
+        self.assertIn(r"^fork-v[0-9]+\.[0-9]+\.[0-9]+", resolve)
+        self.assertIn('git merge-base --is-ancestor "$sha" origin/master', resolve)
+        self.assertIn("INPUT_TAG: ${{ inputs.tag }}", resolve)
+        self.assertNotIn("${{ inputs.", run_blocks(source))
+        self.assertNotIn("${{ github.ref_name }}", run_blocks(source))
+
+    def test_release_gates_packages_on_linux_and_windows_tests(self) -> None:
+        source = read_workflow("release.yml")
+        verify = workflow_job(source, "verify")
+        desktop = workflow_job(source, "desktop-tests")
+        package = workflow_job(source, "windows-package")
+
+        for name, job in (("verify", verify), ("desktop-tests", desktop)):
+            with self.subTest(job=name):
+                self.assertIn("needs: resolve", job)
+                self.assertIn("ref: ${{ needs.resolve.outputs.sha }}", job)
+        self.assertIn("python scripts/verify_all.py --skip-web", verify)
+        self.assertIn("CAPSWRITER_UPSTREAM_BASE: upstream/master", verify)
+        self.assertIn("--requirement requirements/api-test.lock", verify)
+        self.assertIn("scripts/verify_api_contract.py", verify)
+        self.assertIn("runs-on: windows-2022", desktop)
+        self.assertIn("python client/cli/scripts/verify.py", desktop)
+
+        # The Windows release gate runs exactly the portability unit suites.
+        portability = workflow_job(read_workflow("portability.yml"), "core-cli")
+        self.assertTrue(unittest_modules(desktop))
+        self.assertEqual(unittest_modules(desktop), unittest_modules(portability))
+
+        self.assertIn("needs: [resolve, verify, desktop-tests]", package)
+        self.assertIn("uses: ./.github/workflows/windows-package.yml", package)
+        self.assertIn("variant: [full, client]", package)
+        self.assertIn("ref: ${{ needs.resolve.outputs.sha }}", package)
+
+    def test_release_only_drafts_and_never_edits_published_releases(self) -> None:
+        source = read_workflow("release.yml")
+        publish = workflow_job(source, "publish-draft")
+
+        self.assertEqual(source.count("contents: write"), 1)
+        self.assertIn("contents: write", publish)
+        self.assertIn("needs: [resolve, windows-package]", publish)
+        self.assertIn("pattern: CapsWriter-Offline-*windows-x86_64", publish)
+        self.assertIn("merge-multiple: true", publish)
+        self.assertIn('git archive --format=zip --prefix="CapsWriter-Offline-$TAG/"', publish)
+        self.assertIn("CapsWriter-Offline-source.zip", publish)
+        self.assertIn("CapsWriter-Offline-Client-windows-x86_64.zip", publish)
+        self.assertIn("sha256sum -- *.zip > SHA256SUMS", publish)
+        self.assertIn("sha256sum -c SHA256SUMS", publish)
+        self.assertIn('gh release create "$TAG" --draft --verify-tag', publish)
+        self.assertIn('[ "$is_draft" != "true" ]', publish)
+        self.assertIn("refusing to modify a published release", publish)
+        self.assertNotIn("gh release edit", publish)
+        self.assertNotIn("--draft=false", publish)
 
     def test_ci_runs_four_leg_tui_lock_and_strict_suite(self) -> None:
         source = read_workflow("ci.yml")
@@ -229,7 +347,14 @@ class GitHubWorkflowTest(unittest.TestCase):
     def test_workflow_jobs_have_explicit_deadlines(self) -> None:
         expected = {
             "ci.yml": {"verify": 45, "api-contract": 15, "tui": 15},
-            "portability.yml": {"core-cli": 15, "windows-package": 60},
+            "portability.yml": {"core-cli": 15},
+            "windows-package.yml": {"package": 60},
+            "release.yml": {
+                "resolve": 5,
+                "verify": 45,
+                "desktop-tests": 15,
+                "publish-draft": 15,
+            },
             "publish-server-image.yml": {
                 "verify": 45,
                 "publish": 120,
