@@ -59,15 +59,20 @@ CLIENT_FORBIDDEN_PATHS = (
     "models",
     "core/server",
 )
+# Keep in sync with build.spec's server_only_packages (a contract test checks).
 SERVER_ONLY_MODULES = (
     "fastapi",
     "fork_server",
     "gguf",
     "llvmlite",
+    "multipart",
     "numba",
     "onnxruntime",
+    "python_multipart",
     "sentencepiece",
     "sherpa_onnx",
+    "soundfile",
+    "starlette",
     "uvicorn",
 )
 

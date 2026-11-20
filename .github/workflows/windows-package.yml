@@ -181,9 +181,11 @@ jobs:
               -RedirectStandardError $stderr `
               -PassThru
             try {
-              Wait-Process -Id $process.Id -Timeout 120 -ErrorAction Stop
+              # Wait on the retained object: a fast command may already have
+              # exited, and a fresh -Id lookup would then fail.
+              Wait-Process -InputObject $process -Timeout 120 -ErrorAction Stop
             } catch {
-              Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue
+              Stop-Process -InputObject $process -Force -ErrorAction SilentlyContinue
               throw "$label timed out"
             }
             $process.Refresh()
@@ -212,12 +214,19 @@ jobs:
           }
 
           # Functional smoke: the frozen client must reach its instance lock and
-          # report that no client is running (exit 1) without opening audio.
+          # report that no client is running without opening audio. An
+          # unhandled exception also exits 1, so require the message
+          # "CapsWriter Client <not running>" and an empty stderr as well. The
+          # frozen exe writes the runner's ANSI code page (it ignores
+          # PYTHONIOENCODING), where the Chinese text is backslash-escaped.
           $status = Invoke-Packaged 'start_client.exe' @('--status')
-          if ($status.ExitCode -ne 1) {
+          $notRunning = 'CapsWriter Client (未執行|\\u672a\\u57f7\\u884c)'
+          if ($status.ExitCode -ne 1 -or
+              $status.Stdout -notmatch $notRunning -or
+              -not [string]::IsNullOrWhiteSpace($status.Stderr)) {
             Write-Host $status.Stdout
-            Write-Error $status.Stderr
-            throw "$($status.Label) expected exit 1, got $($status.ExitCode)"
+            Write-Host $status.Stderr
+            throw "$($status.Label) did not report 'not running' (exit $($status.ExitCode))"
           }
 
           $internalMiB = [math]::Round(

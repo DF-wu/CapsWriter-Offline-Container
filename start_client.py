@@ -4,8 +4,23 @@ from __future__ import annotations
 import sys
 
 
+def _tolerate_unencodable_output() -> None:
+    """輸出導向舊式 code page（例如 cp1252）時，中文狀態訊息不可讓程式崩潰。
+
+    凍結版不採用 PYTHONIOENCODING／PYTHONUTF8，因此在 import core 之前比照
+    core/__init__.py 保留原編碼，只把無法編碼的字元改為跳脫序列。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(errors="backslashreplace")
+            except (AttributeError, OSError, ValueError):
+                pass
+
+
 def main(argv: list[str] | None = None) -> int | None:
     selected_args = sys.argv[1:] if argv is None else argv
+    _tolerate_unencodable_output()
     if selected_args == ["--artifact-self-check"]:
         from artifact_self_check import run_artifact_self_check
 

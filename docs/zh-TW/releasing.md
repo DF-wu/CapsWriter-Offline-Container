@@ -30,7 +30,11 @@
 | `publish-draft` | Ubuntu 24.04 | 下載剛測過的 ZIP、加入 source ZIP、產生並重新驗證 `SHA256SUMS`、查詢 `sha-<commit>` image digest，建立或更新 draft |
 
 只有 `publish-draft` 有 `contents: write`，且永遠不修改已公開的 release；若該 tag
-的 release 已公開，job 會直接失敗。
+的 release 已公開，job 會直接失敗。對既有 draft 重跑時，只替換附件，以及
+`<!-- release-assets:start -->` 與 `<!-- release-assets:end -->` 之間自動產生的
+區段；標記外你自己寫的內容會保留。每次寫入前都會重新確認仍是 draft。若要連
+「refresh 執行中剛好被公開」的情況也排除，請開啟 **Settings → General → Releases →
+Immutable releases**：公開後 GitHub 會拒絕任何附件變更。
 
 ## 步驟
 
@@ -44,8 +48,9 @@
 
 3. 等 `release` workflow 完成。要重建既有 tag 的 draft（例如 runner 偶發失敗），
    手動執行 workflow 並填入 `tag`。
-4. 開啟 draft release，補上重點與升級說明、附上 `VALIDATION.md`，並核對 draft
-   內的 image digest。若 image 顯示「not published yet」，等該 workflow 完成後重跑第 3 步。
+4. 開啟 draft release，在自動產生的標記之外補上重點與升級說明、附上
+   `VALIDATION.md`，並核對 draft 內的 image digest。若 image 顯示「not published
+   yet」，等該 workflow 完成後重跑第 3 步；你寫的內容會保留。
 5. 公開 draft。
 
 `maintenance/v1` 上的 tag 不會執行此 workflow：v1 的 tag tree 沒有 `release.yml`，

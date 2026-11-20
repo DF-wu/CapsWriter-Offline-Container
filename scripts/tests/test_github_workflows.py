@@ -294,8 +294,24 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertIn('gh release create "$TAG" --draft --verify-tag', publish)
         self.assertIn('[ "$is_draft" != "true" ]', publish)
         self.assertIn("refusing to modify a published release", publish)
-        self.assertNotIn("gh release edit", publish)
         self.assertNotIn("--draft=false", publish)
+        self.assertNotIn("--latest", publish)
+
+        # A refresh rewrites only the generated section and re-checks the
+        # draft state immediately before every write.
+        self.assertIn("<!-- release-assets:start -->", publish)
+        self.assertIn("<!-- release-assets:end -->", publish)
+        refresh = publish.split("Create or refresh the draft release", 1)[1]
+        writes = (
+            'gh release upload "$TAG" release-assets/* --clobber',
+            'gh release edit "$TAG" --notes-file refreshed-notes.md',
+        )
+        for write in writes:
+            with self.subTest(write=write):
+                self.assertIn(write, refresh)
+                preceding = refresh[: refresh.index(write)].rstrip().splitlines()[-1]
+                self.assertEqual(preceding.strip(), "require_draft")
+        self.assertEqual(publish.count("gh release edit"), 1)
 
     def test_ci_runs_four_leg_tui_lock_and_strict_suite(self) -> None:
         source = read_workflow("ci.yml")

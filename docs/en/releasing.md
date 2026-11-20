@@ -31,7 +31,13 @@ no Linux tarball (the image is the Linux deliverable).
 | `publish-draft` | Ubuntu 24.04 | Downloads the exact tested ZIPs, adds the source ZIP, writes and re-verifies `SHA256SUMS`, looks up the `sha-<commit>` image digests and creates or refreshes the draft |
 
 Only `publish-draft` has `contents: write`. It never edits a published release:
-if the tag's release is already public, the job fails instead.
+if the tag's release is already public, the job fails instead. Rerunning it for
+an existing draft replaces the assets and only the generated section between
+`<!-- release-assets:start -->` and `<!-- release-assets:end -->`; anything you
+wrote outside those markers is kept. The draft state is re-checked right before
+every write. To also rule out publishing during a running refresh, enable
+**Settings → General → Releases → Immutable releases**: GitHub then rejects any
+asset change after publication.
 
 ## Steps
 
@@ -46,9 +52,10 @@ if the tag's release is already public, the job fails instead.
 
 3. Wait for the `release` workflow. To rebuild an existing tag's draft (for
    example after a flaky runner), run it manually with the `tag` input.
-4. Open the draft release, write the highlights and upgrade notes, attach
-   `VALIDATION.md`, and check the image digests in the draft notes. If an image
-   is listed as "not published yet", wait for its workflow and rerun step 3.
+4. Open the draft release, write the highlights and upgrade notes outside the
+   generated markers, attach `VALIDATION.md`, and check the image digests in the
+   draft notes. If an image is listed as "not published yet", wait for its
+   workflow and rerun step 3; your notes are kept.
 5. Publish the draft.
 
 Tags on `maintenance/v1` do not run this workflow: the tagged v1 tree has no

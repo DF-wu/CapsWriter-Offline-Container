@@ -218,15 +218,13 @@ jobs:
             if digest="$(docker buildx imagetools inspect "$ref" --format '{{.Manifest.Digest}}' 2>/dev/null)"; then
               images="$images$ref"$'\n'"$digest"$'\n\n'
             else
-              images="$images$ref"$'\n'"(not published yet: wait for publish-$name-image on master)"$'\n\n'
+              images="$images$ref"$'\n'"(not published yet: wait for publish-$name-image on master, then rerun)"$'\n\n'
             fi
           done
+          # Everything between the markers is regenerated on every run; text
+          # outside them belongs to the maintainer and is kept on refresh.
           {
-            echo "# $TAG"
-            echo
-            echo "> Draft assembled by the release workflow from \`$SHA\`. Fill in the"
-            echo "> highlights and attach VALIDATION.md before publishing."
-            echo
+            echo "<!-- release-assets:start -->"
             echo "## Downloads"
             echo
             echo "| File | For |"
@@ -246,18 +244,58 @@ jobs:
             echo '```text'
             printf '%s' "$images"
             echo '```'
+            echo "<!-- release-assets:end -->"
+          } > generated-notes.md
+          {
+            echo "# $TAG"
+            echo
+            echo "> Draft assembled by the release workflow from \`$SHA\`. Fill in the"
+            echo "> highlights and attach VALIDATION.md before publishing."
+            echo
+            cat generated-notes.md
           } > release-notes.md
           cat release-notes.md
 
       - name: Create or refresh the draft release
         run: |
-          if is_draft="$(gh release view "$TAG" --json isDraft --jq .isDraft 2>/dev/null)"; then
+          require_draft() {
+            # Checked right before every write to narrow the window in which a
+            # maintainer could publish mid-run. Enable the repository's
+            # immutable releases setting to close it completely.
+            is_draft="$(gh release view "$TAG" --json isDraft --jq .isDraft)"
             if [ "$is_draft" != "true" ]; then
               echo "::error::$TAG is already published; refusing to modify a published release"
               exit 1
             fi
-            gh release upload "$TAG" release-assets/* --clobber
-          else
+          }
+          if ! gh release view "$TAG" --json isDraft > /dev/null 2>&1; then
             gh release create "$TAG" --draft --verify-tag --title "$TAG" \
               --notes-file release-notes.md release-assets/*
+            exit 0
           fi
+
+          require_draft
+          gh release view "$TAG" --json body --jq .body > current-notes.md
+          python3 - current-notes.md generated-notes.md refreshed-notes.md <<'PY'
+          import re
+          import sys
+
+          current_path, generated_path, output = sys.argv[1:]
+          with open(current_path, encoding="utf-8") as handle:
+              current = handle.read()
+          with open(generated_path, encoding="utf-8") as handle:
+              generated = handle.read()
+          pattern = re.compile(
+              r"<!-- release-assets:start -->.*?<!-- release-assets:end -->\n?", re.DOTALL
+          )
+          if pattern.search(current):
+              refreshed = pattern.sub(lambda _: generated, current, count=1)
+          else:
+              refreshed = current.rstrip("\n") + "\n\n" + generated
+          open(output, "w", encoding="utf-8").write(refreshed)
+          PY
+          require_draft
+          gh release upload "$TAG" release-assets/* --clobber
+          require_draft
+          gh release edit "$TAG" --notes-file refreshed-notes.md
+
