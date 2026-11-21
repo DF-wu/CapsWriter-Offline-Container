@@ -210,11 +210,17 @@ class _HotwordFileHandler(FileSystemEventHandler):
             m.files['rule'].name: m._load_rule,
         }
 
-    def on_modified(self, event):
+    def on_created(self, event):
+        self.on_modified(event)
+
+    def on_moved(self, event):
+        self.on_modified(event, path=event.dest_path)
+
+    def on_modified(self, event, *, path=None):
         """文件修改时触发"""
         if event.is_directory: return
         
-        event_path = Path(event.src_path)
+        event_path = Path(path or event.src_path)
         filename = event_path.name
         if self.manager._use_user_files:
             from user_config import program_root, user_dir

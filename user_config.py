@@ -113,6 +113,23 @@ def data_file(name: str) -> Path:
     return program_root() / name
 
 
+def writable_data_file(name: str) -> Path:
+    """Return a persistent user file, copying shipped defaults only if absent.
+
+    Creation and write errors propagate to the caller; never edit the fallback.
+    """
+    target = user_dir() / name
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists():
+        defaults = (program_root() / name).read_text(encoding='utf-8')
+        try:
+            with target.open('x', encoding='utf-8') as stream:
+                stream.write(defaults)
+        except FileExistsError:
+            pass
+    return target
+
+
 def role_dirs() -> list[Path]:
     """LLM 角色資料夾，依優先順序排列（user/LLM 在前）。"""
 

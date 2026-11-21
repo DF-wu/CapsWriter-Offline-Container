@@ -8,7 +8,7 @@ import time
 from types import SimpleNamespace
 import unicodedata
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import user_config
 
@@ -67,6 +67,38 @@ class HotwordUserSaveTests(unittest.TestCase):
         self.assertEqual(self.target.read_text(), 'custom')
         self.assertEqual(self.shipped.read_text(), 'default')
 
+    def open_editor(self, opener):
+        tree = ast.parse((ROOT / 'core/client/manager/tray_manager.py').read_text())
+        cls = next(node for node in tree.body if isinstance(node, ast.ClassDef) and
+                   any(getattr(child, 'name', '') == '_add_hotword' for child in node.body))
+        method = next(node for node in cls.body if getattr(node, 'name', '') == '_add_hotword')
+        namespace = {'logger': logging.getLogger(__name__), '_open_with_default_app': opener}
+        exec(compile(ast.Module(body=[method], type_ignores=[]), 'tray_manager.py', 'exec'), namespace)
+        namespace['_add_hotword'](None)
+
+    def test_editor_opens_initialized_persistent_path(self):
+        opener = Mock()
+        self.open_editor(opener)
+        opener.assert_called_once_with(str(self.target))
+        self.assertEqual(self.target.read_text(), 'default')
+        self.assertEqual(self.shipped.read_text(), 'default')
+
+    def test_editor_preserves_existing_custom_content(self):
+        self.target.parent.mkdir()
+        self.target.write_text('custom')
+        opener = Mock()
+        self.open_editor(opener)
+        opener.assert_called_once_with(str(self.target))
+        self.assertEqual(self.target.read_text(), 'custom')
+
+    def test_editor_does_not_launch_when_directory_is_blocked(self):
+        self.target.parent.write_text('blocked')
+        opener = Mock()
+        with self.assertLogs(level='WARNING'):
+            self.open_editor(opener)
+        opener.assert_not_called()
+        self.assertEqual(self.shipped.read_text(), 'default')
+
     def test_effective_reload_after_first_save_and_removed_user_file(self):
         ns = definitions('core/client/hotword/manager.py',
                          {'HotwordManager', '_HotwordFileHandler'}, {
@@ -96,7 +128,13 @@ class HotwordUserSaveTests(unittest.TestCase):
             self.save()
             handler = scheduled[-1][0]
             handler._debounce_delay = 0
-            handler.on_modified(SimpleNamespace(is_directory=False, src_path=str(self.target)))
+            event = SimpleNamespace(is_directory=False, src_path=str(self.target))
+            handler.on_created(event)
             handler._timer.join(timeout=2)
             self.assertEqual(loaded[-1], 'default\nnew\nsecond\n')
+            self.target.write_text('editor replacement\n')
+            handler.on_moved(SimpleNamespace(is_directory=False,
+                             src_path=str(self.target.with_suffix('.tmp')), dest_path=str(self.target)))
+            handler._timer.join(timeout=2)
+            self.assertEqual(loaded[-1], 'editor replacement\n')
             self.assertEqual(manager.files['hot'], self.target)
