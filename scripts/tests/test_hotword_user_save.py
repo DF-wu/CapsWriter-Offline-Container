@@ -42,21 +42,21 @@ class HotwordUserSaveTests(unittest.TestCase):
 
     def test_missing_user_file_preserves_defaults(self):
         self.save()
-        self.assertEqual(self.target.read_text(), 'default\nnew\nsecond\n')
-        self.assertEqual(self.shipped.read_text(), 'default')
+        self.assertEqual(self.target.read_text(encoding='utf-8'), 'default\nnew\nsecond\n')
+        self.assertEqual(self.shipped.read_text(encoding='utf-8'), 'default')
 
     def test_existing_custom_content_is_not_reseeded(self):
         self.target.parent.mkdir()
         self.target.write_text('custom\n')
         self.save()
-        self.assertEqual(self.target.read_text(), 'custom\nnew\nsecond\n')
-        self.assertEqual(self.shipped.read_text(), 'default')
+        self.assertEqual(self.target.read_text(encoding='utf-8'), 'custom\nnew\nsecond\n')
+        self.assertEqual(self.shipped.read_text(encoding='utf-8'), 'default')
 
     def test_creation_error_propagates_without_modifying_defaults(self):
         self.target.parent.write_text('blocked')
         with self.assertRaises(OSError):
             self.save()
-        self.assertEqual(self.shipped.read_text(), 'default')
+        self.assertEqual(self.shipped.read_text(encoding='utf-8'), 'default')
 
     def test_append_error_propagates_without_modifying_defaults(self):
         self.target.parent.mkdir()
@@ -64,11 +64,11 @@ class HotwordUserSaveTests(unittest.TestCase):
         with patch('builtins.open', side_effect=PermissionError('synthetic denial')):
             with self.assertRaises(PermissionError):
                 self.save()
-        self.assertEqual(self.target.read_text(), 'custom')
-        self.assertEqual(self.shipped.read_text(), 'default')
+        self.assertEqual(self.target.read_text(encoding='utf-8'), 'custom')
+        self.assertEqual(self.shipped.read_text(encoding='utf-8'), 'default')
 
     def open_editor(self, opener):
-        tree = ast.parse((ROOT / 'core/client/manager/tray_manager.py').read_text())
+        tree = ast.parse((ROOT / 'core/client/manager/tray_manager.py').read_text(encoding='utf-8'))
         cls = next(node for node in tree.body if isinstance(node, ast.ClassDef) and
                    any(getattr(child, 'name', '') == '_add_hotword' for child in node.body))
         method = next(node for node in cls.body if getattr(node, 'name', '') == '_add_hotword')
@@ -80,8 +80,8 @@ class HotwordUserSaveTests(unittest.TestCase):
         opener = Mock()
         self.open_editor(opener)
         opener.assert_called_once_with(str(self.target))
-        self.assertEqual(self.target.read_text(), 'default')
-        self.assertEqual(self.shipped.read_text(), 'default')
+        self.assertEqual(self.target.read_text(encoding='utf-8'), 'default')
+        self.assertEqual(self.shipped.read_text(encoding='utf-8'), 'default')
 
     def test_editor_preserves_existing_custom_content(self):
         self.target.parent.mkdir()
@@ -89,7 +89,7 @@ class HotwordUserSaveTests(unittest.TestCase):
         opener = Mock()
         self.open_editor(opener)
         opener.assert_called_once_with(str(self.target))
-        self.assertEqual(self.target.read_text(), 'custom')
+        self.assertEqual(self.target.read_text(encoding='utf-8'), 'custom')
 
     def test_editor_does_not_launch_when_directory_is_blocked(self):
         self.target.parent.write_text('blocked')
@@ -97,7 +97,7 @@ class HotwordUserSaveTests(unittest.TestCase):
         with self.assertLogs(level='WARNING'):
             self.open_editor(opener)
         opener.assert_not_called()
-        self.assertEqual(self.shipped.read_text(), 'default')
+        self.assertEqual(self.shipped.read_text(encoding='utf-8'), 'default')
 
     def make_manager(self, files=None, use_user_files=True):
         ns = definitions('core/client/hotword/manager.py',
@@ -182,3 +182,33 @@ class HotwordUserSaveTests(unittest.TestCase):
         self.assertIsNone(handler._timer)
         self.assertEqual(loaded, [])
         self.assertEqual(manager.files['hot'], self.shipped)
+
+    def test_move_between_hotword_files_reloads_both_in_one_batch(self):
+        _, _, scheduled = self.make_manager()
+        handler = scheduled[0][0]
+        calls = []
+        handler._file_mapping = {name: lambda name=name: calls.append(name)
+                                 for name in ('hot.txt', 'hot-rule.txt')}
+        # Hold the worker until both move endpoints have been queued.
+        handler._worker_running = True
+        handler.on_moved(SimpleNamespace(is_directory=False, src_path=str(self.target),
+                         dest_path=str(self.target.parent / 'hot-rule.txt')))
+        handler._debounce_delay = 0
+        handler._debounced_worker()
+        self.assertCountEqual(calls, ['hot.txt', 'hot-rule.txt'])
+
+    def test_event_during_reload_is_not_lost(self):
+        _, _, scheduled = self.make_manager()
+        handler = scheduled[0][0]
+        calls = []
+        def reload_hot():
+            calls.append('hot')
+            handler.on_modified(SimpleNamespace(is_directory=False,
+                                src_path=str(self.target.parent / 'hot-rule.txt')))
+        handler._file_mapping = {'hot.txt': reload_hot,
+                                 'hot-rule.txt': lambda: calls.append('rule')}
+        handler._debounce_delay = 0
+        handler.on_modified(SimpleNamespace(is_directory=False, src_path=str(self.target)))
+        handler._timer.join(timeout=2)
+        self.assertFalse(handler._timer.is_alive())
+        self.assertEqual(calls, ['hot', 'rule'])
