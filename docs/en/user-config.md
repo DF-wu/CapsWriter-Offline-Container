@@ -105,6 +105,13 @@ old one once:
 .\start_client.exe --import-config "D:\CapsWriter-Offline-old"
 ```
 
+For the full package, also bring the model files into the new folder's `models/`
+or install them, and install the matching GGUF runtime following the
+[model and runtime installation instructions](../../readme.md#2-add-the-model-and-gguf-runtime).
+The settings import does not transfer models or runtime files; do not blindly
+copy old runtime DLLs into the new installation. Client-only packages do not need
+local server models; Docker setup is unchanged.
+
 The import writes only the settings that differ from the new defaults into
 `user/config_client.py` and `user/config_server.py`. It copies `hot.txt`,
 `hot-rule.txt`, `hot-server.txt` and LLM roles that differ from the shipped

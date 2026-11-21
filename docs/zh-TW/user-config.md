@@ -95,6 +95,11 @@ LLM 角色依檔名合併：`user/LLM/<名稱>.py` 取代 `LLM/<名稱>.py`，�
 .\start_client.exe --import-config "D:\CapsWriter-Offline-old"
 ```
 
+完整版還需要把模型檔移到新資料夾的 `models/`，或重新安裝模型，並依
+[模型與 runtime 安裝說明](../../README.zh-TW.md#2-放入模型與-gguf-runtime)
+安裝相符的 GGUF runtime。設定匯入不會搬移模型或 runtime 檔案；請勿直接把舊版
+runtime DLL 全部複製到新版。僅 Client 版不需要本機 Server 模型，Docker 流程不變。
+
 匯入只把與新版預設值不同的設定寫入 `user/config_client.py`、`user/config_server.py`；
 `hot.txt`、`hot-rule.txt`、`hot-server.txt` 與 LLM 角色只複製與隨附版本不同者。已在
 `user/` 改過的檔案不會被覆寫（會列為「保留」），無法自動轉換的值會列出來請你手動

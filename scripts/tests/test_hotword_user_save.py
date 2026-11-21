@@ -99,7 +99,7 @@ class HotwordUserSaveTests(unittest.TestCase):
         opener.assert_not_called()
         self.assertEqual(self.shipped.read_text(), 'default')
 
-    def test_effective_reload_after_first_save_and_removed_user_file(self):
+    def make_manager(self, files=None, use_user_files=True):
         ns = definitions('core/client/hotword/manager.py',
                          {'HotwordManager', '_HotwordFileHandler'}, {
             'Optional': __import__('typing').Optional, 'Dict': dict, 'Path': Path,
@@ -108,8 +108,8 @@ class HotwordUserSaveTests(unittest.TestCase):
             'logger': logging.getLogger(__name__), 'unicodedata': unicodedata,
             'console': SimpleNamespace(print=lambda *a, **k: None)})
         manager = ns['HotwordManager'].__new__(ns['HotwordManager'])
-        manager._use_user_files = True
-        manager.files = {'hot': self.shipped, 'rule': self.root / 'hot-rule.txt'}
+        manager._use_user_files = use_user_files
+        manager.files = files or {'hot': self.shipped, 'rule': self.root / 'hot-rule.txt'}
         loaded = []
         manager.phoneme_corrector = SimpleNamespace(update_hotwords=lambda text: loaded.append(text) or 1)
         manager._observer = None
@@ -121,7 +121,12 @@ class HotwordUserSaveTests(unittest.TestCase):
             def start(self): pass
         ns['Observer'] = Observer
         manager.start_file_watcher()
-        self.assertTrue(any(path == self.target.parent and not recursive for _, path, recursive in scheduled))
+        if use_user_files:
+            self.assertTrue(any(path == self.target.parent and not recursive for _, path, recursive in scheduled))
+        return manager, loaded, scheduled
+
+    def test_effective_reload_after_first_save_and_removed_user_file(self):
+        manager, loaded, scheduled = self.make_manager()
         for removed in (False, True):
             if removed:
                 self.target.unlink()
@@ -138,3 +143,42 @@ class HotwordUserSaveTests(unittest.TestCase):
             handler._timer.join(timeout=2)
             self.assertEqual(loaded[-1], 'editor replacement\n')
             self.assertEqual(manager.files['hot'], self.target)
+
+    def test_existing_overrides_delete_and_root_edit_reload(self):
+        self.target.parent.mkdir()
+        self.target.write_text('custom hot')
+        rule = self.target.parent / 'hot-rule.txt'
+        rule.write_text('custom rule')
+        (self.root / 'hot-rule.txt').write_text('default rule')
+        manager, loaded, scheduled = self.make_manager({'hot': self.target, 'rule': rule})
+        self.assertEqual({path for _, path, _ in scheduled}, {self.root, self.target.parent})
+        handler = scheduled[0][0]
+        handler._debounce_delay = 0
+        self.target.unlink()
+        handler.on_deleted(SimpleNamespace(is_directory=False, src_path=str(self.target)))
+        handler._timer.join(timeout=2)
+        self.assertEqual(loaded[-1], 'default')
+        self.assertEqual(manager.files['hot'], self.shipped)
+        self.shipped.write_text('updated default')
+        handler.on_modified(SimpleNamespace(is_directory=False, src_path=str(self.shipped)))
+        handler._timer.join(timeout=2)
+        self.assertEqual(loaded[-1], 'updated default')
+        rules = []
+        manager.rule_corrector = SimpleNamespace(update_rules=lambda text: rules.append(text) or 1)
+        renamed = rule.with_suffix('.backup')
+        rule.rename(renamed)
+        handler.on_moved(SimpleNamespace(is_directory=False, src_path=str(rule), dest_path=str(renamed)))
+        handler._timer.join(timeout=2)
+        self.assertEqual(rules[-1], 'default rule')
+        self.assertEqual(manager.files['rule'], self.root / 'hot-rule.txt')
+
+    def test_explicit_mapping_does_not_gain_fallback_or_removal_handling(self):
+        manager, loaded, scheduled = self.make_manager(use_user_files=False)
+        handler = scheduled[0][0]
+        handler._debounce_delay = 0
+        handler.on_deleted(SimpleNamespace(is_directory=False, src_path=str(self.shipped)))
+        handler.on_moved(SimpleNamespace(is_directory=False, src_path=str(self.shipped),
+                                        dest_path=str(self.shipped.with_suffix('.backup'))))
+        self.assertIsNone(handler._timer)
+        self.assertEqual(loaded, [])
+        self.assertEqual(manager.files['hot'], self.shipped)

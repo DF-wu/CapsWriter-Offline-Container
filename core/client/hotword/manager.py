@@ -159,6 +159,9 @@ class HotwordManager:
         
         # 监视每一个文件所在的目录 (去重后监听)
         watched_dirs = {p.parent.absolute() for p in self.files.values()}
+        if self._use_user_files:
+            from user_config import program_root
+            watched_dirs.add(program_root())
         for d in watched_dirs:
             self._observer.schedule(handler, path=str(d), recursive=False)
             
@@ -213,7 +216,13 @@ class _HotwordFileHandler(FileSystemEventHandler):
     def on_created(self, event):
         self.on_modified(event)
 
+    def on_deleted(self, event):
+        if self.manager._use_user_files:
+            self.on_modified(event)
+
     def on_moved(self, event):
+        if self.manager._use_user_files:
+            self.on_modified(event)
         self.on_modified(event, path=event.dest_path)
 
     def on_modified(self, event, *, path=None):
