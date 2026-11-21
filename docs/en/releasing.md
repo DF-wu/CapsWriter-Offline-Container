@@ -56,6 +56,11 @@ asset change after publication.
    generated markers, attach `VALIDATION.md`, and check the image digests in the
    draft notes. If an image is listed as "not published yet", wait for its
    workflow and rerun step 3; your notes are kept.
+   Upgrade notes can rely on the [`user/` folder](user-config.md): users extract
+   the new ZIP over the old folder only after customizations live in `user/`.
+   For the first migration from a release without `user/`, instruct users to extract
+   into a separate new folder, then run `start_client.exe --import-config <old folder>`
+   from there using the intact old folder. Never overwrite the old folder before import.
 5. Publish the draft.
 
 Tags on `maintenance/v1` do not run this workflow: the tagged v1 tree has no

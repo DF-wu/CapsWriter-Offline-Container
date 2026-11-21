@@ -217,7 +217,12 @@ The reusable
 workflow runs on pinned `windows-2022` with Python 3.12. It performs the
 hash-only install, PyInstaller build, relocation, ZIP extraction,
 reparse-point/empty-directory inspection, client-only exclusion checks, bounded
-EXE self-checks and `--status` smoke, and upload of the exact tested ZIP. The
+EXE self-checks and `--status` smoke, and upload of the exact tested ZIP. It also
+proves the [upgrade-safe `user/` folder](../docs/en/user-config.md) contract:
+the ZIP contains no `user/`, extracting it again over an install leaves a
+populated `user/` byte-for-byte unchanged, and the re-extracted
+`start_client.exe --artifact-self-check` reports the `user/config_client.py`
+override in `"user_overrides"`. The
 `windows-package` job of
 [`portability.yml`](../.github/workflows/portability.yml) runs it for both
 variants on every push and pull request; [`release.yml`](../.github/workflows/release.yml)

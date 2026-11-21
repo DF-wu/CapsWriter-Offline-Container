@@ -66,6 +66,8 @@ class DockerignoreTest(unittest.TestCase):
             "*.csr",
             "id_rsa",
             "id_ed25519",
+            # Local user/ settings may contain LLM API keys.
+            "user/",
             "*.zip",
             "*.7z",
             "*.tar",

@@ -58,6 +58,7 @@ Client 使用 WebSocket，一般不需要 HTTP。
 |---|---|
 | [Release notes](release-notes.md) | 檢視變更、migration、限制與 release evidence |
 | [發布流程](releasing.md) | Maintainer 發布用：附件 matrix、CI gate、draft workflow |
+| [升級不覆寫的設定](user-config.md) | Windows 使用者升級時保留設定、熱詞與 LLM 角色 |
 | [疑難排解](troubleshooting.md) | 依 Server-first 診斷順序排查問題 |
 | [驗證與清理](../verification.md) | Contributor 與 release operator |
 | [v1／v2 維護政策](versioning.md) | Maintainer 與規劃升級的使用者 |

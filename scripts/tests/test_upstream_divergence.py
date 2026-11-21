@@ -67,7 +67,7 @@ class UpstreamDivergenceGuardTest(unittest.TestCase):
                 guard.changed_paths("origin/master")
 
     def test_allowlist_covers_all_documented_unicode_paths(self) -> None:
-        self.assertEqual(len(guard.ALLOWED_UPSTREAM_DIVERGENCE), 80)
+        self.assertEqual(len(guard.ALLOWED_UPSTREAM_DIVERGENCE), 87)
         self.assertTrue(
             {
                 "LLM/大助理.py",
@@ -83,6 +83,14 @@ class UpstreamDivergenceGuardTest(unittest.TestCase):
                 "docs/显卡加速的若干问题.md",
                 "docs/角色功能如何使用.md",
                 "start_client.py",
+                # Upgrade-safe user/ settings hooks.
+                "config_client.py",
+                "config_server.py",
+                "LLM/__init__.py",
+                "core/client/hotword/manager.py",
+                "core/client/llm/llm_role_loader.py",
+                "core/client/llm/llm_watcher.py",
+                "core/ui/hotword_menu_handler.py",
             }
             <= guard.ALLOWED_UPSTREAM_DIVERGENCE
         )

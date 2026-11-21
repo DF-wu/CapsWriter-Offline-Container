@@ -67,11 +67,8 @@ def _save_hotwords(text: str) -> None:
     Args:
         text: 热词文本（支持多行）
     """
-    hot_file = Path('hot.txt')
-    
-    # 确保文件存在
-    if not hot_file.exists():
-        hot_file.touch()
+    from user_config import writable_data_file
+    hot_file = writable_data_file('hot.txt')
 
     # 读取现有内容，检查最后是否有换行
     content = hot_file.read_text(encoding='utf-8')

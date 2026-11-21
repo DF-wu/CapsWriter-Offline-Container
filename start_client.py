@@ -18,6 +18,24 @@ def _tolerate_unencodable_output() -> None:
                 pass
 
 
+IMPORT_CONFIG_ARGUMENT = "--import-config"
+
+
+def _import_config(old_root: str) -> int:
+    """把舊版程式資料夾裡改過的設定、熱詞與角色匯入升級安全的 user/。"""
+    from user_config import UserConfigError, import_legacy, user_dir
+
+    try:
+        report = import_legacy(old_root)
+    except (UserConfigError, OSError) as exc:
+        print(f"匯入設定失敗：{exc}", file=sys.stderr)
+        return 2
+    for line in report or ["沒有與預設值不同的設定需要匯入。"]:
+        print(line)
+    print(f"使用者設定資料夾：{user_dir()}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int | None:
     selected_args = sys.argv[1:] if argv is None else argv
     _tolerate_unencodable_output()
@@ -31,6 +49,9 @@ def main(argv: list[str] | None = None) -> int | None:
 
         run_settings()
         return 0
+
+    if len(selected_args) == 2 and selected_args[0] == IMPORT_CONFIG_ARGUMENT:
+        return _import_config(selected_args[1])
 
     from fork_client.autostart import AUTOSTART_ARGUMENT
     from fork_client.instance import (
@@ -84,6 +105,10 @@ def _hide_console_for_autostart() -> None:
 def _run_client(selected_args: list[str]) -> int | None:
     from fork_client.settings import SettingsError, apply_overrides, settings_path
     from config_client import ClientConfig
+    from user_config import seed
+
+    # 第一次啟動時建立升級安全的 user/（範本、熱詞、角色）；既有檔案永不覆寫。
+    seed()
 
     # First-run Windows setup precedes imports that initialize hooks/audio.
     if (sys.platform == "win32" and not selected_args and not settings_path().exists()

@@ -112,12 +112,20 @@ The full package contains two programs with different jobs — never move one EX
 CapsWriter-Offline/
 ├─ start_server.exe      ← Server: loads the model, recognizes speech
 ├─ start_client.exe      ← Client: tray, hotkeys, recording, typing
-├─ config_server.py      ← advanced server settings (model, ports…)
-├─ config_client.py      ← advanced client settings (hotkeys, hotwords, LLM…)
-├─ hot.txt / hot-rule.txt / hot-server.txt
-├─ LLM/                  ← LLM roles
-└─ models/               ← put models here (empty in the ZIP)
+├─ config_server.py      ← shipped server defaults (model, ports…)
+├─ config_client.py      ← shipped client defaults (hotkeys, hotwords, LLM…)
+├─ hot.txt / hot-rule.txt / hot-server.txt, LLM/   ← shipped defaults
+├─ models/               ← put models here (empty in the ZIP)
+└─ user/                 ← YOUR settings, hotwords and LLM roles (created on first start)
 ```
+
+Edit the files in `user/`, never the shipped defaults: the ZIP never contains `user/`
+(or `models/`), so you can upgrade by extracting a new release over the old folder.
+For the first migration from a release without `user/`, extract into a **separate new folder**,
+then run `start_client.exe --import-config <old folder>` from that new folder, using the
+intact old folder as the source. Do not extract over it before importing. Subsequent
+in-place upgrades are safe once your customizations live in `user/`.
+See [upgrade-safe settings](docs/en/user-config.md).
 
 ### 2. Add the model and GGUF runtime
 
@@ -157,7 +165,7 @@ On first use, or whenever you want to change something, run
 
 Save and restart the client. Settings live in
 `%LOCALAPPDATA%\CapsWriter\client-settings.json` and only store the fields you changed;
-everything else comes from `config_client.py`. See [daily settings](docs/settings.md).
+everything else comes from `user/config_client.py` and then `config_client.py`. See [daily settings](docs/settings.md).
 
 ### 4. Talk
 

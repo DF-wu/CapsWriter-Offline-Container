@@ -82,6 +82,7 @@ COMMON_IMPORTS = (
     "pypinyin",
     "pystray",
     "rich",
+    "user_config",
     "watchdog",
     "websockets",
 )
@@ -134,6 +135,10 @@ CLIENT_IMPORTS = COMMON_IMPORTS + (
 ENTRYPOINT_IMPORTS = {
     "server": SERVER_IMPORTS,
     "client": CLIENT_IMPORTS,
+}
+ENTRYPOINT_CONFIG_FILES = {
+    "server": "config_server.py",
+    "client": "config_client.py",
 }
 
 
@@ -307,6 +312,8 @@ def run_artifact_self_check(
         imported = import_runtime_surface(ENTRYPOINT_IMPORTS[entrypoint])
         if variant == "client":
             reject_server_only_modules()
+        # Importing the config module applied any upgrade-safe user/ overlay.
+        user_overrides = sorted(_user_overrides(ENTRYPOINT_CONFIG_FILES[entrypoint]))
     except Exception as exc:
         print(
             _render_report(
@@ -329,8 +336,16 @@ def run_artifact_self_check(
                 "imports": len(imported),
                 "python": f"{sys.version_info.major}.{sys.version_info.minor}",
                 "status": "ok",
+                "user_overrides": user_overrides,
                 "variant": variant,
             }
         )
     )
     return 0
+
+
+def _user_overrides(config_file: str) -> tuple[str, ...]:
+    user_config = sys.modules.get("user_config")
+    if user_config is None:
+        return ()
+    return user_config.applied_overrides(config_file)

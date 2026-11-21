@@ -98,7 +98,9 @@ when opened from the tray, **儲存並重新啟動 Client (Save and restart clie
 
 Settings are stored in `%LOCALAPPDATA%\CapsWriter\client-settings.json` and contain only
 the fields you changed. For advanced options (UDP broadcast, file segment length, …)
-edit [`config_client.py`](../../config_client.py). See [daily settings](../settings.md).
+put only the values you change in `user/config_client.py`, using the names from
+[`config_client.py`](../../config_client.py); the `user/` folder survives upgrades. See
+[daily settings](../settings.md) and [upgrade-safe settings](user-config.md).
 
 ## 4. Tray menu
 
@@ -111,7 +113,7 @@ edit [`config_client.py`](../../config_client.py). See [daily settings](../setti
 | 复制结果 (copy result) | Copy the last recognition result |
 | 日记 (diary) | Open this month's diary folder |
 | 上下文 (context) | Edit the prompt sent to the model (names, jargon) |
-| 热词 (hotwords) | Open `hot.txt` |
+| 热词 (hotwords) | Open `user/hot.txt` |
 | 清除记忆 (clear memory) | Clear every LLM role's conversation history |
 | 重开音频 (restart audio) | Re-initialise the recording device after switching headsets |
 | 重启 / 退出 (restart / exit) | Restart or quit the client |
@@ -138,7 +140,9 @@ is more convenient.
 
 ## 6. Hotwords, rules and voice snippets
 
-All three files live in the CapsWriter root and reload about 3 s after saving.
+Edit the copies in the `user/` folder, which upgrades never overwrite (they are created
+from the shipped defaults on first start, see [upgrade-safe settings](user-config.md)).
+The client files reload about 3 s after saving.
 
 ### `hot.txt`: names and jargon (client side, forced)
 
@@ -169,14 +173,17 @@ One `pattern = replacement` per line, with spaces around the `=`:
 ### `hot-server.txt`: server hotwords
 
 Hints for models that support them (such as Fun-ASR-Nano); they bias recognition but
-never force a replacement. Docker mounts the file read-only.
+never force a replacement. Native servers use `user/hot-server.txt` when present.
+For Docker Compose, edit `./hot-server.txt` beside `docker-compose.yml`; Compose
+mounts it read-only at `/app/hot-server.txt`, not under `user/`.
 
 Full syntax and thresholds: upstream [hotword guide](../热词功能如何使用.md) (Simplified Chinese).
 
 ## 7. LLM roles: translate, polish, ask
 
 LLM use is **optional**; recognition itself stays offline. Roles live in
-[`LLM/`](../../LLM/), one `.py` file per role, reloaded automatically.
+`user/LLM/` (seeded from [`LLM/`](../../LLM/) on first start, kept on upgrade), one `.py`
+file per role, reloaded automatically. Put API keys there.
 
 | Role file | Triggered by | Output |
 |---|---|---|

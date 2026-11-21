@@ -139,6 +139,12 @@ def main(argv: list[str] | None = None) -> int | None:
 
         return run_artifact_self_check("server")
 
+    # Desktop installs keep upgrade-safe settings in user/; the Docker
+    # entrypoint never seeds it and keeps using environment variables.
+    from user_config import seed
+
+    seed(server=True)
+
     try:
         settings = configure_http_api()
     except ConfigError as exc:

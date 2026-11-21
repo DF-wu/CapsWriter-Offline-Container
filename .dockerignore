@@ -67,6 +67,10 @@ id_ed25519
 # Models stay outside image (mounted/downloaded at runtime)
 models/
 
+# Upgrade-safe desktop settings seeded when running from source; may hold LLM
+# API keys. The server image is configured through environment variables.
+user/
+
 # Local archives and interrupted downloads
 *.zip
 *.7z
