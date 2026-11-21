@@ -52,8 +52,9 @@ Immutable releases**：公開後 GitHub 會拒絕任何附件變更。
    `VALIDATION.md`，並核對 draft 內的 image digest。若 image 顯示「not published
    yet」，等該 workflow 完成後重跑第 3 步；你寫的內容會保留。
    升級說明可依賴 [`user/` 資料夾](user-config.md)：使用者把新版 ZIP 解壓覆蓋舊資料夾
-   即可。第一個帶有 `user/` 的版本，請提醒舊版使用者執行
-   `start_client.exe --import-config <舊資料夾>`。
+   的前提是自訂內容已放在 `user/`。首次從沒有 `user/` 的舊版遷移時，請先解壓到
+   另一個新資料夾，再於新資料夾執行 `start_client.exe --import-config <舊資料夾>`，
+   從保持完整的舊資料夾匯入；匯入前不要覆蓋舊資料夾。
 5. 公開 draft。
 
 `maintenance/v1` 上的 tag 不會執行此 workflow：v1 的 tag tree 沒有 `release.yml`，

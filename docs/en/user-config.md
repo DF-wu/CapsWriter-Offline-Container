@@ -4,7 +4,10 @@
 
 Release ZIPs never contain a `user/` folder. Keep your own settings there and
 you can upgrade by extracting the new ZIP **over the old folder**: program files
-are replaced and `user/` is left untouched.
+are replaced and `user/` is left untouched. This applies once your customizations
+live in `user/`. For the first migration from a release without it, extract into a
+**separate new folder**, then run `start_client.exe --import-config <old folder>`
+from there using the intact old folder. Do not overwrite it before importing.
 
 ```text
 CapsWriter-Offline/
@@ -83,6 +86,9 @@ drive). The Docker server does not use `user/`; configure it with environment
 variables and mounted files as described in the [Compose guide](../compose.md).
 
 ## Upgrading
+
+These options apply after your customizations live in `user/`. For the first
+legacy migration, follow the separate-folder import below.
 
 - **In place**: quit the client and server, extract the new ZIP over the old
   folder, and start again.

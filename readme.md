@@ -121,7 +121,10 @@ CapsWriter-Offline/
 
 Edit the files in `user/`, never the shipped defaults: the ZIP never contains `user/`
 (or `models/`), so you can upgrade by extracting a new release over the old folder.
-Coming from an older release, run `start_client.exe --import-config <old folder>` once.
+For the first migration from a release without `user/`, extract into a **separate new folder**,
+then run `start_client.exe --import-config <old folder>` from that new folder, using the
+intact old folder as the source. Do not extract over it before importing. Subsequent
+in-place upgrades are safe once your customizations live in `user/`.
 See [upgrade-safe settings](docs/en/user-config.md).
 
 ### 2. Add the model and GGUF runtime

@@ -173,7 +173,9 @@ One `pattern = replacement` per line, with spaces around the `=`:
 ### `hot-server.txt`: server hotwords
 
 Hints for models that support them (such as Fun-ASR-Nano); they bias recognition but
-never force a replacement. Docker mounts the file read-only.
+never force a replacement. Native servers use `user/hot-server.txt` when present.
+For Docker Compose, edit `./hot-server.txt` beside `docker-compose.yml`; Compose
+mounts it read-only at `/app/hot-server.txt`, not under `user/`.
 
 Full syntax and thresholds: upstream [hotword guide](../热词功能如何使用.md) (Simplified Chinese).
 

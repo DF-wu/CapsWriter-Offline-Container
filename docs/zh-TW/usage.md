@@ -166,7 +166,9 @@ hello@example.com | 我的信箱 | input my email
 ### `hot-server.txt`：Server 端熱詞
 
 給 Fun-ASR-Nano 等支援熱詞的模型當「提示」，只會影響辨識傾向、不會強制替換。
-Docker 會把這個檔案唯讀掛進容器。
+原生 Server 優先使用 `user/hot-server.txt`。Docker Compose 請修改與
+`docker-compose.yml` 同層的 `./hot-server.txt`；它會唯讀掛到容器的
+`/app/hot-server.txt`，不是 `user/` 內的檔案。
 
 完整格式與參數見[熱詞功能如何使用](../热词功能如何使用.md)。
 

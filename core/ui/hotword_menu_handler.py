@@ -67,13 +67,17 @@ def _save_hotwords(text: str) -> None:
     Args:
         text: 热词文本（支持多行）
     """
-    # Fork：写入升级时不会被覆写的 user/hot.txt（存在时）
-    from user_config import data_file
-    hot_file = data_file('hot.txt')
-
-    # 确保文件存在
+    # Writes always belong to user/; data_file() is a read-only fallback.
+    from user_config import user_dir, program_root
+    hot_file = user_dir() / 'hot.txt'
+    hot_file.parent.mkdir(parents=True, exist_ok=True)
     if not hot_file.exists():
-        hot_file.touch()
+        defaults = (program_root() / 'hot.txt').read_text(encoding='utf-8')
+        try:
+            with hot_file.open('x', encoding='utf-8') as target:
+                target.write(defaults)
+        except FileExistsError:
+            pass
 
     # 读取现有内容，检查最后是否有换行
     content = hot_file.read_text(encoding='utf-8')

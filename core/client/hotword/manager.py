@@ -64,6 +64,7 @@ class HotwordManager:
         """
         # Fork：优先使用升级时不会被覆写的 user/ 内热词文件
         from user_config import data_file
+        self._use_user_files = not hotword_files
         self.files = hotword_files or {
             'hot': data_file('hot.txt'),
             'rule': data_file('hot-rule.txt'),
@@ -108,6 +109,9 @@ class HotwordManager:
 
     def _read_file(self, key: str) -> str:
         """读取文件的统一辅助函数"""
+        if self._use_user_files:
+            from user_config import data_file
+            self.files[key] = data_file({"hot": "hot.txt", "rule": "hot-rule.txt"}[key])
         path = self.files.get(key)
         if not path: return ""
         try:
@@ -158,6 +162,16 @@ class HotwordManager:
         for d in watched_dirs:
             self._observer.schedule(handler, path=str(d), recursive=False)
             
+        if self._use_user_files:
+            from user_config import user_dir
+            directory = user_dir()
+            try:
+                directory.mkdir(parents=True, exist_ok=True)
+                if directory.absolute() not in watched_dirs:
+                    self._observer.schedule(handler, path=str(directory), recursive=False)
+            except OSError as error:
+                logger.warning(f"Cannot watch user hotwords in {directory}: {error}")
+
         self._observer.start()
         self._is_watcher_started = True
         logger.debug(f"已启动热词文件监视: {watched_dirs}")
@@ -202,6 +216,14 @@ class _HotwordFileHandler(FileSystemEventHandler):
         
         event_path = Path(event.src_path)
         filename = event_path.name
+        if self.manager._use_user_files:
+            from user_config import program_root, user_dir
+            if event_path.absolute() not in {
+                directory / name
+                for directory in (program_root(), user_dir())
+                for name in ('hot.txt', 'hot-rule.txt')
+            }:
+                return
         
         # 检查是否是我们关心的文件
         if filename not in self._file_mapping:

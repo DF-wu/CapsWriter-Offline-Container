@@ -116,8 +116,9 @@ CapsWriter-Offline/
 ```
 
 請改 `user/` 內的檔案，不要改隨附預設檔：ZIP 永遠不含 `user/`（也不含 `models/`），
-升級時可直接把新版解壓覆蓋舊資料夾。從舊版升級時，先執行一次
-`start_client.exe --import-config <舊資料夾>`。詳見[升級不覆寫的設定](docs/zh-TW/user-config.md)。
+設定已放在 `user/` 後，後續升級可原地解壓覆蓋。首次從沒有 `user/` 的舊版遷移時，
+請把新版解壓到**另一個新資料夾**，再於新資料夾執行
+`start_client.exe --import-config <舊資料夾>`，從保持完整的舊資料夾匯入；匯入前不要覆蓋舊資料夾。詳見[升級不覆寫的設定](docs/zh-TW/user-config.md)。
 
 ### 2. 放入模型與 GGUF runtime
 
