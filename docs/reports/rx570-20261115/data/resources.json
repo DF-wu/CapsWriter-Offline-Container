@@ -1,0 +1,167 @@
+[
+  {
+    "mode": "cpu",
+    "metric": "temperature_C",
+    "aggregation": "max",
+    "value": 33.0,
+    "samples": 136,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-samples.jsonl",
+      "selector": "line:105/temp_mC"
+    }
+  },
+  {
+    "mode": "cpu",
+    "metric": "total_vram_GiB",
+    "aggregation": "max",
+    "value": 0.00556182861328125,
+    "samples": 136,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-samples.jsonl",
+      "selector": "line:1/vram_used_bytes"
+    }
+  },
+  {
+    "mode": "cpu",
+    "metric": "available_RAM_GiB",
+    "aggregation": "min",
+    "value": 56.42523193359375,
+    "samples": 136,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-samples.jsonl",
+      "selector": "line:45/mem_available_bytes"
+    }
+  },
+  {
+    "mode": "cpu",
+    "metric": "summed_task_RSS_GiB",
+    "aggregation": "max",
+    "value": 4.908527374267578,
+    "samples": 136,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-samples.jsonl",
+      "selector": "line:108/task_group_rss_sum_bytes"
+    }
+  },
+  {
+    "mode": "cpu",
+    "metric": "gpu_busy_percent",
+    "aggregation": "max",
+    "value": 0.0,
+    "samples": 136,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/cpu-samples.jsonl",
+      "selector": "line:1/gpu_busy_percent"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "metric": "temperature_C",
+    "aggregation": "max",
+    "value": 51.0,
+    "samples": 71,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-samples.jsonl",
+      "selector": "line:65/temp_mC"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "metric": "total_vram_GiB",
+    "aggregation": "max",
+    "value": 1.4738082885742188,
+    "samples": 71,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-samples.jsonl",
+      "selector": "line:12/vram_used_bytes"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "metric": "available_RAM_GiB",
+    "aggregation": "min",
+    "value": 57.43894958496094,
+    "samples": 71,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-samples.jsonl",
+      "selector": "line:17/mem_available_bytes"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "metric": "summed_task_RSS_GiB",
+    "aggregation": "max",
+    "value": 3.3924789428710938,
+    "samples": 71,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-samples.jsonl",
+      "selector": "line:58/task_group_rss_sum_bytes"
+    }
+  },
+  {
+    "mode": "hybrid",
+    "metric": "gpu_busy_percent",
+    "aggregation": "max",
+    "value": 100.0,
+    "samples": 71,
+    "evidence": {
+      "source": "INSTALLED/baseline-complete/hybrid-samples.jsonl",
+      "selector": "line:12/gpu_busy_percent"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "metric": "temperature_C",
+    "aggregation": "max",
+    "value": 61.0,
+    "samples": 473,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/dynamic-samples.jsonl",
+      "selector": "line:319/temp_mC"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "metric": "total_vram_GiB",
+    "aggregation": "max",
+    "value": 2.4711875915527344,
+    "samples": 473,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/dynamic-samples.jsonl",
+      "selector": "line:193/vram_used_bytes"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "metric": "available_RAM_GiB",
+    "aggregation": "min",
+    "value": 55.362972259521484,
+    "samples": 473,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/dynamic-samples.jsonl",
+      "selector": "line:280/mem_available_bytes"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "metric": "summed_task_RSS_GiB",
+    "aggregation": "max",
+    "value": 6.098979949951172,
+    "samples": 473,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/dynamic-samples.jsonl",
+      "selector": "line:280/task_group_rss_sum_bytes"
+    }
+  },
+  {
+    "mode": "migraphx",
+    "metric": "gpu_busy_percent",
+    "aggregation": "max",
+    "value": 100.0,
+    "samples": 473,
+    "evidence": {
+      "source": "INSTALLED/mgx-resume-complete/evidence/dynamic-samples.jsonl",
+      "selector": "line:62/gpu_busy_percent"
+    }
+  }
+]

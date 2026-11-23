@@ -1,0 +1,283 @@
+{
+  "baseline_provenance": {
+    "source_repo": "DF-wu/CapsWriter-Offline-Container",
+    "source_branch": "master",
+    "source_commit": "a1e2ec3e3f05ca9552f4cdf5822bb701424bf9b7",
+    "source_archive_sha256": "886d2d3b11d02647d041c14c0f5b5f5ca7a2f94bcc6b55082a9ebf98e28b8bc6",
+    "model_archive_sha256": "f40040fe62a5ef0c09f8699fdbcb30f18bb8ae2bcd515ed4954e1f62b8b0e88f",
+    "runtime_archive_sha256": "5a4ee2db7e6f9d5c0a04741f79437b433e63862d72a962466b9f28f09f7ffff9",
+    "decoder": "llama.cpp b7798 c301172f660a1fe0b42023da990bf7385d69adb4",
+    "previous_live_results_used_as_installed_measurements": false
+  },
+  "baseline_evidence": {
+    "source": "INSTALLED/baseline-complete/provenance.json",
+    "selector": "/"
+  },
+  "decoder_library_sha256": {
+    "libggml-cpu-sandybridge.so": "86e643556939db7e2e25f42d86dc7496021e8fb99f720ce124a55d97f60a4e9a",
+    "libggml-cpu-cooperlake.so": "563f3814f70d4ded67ee8d987c01a57aca2a269f1202163e883cfe271d4af340",
+    "libmtmd.so.0": "e0840a54d15f1ea19e66a311ab76a04478fb31fe0562553b54839864114bf703",
+    "libggml.so": "29b2c60c1d8dc5582fbbfbbdb15dd5982b38f49c60fc4c22bdb61f5222b9ae2e",
+    "libggml-rpc.so": "1aa499332c04e3d43a1d6489d387a17aaf2898ff53708fc9a25c5ba54729f72e",
+    "libggml-base.so.0": "f4a7bc5a7dbe1a25dc9e846776c67a2f51ac8e7588ff5355432200baa9ff840e",
+    "libggml-cpu-haswell.so": "01df77d9e28f33eb2f1188c9859f98e13026cc82891415b1b7797846fcd6ec97",
+    "libggml-cpu-piledriver.so": "578e75efa05c937912250cf2a220f2fb63ba54390d6969e88120001220bf139a",
+    "libggml-cpu-skylakex.so": "03de97d65f981390a9900ab22f193b79279d034fdade51944c2b5b4dec3b298e",
+    "libggml.so.0.9.5": "29b2c60c1d8dc5582fbbfbbdb15dd5982b38f49c60fc4c22bdb61f5222b9ae2e",
+    "libggml-cpu-sse42.so": "247db23db17967ff6e1dce408f5641541caf75b804588f7ab190d920b6525776",
+    "libmtmd.so.0.0.7798": "e0840a54d15f1ea19e66a311ab76a04478fb31fe0562553b54839864114bf703",
+    "libggml-cpu-alderlake.so": "c6db8e77eb4cc454f57494100d36fe501195faccd3c8d461c54d3194f636abd9",
+    "libggml.so.0": "29b2c60c1d8dc5582fbbfbbdb15dd5982b38f49c60fc4c22bdb61f5222b9ae2e",
+    "libggml-cpu-x64.so": "b4719931bcfa58fbb0a478da82a809a8c37e80553aea7572ec5fdeff9a1d3ad8",
+    "libggml-cpu-cascadelake.so": "27d695b280e9e8413a7d12a53efe7c23657a33045bba31d89d3d7401e7457410",
+    "libggml-cpu-sapphirerapids.so": "d72f844f9b67141491a91a92df7c8b99938c1612a7d35624c5716be5e3195e0f",
+    "libggml-cpu-zen4.so": "7bb6b2b89cc21be27a8d038f3987c9868238698ed23262ba01c96c1e261918b2",
+    "libggml-cpu-icelake.so": "aa4063fcaefef6b01b22fc9e3cf5dd84d5de493a8b4c1bd02f8ad6e1b1085013",
+    "libllama.so.0": "bbe4fd0f99a5062bac8e585192047f82399988e9e24d993a19fdd113454828ec",
+    "libggml-base.so.0.9.5": "f4a7bc5a7dbe1a25dc9e846776c67a2f51ac8e7588ff5355432200baa9ff840e",
+    "libggml-cpu-ivybridge.so": "d40b33608be0f8214432d19ae535cc4cf25816fb3ba4192fe5f3c01832f24a4f",
+    "libggml-cpu-cannonlake.so": "0263f11307d37385061fafa3fec1a86101cddd35ec2418678e2c84c3623a0722",
+    "libllama.so.0.0.7798": "bbe4fd0f99a5062bac8e585192047f82399988e9e24d993a19fdd113454828ec",
+    "libllama.so": "bbe4fd0f99a5062bac8e585192047f82399988e9e24d993a19fdd113454828ec",
+    "libmtmd.so": "e0840a54d15f1ea19e66a311ab76a04478fb31fe0562553b54839864114bf703",
+    "libggml-base.so": "f4a7bc5a7dbe1a25dc9e846776c67a2f51ac8e7588ff5355432200baa9ff840e",
+    "libggml-vulkan.so": "0826ad3bfa43c30209cf155edb226dab776d98befce72a7df89f4055b61a541d"
+  },
+  "library_evidence": {
+    "source": "INSTALLED/mgx-resume-complete/evidence/decoder-library-sha256.json",
+    "selector": "/"
+  },
+  "installed_kernel": "6.18.63-3-lts",
+  "kernel_evidence": {
+    "source": "INSTALLED/baseline-complete/preflight.json",
+    "selector": "/kernel"
+  },
+  "decoder_placement": [
+    {
+      "mode": "cpu",
+      "verified": true,
+      "model_buffer_MiB": {
+        "cpu": [
+          "1397.95"
+        ],
+        "vulkan": []
+      },
+      "callback_extract": [],
+      "evidence": {
+        "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+        "selector": "line:3"
+      }
+    },
+    {
+      "mode": "cpu",
+      "verified": true,
+      "model_buffer_MiB": {
+        "cpu": [
+          "1397.95"
+        ],
+        "vulkan": []
+      },
+      "callback_extract": [],
+      "evidence": {
+        "source": "INSTALLED/baseline-complete/cpu-client.jsonl",
+        "selector": "line:31"
+      }
+    },
+    {
+      "mode": "hybrid",
+      "verified": true,
+      "model_buffer_MiB": {
+        "cpu": [],
+        "vulkan": [
+          "1193.93"
+        ]
+      },
+      "callback_extract": [],
+      "evidence": {
+        "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+        "selector": "line:3"
+      }
+    },
+    {
+      "mode": "hybrid",
+      "verified": true,
+      "model_buffer_MiB": {
+        "cpu": [],
+        "vulkan": [
+          "1193.93"
+        ]
+      },
+      "callback_extract": [],
+      "evidence": {
+        "source": "INSTALLED/baseline-complete/hybrid-client.jsonl",
+        "selector": "line:31"
+      }
+    },
+    {
+      "mode": "migraphx",
+      "verified": true,
+      "model_buffer_MiB": {
+        "cpu": [],
+        "vulkan": [
+          "1193.93"
+        ]
+      },
+      "callback_extract": [
+        {
+          "offloaded_layers": 29,
+          "total_reported_layers": 29,
+          "selector": "line:3/callback_lines/1"
+        },
+        {
+          "buffer": "Vulkan0",
+          "MiB": 1193.93,
+          "selector": "line:3/callback_lines/2"
+        },
+        {
+          "buffer": "Vulkan_Host",
+          "MiB": 204.02,
+          "selector": "line:3/callback_lines/3"
+        }
+      ],
+      "evidence": {
+        "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+        "selector": "line:3"
+      }
+    },
+    {
+      "mode": "migraphx",
+      "verified": true,
+      "model_buffer_MiB": {
+        "cpu": [],
+        "vulkan": [
+          "1193.93"
+        ]
+      },
+      "callback_extract": [
+        {
+          "offloaded_layers": 29,
+          "total_reported_layers": 29,
+          "selector": "line:31/callback_lines/1"
+        },
+        {
+          "buffer": "Vulkan0",
+          "MiB": 1193.93,
+          "selector": "line:31/callback_lines/2"
+        },
+        {
+          "buffer": "Vulkan_Host",
+          "MiB": 204.02,
+          "selector": "line:31/callback_lines/3"
+        }
+      ],
+      "evidence": {
+        "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-client.jsonl",
+        "selector": "line:31"
+      }
+    }
+  ],
+  "configuration": [
+    {
+      "mode": "cpu",
+      "config": {
+        "encoder_frontend_fn": "qwen3_asr_encoder_frontend.onnx",
+        "encoder_backend_fn": "qwen3_asr_encoder_backend.onnx",
+        "llm_fn": "qwen3_asr_llm.gguf",
+        "onnx_provider": "CPU",
+        "llm_use_gpu": false,
+        "dml_pad_to": 30,
+        "n_ctx": 2048,
+        "chunk_size": 80.0,
+        "memory_num": 1,
+        "enable_aligner": false,
+        "n_batch": 4096,
+        "n_ubatch": 512,
+        "flash_attn": true,
+        "offload_kqv": true,
+        "n_threads": 8,
+        "n_threads_batch": 8
+      },
+      "strict_sessions": {},
+      "evidence": {
+        "source": "INSTALLED/baseline-complete/cpu-instrument-2553.jsonl",
+        "selector": "line:3"
+      }
+    },
+    {
+      "mode": "hybrid",
+      "config": {
+        "encoder_frontend_fn": "qwen3_asr_encoder_frontend.onnx",
+        "encoder_backend_fn": "qwen3_asr_encoder_backend.onnx",
+        "llm_fn": "qwen3_asr_llm.gguf",
+        "onnx_provider": "CPU",
+        "llm_use_gpu": true,
+        "dml_pad_to": 30,
+        "n_ctx": 2048,
+        "chunk_size": 80.0,
+        "memory_num": 1,
+        "enable_aligner": false,
+        "n_batch": 4096,
+        "n_ubatch": 512,
+        "flash_attn": true,
+        "offload_kqv": true,
+        "n_threads": 8,
+        "n_threads_batch": 8
+      },
+      "strict_sessions": {},
+      "evidence": {
+        "source": "INSTALLED/baseline-complete/hybrid-instrument-3800.jsonl",
+        "selector": "line:3"
+      }
+    },
+    {
+      "mode": "migraphx",
+      "config": {
+        "encoder_frontend_fn": "qwen3_asr_encoder_frontend.onnx",
+        "encoder_backend_fn": "qwen3_asr_encoder_backend.onnx",
+        "llm_fn": "qwen3_asr_llm.gguf",
+        "onnx_provider": "MIGRAPHX",
+        "llm_use_gpu": true,
+        "dml_pad_to": 30,
+        "n_ctx": 2048,
+        "chunk_size": 80.0,
+        "memory_num": 1,
+        "enable_aligner": false,
+        "n_batch": 4096,
+        "n_ubatch": 512,
+        "flash_attn": true,
+        "offload_kqv": true,
+        "n_threads": 8,
+        "n_threads_batch": 8
+      },
+      "strict_sessions": {
+        "fe": {
+          "python_fallback_enabled": false,
+          "disable_cpu_ep_fallback": "1",
+          "provider_options": {
+            "device_id": "0",
+            "migraphx_fp16_enable": "0",
+            "migraphx_exhaustive_tune": "0"
+          }
+        },
+        "be": {
+          "python_fallback_enabled": false,
+          "disable_cpu_ep_fallback": "1",
+          "provider_options": {
+            "device_id": "0",
+            "migraphx_fp16_enable": "0",
+            "migraphx_exhaustive_tune": "0"
+          }
+        }
+      },
+      "evidence": {
+        "source": "INSTALLED/mgx-resume-complete/evidence/migraphx-instrument-20257.jsonl",
+        "selector": "line:3"
+      }
+    }
+  ],
+  "retained_report_artifact_claims": [],
+  "host_software_evidence": {
+    "source": "INSTALLED/REPORT.md",
+    "selector": "line:5 (retained host/software synthesis)"
+  }
+}

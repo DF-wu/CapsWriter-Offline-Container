@@ -1,0 +1,5314 @@
+{
+  "schema_version": 1,
+  "created": "2026-11-15",
+  "roots": {
+    "LIVE-SMOKE": "Nov 14 adapter feasibility smoke",
+    "LIVE-E2E": "Nov 14 full application and strict GPU encoder investigation"
+  },
+  "sources": {
+    "LIVE-SMOKE:target/evidence/vulkan.jsonl": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/vulkan.jsonl",
+      "sha256": "cb6e797939e70ffdbd6cfa194696ffdb9a26caafa189f610610710474ff70aed",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/vulkan-samples.jsonl": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/vulkan-samples.jsonl",
+      "sha256": "228e6ac1f10c3428ef459f3a5d25a376ea5b206cabc4ac1cd377af9a70ef57c0",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/vulkan-status.json": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/vulkan-status.json",
+      "sha256": "b2c2cd31f00cdbe80fd57bd466a37e59111edb6236329849f80cf6e6d92be692",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/vulkan-native.log": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/vulkan-native.log",
+      "sha256": "332aad65182eb9f6337df9c624e79203da41147562ca0f1752d33d53d96f5769",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/cpu.jsonl": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/cpu.jsonl",
+      "sha256": "44b68b34e26557cf9b3f1da43b8a807380bc40ae3cab5026d2b80048dbc0ba5d",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/cpu-samples.jsonl": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/cpu-samples.jsonl",
+      "sha256": "bad4249ac9e4bd53cfcbf810b90d514ff2cc2ec31c29b638a7ba22dd978461e1",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/cpu-status.json": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/cpu-status.json",
+      "sha256": "317650e960a4995ccc3ab15a4e8d380f01a72a6b86a6f0aee7b8d4d089eb43a3",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/cpu-native.log": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/cpu-native.log",
+      "sha256": "3d8962698769328e76164d56ec79de9afa239e51133fbcbe88cd76f94ce995b7",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/reference.json": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/reference.json",
+      "sha256": "d587a896f2c8add61be1071fbe12e475dbe85fac1cf1ef68111b56a7ec4735ba",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:scripts/smoke.py": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "scripts/smoke.py",
+      "sha256": "e92460181271e395289d5f5a8db01ebf2c9f79701f4b54abf415dd149890d066",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:scripts/guard.py": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "scripts/guard.py",
+      "sha256": "2434a6ae9274835f4617bc52de16d384df936edc205f2ec7f49e888193dc9e6f",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:scripts/verify_evidence.py": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "scripts/verify_evidence.py",
+      "sha256": "e42f03d7e16de3f9a2c3a6e0a836e3ad4dfd1e5eeca338a7e66cc84d139a3d77",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:source-manifest.json": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "source-manifest.json",
+      "sha256": "c9ceba64a5a1c242d9c4336eb53755c820e1e6b98597b4bfa08931a8b8b3c054",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/model-hashes.txt": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/model-hashes.txt",
+      "sha256": "5423dfbc8a6eca154c9fc14641ff66fc5e04d5c819d90e9821ae7b1b7ae51ad7",
+      "retention": "original-only"
+    },
+    "LIVE-SMOKE:target/evidence/runtime.json": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/runtime.json",
+      "sha256": "85c9d4244efef31209da227d55048c352650008b719002b2e61a79bb8a1eaabb",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:target/evidence/python-freeze.txt": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "target/evidence/python-freeze.txt",
+      "sha256": "04988965b737092dd41fa833d207ac136e52eea0484374f6a74b97526f1d689a",
+      "retention": "original-only"
+    },
+    "LIVE-SMOKE:schaka-image-size.json": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "schaka-image-size.json",
+      "sha256": "14d7dcd56cdf4d58ac8f27413b2e948f52f344a896a80badb197d3f0a8cee1d0",
+      "retention": "staged"
+    },
+    "LIVE-SMOKE:logs/final-inventory.log": {
+      "root": "LIVE-SMOKE",
+      "relative_file": "logs/final-inventory.log",
+      "sha256": "9d900a360ea3b2520622e02cc0b43dff10bdfc6abd493fbb5cd521a23e332fa5",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/hybrid-client.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/hybrid-client.jsonl",
+      "sha256": "7aefeac77c5de0074d12b7f38b8fe1468a8a13c4042f540fd56bb645e1222c92",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/hybrid-instrument-25287.jsonl",
+      "sha256": "3822884d3b0e6dc06762d0119dbf29a436532249865d1c0f5dc6566a10822aa0",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/hybrid-instrument-25245.jsonl",
+      "sha256": "6644593d6a4f0a83d407461279de0430b3358d172137353f5f00f036a39e3037",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/hybrid-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/hybrid-samples.jsonl",
+      "sha256": "3cac9ab38c6ea02c286111ce4fe0a120d3a7acfd0781e2179659ee85fd5cd759",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/hybrid-status.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/hybrid-status.json",
+      "sha256": "f118df48028acd231f99c592e02468edc5dedbf860e5f978c3d8a050f573711d",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/cpu-client.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/cpu-client.jsonl",
+      "sha256": "cc5bc41dffa2d7165cd4428674e4172fbe7d9b23b4373a2d0ac5565938d179ea",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/cpu-instrument-24807.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/cpu-instrument-24807.jsonl",
+      "sha256": "3373591aadc29962fcf2d381e4fc5894fe2e9eb89f52cbe5da93c51df2a686be",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/cpu-instrument-24765.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/cpu-instrument-24765.jsonl",
+      "sha256": "b95acba40dd933aaeb1ff2bef3492be48df7a11c37e614d419ae0303c9866ca0",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/cpu-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/cpu-samples.jsonl",
+      "sha256": "d2185572eae1da313f7916b86dfc084d5e1d64d892ad787386fa76ceb5ce28b9",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/cpu-status.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/cpu-status.json",
+      "sha256": "7aa4265b69c374e7b414a22fe1b0551ffe4cc48036c0b06177ad0c004600c6ae",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/migraphx-client.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/migraphx-client.jsonl",
+      "sha256": "a6dcc326b9aaa78ece84a3bdc8f06ce297fffcd640a4d755826686ae3045325f",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/migraphx-instrument-85386.jsonl",
+      "sha256": "f93745aae507e70eb7abddc1c71d5a76fbb6d504b7b0780b7f26eb192dad9148",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/migraphx-instrument-85343.jsonl",
+      "sha256": "eb19f072afdc0ecce8f225dbdaee89ad72701fee5f421089d2728ad3fb4b81e5",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/migraphx-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/migraphx-samples.jsonl",
+      "sha256": "3979e57b84c9e04ae66e1039d639cc4e7015d4c81a6b2432404216ce99634596",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/migraphx-status.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/migraphx-status.json",
+      "sha256": "a64590735aac1d52e8a2e6ba5ed9bee6721a2ccf214d5cfbd8ce3471fb447914",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/audio-manifest.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/audio-manifest.json",
+      "sha256": "7e0f8e0589c1ba3f52001e77f529ce86f51d86e31ef745aac6e760dc3bd3743d",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/embedding-comparison.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/embedding-comparison.json",
+      "sha256": "32947ee8fe5da4ccfae84f810bfd74f4c8dc9ac39cc3c04e2c73f1ff946ba51e",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/encoder-cpu-encoder.jsonl",
+      "sha256": "a628a20433aae5cfd75632a55dab58ed1c59fad643ef7ef25f1cb0b330908072",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/encoder-cpu-community-encoder.jsonl",
+      "sha256": "46e5e81f457d898d97d5a38d46338945b83b2bc046c7db5cab6674ac83705253",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/encoder-gpu-encoder.jsonl",
+      "sha256": "8723f8122a1fe95b270c1d22f23b32ed42a103dac06249bd34fcd024bb30f4c9",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/migraphx-e2e-profile-frontend_2026-11-14_20-35-42_891.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/migraphx-e2e-profile-frontend_2026-11-14_20-35-42_891.json",
+      "sha256": "3a216da7e5954d1c9d7dd55cfe9255eb5fdfb6387b601b9e7a864a222f1f4877",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/migraphx-e2e-profile-backend_2026-11-14_20-35-43_665.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/migraphx-e2e-profile-backend_2026-11-14_20-35-43_665.json",
+      "sha256": "db48dd7cd06f148f26dee221a7f2f85733da5fe90e445805a989a5e9039906c7",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/migraphx-server-native.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/migraphx-server-native.log",
+      "sha256": "98a554ba481da96a0566261f67d1d2258ef63661ce9c271ceee41ab5bd2ba48a",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/minimal-extraction.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/minimal-extraction.jsonl",
+      "sha256": "6787c15f1ec57a6997d5b00bf0ed1cc9015e7ff59d2f7653bfec041d8307cc50",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/wheel-extraction.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/wheel-extraction.jsonl",
+      "sha256": "5bd74ccfcd8982782755d0a922d6ab2ab604ba371aa3fdf697fcc3cf53cb27f4",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/shim-extraction.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/shim-extraction.jsonl",
+      "sha256": "56a317013706743871aa3aae510249b575fc52bf1b90f3a10fcfc9c89f67847b",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-native-fp16-sessions.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-native-fp16-sessions.jsonl",
+      "sha256": "470934cd74a2d2837df4c05cf85643f69f9b3362b9f21024cfaef5e620653187",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-channels-first-sessions.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-channels-first-sessions.jsonl",
+      "sha256": "6c5f91a7ad7811f1cf80fd150b728c9cd70a177eb11430d8bd128207aef5b931",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/e2e.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/e2e.py",
+      "sha256": "405126481075e3b0d76c51cfca7498b1f7114b94fda19e9cedc69d46f18f2e5d",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/instrument.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/instrument.py",
+      "sha256": "9525a3b2c0c4a97c178a8696e4d1077ffe15deaf9ea0c289e6d44c79bc2b0022",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/probe_encoder.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/probe_encoder.py",
+      "sha256": "ad32be101b72f1c61dc994ee76b9ecd9466af95bd8021f0122ba18cfb32a16f9",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/compare_embeddings.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/compare_embeddings.py",
+      "sha256": "0284bae12de0202fa446c2dc0b1f69eef0ad3192c85ba9d6fa84ee1f06f58297",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/patch_encoder.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/patch_encoder.py",
+      "sha256": "63e9a6f158f3a30b4f4e3ee5dde88a44743c9a32cae9a7c618cfa8f139b0f77c",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/probe_sessions.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/probe_sessions.py",
+      "sha256": "14816abdb15c7aea933a57f4aa8f85f94dafa874fdd43eeb56937eacd07c1e65",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/prepare_audio.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/prepare_audio.py",
+      "sha256": "db2c8628756a0ae5a8c38a33b71a8bcad01b6e90e4829b3b8ee9af9e771825d7",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/fix_mandarin.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/fix_mandarin.py",
+      "sha256": "01546c6ddf6ba3caef99d1a70d2b7982659a6eebdf93c82306731eee708e3335",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/guard.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/guard.py",
+      "sha256": "dd58c7e7164664234258d64d1f65d6bf81befdb0b7f8619257b3b316376b4689",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/fetch_minimal_deps.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/fetch_minimal_deps.py",
+      "sha256": "c65c7ef9157fc34c3ecc3748d78e9b66b0b13340d3a9c5b1c261b5566fa640b1",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/extract_gpu_runtime.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/extract_gpu_runtime.py",
+      "sha256": "91b6456dac7b25e98db426aa99c7d17e527d8c10e1ba242cca1f1c083eaa6661",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/verify_evidence.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/verify_evidence.py",
+      "sha256": "67320f01c0e7de1859e33108a189015018f36f30908c009b19a7128d1dc63bac",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/encoder-original.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/encoder-original.py",
+      "sha256": "8e37be8fda85e5fdb3f2fb89befe28971c884f9f02ac9841b29e6501bf78b1f8",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/encoder-migraphx.py": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/encoder-migraphx.py",
+      "sha256": "8ae2dffcf5ae7ad4f1d55d9d9b3a9979366cb1ad8f3d239a1fac536cdb7c261a",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/amd-selected-packages.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/amd-selected-packages.json",
+      "sha256": "4557733db05ae1793244874eddc1348856d67a6138406f49710e4b8dc7473061",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/native-versions.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/native-versions.json",
+      "sha256": "aab4e8d2cd618e6e933468fdb0682fd0a8232b8af499e1676e0accf4d03ba859",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/model-hashes.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/model-hashes.json",
+      "sha256": "cb125e88c1c4621240df4038139118428b2d243488c8d54f05a8c1ed3cdf88c9",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-strict-encoder.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-strict-encoder.jsonl",
+      "sha256": "81f36b681065d02458ef5260c833b18d56208b45f76e21d858205504ba7cc480",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-minimal-strict-encoder.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-minimal-strict-encoder.jsonl",
+      "sha256": "b1d530db942832a7d24d749a971188ad1a278fbcdf71f8695db0f974e9dbc6e0",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-native-fp16-driver.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-native-fp16-driver.log",
+      "sha256": "0324d5ccbf4e3cc74d0f12e2d280a88e18d5c0325e714b6eed63d676a1f4790d",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-channels-first-driver.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-channels-first-driver.log",
+      "sha256": "607875a18de443383ba745bbd4bf9319ad68c7c7b43f062dd3ccfdcb6bc5c4f7",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/application-aggregate.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/application-aggregate.log",
+      "sha256": "85b7ae564affe59e83d48a874e9e735f4fc39cdcccb0e581a25a025c1d006630",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/startup-failure-1/hybrid-server-native.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/startup-failure-1/hybrid-server-native.log",
+      "sha256": "3ce1b3759c23480cac09a71f38eaac8cb00ea98fb242f94e477d23f4084a8b4c",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/extraction-attempt-1/gpu-extraction-native.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/extraction-attempt-1/gpu-extraction-native.log",
+      "sha256": "c87d93b61ddf528079d33ace1b77d1c1fb3ada06ea84b8ff72079f86d86cb59a",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/large-extraction-stop.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/large-extraction-stop.json",
+      "sha256": "91fe06fcbf6550e0cc88667341807ecb3409b5e061b9d2f68d8c4e420d869611",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/mandarin-source-text.txt": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/mandarin-source-text.txt",
+      "sha256": "b49dc7eca7e5803a53f2b676130b63bc27aa19df2e250327fd410cfe95d79a53",
+      "retention": "original-only"
+    },
+    "LIVE-E2E:logs/fix-mandarin.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "logs/fix-mandarin.log",
+      "sha256": "9c266a7eff890cedefa80a2adf6b63d3e808b7bb41f0ca9cb139f099feaebfe8",
+      "retention": "staged"
+    },
+    "LIVE-E2E:logs/fix-mandarin-2.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "logs/fix-mandarin-2.log",
+      "sha256": "58f53f52789a8d0d7593c6ddc7c98ad9464743aa46d2c8d635e7bfdf7da27163",
+      "retention": "staged"
+    },
+    "LIVE-E2E:logs/fix-mandarin-3.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "logs/fix-mandarin-3.log",
+      "sha256": "2d82ce6a61c79d59405260cfe54f4c71dd7ca401eefc1c515f8c84ccd337c1e9",
+      "retention": "staged"
+    },
+    "LIVE-E2E:logs/fix-ui-deps.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "logs/fix-ui-deps.log",
+      "sha256": "37d22ddb796f7f8e44dc1378829a79c874598f6ba6f86f8ecc4dd95fa86857e5",
+      "retention": "staged"
+    },
+    "LIVE-E2E:logs/offline-verification.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "logs/offline-verification.log",
+      "sha256": "df1e603217b6b8548681602325a399717cb3893badd705beba8054fb2c18c5ca",
+      "retention": "staged"
+    },
+    "LIVE-E2E:REPRODUCE.md": {
+      "root": "LIVE-E2E",
+      "relative_file": "REPRODUCE.md",
+      "sha256": "a8b66600780a764cb08b4f02b869f0fe7b3744216f330a1f7113c0c3caf977f6",
+      "retention": "staged"
+    },
+    "LIVE-E2E:REPORT.md": {
+      "root": "LIVE-E2E",
+      "relative_file": "REPORT.md",
+      "sha256": "0101ce404c36aef7498edb78d817644c309ed8fcea89357d32c3698484335b75",
+      "retention": "staged"
+    },
+    "LIVE-E2E:logs/run-full-gpu-e2e.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "logs/run-full-gpu-e2e.log",
+      "sha256": "106b1ab6bfbc675e54974a1b0173bc038c1f81096341f9dffae84a24d5854788",
+      "retention": "staged"
+    },
+    "LIVE-E2E:scripts/run-full-gpu-e2e.sh": {
+      "root": "LIVE-E2E",
+      "relative_file": "scripts/run-full-gpu-e2e.sh",
+      "sha256": "7077b7da2cc721f69b57ec15fd24d156b94b9991da6d0783004e31c2366ada0e",
+      "retention": "original-only"
+    },
+    "LIVE-E2E:logs/final-inventory.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "logs/final-inventory.log",
+      "sha256": "ba8afd387740f76297cc00cd5009013b28bdf0b17fb2709f6d87eb42f66532c7",
+      "retention": "staged"
+    },
+    "LIVE-E2E:logs/fetch-minimal-deps-2.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "logs/fetch-minimal-deps-2.log",
+      "sha256": "2ddb10c17716444d802695392bd66ae02f44ebe4ae9ff83fae30d9f51b38a63a",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/cpu-freeze.txt": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/cpu-freeze.txt",
+      "sha256": "e201a4c02109db985d418e9f68299d1455f0f387bc0e7abb20b4ed246478e7cd",
+      "retention": "original-only"
+    },
+    "LIVE-E2E:target/evidence/gpu-freeze.txt": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-freeze.txt",
+      "sha256": "a5f79b834475d0fff569fb4da0b5cfa8f1efb1d16756244ac701d2e186ea4783",
+      "retention": "original-only"
+    },
+    "LIVE-E2E:target/evidence/kernel-complete-interval.log": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/kernel-complete-interval.log",
+      "sha256": "fe291d270eb9994d318634b7822159617f50c3e81d7c5065538b1ce623408fa7",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-native-hashes.json": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-native-hashes.json",
+      "sha256": "9d7d37fdacd0e81c44a8561e5461bbb0f68305e0c7452a02099d393a5cf29632",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/encoder-cpu-community-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/encoder-cpu-community-samples.jsonl",
+      "sha256": "fa0606af4c9098e93ab061d58f6a4403450d03551b4e1a53e60de194ba585541",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/encoder-cpu-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/encoder-cpu-samples.jsonl",
+      "sha256": "f65363f7c94e771595805c93c90fe036b64dc7e19d877edc5fbe831c03ec29a0",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/encoder-gpu-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/encoder-gpu-samples.jsonl",
+      "sha256": "9339fbda727397ac66c90775b7f87859a77bec42c90cb4af5b86b326357f0f56",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-channels-first-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-channels-first-samples.jsonl",
+      "sha256": "a93cbaf5b0aa8732a5384a879d17ec40eda95599be26653d1d1a8b9fcec6f17c",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-minimal-strict-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-minimal-strict-samples.jsonl",
+      "sha256": "9b1b77f49bd4183b5e7aa61fdd1395bf5ba43b99c5af2af9418e758b4a90b260",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-native-fp16-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-native-fp16-samples.jsonl",
+      "sha256": "0813aa285abed0b29dc6405c7b6030a82ff35ca85c151e8dd6038078eec69253",
+      "retention": "staged"
+    },
+    "LIVE-E2E:target/evidence/gpu-strict-samples.jsonl": {
+      "root": "LIVE-E2E",
+      "relative_file": "target/evidence/gpu-strict-samples.jsonl",
+      "sha256": "cfa5a4e1627cac1b7b777bcb7f95ac734ee6f47069f6a75c14c1f7cdabc7c4be",
+      "retention": "staged"
+    }
+  },
+  "smoke": {
+    "vulkan": {
+      "records": [
+        {
+          "source": "LIVE-SMOKE:target/evidence/vulkan.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "load",
+            "mode": "vulkan",
+            "load_s": 2.083173201000136,
+            "process_to_loaded_s": 2.3591585929998473,
+            "providers": {
+              "fe": [
+                "CPUExecutionProvider"
+              ],
+              "be": [
+                "CPUExecutionProvider"
+              ]
+            },
+            "encoder_dtype": "<class 'numpy.float16'>",
+            "n_embd": 2048
+          }
+        },
+        {
+          "source": "LIVE-SMOKE:target/evidence/vulkan.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "run",
+            "mode": "vulkan",
+            "index": 0,
+            "phase": "cold-first-clip",
+            "audio_s": 5.855,
+            "wall_s": 0.8051461940003719,
+            "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+            "encoder_s": 0.18842472099959195,
+            "frontend_s": 0.10045755900000586,
+            "backend_s": 0.08492518299999574,
+            "prompt_s": 0.002040162999946915,
+            "decode_s": 0.6144068290000178,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "new_text": "",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "t_prefill": 0.2604217529296875,
+                "t_generate": 0.3516097068786621,
+                "n_prefill": 98,
+                "n_generate": 22,
+                "is_aborted": false
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-SMOKE:target/evidence/vulkan.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "run",
+            "mode": "vulkan",
+            "index": 1,
+            "phase": "warm",
+            "audio_s": 5.855,
+            "wall_s": 0.6328665450000699,
+            "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+            "encoder_s": 0.21775038399982805,
+            "frontend_s": 0.10501783800009434,
+            "backend_s": 0.10986491800031217,
+            "prompt_s": 0.0018869919999815465,
+            "decode_s": 0.4129465969999728,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "new_text": "",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "t_prefill": 0.002304553985595703,
+                "t_generate": 0.4082815647125244,
+                "n_prefill": 98,
+                "n_generate": 22,
+                "is_aborted": false
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-SMOKE:target/evidence/vulkan.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "run",
+            "mode": "vulkan",
+            "index": 2,
+            "phase": "warm",
+            "audio_s": 5.855,
+            "wall_s": 0.6433344079996459,
+            "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+            "encoder_s": 0.22449732599989147,
+            "frontend_s": 0.11082120399987616,
+            "backend_s": 0.1101549600002727,
+            "prompt_s": 0.0018883920001826482,
+            "decode_s": 0.41668171899982553,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "new_text": "",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "t_prefill": 0.002332448959350586,
+                "t_generate": 0.41172122955322266,
+                "n_prefill": 98,
+                "n_generate": 22,
+                "is_aborted": false
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-SMOKE:target/evidence/vulkan.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "run",
+            "mode": "vulkan",
+            "index": 3,
+            "phase": "warm",
+            "audio_s": 5.855,
+            "wall_s": 0.6324003279996759,
+            "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+            "encoder_s": 0.21774842300010278,
+            "frontend_s": 0.10347612700024911,
+            "backend_s": 0.11141359799967177,
+            "prompt_s": 0.0019080320003013185,
+            "decode_s": 0.4124767920002341,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "new_text": "",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "t_prefill": 0.0022306442260742188,
+                "t_generate": 0.4077575206756592,
+                "n_prefill": 98,
+                "n_generate": 22,
+                "is_aborted": false
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-SMOKE:target/evidence/vulkan.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "done",
+            "mode": "vulkan",
+            "process_s": 5.080359654999938
+          }
+        }
+      ],
+      "resource_extrema": [
+        {
+          "metric": "temperature_C",
+          "value": 62.0,
+          "source": "LIVE-SMOKE:target/evidence/vulkan-samples.jsonl",
+          "selector": {
+            "line_1based": 6,
+            "json_pointer": "/temp_mC"
+          },
+          "formula": "max(temp_mC) / 1000",
+          "sample_count": 6
+        },
+        {
+          "metric": "vram_GiB",
+          "value": 2.623828887939453,
+          "source": "LIVE-SMOKE:target/evidence/vulkan-samples.jsonl",
+          "selector": {
+            "line_1based": 6,
+            "json_pointer": "/vram_used_bytes"
+          },
+          "formula": "max(vram_used_bytes) / 1073741824",
+          "sample_count": 6
+        },
+        {
+          "metric": "gpu_busy_percent",
+          "value": 100.0,
+          "source": "LIVE-SMOKE:target/evidence/vulkan-samples.jsonl",
+          "selector": {
+            "line_1based": 5,
+            "json_pointer": "/gpu_busy_percent"
+          },
+          "formula": "max(gpu_busy_percent) / 1",
+          "sample_count": 6
+        },
+        {
+          "metric": "available_memory_GiB",
+          "value": 51.00654220581055,
+          "source": "LIVE-SMOKE:target/evidence/vulkan-samples.jsonl",
+          "selector": {
+            "line_1based": 3,
+            "json_pointer": "/mem_available_kB"
+          },
+          "formula": "min(mem_available_kB) / 1048576",
+          "sample_count": 6
+        }
+      ],
+      "status": {
+        "source": "LIVE-SMOKE:target/evidence/vulkan-status.json",
+        "values": {
+          "mode": "vulkan",
+          "exit_code": 0,
+          "stop_reason": null,
+          "elapsed_s": 6.10483582300003
+        }
+      },
+      "decoder_layer_assignments": {
+        "source": "LIVE-SMOKE:target/evidence/vulkan-native.log",
+        "events": [
+          {
+            "line_1based": 170,
+            "layer": 0,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 171,
+            "layer": 1,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 172,
+            "layer": 2,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 173,
+            "layer": 3,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 174,
+            "layer": 4,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 175,
+            "layer": 5,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 176,
+            "layer": 6,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 177,
+            "layer": 7,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 178,
+            "layer": 8,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 179,
+            "layer": 9,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 180,
+            "layer": 10,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 181,
+            "layer": 11,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 182,
+            "layer": 12,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 183,
+            "layer": 13,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 184,
+            "layer": 14,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 185,
+            "layer": 15,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 186,
+            "layer": 16,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 187,
+            "layer": 17,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 188,
+            "layer": 18,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 189,
+            "layer": 19,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 190,
+            "layer": 20,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 191,
+            "layer": 21,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 192,
+            "layer": 22,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 193,
+            "layer": 23,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 194,
+            "layer": 24,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 195,
+            "layer": 25,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 196,
+            "layer": 26,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 197,
+            "layer": 27,
+            "device": "Vulkan0"
+          },
+          {
+            "line_1based": 198,
+            "layer": 28,
+            "device": "Vulkan0"
+          }
+        ]
+      }
+    },
+    "cpu": {
+      "records": [
+        {
+          "source": "LIVE-SMOKE:target/evidence/cpu.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "load",
+            "mode": "cpu",
+            "load_s": 2.021949844000119,
+            "process_to_loaded_s": 2.294802055999753,
+            "providers": {
+              "fe": [
+                "CPUExecutionProvider"
+              ],
+              "be": [
+                "CPUExecutionProvider"
+              ]
+            },
+            "encoder_dtype": "<class 'numpy.float16'>",
+            "n_embd": 2048
+          }
+        },
+        {
+          "source": "LIVE-SMOKE:target/evidence/cpu.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "run",
+            "mode": "cpu",
+            "index": 0,
+            "phase": "cold-first-clip",
+            "audio_s": 5.855,
+            "wall_s": 1.6979820569999902,
+            "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+            "encoder_s": 0.20786337199979243,
+            "frontend_s": 0.09319943399987096,
+            "backend_s": 0.11089039400030742,
+            "prompt_s": 0.002247404000172537,
+            "decode_s": 1.4875801899997896,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "new_text": "",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "t_prefill": 0.806682825088501,
+                "t_generate": 0.67120361328125,
+                "n_prefill": 98,
+                "n_generate": 22,
+                "is_aborted": false
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-SMOKE:target/evidence/cpu.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "done",
+            "mode": "cpu",
+            "process_s": 3.9986661499997354
+          }
+        }
+      ],
+      "resource_extrema": [
+        {
+          "metric": "temperature_C",
+          "value": 55.0,
+          "source": "LIVE-SMOKE:target/evidence/cpu-samples.jsonl",
+          "selector": {
+            "line_1based": 1,
+            "json_pointer": "/temp_mC"
+          },
+          "formula": "max(temp_mC) / 1000",
+          "sample_count": 5
+        },
+        {
+          "metric": "vram_GiB",
+          "value": 0.9356651306152344,
+          "source": "LIVE-SMOKE:target/evidence/cpu-samples.jsonl",
+          "selector": {
+            "line_1based": 2,
+            "json_pointer": "/vram_used_bytes"
+          },
+          "formula": "max(vram_used_bytes) / 1073741824",
+          "sample_count": 5
+        },
+        {
+          "metric": "gpu_busy_percent",
+          "value": 0.0,
+          "source": "LIVE-SMOKE:target/evidence/cpu-samples.jsonl",
+          "selector": {
+            "line_1based": 1,
+            "json_pointer": "/gpu_busy_percent"
+          },
+          "formula": "max(gpu_busy_percent) / 1",
+          "sample_count": 5
+        },
+        {
+          "metric": "available_memory_GiB",
+          "value": 49.70570373535156,
+          "source": "LIVE-SMOKE:target/evidence/cpu-samples.jsonl",
+          "selector": {
+            "line_1based": 4,
+            "json_pointer": "/mem_available_kB"
+          },
+          "formula": "min(mem_available_kB) / 1048576",
+          "sample_count": 5
+        }
+      ],
+      "status": {
+        "source": "LIVE-SMOKE:target/evidence/cpu-status.json",
+        "values": {
+          "mode": "cpu",
+          "exit_code": 0,
+          "stop_reason": null,
+          "elapsed_s": 5.089150960999632
+        }
+      },
+      "decoder_layer_assignments": {
+        "source": "LIVE-SMOKE:target/evidence/cpu-native.log",
+        "events": [
+          {
+            "line_1based": 169,
+            "layer": 0,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 170,
+            "layer": 1,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 171,
+            "layer": 2,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 172,
+            "layer": 3,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 173,
+            "layer": 4,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 174,
+            "layer": 5,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 175,
+            "layer": 6,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 176,
+            "layer": 7,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 177,
+            "layer": 8,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 178,
+            "layer": 9,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 179,
+            "layer": 10,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 180,
+            "layer": 11,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 181,
+            "layer": 12,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 182,
+            "layer": 13,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 183,
+            "layer": 14,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 184,
+            "layer": 15,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 185,
+            "layer": 16,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 186,
+            "layer": 17,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 187,
+            "layer": 18,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 188,
+            "layer": 19,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 189,
+            "layer": 20,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 190,
+            "layer": 21,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 191,
+            "layer": 22,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 192,
+            "layer": 23,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 193,
+            "layer": 24,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 194,
+            "layer": 25,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 195,
+            "layer": 26,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 196,
+            "layer": 27,
+            "device": "CPU"
+          },
+          {
+            "line_1based": 197,
+            "layer": 28,
+            "device": "CPU"
+          }
+        ]
+      }
+    },
+    "fixture": {
+      "source": "LIVE-SMOKE:target/evidence/reference.json",
+      "values": {
+        "file": "1272-128104-0000.flac",
+        "text": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+        "speaker_id": 1272,
+        "chapter_id": 128104,
+        "id": "1272-128104-0000",
+        "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy",
+        "revision": "5be91486e11a2d616f4ec5db8d3fd248585ac07a",
+        "audio_s": 5.855,
+        "sample_rate": 16000,
+        "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+        "parquet_sha256": "4e69a06fa5edc90921e5e7e39a7084881f8b3ed9c805c574f4f39c6fde27c603"
+      }
+    }
+  },
+  "e2e": {
+    "hybrid": {
+      "client_records": [
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "ready",
+            "seconds": 2.8239882819998456
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "http_result",
+            "index": 0,
+            "name": "reference",
+            "phase": "first-request",
+            "seconds": 0.7810718399996404,
+            "audio_s": 5.855,
+            "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "http_result",
+            "index": 1,
+            "name": "reference",
+            "phase": "warm",
+            "seconds": 0.7497523359998013,
+            "audio_s": 5.855,
+            "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "http_result",
+            "index": 2,
+            "name": "reference",
+            "phase": "warm",
+            "seconds": 0.7310200689998965,
+            "audio_s": 5.855,
+            "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "http_result",
+            "index": 3,
+            "name": "short",
+            "phase": "warm",
+            "seconds": 0.4141085569999632,
+            "audio_s": 2.245,
+            "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+            "result": {
+              "text": "By Harry Quilter, M.A."
+            },
+            "reference": "BY HARRY QUILTER M A",
+            "reference_units": 5,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "http_result",
+            "index": 4,
+            "name": "long",
+            "phase": "warm",
+            "seconds": 2.5269456699998045,
+            "audio_s": 29.4,
+            "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+            "result": {
+              "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\""
+            },
+            "reference": "LINNELL'S PICTURES ARE A SORT OF UP GUARDS AND AT EM PAINTINGS AND MASON'S EXQUISITE IDYLLS ARE AS NATIONAL AS A JINGO POEM MISTER BIRKET FOSTER'S LANDSCAPES SMILE AT ONE MUCH IN THE SAME WAY THAT MISTER CARKER USED TO FLASH HIS TEETH AND MISTER JOHN COLLIER GIVES HIS SITTER A CHEERFUL SLAP ON THE BACK BEFORE HE SAYS LIKE A SHAMPOOER IN A TURKISH BATH NEXT MAN",
+            "reference_units": 68,
+            "edits": 4
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "http_result",
+            "index": 5,
+            "name": "mandarin",
+            "phase": "warm",
+            "seconds": 0.49907435800014355,
+            "audio_s": 4.281,
+            "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+            "result": {
+              "text": "广州市房地产中介协会分析。"
+            },
+            "reference": "广州市房地产中介协会分析",
+            "reference_units": 12,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "http_result",
+            "index": 6,
+            "name": "noninteger",
+            "phase": "warm",
+            "seconds": 0.7360710020002443,
+            "audio_s": 5.9783125,
+            "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 10
+          },
+          "values": {
+            "type": "websocket_result",
+            "seconds": 0.6387244190000274,
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+              "is_final": true,
+              "duration": 5.855,
+              "error_code": null
+            }
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 11
+          },
+          "values": {
+            "type": "websocket_invalid",
+            "close_code": 1008
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 12
+          },
+          "values": {
+            "type": "http_invalid",
+            "status": 400
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 13
+          },
+          "values": {
+            "type": "server_stopped",
+            "seconds": 0.6140580709998176,
+            "exit_code": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+          "selector": {
+            "line_1based": 14
+          },
+          "values": {
+            "type": "done",
+            "total_s": 10.611155671000233
+          }
+        }
+      ],
+      "worker_records": [
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "engine_load",
+            "seconds": 2.156564120999974,
+            "providers": {
+              "fe": [
+                "CPUExecutionProvider"
+              ],
+              "be": [
+                "CPUExecutionProvider"
+              ]
+            },
+            "dtype": "<class 'numpy.float16'>"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.007015705108642578,
+            "pipeline_s": 0.6594254720002937,
+            "encoder_s": 0.22524037699986366,
+            "frontend_s": 0.0958875899996201,
+            "backend_s": 0.12343522700030007,
+            "prompt_s": 0.0023988660004761186,
+            "decoder_s": 0.4186851160002334,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "prompt_shape": [
+              98,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.006327390670776367,
+                "t_generate": 0.409989595413208
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0011777877807617188,
+            "pipeline_s": 0.6360730440001134,
+            "encoder_s": 0.2192846030002329,
+            "frontend_s": 0.09255757800019637,
+            "backend_s": 0.11818229900018196,
+            "prompt_s": 0.0019337840003572637,
+            "decoder_s": 0.41333305099942663,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "prompt_shape": [
+              98,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.002204418182373047,
+                "t_generate": 0.4089951515197754
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0015132427215576172,
+            "pipeline_s": 0.6172251990001314,
+            "encoder_s": 0.20025068699942494,
+            "frontend_s": 0.09034090600016498,
+            "backend_s": 0.1011195860000953,
+            "prompt_s": 0.0019053539999731584,
+            "decoder_s": 0.4136193260001164,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "prompt_shape": [
+              98,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.0022323131561279297,
+                "t_generate": 0.4092693328857422
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0008742809295654297,
+            "pipeline_s": 0.30600294600026245,
+            "encoder_s": 0.12046340400047484,
+            "frontend_s": 0.052465288000348664,
+            "backend_s": 0.06315023400020436,
+            "prompt_s": 0.0016716930003894959,
+            "decoder_s": 0.1826949179994699,
+            "embedding_shape": [
+              29,
+              2048
+            ],
+            "prompt_shape": [
+              51,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "By Harry Quilter, M.A.",
+                "stable_tokens": [
+                  1359,
+                  13928,
+                  3406,
+                  2044,
+                  11,
+                  386,
+                  875,
+                  13
+                ],
+                "n_generate": 8,
+                "is_aborted": false,
+                "t_prefill": 0.0024449825286865234,
+                "t_generate": 0.1781477928161621
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0022525787353515625,
+            "pipeline_s": 2.415629195999827,
+            "encoder_s": 0.7948417120005615,
+            "frontend_s": 0.3033333390003463,
+            "backend_s": 0.4719556790005299,
+            "prompt_s": 0.0036254879996704403,
+            "decoder_s": 1.614041781999731,
+            "embedding_shape": [
+              382,
+              2048
+            ],
+            "prompt_shape": [
+              404,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+                "stable_tokens": [
+                  50597,
+                  613,
+                  594,
+                  9185,
+                  525,
+                  264,
+                  3378,
+                  315,
+                  3138,
+                  69285,
+                  323,
+                  15037,
+                  35592,
+                  11,
+                  323,
+                  28827,
+                  594,
+                  58608,
+                  877,
+                  24705,
+                  82,
+                  525,
+                  438,
+                  5313,
+                  438,
+                  264,
+                  502,
+                  27908,
+                  32794,
+                  13,
+                  91608,
+                  36819,
+                  8226,
+                  38174,
+                  594,
+                  54790,
+                  15289,
+                  518,
+                  825,
+                  1753,
+                  304,
+                  279,
+                  1852,
+                  1616,
+                  429,
+                  91608,
+                  356,
+                  12856,
+                  1483,
+                  311,
+                  8217,
+                  806,
+                  17832,
+                  11,
+                  323,
+                  91608,
+                  3757,
+                  4254,
+                  5623,
+                  6696,
+                  806,
+                  2444,
+                  465,
+                  264,
+                  70314,
+                  50052,
+                  389,
+                  279,
+                  1182,
+                  1573,
+                  566,
+                  2727,
+                  11,
+                  1075,
+                  264,
+                  61932,
+                  261,
+                  304,
+                  264,
+                  23734,
+                  8885,
+                  11,
+                  330,
+                  5847,
+                  883,
+                  1189
+                ],
+                "n_generate": 86,
+                "is_aborted": false,
+                "t_prefill": 0.008909225463867188,
+                "t_generate": 1.6025686264038086
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0009860992431640625,
+            "pipeline_s": 0.3930116870005804,
+            "encoder_s": 0.17689091400006873,
+            "frontend_s": 0.08308556199972372,
+            "backend_s": 0.08524307100014994,
+            "prompt_s": 0.0017973880003410159,
+            "decoder_s": 0.2130367390000174,
+            "embedding_shape": [
+              56,
+              2048
+            ],
+            "prompt_shape": [
+              78,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "广州市房地产中介协会分析。",
+                "stable_tokens": [
+                  106805,
+                  104021,
+                  102842,
+                  100715,
+                  101042,
+                  1773
+                ],
+                "n_generate": 6,
+                "is_aborted": false,
+                "t_prefill": 0.0021209716796875,
+                "t_generate": 0.20882582664489746
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0010304450988769531,
+            "pipeline_s": 0.6283390449998478,
+            "encoder_s": 0.21580808900034754,
+            "frontend_s": 0.09402677199977916,
+            "backend_s": 0.11278512700027932,
+            "prompt_s": 0.0018910619992311695,
+            "decoder_s": 0.4092386729998907,
+            "embedding_shape": [
+              78,
+              2048
+            ],
+            "prompt_shape": [
+              100,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.0022461414337158203,
+                "t_generate": 0.4049069881439209
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25287.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0007607936859130859,
+            "pipeline_s": 0.599792831000741,
+            "encoder_s": 0.18231426400052442,
+            "frontend_s": 0.08805218799989234,
+            "backend_s": 0.0848633380001047,
+            "prompt_s": 0.0019595860003391863,
+            "decoder_s": 0.41393778400015435,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "prompt_shape": [
+              98,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.0022885799407958984,
+                "t_generate": 0.40952086448669434
+              }
+            ]
+          }
+        }
+      ],
+      "server_records": [
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.04736503500043909,
+            "pcm_bytes": 374720
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.046930423000048904,
+            "pcm_bytes": 374720
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.04410633599945868,
+            "pcm_bytes": 374720
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.04057189200011635,
+            "pcm_bytes": 143680
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.043916585000260966,
+            "pcm_bytes": 1881600
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.04174170399983268,
+            "pcm_bytes": 273984
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.04116646600050444,
+            "pcm_bytes": 382612
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "file_decode_error",
+            "seconds": 0.04127032899941696
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/hybrid-instrument-25245.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "server_exit",
+            "worker_exit_code": 0,
+            "worker_alive": false
+          }
+        }
+      ],
+      "resource_extrema": [
+        {
+          "metric": "temperature_C",
+          "value": 63.0,
+          "source": "LIVE-E2E:target/evidence/hybrid-samples.jsonl",
+          "selector": {
+            "line_1based": 14,
+            "json_pointer": "/temp_mC"
+          },
+          "formula": "max(temp_mC) / 1000",
+          "sample_count": 21
+        },
+        {
+          "metric": "vram_GiB",
+          "value": 2.624134063720703,
+          "source": "LIVE-E2E:target/evidence/hybrid-samples.jsonl",
+          "selector": {
+            "line_1based": 20,
+            "json_pointer": "/vram_used_bytes"
+          },
+          "formula": "max(vram_used_bytes) / 1073741824",
+          "sample_count": 21
+        },
+        {
+          "metric": "gpu_busy_percent",
+          "value": 100.0,
+          "source": "LIVE-E2E:target/evidence/hybrid-samples.jsonl",
+          "selector": {
+            "line_1based": 6,
+            "json_pointer": "/gpu_busy_percent"
+          },
+          "formula": "max(gpu_busy_percent) / 1",
+          "sample_count": 21
+        },
+        {
+          "metric": "available_memory_GiB",
+          "value": 52.360069274902344,
+          "source": "LIVE-E2E:target/evidence/hybrid-samples.jsonl",
+          "selector": {
+            "line_1based": 14,
+            "json_pointer": "/mem_available_bytes"
+          },
+          "formula": "min(mem_available_bytes) / 1073741824",
+          "sample_count": 21
+        },
+        {
+          "metric": "overlay_free_GiB",
+          "value": 8.97164535522461,
+          "source": "LIVE-E2E:target/evidence/hybrid-samples.jsonl",
+          "selector": {
+            "line_1based": 8,
+            "json_pointer": "/overlay_free_bytes"
+          },
+          "formula": "min(overlay_free_bytes) / 1073741824",
+          "sample_count": 21
+        }
+      ],
+      "status": {
+        "source": "LIVE-E2E:target/evidence/hybrid-status.json",
+        "values": {
+          "name": "hybrid",
+          "exit_code": 0,
+          "stop_reason": null,
+          "elapsed_s": 10.96215971699985
+        }
+      }
+    },
+    "cpu": {
+      "client_records": [
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "ready",
+            "seconds": 2.7183187310001813
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "http_result",
+            "index": 0,
+            "name": "reference",
+            "phase": "first-request",
+            "seconds": 1.8122799470002064,
+            "audio_s": 5.855,
+            "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "http_result",
+            "index": 1,
+            "name": "short",
+            "phase": "warm",
+            "seconds": 0.9182031589998587,
+            "audio_s": 2.245,
+            "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+            "result": {
+              "text": "By Harry Quilter, M.A."
+            },
+            "reference": "BY HARRY QUILTER M A",
+            "reference_units": 5,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "http_result",
+            "index": 2,
+            "name": "long",
+            "phase": "warm",
+            "seconds": 7.524728678000429,
+            "audio_s": 29.4,
+            "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+            "result": {
+              "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mr. Birkit Foster's landscapes smile at one much in the same way that Mr. Carker used to flash his teeth, and Mr. John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\""
+            },
+            "reference": "LINNELL'S PICTURES ARE A SORT OF UP GUARDS AND AT EM PAINTINGS AND MASON'S EXQUISITE IDYLLS ARE AS NATIONAL AS A JINGO POEM MISTER BIRKET FOSTER'S LANDSCAPES SMILE AT ONE MUCH IN THE SAME WAY THAT MISTER CARKER USED TO FLASH HIS TEETH AND MISTER JOHN COLLIER GIVES HIS SITTER A CHEERFUL SLAP ON THE BACK BEFORE HE SAYS LIKE A SHAMPOOER IN A TURKISH BATH NEXT MAN",
+            "reference_units": 68,
+            "edits": 4
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "http_result",
+            "index": 3,
+            "name": "mandarin",
+            "phase": "warm",
+            "seconds": 1.0890012569998362,
+            "audio_s": 4.281,
+            "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+            "result": {
+              "text": "广州市房地产中介协会分析。"
+            },
+            "reference": "广州市房地产中介协会分析",
+            "reference_units": 12,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "http_result",
+            "index": 4,
+            "name": "noninteger",
+            "phase": "warm",
+            "seconds": 1.8213219080007548,
+            "audio_s": 5.9783125,
+            "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "http_invalid",
+            "status": 400
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "server_stopped",
+            "seconds": 0.5640282360000128,
+            "exit_code": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+          "selector": {
+            "line_1based": 10
+          },
+          "values": {
+            "type": "done",
+            "total_s": 16.49337922900031
+          }
+        }
+      ],
+      "worker_records": [
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24807.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "engine_load",
+            "seconds": 2.0048681999996916,
+            "providers": {
+              "fe": [
+                "CPUExecutionProvider"
+              ],
+              "be": [
+                "CPUExecutionProvider"
+              ]
+            },
+            "dtype": "<class 'numpy.float16'>"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24807.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.007204294204711914,
+            "pipeline_s": 1.6990814079999836,
+            "encoder_s": 0.21148216300025524,
+            "frontend_s": 0.08645485299985012,
+            "backend_s": 0.11077183899942611,
+            "prompt_s": 0.002225303000159329,
+            "decoder_s": 1.473436510999818,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "prompt_shape": [
+              98,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.7890825271606445,
+                "t_generate": 0.6735577583312988
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24807.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0010497570037841797,
+            "pipeline_s": 0.8143321669995203,
+            "encoder_s": 0.11926157800007786,
+            "frontend_s": 0.056492826000067,
+            "backend_s": 0.061231325000335346,
+            "prompt_s": 0.0019089260003966046,
+            "decoder_s": 0.6917734730004668,
+            "embedding_shape": [
+              29,
+              2048
+            ],
+            "prompt_shape": [
+              51,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "By Harry Quilter, M.A.",
+                "stable_tokens": [
+                  1359,
+                  13928,
+                  3406,
+                  2044,
+                  11,
+                  386,
+                  875,
+                  13
+                ],
+                "n_generate": 8,
+                "is_aborted": false,
+                "t_prefill": 0.439800500869751,
+                "t_generate": 0.24192309379577637
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24807.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.002683401107788086,
+            "pipeline_s": 7.4163949069998125,
+            "encoder_s": 0.9906911759999275,
+            "frontend_s": 0.3605117560000508,
+            "backend_s": 0.6033391199998732,
+            "prompt_s": 0.003033861999938381,
+            "decoder_s": 6.4198531189995265,
+            "embedding_shape": [
+              382,
+              2048
+            ],
+            "prompt_shape": [
+              404,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mr. Birkit Foster's landscapes smile at one much in the same way that Mr. Carker used to flash his teeth, and Mr. John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+                "stable_tokens": [
+                  50597,
+                  613,
+                  594,
+                  9185,
+                  525,
+                  264,
+                  3378,
+                  315,
+                  3138,
+                  69285,
+                  323,
+                  15037,
+                  35592,
+                  11,
+                  323,
+                  28827,
+                  594,
+                  58608,
+                  877,
+                  24705,
+                  82,
+                  525,
+                  438,
+                  5313,
+                  438,
+                  264,
+                  502,
+                  27908,
+                  32794,
+                  13,
+                  4392,
+                  13,
+                  36819,
+                  8226,
+                  38174,
+                  594,
+                  54790,
+                  15289,
+                  518,
+                  825,
+                  1753,
+                  304,
+                  279,
+                  1852,
+                  1616,
+                  429,
+                  4392,
+                  13,
+                  356,
+                  12856,
+                  1483,
+                  311,
+                  8217,
+                  806,
+                  17832,
+                  11,
+                  323,
+                  4392,
+                  13,
+                  3757,
+                  4254,
+                  5623,
+                  6696,
+                  806,
+                  2444,
+                  465,
+                  264,
+                  70314,
+                  50052,
+                  389,
+                  279,
+                  1182,
+                  1573,
+                  566,
+                  2727,
+                  11,
+                  1075,
+                  264,
+                  61932,
+                  261,
+                  304,
+                  264,
+                  23734,
+                  8885,
+                  11,
+                  330,
+                  5847,
+                  883,
+                  1189
+                ],
+                "n_generate": 89,
+                "is_aborted": false,
+                "t_prefill": 3.42256498336792,
+                "t_generate": 2.9870309829711914
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24807.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0008928775787353516,
+            "pipeline_s": 0.9868529040004432,
+            "encoder_s": 0.16624290799973096,
+            "frontend_s": 0.0821273490000749,
+            "backend_s": 0.07178380499954073,
+            "prompt_s": 0.0017592669992154697,
+            "decoder_s": 0.8175406239997756,
+            "embedding_shape": [
+              56,
+              2048
+            ],
+            "prompt_shape": [
+              78,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "广州市房地产中介协会分析。",
+                "stable_tokens": [
+                  106805,
+                  104021,
+                  102842,
+                  100715,
+                  101042,
+                  1773
+                ],
+                "n_generate": 6,
+                "is_aborted": false,
+                "t_prefill": 0.6236917972564697,
+                "t_generate": 0.1838822364807129
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24807.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0009372234344482422,
+            "pipeline_s": 1.7165549740002461,
+            "encoder_s": 0.22217774900036602,
+            "frontend_s": 0.09837605899974733,
+            "backend_s": 0.11450119900018763,
+            "prompt_s": 0.0019422960003794287,
+            "decoder_s": 1.4909350640000412,
+            "embedding_shape": [
+              78,
+              2048
+            ],
+            "prompt_shape": [
+              100,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.8076162338256836,
+                "t_generate": 0.6732120513916016
+              }
+            ]
+          }
+        }
+      ],
+      "server_records": [
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24765.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.04206057600003987,
+            "pcm_bytes": 374720
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24765.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.038338101999215723,
+            "pcm_bytes": 143680
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24765.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.04266191599981539,
+            "pcm_bytes": 1881600
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24765.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.04026611100016453,
+            "pcm_bytes": 273984
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24765.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.0399480610003593,
+            "pcm_bytes": 382612
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24765.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "file_decode_error",
+            "seconds": 0.040840349000063725
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/cpu-instrument-24765.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "server_exit",
+            "worker_exit_code": 0,
+            "worker_alive": false
+          }
+        }
+      ],
+      "resource_extrema": [
+        {
+          "metric": "temperature_C",
+          "value": 55.0,
+          "source": "LIVE-E2E:target/evidence/cpu-samples.jsonl",
+          "selector": {
+            "line_1based": 16,
+            "json_pointer": "/temp_mC"
+          },
+          "formula": "max(temp_mC) / 1000",
+          "sample_count": 32
+        },
+        {
+          "metric": "vram_GiB",
+          "value": 0.9356651306152344,
+          "source": "LIVE-E2E:target/evidence/cpu-samples.jsonl",
+          "selector": {
+            "line_1based": 2,
+            "json_pointer": "/vram_used_bytes"
+          },
+          "formula": "max(vram_used_bytes) / 1073741824",
+          "sample_count": 32
+        },
+        {
+          "metric": "gpu_busy_percent",
+          "value": 0.0,
+          "source": "LIVE-E2E:target/evidence/cpu-samples.jsonl",
+          "selector": {
+            "line_1based": 1,
+            "json_pointer": "/gpu_busy_percent"
+          },
+          "formula": "max(gpu_busy_percent) / 1",
+          "sample_count": 32
+        },
+        {
+          "metric": "available_memory_GiB",
+          "value": 51.35860824584961,
+          "source": "LIVE-E2E:target/evidence/cpu-samples.jsonl",
+          "selector": {
+            "line_1based": 29,
+            "json_pointer": "/mem_available_bytes"
+          },
+          "formula": "min(mem_available_bytes) / 1073741824",
+          "sample_count": 32
+        },
+        {
+          "metric": "overlay_free_GiB",
+          "value": 8.971729278564453,
+          "source": "LIVE-E2E:target/evidence/cpu-samples.jsonl",
+          "selector": {
+            "line_1based": 1,
+            "json_pointer": "/overlay_free_bytes"
+          },
+          "formula": "min(overlay_free_bytes) / 1073741824",
+          "sample_count": 32
+        }
+      ],
+      "status": {
+        "source": "LIVE-E2E:target/evidence/cpu-status.json",
+        "values": {
+          "name": "cpu",
+          "exit_code": 0,
+          "stop_reason": null,
+          "elapsed_s": 16.587782557000537
+        }
+      }
+    },
+    "migraphx": {
+      "client_records": [
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "ready",
+            "seconds": 20.38649501999953
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "http_result",
+            "index": 0,
+            "name": "reference",
+            "phase": "first-request",
+            "seconds": 17.52008914399994,
+            "audio_s": 5.855,
+            "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "http_result",
+            "index": 1,
+            "name": "reference",
+            "phase": "warm",
+            "seconds": 0.6753529480001816,
+            "audio_s": 5.855,
+            "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "http_result",
+            "index": 2,
+            "name": "reference",
+            "phase": "warm",
+            "seconds": 0.6709042939992287,
+            "audio_s": 5.855,
+            "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "http_result",
+            "index": 3,
+            "name": "short",
+            "phase": "warm",
+            "seconds": 17.020726934999402,
+            "audio_s": 2.245,
+            "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36",
+            "result": {
+              "text": "By Harry Quilter, M.A."
+            },
+            "reference": "BY HARRY QUILTER M A",
+            "reference_units": 5,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "http_result",
+            "index": 4,
+            "name": "long",
+            "phase": "warm",
+            "seconds": 19.22770098899946,
+            "audio_s": 29.4,
+            "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404",
+            "result": {
+              "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\""
+            },
+            "reference": "LINNELL'S PICTURES ARE A SORT OF UP GUARDS AND AT EM PAINTINGS AND MASON'S EXQUISITE IDYLLS ARE AS NATIONAL AS A JINGO POEM MISTER BIRKET FOSTER'S LANDSCAPES SMILE AT ONE MUCH IN THE SAME WAY THAT MISTER CARKER USED TO FLASH HIS TEETH AND MISTER JOHN COLLIER GIVES HIS SITTER A CHEERFUL SLAP ON THE BACK BEFORE HE SAYS LIKE A SHAMPOOER IN A TURKISH BATH NEXT MAN",
+            "reference_units": 68,
+            "edits": 4
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "http_result",
+            "index": 5,
+            "name": "mandarin",
+            "phase": "warm",
+            "seconds": 16.918802816000607,
+            "audio_s": 4.281,
+            "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13",
+            "result": {
+              "text": "广州市房地产中介协会分析。"
+            },
+            "reference": "广州市房地产中介协会分析",
+            "reference_units": 12,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "http_result",
+            "index": 6,
+            "name": "noninteger",
+            "phase": "warm",
+            "seconds": 17.1602710090001,
+            "audio_s": 5.9783125,
+            "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7",
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel."
+            },
+            "reference": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+            "reference_units": 17,
+            "edits": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 10
+          },
+          "values": {
+            "type": "websocket_result",
+            "seconds": 17.20418686300036,
+            "result": {
+              "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+              "is_final": true,
+              "duration": 5.855,
+              "error_code": null
+            }
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 11
+          },
+          "values": {
+            "type": "websocket_invalid",
+            "close_code": 1008
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 12
+          },
+          "values": {
+            "type": "http_invalid",
+            "status": 400
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 13
+          },
+          "values": {
+            "type": "server_stopped",
+            "seconds": 0.5640714679993835,
+            "exit_code": 0
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+          "selector": {
+            "line_1based": 14
+          },
+          "values": {
+            "type": "done",
+            "total_s": 127.4810235469995
+          }
+        }
+      ],
+      "worker_records": [
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "engine_load",
+            "seconds": 19.685777671000324,
+            "providers": {
+              "fe": [
+                "MIGraphXExecutionProvider",
+                "CPUExecutionProvider"
+              ],
+              "be": [
+                "MIGraphXExecutionProvider",
+                "CPUExecutionProvider"
+              ]
+            },
+            "dtype": "<class 'numpy.float16'>"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.009213924407958984,
+            "pipeline_s": 17.325811491999957,
+            "encoder_s": 16.880229411000073,
+            "frontend_s": 0.028406546000042,
+            "backend_s": 16.829118104999907,
+            "prompt_s": 0.001383187999635993,
+            "decoder_s": 0.43283178900037456,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "prompt_shape": [
+              98,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.007539510726928711,
+                "t_generate": 0.422701358795166
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0013358592987060547,
+            "pipeline_s": 0.5120487559997855,
+            "encoder_s": 0.07840312699954666,
+            "frontend_s": 0.02622705399971892,
+            "backend_s": 0.041092114000093716,
+            "prompt_s": 0.0011204450001969235,
+            "decoder_s": 0.43095084200012934,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "prompt_shape": [
+              98,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.0023550987243652344,
+                "t_generate": 0.42612195014953613
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0012962818145751953,
+            "pipeline_s": 0.508275171000605,
+            "encoder_s": 0.07494416999998066,
+            "frontend_s": 0.02600332099973457,
+            "backend_s": 0.04066921799949341,
+            "prompt_s": 0.001203855999847292,
+            "decoder_s": 0.430764865999663,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "prompt_shape": [
+              98,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.0022695064544677734,
+                "t_generate": 0.4260127544403076
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.001031637191772461,
+            "pipeline_s": 16.860036131000015,
+            "encoder_s": 16.67083771200032,
+            "frontend_s": 0.014839329999631445,
+            "backend_s": 16.65186798600007,
+            "prompt_s": 0.0008523320002495893,
+            "decoder_s": 0.18713114100046369,
+            "embedding_shape": [
+              29,
+              2048
+            ],
+            "prompt_shape": [
+              51,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "By Harry Quilter, M.A.",
+                "stable_tokens": [
+                  1359,
+                  13928,
+                  3406,
+                  2044,
+                  11,
+                  386,
+                  875,
+                  13
+                ],
+                "n_generate": 8,
+                "is_aborted": false,
+                "t_prefill": 0.0021576881408691406,
+                "t_generate": 0.1827402114868164
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.002479076385498047,
+            "pipeline_s": 19.061285237000448,
+            "encoder_s": 17.39384919999975,
+            "frontend_s": 0.12889145299959637,
+            "backend_s": 17.244228098999884,
+            "prompt_s": 0.0022961610002312227,
+            "decoder_s": 1.6620889050000187,
+            "embedding_shape": [
+              382,
+              2048
+            ],
+            "prompt_shape": [
+              404,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Linell's pictures are a sort of Up Guards and Adam paintings, and Mason's exquisite idylls are as national as a jingo poem. Mister Birkit Foster's landscapes smile at one much in the same way that Mister Carker used to flash his teeth, and Mister John Collier gives his sitter a cheerful slap on the back before he says, like a shampooer in a Turkish bath, \"Next man.\"",
+                "stable_tokens": [
+                  50597,
+                  613,
+                  594,
+                  9185,
+                  525,
+                  264,
+                  3378,
+                  315,
+                  3138,
+                  69285,
+                  323,
+                  15037,
+                  35592,
+                  11,
+                  323,
+                  28827,
+                  594,
+                  58608,
+                  877,
+                  24705,
+                  82,
+                  525,
+                  438,
+                  5313,
+                  438,
+                  264,
+                  502,
+                  27908,
+                  32794,
+                  13,
+                  91608,
+                  36819,
+                  8226,
+                  38174,
+                  594,
+                  54790,
+                  15289,
+                  518,
+                  825,
+                  1753,
+                  304,
+                  279,
+                  1852,
+                  1616,
+                  429,
+                  91608,
+                  356,
+                  12856,
+                  1483,
+                  311,
+                  8217,
+                  806,
+                  17832,
+                  11,
+                  323,
+                  91608,
+                  3757,
+                  4254,
+                  5623,
+                  6696,
+                  806,
+                  2444,
+                  465,
+                  264,
+                  70314,
+                  50052,
+                  389,
+                  279,
+                  1182,
+                  1573,
+                  566,
+                  2727,
+                  11,
+                  1075,
+                  264,
+                  61932,
+                  261,
+                  304,
+                  264,
+                  23734,
+                  8885,
+                  11,
+                  330,
+                  5847,
+                  883,
+                  1189
+                ],
+                "n_generate": 86,
+                "is_aborted": false,
+                "t_prefill": 0.007824897766113281,
+                "t_generate": 1.6508569717407227
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0011734962463378906,
+            "pipeline_s": 16.755451544000607,
+            "encoder_s": 16.530953251999563,
+            "frontend_s": 0.024399322999670403,
+            "backend_s": 16.494929444999798,
+            "prompt_s": 0.0009948719998646993,
+            "decoder_s": 0.22218872099983855,
+            "embedding_shape": [
+              56,
+              2048
+            ],
+            "prompt_shape": [
+              78,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "广州市房地产中介协会分析。",
+                "stable_tokens": [
+                  106805,
+                  104021,
+                  102842,
+                  100715,
+                  101042,
+                  1773
+                ],
+                "n_generate": 6,
+                "is_aborted": false,
+                "t_prefill": 0.002255678176879883,
+                "t_generate": 0.21754693984985352
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0011591911315917969,
+            "pipeline_s": 16.997637962000226,
+            "encoder_s": 16.562960911999653,
+            "frontend_s": 0.026167764000092575,
+            "backend_s": 16.528858304000096,
+            "prompt_s": 0.001063163000253553,
+            "decoder_s": 0.43208886699994764,
+            "embedding_shape": [
+              78,
+              2048
+            ],
+            "prompt_shape": [
+              100,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.002354145050048828,
+                "t_generate": 0.42719173431396484
+              }
+            ]
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85386.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "task",
+            "queue_s": 0.0007519721984863281,
+            "pipeline_s": 17.1645249660005,
+            "encoder_s": 16.734972215000198,
+            "frontend_s": 0.03098680399943987,
+            "backend_s": 16.691305245000876,
+            "prompt_s": 0.0010621539995554485,
+            "decoder_s": 0.42693919700013794,
+            "embedding_shape": [
+              76,
+              2048
+            ],
+            "prompt_shape": [
+              98,
+              2048
+            ],
+            "attempts": [
+              {
+                "text": "Mr. Quilter is the apostle of the middle classes, and we are glad to welcome his gospel.",
+                "stable_tokens": [
+                  12275,
+                  13,
+                  3406,
+                  2044,
+                  374,
+                  279,
+                  38471,
+                  273,
+                  315,
+                  279,
+                  6149,
+                  6846,
+                  11,
+                  323,
+                  582,
+                  525,
+                  15713,
+                  311,
+                  10565,
+                  806,
+                  41482,
+                  13
+                ],
+                "n_generate": 22,
+                "is_aborted": false,
+                "t_prefill": 0.002366781234741211,
+                "t_generate": 0.4221160411834717
+              }
+            ]
+          }
+        }
+      ],
+      "server_records": [
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.08160936100011895,
+            "pcm_bytes": 374720
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl",
+          "selector": {
+            "line_1based": 2
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.0722525740002311,
+            "pcm_bytes": 374720
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl",
+          "selector": {
+            "line_1based": 3
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.07208881199949246,
+            "pcm_bytes": 374720
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl",
+          "selector": {
+            "line_1based": 4
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.07057878100022208,
+            "pcm_bytes": 143680
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl",
+          "selector": {
+            "line_1based": 5
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.073851477000062,
+            "pcm_bytes": 1881600
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.07351452400052949,
+            "pcm_bytes": 273984
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "file_decode",
+            "seconds": 0.07202993699957005,
+            "pcm_bytes": 382612
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "file_decode_error",
+            "seconds": 0.07286893299988151
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/migraphx-instrument-85343.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "server_exit",
+            "worker_exit_code": 0,
+            "worker_alive": false
+          }
+        }
+      ],
+      "resource_extrema": [
+        {
+          "metric": "temperature_C",
+          "value": 63.0,
+          "source": "LIVE-E2E:target/evidence/migraphx-samples.jsonl",
+          "selector": {
+            "line_1based": 146,
+            "json_pointer": "/temp_mC"
+          },
+          "formula": "max(temp_mC) / 1000",
+          "sample_count": 246
+        },
+        {
+          "metric": "vram_GiB",
+          "value": 3.7874984741210938,
+          "source": "LIVE-E2E:target/evidence/migraphx-samples.jsonl",
+          "selector": {
+            "line_1based": 144,
+            "json_pointer": "/vram_used_bytes"
+          },
+          "formula": "max(vram_used_bytes) / 1073741824",
+          "sample_count": 246
+        },
+        {
+          "metric": "gpu_busy_percent",
+          "value": 100.0,
+          "source": "LIVE-E2E:target/evidence/migraphx-samples.jsonl",
+          "selector": {
+            "line_1based": 3,
+            "json_pointer": "/gpu_busy_percent"
+          },
+          "formula": "max(gpu_busy_percent) / 1",
+          "sample_count": 246
+        },
+        {
+          "metric": "available_memory_GiB",
+          "value": 45.526405334472656,
+          "source": "LIVE-E2E:target/evidence/migraphx-samples.jsonl",
+          "selector": {
+            "line_1based": 53,
+            "json_pointer": "/mem_available_bytes"
+          },
+          "formula": "min(mem_available_bytes) / 1073741824",
+          "sample_count": 246
+        },
+        {
+          "metric": "overlay_free_GiB",
+          "value": 8.971687316894531,
+          "source": "LIVE-E2E:target/evidence/migraphx-samples.jsonl",
+          "selector": {
+            "line_1based": 1,
+            "json_pointer": "/overlay_free_bytes"
+          },
+          "formula": "min(overlay_free_bytes) / 1073741824",
+          "sample_count": 246
+        }
+      ],
+      "status": {
+        "source": "LIVE-E2E:target/evidence/migraphx-status.json",
+        "values": {
+          "name": "migraphx",
+          "exit_code": 0,
+          "stop_reason": null,
+          "elapsed_s": 127.86863690700011
+        }
+      }
+    },
+    "fixtures": [
+      {
+        "source": "LIVE-E2E:target/evidence/audio-manifest.json",
+        "selector": {
+          "json_pointer": "/0"
+        },
+        "values": {
+          "name": "reference",
+          "file": "reference.flac",
+          "text": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+          "id": "1272-128104-0000",
+          "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy/resolve/5be91486e11a2d616f4ec5db8d3fd248585ac07a/clean/validation-00000-of-00001.parquet",
+          "source_sha256": "4e69a06fa5edc90921e5e7e39a7084881f8b3ed9c805c574f4f39c6fde27c603",
+          "language": "en",
+          "samples": 93680,
+          "sample_rate": 16000,
+          "seconds": 5.855,
+          "sha256": "4e25e22555cd16e90edb0a3b49fdcf1fe652b2a1250ab643634db33895c75b41"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/audio-manifest.json",
+        "selector": {
+          "json_pointer": "/1"
+        },
+        "values": {
+          "name": "short",
+          "file": "short.flac",
+          "text": "BY HARRY QUILTER M A",
+          "id": "1272-128104-0014",
+          "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy/resolve/5be91486e11a2d616f4ec5db8d3fd248585ac07a/clean/validation-00000-of-00001.parquet",
+          "source_sha256": "4e69a06fa5edc90921e5e7e39a7084881f8b3ed9c805c574f4f39c6fde27c603",
+          "language": "en",
+          "samples": 35920,
+          "sample_rate": 16000,
+          "seconds": 2.245,
+          "sha256": "5e7e3b96d975c74c952209a4d3a0731ec57019689685e1cf5f3c73a76f6f8a36"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/audio-manifest.json",
+        "selector": {
+          "json_pointer": "/2"
+        },
+        "values": {
+          "name": "long",
+          "file": "long.flac",
+          "text": "LINNELL'S PICTURES ARE A SORT OF UP GUARDS AND AT EM PAINTINGS AND MASON'S EXQUISITE IDYLLS ARE AS NATIONAL AS A JINGO POEM MISTER BIRKET FOSTER'S LANDSCAPES SMILE AT ONE MUCH IN THE SAME WAY THAT MISTER CARKER USED TO FLASH HIS TEETH AND MISTER JOHN COLLIER GIVES HIS SITTER A CHEERFUL SLAP ON THE BACK BEFORE HE SAYS LIKE A SHAMPOOER IN A TURKISH BATH NEXT MAN",
+          "id": "1272-128104-0004",
+          "source": "https://huggingface.co/datasets/hf-internal-testing/librispeech_asr_dummy/resolve/5be91486e11a2d616f4ec5db8d3fd248585ac07a/clean/validation-00000-of-00001.parquet",
+          "source_sha256": "4e69a06fa5edc90921e5e7e39a7084881f8b3ed9c805c574f4f39c6fde27c603",
+          "language": "en",
+          "samples": 470400,
+          "sample_rate": 16000,
+          "seconds": 29.4,
+          "sha256": "07244790e9a8300bfcbf12c28ac5230792e75238d03b2ac167a72bf3943c5404"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/audio-manifest.json",
+        "selector": {
+          "json_pointer": "/3"
+        },
+        "values": {
+          "name": "mandarin",
+          "file": "mandarin.wav",
+          "text": "广州市房地产中介协会分析",
+          "source": "https://raw.githubusercontent.com/wenet-e2e/wenet/be6ad97fdb512589df113042f7ff3a29d392fb38/test/resources/aishell-BAC009S0724W0121.wav",
+          "reference_source": "https://raw.githubusercontent.com/wenet-e2e/wenet/be6ad97fdb512589df113042f7ff3a29d392fb38/test/resources/dataset/text",
+          "language": "zh",
+          "samples": 68496,
+          "sample_rate": 16000,
+          "seconds": 4.281,
+          "sha256": "2f9fc9c912bb71c85fb286cb88b599c81efb8f727c727a5ea8f6d1c89c55ac13"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/audio-manifest.json",
+        "selector": {
+          "json_pointer": "/4"
+        },
+        "values": {
+          "name": "noninteger",
+          "file": "noninteger.flac",
+          "text": "MISTER QUILTER IS THE APOSTLE OF THE MIDDLE CLASSES AND WE ARE GLAD TO WELCOME HIS GOSPEL",
+          "source": "derived reference + 1973 zero samples",
+          "language": "en",
+          "samples": 95653,
+          "sample_rate": 16000,
+          "seconds": 5.9783125,
+          "sha256": "143fa201adc2c27fe2c4605a29d5386ff521aa034fc613f2bd4870f3cc2162d7"
+        }
+      }
+    ],
+    "numeric": [
+      {
+        "source": "LIVE-E2E:target/evidence/embedding-comparison.json",
+        "selector": {
+          "json_pointer": "/0"
+        },
+        "values": {
+          "name": "reference",
+          "shape": [
+            76,
+            2048
+          ],
+          "max_abs": 0.00383758544921875,
+          "rmse": 0.0006735009896625245,
+          "relative_l2": 0.03768892247462869,
+          "cosine": 0.9992985801590629,
+          "gpu_repeat_bitwise_equal": true,
+          "initial_conservative_gate_pass": false,
+          "cpu_versions_bitwise_equal": false,
+          "cpu_versions_relative_l2": 0.001004492312792299,
+          "gpu_vs_community_cpu_relative_l2": 0.037730211922821943
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/embedding-comparison.json",
+        "selector": {
+          "json_pointer": "/1"
+        },
+        "values": {
+          "name": "short",
+          "shape": [
+            29,
+            2048
+          ],
+          "max_abs": 0.0093841552734375,
+          "rmse": 0.0008739574910346336,
+          "relative_l2": 0.0466691324071217,
+          "cosine": 0.9989106174828061,
+          "gpu_repeat_bitwise_equal": true,
+          "initial_conservative_gate_pass": false,
+          "cpu_versions_bitwise_equal": false,
+          "cpu_versions_relative_l2": 0.0011646712804790917,
+          "gpu_vs_community_cpu_relative_l2": 0.047191906609359416
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/embedding-comparison.json",
+        "selector": {
+          "json_pointer": "/2"
+        },
+        "values": {
+          "name": "long",
+          "shape": [
+            382,
+            2048
+          ],
+          "max_abs": 0.028594970703125,
+          "rmse": 0.0009942537684399747,
+          "relative_l2": 0.05795516151782084,
+          "cosine": 0.9983275431983691,
+          "gpu_repeat_bitwise_equal": true,
+          "initial_conservative_gate_pass": false,
+          "cpu_versions_bitwise_equal": false,
+          "cpu_versions_relative_l2": 0.0027786824496539657,
+          "gpu_vs_community_cpu_relative_l2": 0.05825518873961155
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/embedding-comparison.json",
+        "selector": {
+          "json_pointer": "/3"
+        },
+        "values": {
+          "name": "mandarin",
+          "shape": [
+            56,
+            2048
+          ],
+          "max_abs": 0.0107421875,
+          "rmse": 0.0007919193878608721,
+          "relative_l2": 0.036888849942249974,
+          "cosine": 0.9993270121874579,
+          "gpu_repeat_bitwise_equal": true,
+          "initial_conservative_gate_pass": false,
+          "cpu_versions_bitwise_equal": false,
+          "cpu_versions_relative_l2": 0.0009340785852099863,
+          "gpu_vs_community_cpu_relative_l2": 0.036700827885339314
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/embedding-comparison.json",
+        "selector": {
+          "json_pointer": "/4"
+        },
+        "values": {
+          "name": "noninteger",
+          "shape": [
+            78,
+            2048
+          ],
+          "max_abs": 0.020172119140625,
+          "rmse": 0.0008889458368123706,
+          "relative_l2": 0.04599727235134808,
+          "cosine": 0.9989425195960433,
+          "gpu_repeat_bitwise_equal": true,
+          "initial_conservative_gate_pass": false,
+          "cpu_versions_bitwise_equal": false,
+          "cpu_versions_relative_l2": 0.0017952565658599885,
+          "gpu_vs_community_cpu_relative_l2": 0.04494367108949459
+        }
+      }
+    ],
+    "encoder-cpu": {
+      "records": [
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "runtime",
+            "version": "1.23.2",
+            "available_providers": [
+              "AzureExecutionProvider",
+              "CPUExecutionProvider"
+            ],
+            "strict": null
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "loaded",
+            "seconds": 1.444667551000748,
+            "dtype": "<class 'numpy.float16'>"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.1814363659996161,
+            "dtype": "float16",
+            "name": "reference",
+            "index": 0,
+            "reported_s": 0.18143057823181152,
+            "shape": [
+              76,
+              2048
+            ],
+            "finite": true,
+            "sha256": "ee2bb532d02851d83008a04b44a31bdd3eb50123d5acd16caad3515d2aceb8b2"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.21384636200036766,
+            "dtype": "float16",
+            "name": "reference",
+            "index": 1,
+            "reported_s": 0.2138383388519287,
+            "shape": [
+              76,
+              2048
+            ],
+            "finite": true,
+            "sha256": "ee2bb532d02851d83008a04b44a31bdd3eb50123d5acd16caad3515d2aceb8b2"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.12167577399941365,
+            "dtype": "float16",
+            "name": "short",
+            "index": 0,
+            "reported_s": 0.12166810035705566,
+            "shape": [
+              29,
+              2048
+            ],
+            "finite": true,
+            "sha256": "6244d4fce64a591b830a54c455dd55f70f3429c1525ba812443d5beee2d59065"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 10
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.11409216399988509,
+            "dtype": "float16",
+            "name": "short",
+            "index": 1,
+            "reported_s": 0.11408424377441406,
+            "shape": [
+              29,
+              2048
+            ],
+            "finite": true,
+            "sha256": "6244d4fce64a591b830a54c455dd55f70f3429c1525ba812443d5beee2d59065"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 11
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.760021773000517,
+            "dtype": "float16",
+            "name": "long",
+            "index": 0,
+            "reported_s": 0.7600131034851074,
+            "shape": [
+              382,
+              2048
+            ],
+            "finite": true,
+            "sha256": "6a80942d81394cc0eba6840ca23c526ead04a199a845be6eb0eed19708b2ceea"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 12
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.8024317100007465,
+            "dtype": "float16",
+            "name": "long",
+            "index": 1,
+            "reported_s": 0.8024234771728516,
+            "shape": [
+              382,
+              2048
+            ],
+            "finite": true,
+            "sha256": "6a80942d81394cc0eba6840ca23c526ead04a199a845be6eb0eed19708b2ceea"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 13
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.18889772999955312,
+            "dtype": "float16",
+            "name": "mandarin",
+            "index": 0,
+            "reported_s": 0.1888899803161621,
+            "shape": [
+              56,
+              2048
+            ],
+            "finite": true,
+            "sha256": "283bf9d18bcef2c7dc121593c9a17e0077392d4c8e030585a4f98e86cf5882aa"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 14
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.16126105199964513,
+            "dtype": "float16",
+            "name": "mandarin",
+            "index": 1,
+            "reported_s": 0.1612529754638672,
+            "shape": [
+              56,
+              2048
+            ],
+            "finite": true,
+            "sha256": "283bf9d18bcef2c7dc121593c9a17e0077392d4c8e030585a4f98e86cf5882aa"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 15
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.19231728900012968,
+            "dtype": "float16",
+            "name": "noninteger",
+            "index": 0,
+            "reported_s": 0.19230985641479492,
+            "shape": [
+              78,
+              2048
+            ],
+            "finite": true,
+            "sha256": "68491d8eca85c45beb73f05a63d6de7a60642d4ca06feb600fd364c3dfda4683"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 16
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.18357426300008228,
+            "dtype": "float16",
+            "name": "noninteger",
+            "index": 1,
+            "reported_s": 0.18356680870056152,
+            "shape": [
+              78,
+              2048
+            ],
+            "finite": true,
+            "sha256": "68491d8eca85c45beb73f05a63d6de7a60642d4ca06feb600fd364c3dfda4683"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 17
+          },
+          "values": {
+            "type": "done"
+          }
+        }
+      ]
+    },
+    "encoder-cpu-community": {
+      "records": [
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "runtime",
+            "version": "1.29.0",
+            "available_providers": [
+              "MIGraphXExecutionProvider",
+              "CPUExecutionProvider"
+            ],
+            "strict": null
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "loaded",
+            "seconds": 1.6526119989994186,
+            "dtype": "<class 'numpy.float16'>"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 1.5038174189994606,
+            "dtype": "float16",
+            "name": "reference",
+            "index": 0,
+            "reported_s": 1.5038115978240967,
+            "shape": [
+              76,
+              2048
+            ],
+            "finite": true,
+            "sha256": "8d467eb04e04b0fa58ce4a73af3b89601511a69ba01764eda3ba777c3b05e043"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 1.5116088689992466,
+            "dtype": "float16",
+            "name": "reference",
+            "index": 1,
+            "reported_s": 1.511601448059082,
+            "shape": [
+              76,
+              2048
+            ],
+            "finite": true,
+            "sha256": "8d467eb04e04b0fa58ce4a73af3b89601511a69ba01764eda3ba777c3b05e043"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.8069699999996374,
+            "dtype": "float16",
+            "name": "short",
+            "index": 0,
+            "reported_s": 0.806962251663208,
+            "shape": [
+              29,
+              2048
+            ],
+            "finite": true,
+            "sha256": "5d57daa15f5d5c51032115c840027272a9e62b1b3cdab98c3f4f8ec3788ddf73"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 10
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.8118814320005185,
+            "dtype": "float16",
+            "name": "short",
+            "index": 1,
+            "reported_s": 0.8118746280670166,
+            "shape": [
+              29,
+              2048
+            ],
+            "finite": true,
+            "sha256": "5d57daa15f5d5c51032115c840027272a9e62b1b3cdab98c3f4f8ec3788ddf73"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 11
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 7.04086395899958,
+            "dtype": "float16",
+            "name": "long",
+            "index": 0,
+            "reported_s": 7.04085373878479,
+            "shape": [
+              382,
+              2048
+            ],
+            "finite": true,
+            "sha256": "bad1f9561e9da74b32b7ed4b0f6611de51dff404248dd6ccdd02973e103e88fd"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 12
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 6.789226070000041,
+            "dtype": "float16",
+            "name": "long",
+            "index": 1,
+            "reported_s": 6.789217948913574,
+            "shape": [
+              382,
+              2048
+            ],
+            "finite": true,
+            "sha256": "bad1f9561e9da74b32b7ed4b0f6611de51dff404248dd6ccdd02973e103e88fd"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 13
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 1.2084381499998926,
+            "dtype": "float16",
+            "name": "mandarin",
+            "index": 0,
+            "reported_s": 1.2084295749664307,
+            "shape": [
+              56,
+              2048
+            ],
+            "finite": true,
+            "sha256": "a04687068a1e25544ebb7e74cbd4271558c0e255d93ef5db51762a78dd0c6816"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 14
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 1.211939017000077,
+            "dtype": "float16",
+            "name": "mandarin",
+            "index": 1,
+            "reported_s": 1.2119317054748535,
+            "shape": [
+              56,
+              2048
+            ],
+            "finite": true,
+            "sha256": "a04687068a1e25544ebb7e74cbd4271558c0e255d93ef5db51762a78dd0c6816"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 15
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 1.5726423629994315,
+            "dtype": "float16",
+            "name": "noninteger",
+            "index": 0,
+            "reported_s": 1.5726344585418701,
+            "shape": [
+              78,
+              2048
+            ],
+            "finite": true,
+            "sha256": "03d5b3b82d8b7b38b1f913402d8dc5297a2ce32626b0c2f9dfd46fe937434817"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 16
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 1.8202017220000926,
+            "dtype": "float16",
+            "name": "noninteger",
+            "index": 1,
+            "reported_s": 1.8201935291290283,
+            "shape": [
+              78,
+              2048
+            ],
+            "finite": true,
+            "sha256": "03d5b3b82d8b7b38b1f913402d8dc5297a2ce32626b0c2f9dfd46fe937434817"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-encoder.jsonl",
+          "selector": {
+            "line_1based": 17
+          },
+          "values": {
+            "type": "done"
+          }
+        }
+      ]
+    },
+    "encoder-gpu": {
+      "records": [
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 1
+          },
+          "values": {
+            "type": "runtime",
+            "version": "1.29.0",
+            "available_providers": [
+              "MIGraphXExecutionProvider",
+              "CPUExecutionProvider"
+            ],
+            "strict": "1"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 6
+          },
+          "values": {
+            "type": "loaded",
+            "seconds": 21.918640010999297,
+            "dtype": "<class 'numpy.float16'>"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 7
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 16.800445234000108,
+            "dtype": "float16",
+            "name": "reference",
+            "index": 0,
+            "reported_s": 16.800440311431885,
+            "shape": [
+              76,
+              2048
+            ],
+            "finite": true,
+            "sha256": "af8c953558c2440bb91119edf6935c11481b032b39fec57093d9ebaca29dce37"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 8
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.08441326499996649,
+            "dtype": "float16",
+            "name": "reference",
+            "index": 1,
+            "reported_s": 0.08440685272216797,
+            "shape": [
+              76,
+              2048
+            ],
+            "finite": true,
+            "sha256": "af8c953558c2440bb91119edf6935c11481b032b39fec57093d9ebaca29dce37"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 9
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 20.76935050300017,
+            "dtype": "float16",
+            "name": "short",
+            "index": 0,
+            "reported_s": 20.769343376159668,
+            "shape": [
+              29,
+              2048
+            ],
+            "finite": true,
+            "sha256": "97674ed827271863e5b9511d663f5156a4e9016405ae4ca9a58bae3fbaf47e02"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 10
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.05175646699990466,
+            "dtype": "float16",
+            "name": "short",
+            "index": 1,
+            "reported_s": 0.051740407943725586,
+            "shape": [
+              29,
+              2048
+            ],
+            "finite": true,
+            "sha256": "97674ed827271863e5b9511d663f5156a4e9016405ae4ca9a58bae3fbaf47e02"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 11
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 21.163019908000024,
+            "dtype": "float16",
+            "name": "long",
+            "index": 0,
+            "reported_s": 21.16301202774048,
+            "shape": [
+              382,
+              2048
+            ],
+            "finite": true,
+            "sha256": "8ddd5f2824ea0032b941dd10601f688e683a5b81328caf578c5499ae8632bbfa"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 12
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.25551357500080485,
+            "dtype": "float16",
+            "name": "long",
+            "index": 1,
+            "reported_s": 0.25550150871276855,
+            "shape": [
+              382,
+              2048
+            ],
+            "finite": true,
+            "sha256": "8ddd5f2824ea0032b941dd10601f688e683a5b81328caf578c5499ae8632bbfa"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 13
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 20.72263806799947,
+            "dtype": "float16",
+            "name": "mandarin",
+            "index": 0,
+            "reported_s": 20.72262692451477,
+            "shape": [
+              56,
+              2048
+            ],
+            "finite": true,
+            "sha256": "1a6f4e84eabbc59319314b19fb0838696a14dcc36a1fd2f02f0171af88d3015e"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 14
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.06069893800031423,
+            "dtype": "float16",
+            "name": "mandarin",
+            "index": 1,
+            "reported_s": 0.06068062782287598,
+            "shape": [
+              56,
+              2048
+            ],
+            "finite": true,
+            "sha256": "1a6f4e84eabbc59319314b19fb0838696a14dcc36a1fd2f02f0171af88d3015e"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 15
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 20.654150720999496,
+            "dtype": "float16",
+            "name": "noninteger",
+            "index": 0,
+            "reported_s": 20.6541428565979,
+            "shape": [
+              78,
+              2048
+            ],
+            "finite": true,
+            "sha256": "e66d889836c7f8735475aa72d94f58cb5817ed75dc3134c57a69e23b14428417"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 16
+          },
+          "values": {
+            "type": "embedding",
+            "seconds": 0.07020666400057962,
+            "dtype": "float16",
+            "name": "noninteger",
+            "index": 1,
+            "reported_s": 0.07019972801208496,
+            "shape": [
+              78,
+              2048
+            ],
+            "finite": true,
+            "sha256": "e66d889836c7f8735475aa72d94f58cb5817ed75dc3134c57a69e23b14428417"
+          }
+        },
+        {
+          "source": "LIVE-E2E:target/evidence/encoder-gpu-encoder.jsonl",
+          "selector": {
+            "line_1based": 17
+          },
+          "values": {
+            "type": "done"
+          }
+        }
+      ]
+    },
+    "profile_execution": {
+      "frontend": {
+        "source": "LIVE-E2E:target/evidence/migraphx-e2e-profile-frontend_2026-11-14_20-35-42_891.json",
+        "selector": "array indexes whose cat=Node and args.provider is present",
+        "provider_counts": {
+          "MIGraphXExecutionProvider": 70
+        },
+        "event_indexes": {
+          "MIGraphXExecutionProvider": [
+            2,
+            5,
+            8,
+            11,
+            14,
+            17,
+            20,
+            23,
+            26,
+            29,
+            32,
+            35,
+            38,
+            41,
+            44,
+            47,
+            50,
+            53,
+            56,
+            59,
+            62,
+            65,
+            68,
+            71,
+            74,
+            77,
+            80,
+            83,
+            86,
+            89,
+            92,
+            95,
+            98,
+            101,
+            104,
+            107,
+            110,
+            113,
+            116,
+            119,
+            122,
+            125,
+            128,
+            131,
+            134,
+            137,
+            140,
+            143,
+            146,
+            149,
+            152,
+            155,
+            158,
+            161,
+            164,
+            167,
+            170,
+            173,
+            176,
+            179,
+            182,
+            185,
+            188,
+            191,
+            194,
+            197,
+            200,
+            203,
+            206,
+            209
+          ]
+        },
+        "cpu_execution_count": 0
+      },
+      "backend": {
+        "source": "LIVE-E2E:target/evidence/migraphx-e2e-profile-backend_2026-11-14_20-35-43_665.json",
+        "selector": "array indexes whose cat=Node and args.provider is present",
+        "provider_counts": {
+          "MIGraphXExecutionProvider": 9
+        },
+        "event_indexes": {
+          "MIGraphXExecutionProvider": [
+            2,
+            5,
+            8,
+            11,
+            14,
+            17,
+            20,
+            23,
+            26
+          ]
+        },
+        "cpu_execution_count": 0
+      }
+    },
+    "compile_log_intervals": {
+      "source": "LIVE-E2E:target/evidence/migraphx-server-native.log",
+      "timezone": "Asia/Taipei",
+      "boundary": "MIGraphX provider Model Compile: Begin through Model Compile: Complete log timestamps; not an independent kernel or CLI timer",
+      "events": [
+        {
+          "begin_line_1based": 20,
+          "complete_line_1based": 22,
+          "begin_local_log_timestamp": "2026-11-14 20:35:42.981722886",
+          "complete_local_log_timestamp": "2026-11-14 20:35:43.659417380",
+          "logged_interval_s": 0.677694494
+        },
+        {
+          "begin_line_1based": 25,
+          "complete_line_1based": 26,
+          "begin_local_log_timestamp": "2026-11-14 20:35:45.103125781",
+          "complete_local_log_timestamp": "2026-11-14 20:36:01.800894260",
+          "logged_interval_s": 16.697768479
+        },
+        {
+          "begin_line_1based": 43,
+          "complete_line_1based": 44,
+          "begin_local_log_timestamp": "2026-11-14 20:36:03.183250182",
+          "complete_local_log_timestamp": "2026-11-14 20:36:19.702367094",
+          "logged_interval_s": 16.519116912
+        },
+        {
+          "begin_line_1based": 80,
+          "complete_line_1based": 81,
+          "begin_local_log_timestamp": "2026-11-14 20:36:21.890828694",
+          "complete_local_log_timestamp": "2026-11-14 20:36:38.330079818",
+          "logged_interval_s": 16.439251124
+        },
+        {
+          "begin_line_1based": 89,
+          "complete_line_1based": 90,
+          "begin_local_log_timestamp": "2026-11-14 20:36:39.047030422",
+          "complete_local_log_timestamp": "2026-11-14 20:36:56.013807015",
+          "logged_interval_s": 16.966776593
+        },
+        {
+          "begin_line_1based": 98,
+          "complete_line_1based": 99,
+          "begin_local_log_timestamp": "2026-11-14 20:36:58.170290580",
+          "complete_local_log_timestamp": "2026-11-14 20:37:14.444040110",
+          "logged_interval_s": 16.27374953
+        },
+        {
+          "begin_line_1based": 107,
+          "complete_line_1based": 108,
+          "begin_local_log_timestamp": "2026-11-14 20:37:15.077655408",
+          "complete_local_log_timestamp": "2026-11-14 20:37:31.390072992",
+          "logged_interval_s": 16.312417584
+        },
+        {
+          "begin_line_1based": 118,
+          "complete_line_1based": 119,
+          "begin_local_log_timestamp": "2026-11-14 20:37:32.200143697",
+          "complete_local_log_timestamp": "2026-11-14 20:37:48.662400920",
+          "logged_interval_s": 16.462257223
+        }
+      ]
+    },
+    "runtime_acquisition": [
+      {
+        "source": "LIVE-E2E:target/evidence/minimal-extraction.jsonl",
+        "selector": {
+          "line_1based": 1
+        },
+        "values": {
+          "digest": "sha256:c146440a37b2e2f229073b93ed51b35196293558b1fec3d4d6957ed38881484a",
+          "compressed_bytes": 261399299,
+          "selected_bytes": 1608220387,
+          "total_selected_bytes": 1608220387,
+          "elapsed_s": 22.657343468000363
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/wheel-extraction.jsonl",
+        "selector": {
+          "line_1based": 1
+        },
+        "values": {
+          "digest": "sha256:e7f78f7c9b6a356bd5acdfaf1f693f0c4f489af0d33c560bef0b4d0af3a97a1d",
+          "compressed_bytes": 27816163,
+          "selected_bytes": 27929318,
+          "total_selected_bytes": 27929318,
+          "elapsed_s": 2.9287916949997452
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/shim-extraction.jsonl",
+        "selector": {
+          "line_1based": 1
+        },
+        "values": {
+          "digest": "sha256:c18c552fe5ff2cd0f1ccb41c5b17b015b1c15de535ddf33a1a202655c3fb790f",
+          "compressed_bytes": 12447,
+          "selected_bytes": 42584,
+          "total_selected_bytes": 42584,
+          "elapsed_s": 0.9713439170000129
+        }
+      }
+    ],
+    "session_probes": [
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-native-fp16-sessions.jsonl",
+        "selector": {
+          "line_1based": 1
+        },
+        "values": {
+          "type": "runtime",
+          "mode": "gpu-native-fp16",
+          "providers": [
+            "MIGraphXExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-native-fp16-sessions.jsonl",
+        "selector": {
+          "line_1based": 2
+        },
+        "values": {
+          "type": "attempt",
+          "mode": "gpu-native-fp16",
+          "part": "frontend",
+          "providers": [
+            [
+              "MIGraphXExecutionProvider",
+              {
+                "device_id": "0",
+                "migraphx_fp16_enable": "0",
+                "migraphx_exhaustive_tune": "0"
+              }
+            ]
+          ],
+          "optimization": "GraphOptimizationLevel.ORT_ENABLE_ALL"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-native-fp16-sessions.jsonl",
+        "selector": {
+          "line_1based": 3
+        },
+        "values": {
+          "type": "error",
+          "mode": "gpu-native-fp16",
+          "part": "frontend",
+          "seconds": 0.29775896499995724,
+          "error_type": "RuntimeException",
+          "error": "[ONNXRuntimeError] : 6 : RUNTIME_EXCEPTION : Exception during initialization: Failed to call function"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-native-fp16-sessions.jsonl",
+        "selector": {
+          "line_1based": 4
+        },
+        "values": {
+          "type": "attempt",
+          "mode": "gpu-native-fp16",
+          "part": "backend",
+          "providers": [
+            [
+              "MIGraphXExecutionProvider",
+              {
+                "device_id": "0",
+                "migraphx_fp16_enable": "0",
+                "migraphx_exhaustive_tune": "0"
+              }
+            ]
+          ],
+          "optimization": "GraphOptimizationLevel.ORT_ENABLE_ALL"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-native-fp16-sessions.jsonl",
+        "selector": {
+          "line_1based": 5
+        },
+        "values": {
+          "type": "initialized",
+          "mode": "gpu-native-fp16",
+          "part": "backend",
+          "seconds": 1.020095142000173,
+          "providers": [
+            "MIGraphXExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-native-fp16-sessions.jsonl",
+        "selector": {
+          "line_1based": 6
+        },
+        "values": {
+          "type": "executed",
+          "mode": "gpu-native-fp16",
+          "part": "backend",
+          "seconds": 23.401613780000844,
+          "outputs": [
+            {
+              "shape": [
+                1,
+                76,
+                2048
+              ],
+              "dtype": "float16",
+              "finite": true
+            }
+          ]
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-native-fp16-sessions.jsonl",
+        "selector": {
+          "line_1based": 8
+        },
+        "values": {
+          "type": "done",
+          "mode": "gpu-native-fp16"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-channels-first-sessions.jsonl",
+        "selector": {
+          "line_1based": 1
+        },
+        "values": {
+          "type": "runtime",
+          "mode": "gpu-channels-first",
+          "providers": [
+            "MIGraphXExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-channels-first-sessions.jsonl",
+        "selector": {
+          "line_1based": 2
+        },
+        "values": {
+          "type": "attempt",
+          "mode": "gpu-channels-first",
+          "part": "frontend",
+          "providers": [
+            [
+              "MIGraphXExecutionProvider",
+              {
+                "device_id": "0",
+                "migraphx_fp16_enable": "0",
+                "migraphx_exhaustive_tune": "0"
+              }
+            ]
+          ],
+          "optimization": "GraphOptimizationLevel.ORT_ENABLE_ALL"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-channels-first-sessions.jsonl",
+        "selector": {
+          "line_1based": 3
+        },
+        "values": {
+          "type": "initialized",
+          "mode": "gpu-channels-first",
+          "part": "frontend",
+          "seconds": 6.6738413030006996,
+          "providers": [
+            "MIGraphXExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-channels-first-sessions.jsonl",
+        "selector": {
+          "line_1based": 4
+        },
+        "values": {
+          "type": "executed",
+          "mode": "gpu-channels-first",
+          "part": "frontend",
+          "seconds": 0.030619023000326706,
+          "outputs": [
+            {
+              "shape": [
+                1,
+                13,
+                1024
+              ],
+              "dtype": "float16",
+              "finite": true
+            }
+          ]
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-channels-first-sessions.jsonl",
+        "selector": {
+          "line_1based": 6
+        },
+        "values": {
+          "type": "attempt",
+          "mode": "gpu-channels-first",
+          "part": "backend",
+          "providers": [
+            [
+              "MIGraphXExecutionProvider",
+              {
+                "device_id": "0",
+                "migraphx_fp16_enable": "0",
+                "migraphx_exhaustive_tune": "0"
+              }
+            ]
+          ],
+          "optimization": "GraphOptimizationLevel.ORT_ENABLE_ALL"
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-channels-first-sessions.jsonl",
+        "selector": {
+          "line_1based": 7
+        },
+        "values": {
+          "type": "initialized",
+          "mode": "gpu-channels-first",
+          "part": "backend",
+          "seconds": 0.9285898730004192,
+          "providers": [
+            "MIGraphXExecutionProvider",
+            "CPUExecutionProvider"
+          ]
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-channels-first-sessions.jsonl",
+        "selector": {
+          "line_1based": 8
+        },
+        "values": {
+          "type": "executed",
+          "mode": "gpu-channels-first",
+          "part": "backend",
+          "seconds": 16.076041624000027,
+          "outputs": [
+            {
+              "shape": [
+                1,
+                76,
+                2048
+              ],
+              "dtype": "float16",
+              "finite": true
+            }
+          ]
+        }
+      },
+      {
+        "source": "LIVE-E2E:target/evidence/gpu-channels-first-sessions.jsonl",
+        "selector": {
+          "line_1based": 10
+        },
+        "values": {
+          "type": "done",
+          "mode": "gpu-channels-first"
+        }
+      }
+    ],
+    "all_guard_samples": {
+      "sample_count": 697,
+      "extrema": [
+        {
+          "metric": "temperature_C",
+          "value": 63.0,
+          "source": "LIVE-E2E:target/evidence/hybrid-samples.jsonl",
+          "selector": {
+            "line_1based": 14,
+            "json_pointer": "/temp_mC"
+          },
+          "formula": "max(temp_mC) / 1000"
+        },
+        {
+          "metric": "available_memory_GiB",
+          "value": 45.48982238769531,
+          "source": "LIVE-E2E:target/evidence/encoder-cpu-community-samples.jsonl",
+          "selector": {
+            "line_1based": 51,
+            "json_pointer": "/mem_available_bytes"
+          },
+          "formula": "min(mem_available_bytes) / 1073741824"
+        },
+        {
+          "metric": "overlay_free_GiB",
+          "value": 8.97164535522461,
+          "source": "LIVE-E2E:target/evidence/hybrid-samples.jsonl",
+          "selector": {
+            "line_1based": 8,
+            "json_pointer": "/overlay_free_bytes"
+          },
+          "formula": "min(overlay_free_bytes) / 1073741824"
+        }
+      ]
+    },
+    "derived_reference_summary": [
+      {
+        "mode": "cpu",
+        "ready_plus_first_http_s": 4.530598678000388,
+        "same_shape_reference_repeat_median_s": null,
+        "repeat_n": 0,
+        "inputs": [
+          {
+            "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+            "selector": {
+              "line_1based": 2
+            }
+          },
+          {
+            "source": "LIVE-E2E:target/evidence/cpu-client.jsonl",
+            "selector": {
+              "line_1based": 3
+            }
+          }
+        ],
+        "formula": "ready.seconds + first_http.seconds; median only of same-shape consecutive reference repeats"
+      },
+      {
+        "mode": "hybrid",
+        "ready_plus_first_http_s": 3.605060121999486,
+        "same_shape_reference_repeat_median_s": 0.7403862024998489,
+        "repeat_n": 2,
+        "inputs": [
+          {
+            "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+            "selector": {
+              "line_1based": 2
+            }
+          },
+          {
+            "source": "LIVE-E2E:target/evidence/hybrid-client.jsonl",
+            "selector": {
+              "line_1based": 3
+            }
+          }
+        ],
+        "formula": "ready.seconds + first_http.seconds; median only of same-shape consecutive reference repeats"
+      },
+      {
+        "mode": "migraphx",
+        "ready_plus_first_http_s": 37.90658416399947,
+        "same_shape_reference_repeat_median_s": 0.6731286209997052,
+        "repeat_n": 2,
+        "inputs": [
+          {
+            "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+            "selector": {
+              "line_1based": 2
+            }
+          },
+          {
+            "source": "LIVE-E2E:target/evidence/migraphx-client.jsonl",
+            "selector": {
+              "line_1based": 3
+            }
+          }
+        ],
+        "formula": "ready.seconds + first_http.seconds; median only of same-shape consecutive reference repeats"
+      }
+    ],
+    "model_hashes": {
+      "source": "LIVE-E2E:target/evidence/model-hashes.json",
+      "selector": {
+        "json_pointer": "/"
+      },
+      "values": {
+        "qwen3_asr_llm.gguf": "89e198470f41d487ab5b6b8a36a35400b3b1534451c4499236983050fe9193e5",
+        "qwen3_asr_encoder_frontend.onnx": "fc288ba9a0ca732251b33628c803cd5188d3dd77a2cd7336f0f0fd37969ed4cd",
+        "qwen3_asr_encoder_backend.onnx": "4b0b1e34e8393f29222006aae0719283b0ff28b61f289b6ff8377b3ddbda27e3"
+      }
+    }
+  }
+}

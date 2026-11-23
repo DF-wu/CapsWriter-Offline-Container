@@ -64,6 +64,7 @@ Client 使用 WebSocket，一般不需要 HTTP。
 | [v1／v2 維護政策](versioning.md) | Maintainer 與規劃升級的使用者 |
 | [架構](../architecture.md) | 修改 Server、sidecar 或 routing integration 的 contributor |
 | [目前 fork 狀態](../state-of-fork.md) | 查核 implementation 與 evidence inventory 的 reviewer |
+| [Qwen3-ASR 量化與 RX570 研究](rx570-research-20261115.md) | 11 月 10–15 日科學報告、靜態圖表、歷史證據與離線重現 |
 | [上游同步](../upstream-sync-guide.md) | 合併 upstream 正式變更的 maintainer |
 | [上游產品 changelog](../CHANGELOG.md) | Recognition engine 與 upstream desktop 歷史 |
 

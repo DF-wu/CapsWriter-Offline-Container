@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="900" viewBox="0 0 1120 900" role="img"><title>Readiness and the first reference request expose different costs</title><desc>Installed system; one observed startup / first reference per mode. Nested components are shown separately, never stacked.</desc>
+<rect width="1120" height="100%" fill="white"/>
+<style>text{font-family:DejaVu Sans,Arial,sans-serif;fill:#20323f;font-size:15px}.small{font-size:13px;fill:#52616b}.title{font-size:25px;font-weight:700}.sub{font-size:15px;fill:#52616b}</style>
+<text x="34.00" y="40.00" class="title" text-anchor="start">Readiness and the first reference request expose different costs</text>
+<text x="34.00" y="68.00" class="sub" text-anchor="start">Installed system; one observed startup / first reference per mode. Nested components are shown separately, never stacked.</text>
+<rect x="34.00" y="88.00" width="18.00" height="13.00" rx="0" fill="#586777" stroke="none"/>
+<text x="62.00" y="100.00" class="" text-anchor="start">CPU</text>
+<rect x="354.00" y="88.00" width="18.00" height="13.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="382.00" y="100.00" class="" text-anchor="start">CPU + Vulkan</text>
+<rect x="674.00" y="88.00" width="18.00" height="13.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="702.00" y="100.00" class="" text-anchor="start">MIGraphX + Vulkan</text>
+<text x="34.00" y="135.00" class="" text-anchor="start">Startup</text>
+<line x1="275.00" y1="150.00" x2="275.00" y2="437.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="275.00" y="460.00" class="small" text-anchor="middle">0</text>
+<line x1="457.50" y1="150.00" x2="457.50" y2="437.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="457.50" y="460.00" class="small" text-anchor="middle">8</text>
+<line x1="640.00" y1="150.00" x2="640.00" y2="437.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="640.00" y="460.00" class="small" text-anchor="middle">16</text>
+<line x1="822.50" y1="150.00" x2="822.50" y2="437.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="822.50" y="460.00" class="small" text-anchor="middle">24</text>
+<line x1="1005.00" y1="150.00" x2="1005.00" y2="437.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="1005.00" y="460.00" class="small" text-anchor="middle">32</text>
+<text x="255.00" y="182.00" class="" text-anchor="end">Process start → ready</text>
+<rect x="275.00" y="157.00" width="107.97" height="14.00" rx="0" fill="#586777" stroke="none"/>
+<text x="390.97" y="169.00" class="small" text-anchor="start">4.733</text>
+<rect x="275.00" y="176.00" width="85.07" height="14.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="368.07" y="188.00" class="small" text-anchor="start">3.729</text>
+<rect x="275.00" y="195.00" width="709.64" height="14.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="992.64" y="207.00" class="small" text-anchor="start">31.108</text>
+<text x="255.00" y="254.00" class="" text-anchor="end">Engine construction</text>
+<rect x="275.00" y="229.00" width="69.79" height="14.00" rx="0" fill="#586777" stroke="none"/>
+<text x="352.79" y="241.00" class="small" text-anchor="start">3.059</text>
+<rect x="275.00" y="248.00" width="47.53" height="14.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="330.53" y="260.00" class="small" text-anchor="start">2.083</text>
+<rect x="275.00" y="267.00" width="670.93" height="14.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="953.93" y="279.00" class="small" text-anchor="start">29.411</text>
+<text x="255.00" y="326.00" class="" text-anchor="end">Encoder + 2 s warmup</text>
+<rect x="275.00" y="301.00" width="31.93" height="14.00" rx="0" fill="#586777" stroke="none"/>
+<text x="314.93" y="313.00" class="small" text-anchor="start">1.399</text>
+<rect x="275.00" y="320.00" width="31.51" height="14.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="314.51" y="332.00" class="small" text-anchor="start">1.381</text>
+<rect x="275.00" y="339.00" width="652.72" height="14.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="935.72" y="351.00" class="small" text-anchor="start">28.612</text>
+<text x="255.00" y="398.00" class="" text-anchor="end">Decoder model load</text>
+<rect x="275.00" y="373.00" width="36.45" height="14.00" rx="0" fill="#586777" stroke="none"/>
+<text x="319.45" y="385.00" class="small" text-anchor="start">1.598</text>
+<rect x="275.00" y="392.00" width="13.61" height="14.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="296.61" y="404.00" class="small" text-anchor="start">0.597</text>
+<rect x="275.00" y="411.00" width="15.65" height="14.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="298.65" y="423.00" class="small" text-anchor="start">0.686</text>
+<text x="640.00" y="487.00" class="small" text-anchor="middle">Host wall time (seconds); zero baseline</text>
+<text x="34.00" y="505.00" class="" text-anchor="start">First reference request</text>
+<line x1="275.00" y1="520.00" x2="275.00" y2="807.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="275.00" y="830.00" class="small" text-anchor="middle">0</text>
+<line x1="457.50" y1="520.00" x2="457.50" y2="807.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="457.50" y="830.00" class="small" text-anchor="middle">6</text>
+<line x1="640.00" y1="520.00" x2="640.00" y2="807.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="640.00" y="830.00" class="small" text-anchor="middle">12</text>
+<line x1="822.50" y1="520.00" x2="822.50" y2="807.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="822.50" y="830.00" class="small" text-anchor="middle">18</text>
+<line x1="1005.00" y1="520.00" x2="1005.00" y2="807.00" stroke="#d9e0e4" stroke-width="1"/>
+<text x="1005.00" y="830.00" class="small" text-anchor="middle">24</text>
+<text x="255.00" y="552.00" class="" text-anchor="end">Worker pipeline</text>
+<rect x="275.00" y="527.00" width="53.00" height="14.00" rx="0" fill="#586777" stroke="none"/>
+<text x="336.00" y="539.00" class="small" text-anchor="start">1.742</text>
+<rect x="275.00" y="546.00" width="28.39" height="14.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="311.39" y="558.00" class="small" text-anchor="start">0.934</text>
+<rect x="275.00" y="565.00" width="660.96" height="14.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="943.96" y="577.00" class="small" text-anchor="start">21.730</text>
+<text x="255.00" y="624.00" class="" text-anchor="end">Encoder total</text>
+<rect x="275.00" y="599.00" width="6.56" height="14.00" rx="0" fill="#586777" stroke="none"/>
+<text x="289.56" y="611.00" class="small" text-anchor="start">0.216</text>
+<rect x="275.00" y="618.00" width="6.13" height="14.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="289.13" y="630.00" class="small" text-anchor="start">0.202</text>
+<rect x="275.00" y="637.00" width="618.05" height="14.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="901.05" y="649.00" class="small" text-anchor="start">20.320</text>
+<text x="255.00" y="696.00" class="" text-anchor="end">ONNX backend</text>
+<rect x="275.00" y="671.00" width="3.43" height="14.00" rx="0" fill="#586777" stroke="none"/>
+<text x="286.43" y="683.00" class="small" text-anchor="start">0.113</text>
+<rect x="275.00" y="690.00" width="2.70" height="14.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="285.70" y="702.00" class="small" text-anchor="start">0.089</text>
+<rect x="275.00" y="709.00" width="616.43" height="14.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="899.43" y="721.00" class="small" text-anchor="start">20.266</text>
+<text x="255.00" y="768.00" class="" text-anchor="end">Decoder total</text>
+<rect x="275.00" y="743.00" width="45.76" height="14.00" rx="0" fill="#586777" stroke="none"/>
+<text x="328.76" y="755.00" class="small" text-anchor="start">1.504</text>
+<rect x="275.00" y="762.00" width="21.59" height="14.00" rx="0" fill="#007f83" stroke="none"/>
+<text x="304.59" y="774.00" class="small" text-anchor="start">0.710</text>
+<rect x="275.00" y="781.00" width="42.24" height="14.00" rx="0" fill="#b95524" stroke="none"/>
+<text x="325.24" y="793.00" class="small" text-anchor="start">1.389</text>
+<text x="640.00" y="857.00" class="small" text-anchor="middle">Host wall time (seconds); zero baseline</text>
+</svg>

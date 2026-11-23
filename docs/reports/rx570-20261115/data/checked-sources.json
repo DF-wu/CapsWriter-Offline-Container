@@ -1,0 +1,92 @@
+[
+  {
+    "label": "mradermacher-card",
+    "url": "https://huggingface.co/mradermacher/Qwen3-ASR-1.7B-GGUF/raw/664b960e358348943aefcdc26b3cf09eff1fb0ac/README.md",
+    "access_date": "2026-11-15",
+    "bytes": 3994,
+    "sha256": "2c53b858a5dd93a2a98b64cdda52502e705c05b1f5dfd96294aac6c066f79f9e",
+    "kind": "Reader-extracted primary-source content",
+    "fetch_provider": "firecrawl",
+    "fallback_used": true
+  },
+  {
+    "label": "ort-migraphx",
+    "url": "https://onnxruntime.ai/docs/execution-providers/MIGraphX-ExecutionProvider.html",
+    "access_date": "2026-11-15",
+    "bytes": 14645,
+    "sha256": "acf41d681e81e8a7d634394390a0840f30bd135a17dd0615c26534332d02e0fc",
+    "kind": "Reader-extracted primary-source content",
+    "fetch_provider": "tavily",
+    "fallback_used": false
+  },
+  {
+    "label": "ort-rocm",
+    "url": "https://onnxruntime.ai/docs/execution-providers/ROCm-ExecutionProvider.html",
+    "access_date": "2026-11-15",
+    "bytes": 10458,
+    "sha256": "83ed753f66efc0ebb6abdbae34ffd9b221a6518f42a3a3d32820493597ff8294",
+    "kind": "Reader-extracted primary-source content",
+    "fetch_provider": "tavily",
+    "fallback_used": false
+  },
+  {
+    "label": "qwen-card",
+    "url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B/raw/7278e1e70fe206f11671096ffdd38061171dd6e5/README.md",
+    "access_date": "2026-11-15",
+    "bytes": 57456,
+    "sha256": "5058416891bc47a2051557765997e8c42f8eb78a0e33c3e775bd17d4b0ba4d50",
+    "kind": "Reader-extracted primary-source content",
+    "fetch_provider": "firecrawl",
+    "fallback_used": true
+  },
+  {
+    "label": "qwen-config",
+    "url": "https://huggingface.co/Qwen/Qwen3-ASR-1.7B/resolve/7278e1e70fe206f11671096ffdd38061171dd6e5/config.json",
+    "access_date": "2026-11-15",
+    "bytes": 4771,
+    "sha256": "51fc92ca6b2255d371b6d84fa0b08793db9f748b3411c902464a8a2aaa07bb8b",
+    "kind": "Reader-extracted primary-source content",
+    "fetch_provider": "tavily",
+    "fallback_used": false
+  },
+  {
+    "label": "schaka-llama",
+    "url": "https://raw.githubusercontent.com/Schaka/rocm-gfx803/8fdcf7b1305d0cfc6fc8c1fc7b1bfb5f73494e78/llama-cpp-gfx803/POSSIBLE_LLAMA_CPP_IMPROVEMENTS.md",
+    "access_date": "2026-11-15",
+    "bytes": 9619,
+    "sha256": "f221a29ec82a424d02cad26193af6bc82202c0f60017d15674ebeec81a8115bb",
+    "kind": "Reader-extracted primary-source content",
+    "fetch_provider": "tavily",
+    "fallback_used": false
+  },
+  {
+    "label": "schaka-readme",
+    "url": "https://raw.githubusercontent.com/Schaka/rocm-gfx803/8fdcf7b1305d0cfc6fc8c1fc7b1bfb5f73494e78/README.md",
+    "access_date": "2026-11-15",
+    "bytes": 19539,
+    "sha256": "cf8fe73891dee3ecad9f834bc6e81f2d861c253180e1fe770240c01daaf3ad57",
+    "kind": "Reader-extracted primary-source content",
+    "fetch_provider": "tavily",
+    "fallback_used": false
+  },
+  {
+    "label": "transcribe-cmake",
+    "url": "https://raw.githubusercontent.com/handy-computer/transcribe.cpp/5700f127e38dd53c4735ea23ef743b4b538eacd4/CMakeLists.txt",
+    "access_date": "2026-11-15",
+    "bytes": 24101,
+    "sha256": "5f384f0e9967eae341d9c15484880d46acab580b70af933a903aaa5698fb7821",
+    "kind": "Reader-extracted primary-source content",
+    "fetch_provider": "firecrawl",
+    "fallback_used": true
+  },
+  {
+    "label": "transcribe-qwen",
+    "url": "https://raw.githubusercontent.com/handy-computer/transcribe.cpp/5700f127e38dd53c4735ea23ef743b4b538eacd4/docs/models/qwen3-asr-1.7b.md",
+    "access_date": "2026-11-15",
+    "bytes": 7714,
+    "sha256": "15b17e9e0d4866dd7b124578dbc4db0f583f96a24b7b2d00828bba0ef1b483d3",
+    "kind": "Reader-extracted primary-source content",
+    "fetch_provider": "firecrawl",
+    "fallback_used": true
+  }
+]

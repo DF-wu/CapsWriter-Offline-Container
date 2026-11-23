@@ -1,0 +1,38 @@
+{
+  "embeddings": [
+    {
+      "type": "embedding",
+      "unix_s": 1794748107.510669,
+      "repeat": 0,
+      "seconds": 21.267761295999662,
+      "shape": [
+        76,
+        2048
+      ],
+      "relative_l2": 0.03768892247462869,
+      "cosine": 0.9992985801590629,
+      "conservative_numerical_gate_pass": false,
+      "numerical_gate_policy": "record independently; failure is not converted into transcript success"
+    },
+    {
+      "type": "embedding",
+      "unix_s": 1794748107.6406658,
+      "repeat": 1,
+      "seconds": 0.08537691299898142,
+      "shape": [
+        76,
+        2048
+      ],
+      "relative_l2": 0.03768892247462869,
+      "cosine": 0.9992985801590629,
+      "conservative_numerical_gate_pass": false,
+      "numerical_gate_policy": "record independently; failure is not converted into transcript success"
+    }
+  ],
+  "strict_both_graph_execution_verified": true,
+  "numerical_gate_pass": false,
+  "evidence": {
+    "source": "INSTALLED/mgx-resume-complete/evidence/summary.json",
+    "selector": "/reused_diagnostic"
+  }
+}

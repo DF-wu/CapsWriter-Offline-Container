@@ -1,0 +1,37 @@
+{
+  "python_markdown": "3.11.2",
+  "fonts": [
+    {
+      "family": "Reading",
+      "file": "DejaVuSerif.ttf",
+      "sha256": "ae665174c5b7fdb9b457d112db098cbe651dff847bfcf8bcb711172856d0c6b1"
+    },
+    {
+      "family": "Labels",
+      "file": "DejaVuSans.ttf",
+      "sha256": "6038a160b491e121c1f12c7bccb4a9c8730296e3adc1086a059404ed84b7451c"
+    },
+    {
+      "family": "Labels",
+      "file": "DejaVuSans-Bold.ttf",
+      "sha256": "b5d64817b6331723b5e59eaaa6db90057cbed58e9733f65687f110638192359f"
+    }
+  ],
+  "html_sha256": "be0de8b03eb9f9189f8eedbbc28447cd486dbb5810b126351419e8bed2af7c35",
+  "network_resources": 0,
+  "qa": {
+    "figures_loaded": 6,
+    "screen_widths_without_overflow_px": [
+      1280,
+      390
+    ],
+    "print_tables_without_overflow": true,
+    "short_table_numbers_unbroken": true,
+    "print_table_check_widths_px": [
+      794,
+      680
+    ]
+  },
+  "chromium": "145.0.7632.6",
+  "pdf_sha256": "7f725b7241824a92530b0d6eb21d7aceb03d2423527cd623c69e362f7b0a5431"
+}
