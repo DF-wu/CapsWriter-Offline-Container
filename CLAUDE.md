@@ -7,7 +7,8 @@
     - **Server**: 主进程处理 WebSocket，**独立子进程** (`multiprocessing.Process`) 运行 AI 模型，确保推理（CPU密集）不阻塞网络心跳。
     - **Client**: 轻量启动，负责全局快捷键监听、录音采集、UI 展示。
 - **源代码开放**: 入口 [`start_server.py`](start_server.py) / [`start_client.py`](start_client.py) 为冻结入口；核心源码在 [`core/`](core/) 目录，发行版保留为源码供用户修改。
-- **配置化**: [`config_client.py`](config_client.py) / [`config_server.py`](config_server.py) 及 `hot*.txt`、[`LLM/*.py`](LLM/) 位于根目录。
+- **配置化**: [`config_client.py`](config_client.py) / [`config_server.py`](config_server.py) 及 `hot*.txt`、[`LLM/*.py`](LLM/) 位于根目录，为随附默认值。
+- **升级安全的 `user/`**: [`user_config.py`](user_config.py) 让 `user/config_*.py`（只写改动的类属性，于配置模块末尾套用）、`user/hot*.txt`、`user/LLM/`（同名优先）覆盖默认值；发行包永不含 `user/`，首次启动时建立，`--import-config <旧目录>` 迁移旧版。优先序：默认 < `user/` < Client 日常设置 < Server 环境变量。见 [`docs/zh-TW/user-config.md`](docs/zh-TW/user-config.md)。
 - **版本**: 最新已发布 fork-v2.2.0（2026-11-16，tag 指向 `90f9c66`）；上游仍为 v2.6 / `84912d5`。
 
 ### 单一 Compose 部署
@@ -155,7 +156,9 @@
 ## 打包与部署 (Build)
 
 - Python 3.10–3.12；Windows 可携式套件使用 [`build.spec`](build.spec)，操作及验证见 [`assets/BUILD_GUIDE.md`](assets/BUILD_GUIDE.md)。
-- `zip_release.py` 仅接受 `dist/CapsWriter-Offline`；旧版 client-only 产物不再归档。
+- `CAPSWRITER_BUILD_VARIANT=full|client` 选择打包变体：`full`（默认）为服务端+客户端，`client` 产出不含任何服务端 runtime 的 `dist/CapsWriter-Offline-Client`；变体写入 `internal/capswriter-package.json`。
+- CI：可复用的 `.github/workflows/windows-package.yml` 由 `portability.yml`（每次 push/PR）与 `release.yml`（`fork-v*` tag → 测试 → 两个 Windows ZIP + source ZIP + `SHA256SUMS` → draft release）调用，见 [`docs/en/releasing.md`](docs/en/releasing.md)。
+- `zip_release.py` 打包 `dist/CapsWriter-Offline` 与带变体标记的 `dist/CapsWriter-Offline-Client`；无标记的旧版 client-only 产物不再归档。
 - `build-client.spec` 已停用；不再支持 Win7／Python 3.8 client-only 套件。
 
 ## 模型支持 (Models)

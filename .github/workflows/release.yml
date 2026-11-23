@@ -1,0 +1,301 @@
+name: release
+
+# Pushing a fork-v* tag that points at a commit on master runs the release
+# gates, builds both Windows packages from that exact commit and assembles a
+# DRAFT GitHub Release. Publishing the draft (notes, VALIDATION.md) stays a
+# manual review step; a published release is never modified.
+on:
+  push:
+    tags:
+      - "fork-v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing fork-v* tag to rebuild into its draft release
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    name: Resolve release tag
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+      sha: ${{ steps.tag.outputs.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Require a fork-v* tag on master
+        id: tag
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            tag="$INPUT_TAG"
+          else
+            tag="$REF_NAME"
+          fi
+          if [[ ! "$tag" =~ ^fork-v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
+            echo "::error::Release tag must look like fork-vX.Y.Z[-suffix], got '$tag'"
+            exit 1
+          fi
+          git fetch --no-tags origin "+refs/tags/$tag:refs/tags/$tag" "+refs/heads/master:refs/remotes/origin/master"
+          sha="$(git rev-parse --verify "refs/tags/$tag^{commit}")"
+          if ! git merge-base --is-ancestor "$sha" origin/master; then
+            echo "::error::$tag ($sha) is not on master; tag a reviewed master commit"
+            exit 1
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+  verify:
+    name: Release gate (Linux)
+    needs: resolve
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
+
+      - name: Fetch upstream base
+        run: |
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream https://github.com/HaujetZhao/CapsWriter-Offline.git
+          git fetch --no-tags --depth=1 upstream master:refs/remotes/upstream/master
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "24"
+
+      - name: Verify source, server and scripts gate
+        env:
+          CAPSWRITER_UPSTREAM_BASE: upstream/master
+        run: python scripts/verify_all.py --skip-web
+
+      - name: Create isolated API contract environment
+        run: python -m venv "$RUNNER_TEMP/api-contract"
+
+      - name: Install pinned API contract dependencies
+        run: >-
+          "$RUNNER_TEMP/api-contract/bin/python" -m pip install
+          --disable-pip-version-check
+          --require-hashes
+          --only-binary=:all:
+          --requirement requirements/api-test.lock
+
+      - name: Verify HTTP API contract (functional)
+        env:
+          PYTHONNOUSERSITE: "1"
+        run: >-
+          "$RUNNER_TEMP/api-contract/bin/python" scripts/verify_api_contract.py
+
+  desktop-tests:
+    name: Release gate (Windows desktop)
+    needs: resolve
+    runs-on: windows-2022
+    timeout-minutes: 15
+    env:
+      PYTHONNOUSERSITE: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.12"
+
+      - name: Verify desktop and packaging contracts
+        run: >-
+          python -m unittest -v
+          scripts.tests.test_artifact_self_check
+          scripts.tests.test_desktop_portability
+          scripts.tests.test_shortcut_combinations
+          scripts.tests.test_shortcut_capture
+          scripts.tests.test_client_settings
+          scripts.tests.test_client_settings_runtime
+          scripts.tests.test_client_settings_devices
+          scripts.tests.test_client_settings_concurrency
+          scripts.tests.test_client_autostart
+          scripts.tests.test_client_review
+          scripts.tests.test_protocol
+          scripts.tests.test_requirements
+          scripts.tests.test_github_workflows
+
+      - name: Verify dependency-free CLI
+        run: python client/cli/scripts/verify.py
+
+  windows-package:
+    name: Windows ${{ matrix.variant }} package
+    needs: [resolve, verify, desktop-tests]
+    strategy:
+      fail-fast: true
+      matrix:
+        variant: [full, client]
+    uses: ./.github/workflows/windows-package.yml
+    with:
+      variant: ${{ matrix.variant }}
+      ref: ${{ needs.resolve.outputs.sha }}
+      retention-days: 7
+
+  publish-draft:
+    name: Assemble draft release
+    needs: [resolve, windows-package]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.resolve.outputs.tag }}
+      SHA: ${{ needs.resolve.outputs.sha }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: ${{ needs.resolve.outputs.sha }}
+          persist-credentials: false
+
+      - name: Download CI-tested Windows packages
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: CapsWriter-Offline-*windows-x86_64
+          path: release-assets
+          merge-multiple: true
+
+      - name: Add source archive and checksums
+        run: |
+          git archive --format=zip --prefix="CapsWriter-Offline-$TAG/" \
+            --output release-assets/CapsWriter-Offline-source.zip "$SHA"
+          cd release-assets
+          expected="$(printf '%s\n' \
+            CapsWriter-Offline-Client-windows-x86_64.zip \
+            CapsWriter-Offline-source.zip \
+            CapsWriter-Offline-windows-x86_64.zip | LC_ALL=C sort)"
+          actual="$(find . -maxdepth 1 -type f -printf '%f\n' | LC_ALL=C sort)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::Unexpected release assets:"; echo "$actual"
+            exit 1
+          fi
+          sha256sum -- *.zip > SHA256SUMS
+          sha256sum -c SHA256SUMS
+          ls -l
+
+      - name: Draft release notes
+        run: |
+          owner="${GITHUB_REPOSITORY_OWNER,,}"
+          images=""
+          for name in server web; do
+            ref="ghcr.io/$owner/capswriter-offline-$name:sha-$SHA"
+            if digest="$(docker buildx imagetools inspect "$ref" --format '{{.Manifest.Digest}}' 2>/dev/null)"; then
+              images="$images$ref"$'\n'"$digest"$'\n\n'
+            else
+              images="$images$ref"$'\n'"(not published yet: wait for publish-$name-image on master, then rerun)"$'\n\n'
+            fi
+          done
+          # Everything between the markers is regenerated on every run; text
+          # outside them belongs to the maintainer and is kept on refresh.
+          {
+            echo "<!-- release-assets:start -->"
+            echo "## Downloads"
+            echo
+            echo "| File | For |"
+            echo "|---|---|"
+            echo "| \`CapsWriter-Offline-Client-windows-x86_64.zip\` | Windows client only; connects to a remote or container server |"
+            echo "| \`CapsWriter-Offline-windows-x86_64.zip\` | Windows server + client for a single offline machine |"
+            echo "| \`CapsWriter-Offline-source.zip\` | Source code at this tag |"
+            echo
+            echo "Linux servers deploy the container image; see docs/compose.md."
+            echo
+            echo '```text'
+            cat release-assets/SHA256SUMS
+            echo '```'
+            echo
+            echo "## Container images (linux/amd64)"
+            echo
+            echo '```text'
+            printf '%s' "$images"
+            echo '```'
+            echo "<!-- release-assets:end -->"
+          } > generated-notes.md
+          {
+            echo "# $TAG"
+            echo
+            echo "> Draft assembled by the release workflow from \`$SHA\`. Fill in the"
+            echo "> highlights and attach VALIDATION.md before publishing."
+            echo
+            cat generated-notes.md
+          } > release-notes.md
+          cat release-notes.md
+
+      - name: Create or refresh the draft release
+        run: |
+          require_draft() {
+            # Checked right before every write to narrow the window in which a
+            # maintainer could publish mid-run. Enable the repository's
+            # immutable releases setting to close it completely.
+            is_draft="$(gh release view "$TAG" --json isDraft --jq .isDraft)"
+            if [ "$is_draft" != "true" ]; then
+              echo "::error::$TAG is already published; refusing to modify a published release"
+              exit 1
+            fi
+          }
+          if ! gh release view "$TAG" --json isDraft > /dev/null 2>&1; then
+            gh release create "$TAG" --draft --verify-tag --title "$TAG" \
+              --notes-file release-notes.md release-assets/*
+            exit 0
+          fi
+
+          require_draft
+          gh release view "$TAG" --json body --jq .body > current-notes.md
+          python3 - current-notes.md generated-notes.md refreshed-notes.md <<'PY'
+          import re
+          import sys
+
+          current_path, generated_path, output = sys.argv[1:]
+          with open(current_path, encoding="utf-8") as handle:
+              current = handle.read()
+          with open(generated_path, encoding="utf-8") as handle:
+              generated = handle.read()
+          pattern = re.compile(
+              r"<!-- release-assets:start -->.*?<!-- release-assets:end -->\n?", re.DOTALL
+          )
+          if pattern.search(current):
+              refreshed = pattern.sub(lambda _: generated, current, count=1)
+          else:
+              refreshed = current.rstrip("\n") + "\n\n" + generated
+          open(output, "w", encoding="utf-8").write(refreshed)
+          PY
+          require_draft
+          gh release upload "$TAG" release-assets/* --clobber
+          require_draft
+          gh release edit "$TAG" --notes-file refreshed-notes.md
+

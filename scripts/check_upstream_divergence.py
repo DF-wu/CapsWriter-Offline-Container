@@ -84,6 +84,15 @@ ALLOWED_UPSTREAM_DIVERGENCE = frozenset(
         "core/server/engines/force_aligner_gguf/inference/__init__.py",
         "core/server/schema.py",
         "core/server/state.py",
+        # Upgrade-safe user/ settings: one overlay hook per config module and
+        # user/ lookups where upstream hard-codes hotword and role paths.
+        "config_client.py",
+        "config_server.py",
+        "LLM/__init__.py",
+        "core/client/hotword/manager.py",
+        "core/client/llm/llm_role_loader.py",
+        "core/client/llm/llm_watcher.py",
+        "core/ui/hotword_menu_handler.py",
         "core/server/worker/__init__.py",
         "core/server/worker/gpu_boost.py",
         "core/server/worker/pipeline.py",

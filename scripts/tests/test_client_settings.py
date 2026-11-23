@@ -126,10 +126,17 @@ class ClientSettingsTest(unittest.TestCase):
     def test_windows_first_run_cancel_exits_before_loading_hooks(self):
         ui = SimpleNamespace(run_settings=Mock(return_value=False))
         with tempfile.TemporaryDirectory() as directory:
-            with patch.dict(os.environ, {"CAPSWRITER_CLIENT_SETTINGS": str(Path(directory) / "new.json")}):
+            user_dir = Path(directory) / "user"
+            with patch.dict(os.environ, {
+                "CAPSWRITER_CLIENT_SETTINGS": str(Path(directory) / "new.json"),
+                "CAPSWRITER_USER_DIR": str(user_dir),
+            }):
                 with patch.dict("sys.modules", {"fork_client.settings_ui": ui, "core.client": None}):
                     with patch.object(start_client.sys, "platform", "win32"):
                         self.assertEqual(start_client.main([]), 0)
+            # The upgrade-safe user/ folder is seeded before first-run setup.
+            self.assertTrue((user_dir / "config_client.py").is_file())
+            self.assertTrue((user_dir / "hot.txt").is_file())
         ui.run_settings.assert_called_once_with()
 
 

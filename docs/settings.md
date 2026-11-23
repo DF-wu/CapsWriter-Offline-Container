@@ -31,7 +31,11 @@ Windows desktop acceptance check.
 
 設定預設存於 `%LOCALAPPDATA%\CapsWriter\client-settings.json`；可用
 `CAPSWRITER_CLIENT_SETTINGS` 指定其他路徑。只有明確覆寫的值會儲存，其他值
-繼續沿用 `config_client.py`。設定檔錯誤會顯示原因，不會靜默覆蓋。
+繼續沿用 `user/config_client.py` 與程式資料夾的 `config_client.py`（見
+[升級不覆寫的設定](zh-TW/user-config.md)）。設定檔錯誤會顯示原因，不會靜默覆蓋。
+
+Daily settings override `user/config_client.py`, which overrides the shipped
+`config_client.py`; see [upgrade-safe settings](en/user-config.md).
 
 麥克風保存名稱與音訊介面（例如 WASAPI），啟動時解析當前装置編號；同一介面
 內仍有同名裝置時才加存編號。增減裝置後請重新選擇：PortAudio 無法識別

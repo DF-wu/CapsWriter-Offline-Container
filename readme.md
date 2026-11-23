@@ -100,18 +100,32 @@ Download `CapsWriter-Offline-windows-x86_64.zip` from
 extract the **whole folder** to a normal path such as `D:\CapsWriter-Offline`. Verify
 it with the attached `SHA256SUMS` if you like.
 
-It contains two programs with different jobs — never move one EXE out on its own:
+| Release file | Choose it when |
+|---|---|
+| `CapsWriter-Offline-windows-x86_64.zip` | Server and client on this PC (fully offline, single machine) |
+| `CapsWriter-Offline-Client-windows-x86_64.zip` | The server already runs elsewhere, e.g. [Docker on Linux](#quick-start-b-linux-docker-server). Client only, about a third of the size; skip step 2 and set the server address in step 3 |
+| `CapsWriter-Offline-source.zip` | Source code at the release tag |
+
+The full package contains two programs with different jobs — never move one EXE out on its own:
 
 ```text
 CapsWriter-Offline/
 ├─ start_server.exe      ← Server: loads the model, recognizes speech
 ├─ start_client.exe      ← Client: tray, hotkeys, recording, typing
-├─ config_server.py      ← advanced server settings (model, ports…)
-├─ config_client.py      ← advanced client settings (hotkeys, hotwords, LLM…)
-├─ hot.txt / hot-rule.txt / hot-server.txt
-├─ LLM/                  ← LLM roles
-└─ models/               ← put models here (empty in the ZIP)
+├─ config_server.py      ← shipped server defaults (model, ports…)
+├─ config_client.py      ← shipped client defaults (hotkeys, hotwords, LLM…)
+├─ hot.txt / hot-rule.txt / hot-server.txt, LLM/   ← shipped defaults
+├─ models/               ← put models here (empty in the ZIP)
+└─ user/                 ← YOUR settings, hotwords and LLM roles (created on first start)
 ```
+
+Edit the files in `user/`, never the shipped defaults: the ZIP never contains `user/`
+(or `models/`), so you can upgrade by extracting a new release over the old folder.
+For the first migration from a release without `user/`, extract into a **separate new folder**,
+then run `start_client.exe --import-config <old folder>` from that new folder, using the
+intact old folder as the source. Do not extract over it before importing. Subsequent
+in-place upgrades are safe once your customizations live in `user/`.
+See [upgrade-safe settings](docs/en/user-config.md).
 
 ### 2. Add the model and GGUF runtime
 
@@ -151,16 +165,17 @@ On first use, or whenever you want to change something, run
 
 Save and restart the client. Settings live in
 `%LOCALAPPDATA%\CapsWriter\client-settings.json` and only store the fields you changed;
-everything else comes from `config_client.py`. See [daily settings](docs/settings.md).
+everything else comes from `user/config_client.py` and then `config_client.py`. See [daily settings](docs/settings.md).
 
 ### 4. Talk
 
 ![Four dictation steps: click into a text field, hold CapsLock and speak, release, text is typed](docs/assets/dictation-flow.svg)
 
 > [!NOTE]
-> The release ZIP is built by the GitHub Actions `windows-package` job: a hash-locked
+> The release ZIPs are built by the GitHub Actions `windows-package` workflow: a hash-locked
 > PyInstaller build that is moved out of the checkout, zipped and re-extracted with
-> reparse points rejected, then both EXEs pass `--artifact-self-check`. Please still
+> reparse points rejected, then every EXE passes `--artifact-self-check` (the client-only
+> package also proves it carries no server runtime). Please still
 > confirm microphone, tray, hotkeys, model and GPU on your own PC. To build it
 > yourself, see [BUILD_GUIDE](assets/BUILD_GUIDE.md).
 

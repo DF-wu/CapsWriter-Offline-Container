@@ -20,15 +20,16 @@ Portability CI matrix 會在 `ubuntu-24.04`、`windows-2022` 與 Python 3.10、
 3.12 上執行 dependency-light compile、打包 source guard、桌面 backend
 policy test，以及完整的 standard-library CLI verifier。另有獨立的
 `windows-package` job，在 `windows-2022`／Python 3.12 只從完整 hash lock 安裝，
-build 兩個 executable，把 distribution 搬離 checkout 後經 ZIP 壓縮／解壓，拒絕
-reparse point，透過兩個 EXE 執行 bounded import self-check，最後上傳實際測過的
-ZIP。這些 job 都不代表已測過音訊硬體、真實 display server、Windows tray、
+分別 build 完整版與僅 Client 版，把 distribution 搬離 checkout 後經 ZIP 壓縮／
+解壓，拒絕 reparse point，透過每個 EXE 執行 bounded import self-check，最後上傳
+實際測過的 ZIP。這些 job 都不代表已測過音訊硬體、真實 display server、Windows tray、
 model load、known-audio transcription 或 hardware accelerator。
 
 ## Windows 打包與 HTTP API
 
-[`build.spec`](../../build.spec) 仍會產生 `start_server.exe` 與
-`start_client.exe`。Server executable 改由
+[`build.spec`](../../build.spec) 的完整版會產生 `start_server.exe` 與
+`start_client.exe`；`CAPSWRITER_BUILD_VARIANT=client` 只產生不含任何 Server
+runtime 的 `start_client.exe`（見[打包指南](../../assets/BUILD_GUIDE.md)）。Server executable 改由
 [`start_server_universal.py`](../../start_server_universal.py) 分析，而不是
 Docker entrypoint。Universal entrypoint 會：
 

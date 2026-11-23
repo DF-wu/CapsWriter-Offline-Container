@@ -174,3 +174,12 @@ class ForceAlignerGGUFArgs:
     n_ctx = 4096                # 上下文窗口大小
     dml_pad_to = 30             # 开启 DirectML 加速时，短音频统一填充到指定长度，有加速效果
 
+
+
+# Fork：套用升级时不会被覆写的 user/config_server.py 与 user/hot-server.txt
+#（见 docs/zh-TW/user-config.md）。Docker 的环境变量在之后套用，仍然优先。
+from user_config import apply_overlay as _apply_user_overlay
+_apply_user_overlay(globals(), 'config_server.py', {
+    'ServerConfig.hotwords_path': 'hot-server.txt',
+    'ModelPaths.fun_asr_nano_gguf_hotwords': 'hot-server.txt',
+})

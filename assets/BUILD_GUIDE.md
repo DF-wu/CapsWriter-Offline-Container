@@ -22,8 +22,9 @@ files and validates the relocated package instead of linking to the checkout.
 - Install the complete client/server build graph from
   [`requirements/windows-build.lock`](../requirements/windows-build.lock) with
   hash checking. Every resolved package is pinned and hashed.
-- Build both `start_server.exe` and `start_client.exe` with
-  [`build.spec`](../build.spec).
+- Build with [`build.spec`](../build.spec). `CAPSWRITER_BUILD_VARIANT` selects
+  the package (see "Package variants" below); the default
+  `full` variant builds both `start_server.exe` and `start_client.exe`.
 - Distribute a real directory tree. The artifact must not contain symbolic
   links, junctions, or other reparse points into the checkout.
 - `core/`, `LLM/`, `assets/`, and `docs/` are immutable copies. `models/` and
@@ -32,8 +33,28 @@ files and validates the relocated package instead of linking to the checkout.
   fails the build. The spec does not silently publish a partial artifact.
 
 換言之：正式 artifact 必須由 Python 3.12 x64 Windows 建立、只從完整 hash lock
-安裝、同時產生兩個 executable，且搬離 source checkout 後仍能自我檢查。打包不再
-建立 junction；缺少必要 dependency 或 payload 會直接失敗。
+安裝，且搬離 source checkout 後仍能自我檢查。打包不再建立 junction；缺少必要
+dependency 或 payload 會直接失敗。
+
+## Package variants / 打包變體
+
+| `CAPSWRITER_BUILD_VARIANT` | Output directory | Release asset | Contents |
+|---|---|---|---|
+| `full` (default) | `dist/CapsWriter-Offline/` | `CapsWriter-Offline-windows-x86_64.zip` | `start_server.exe` + `start_client.exe`, server runtimes, empty `models/` |
+| `client` | `dist/CapsWriter-Offline-Client/` | `CapsWriter-Offline-Client-windows-x86_64.zip` | `start_client.exe` only, for a remote or container server |
+
+The client variant never collects the server-only runtimes (ONNX Runtime,
+Sherpa-ONNX, SentencePiece, GGUF, Numba/llvmlite, FastAPI/Uvicorn and
+`fork_server`), excludes them from the client analysis, and copies no
+`core/server/`, `config_server.py`, `hot-server.txt` or `models/`. The variant
+is recorded in `internal/capswriter-package.json`, and the client
+`--artifact-self-check` fails if any server-only module is still importable.
+
+`client` 變體只打包 Client：不收集也明確排除 ONNX Runtime、Sherpa-ONNX、
+SentencePiece、GGUF、Numba/llvmlite、FastAPI/Uvicorn 與 `fork_server`，也不複製
+`core/server/`、`config_server.py`、`hot-server.txt`、`models/`。變體記錄於
+`internal/capswriter-package.json`；若 Client 包仍能 import 任一 Server-only
+module，`--artifact-self-check` 會失敗。
 
 ## What is and is not copied / 會複製與不會複製的內容
 
@@ -105,6 +126,11 @@ py -3.12 -m venv $venv
   --requirement requirements/windows-build.lock
 
 & "$venv\Scripts\python.exe" -m PyInstaller --clean --noconfirm build.spec
+
+# Client-only package / 僅 Client 包
+$env:CAPSWRITER_BUILD_VARIANT = 'client'
+& "$venv\Scripts\python.exe" -m PyInstaller --clean --noconfirm build.spec
+Remove-Item Env:CAPSWRITER_BUILD_VARIANT
 ```
 
 The bootstrap lock makes the build frontend and backend explicit before the
@@ -140,6 +166,21 @@ dist/CapsWriter-Offline/
 ├── readme.md
 ├── README.zh-TW.md
 └── LICENSE
+
+dist/CapsWriter-Offline-Client/
+├── start_client.exe
+├── internal/                   # includes capswriter-package.json
+├── core/                       # without core/server/
+├── LLM/
+├── assets/
+├── docs/
+├── logs/                       # real and empty at release-build time
+├── config_client.py
+├── hot.txt
+├── hot-rule.txt
+├── readme.md
+├── README.zh-TW.md
+└── LICENSE
 ```
 
 ## Relocation smoke / 搬移後 smoke
@@ -154,8 +195,10 @@ Set-Location "$env:TEMP\capswriter-package-extracted\CapsWriter-Offline"
 ```
 
 Each command must exit `0` and print a line beginning with
-`CAPSWRITER_ARTIFACT_SELF_CHECK=` whose JSON report has `"status":"ok"` and
-`"frozen":true`. The self-check verifies required files/directories, rejects
+`CAPSWRITER_ARTIFACT_SELF_CHECK=` whose JSON report has `"status":"ok"`,
+`"frozen":true` and the built `"variant"`. The client-only package has only
+`start_client.exe`. CI additionally runs `start_client.exe --status`, which must
+reach the instance lock and exit `1` ("not running") on a clean runner. The self-check verifies required files/directories, rejects
 links/junctions, and imports the server or client runtime surface. It does not:
 
 - bind a WebSocket or HTTP socket;
@@ -169,11 +212,23 @@ links/junctions, and imports the server or client runtime surface. It does not:
 
 ## CI evidence / CI 證據
 
-The `windows-package` job in
-[`.github/workflows/portability.yml`](../.github/workflows/portability.yml) runs
-on pinned `windows-2022` with Python 3.12. It performs the hash-only install,
-PyInstaller build, relocation, ZIP extraction, reparse-point/empty-directory
-inspection, bounded EXE self-checks, and upload of the exact tested ZIP.
+The reusable
+[`.github/workflows/windows-package.yml`](../.github/workflows/windows-package.yml)
+workflow runs on pinned `windows-2022` with Python 3.12. It performs the
+hash-only install, PyInstaller build, relocation, ZIP extraction,
+reparse-point/empty-directory inspection, client-only exclusion checks, bounded
+EXE self-checks and `--status` smoke, and upload of the exact tested ZIP. It also
+proves the [upgrade-safe `user/` folder](../docs/en/user-config.md) contract:
+the ZIP contains no `user/`, extracting it again over an install leaves a
+populated `user/` byte-for-byte unchanged, and the re-extracted
+`start_client.exe --artifact-self-check` reports the `user/config_client.py`
+override in `"user_overrides"`. The
+`windows-package` job of
+[`portability.yml`](../.github/workflows/portability.yml) runs it for both
+variants on every push and pull request; [`release.yml`](../.github/workflows/release.yml)
+runs it again from the tagged commit and attaches those exact ZIPs to the draft
+release (see the release guides in
+[English](../docs/en/releasing.md) and [繁體中文](../docs/zh-TW/releasing.md)).
 
 This is automated production-package evidence, not hardware acceptance. Before
 publishing a desktop release, retain manual results for:
@@ -223,5 +278,5 @@ build it. Remove the temporary cache afterward.
   models, llama.cpp DLL set, profile configuration, and hardware backend. The
   self-check intentionally does not cover this layer.
 
-Last reviewed / 最後檢視：2026-07-16. Target: CPython 3.12 x86-64 Windows,
+Last reviewed / 最後檢視：2026-11-21. Target: CPython 3.12 x86-64 Windows,
 with dependency and PyInstaller versions defined by the committed lock.

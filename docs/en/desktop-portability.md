@@ -20,17 +20,20 @@ native desktop hotkeys require a supported display server.
 The portability CI matrix runs dependency-light compilation, packaging source
 guards, desktop backend policy tests, and the complete standard-library CLI
 verifier on `ubuntu-24.04` and `windows-2022`, using Python 3.10 and 3.12. A
-separate `windows-package` job on `windows-2022`/Python 3.12 installs the fully
-hashed Windows lock, builds both executables, relocates and ZIP-round-trips the
-distribution outside the checkout, rejects reparse points, executes bounded
-import self-checks through both EXEs, and uploads the exact tested ZIP. Neither
+separate `windows-package` job on `windows-2022`/Python 3.12 builds both package
+variants (full and client-only) from the fully hashed Windows lock, relocates
+and ZIP-round-trips each distribution outside the checkout, rejects reparse
+points, executes bounded import self-checks through every EXE, and uploads the
+exact tested ZIPs. Neither
 job claims to test audio hardware, a real display server, a Windows tray,
 model loading, known-audio transcription, or a hardware accelerator.
 
 ## Windows package and HTTP API
 
-[`build.spec`](../../build.spec) still emits `start_server.exe` and
-`start_client.exe`. The server executable is analyzed from
+[`build.spec`](../../build.spec) emits `start_server.exe` and
+`start_client.exe` for the full package; `CAPSWRITER_BUILD_VARIANT=client`
+emits only `start_client.exe` without any server runtime (see the
+[build guide](../../assets/BUILD_GUIDE.md)). The server executable is analyzed from
 [`start_server_universal.py`](../../start_server_universal.py), not the Docker
 entrypoint. The universal entrypoint:
 

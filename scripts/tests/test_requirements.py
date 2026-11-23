@@ -432,6 +432,30 @@ class RequirementsTest(unittest.TestCase):
         self.assertIn("hiddenimports=hiddenimports", client_analysis)
         self.assertNotIn("server_hiddenimports", client_analysis)
 
+    def test_windows_build_variant_keeps_client_package_free_of_server_runtime(self) -> None:
+        source = WINDOWS_BUILD_SPEC.read_text(encoding="utf-8")
+
+        self.assertIn("os.environ.get('CAPSWRITER_BUILD_VARIANT', 'full')", source)
+        self.assertIn("if BUILD_VARIANT not in ('full', 'client'):", source)
+        self.assertIn("'CapsWriter-Offline' if INCLUDE_SERVER else 'CapsWriter-Offline-Client'", source)
+        self.assertIn("name=DIST_NAME", source)
+        self.assertIn("'internal' / 'capswriter-package.json'", source)
+
+        # Server-only runtimes are collected only for the server Analysis and
+        # explicitly excluded from the client Analysis in both variants.
+        client_hidden = source.split("hiddenimports = [", 1)[1].split("]", 1)[0]
+        for module in ("numba", "sherpa_onnx", "onnxruntime", "sentencepiece", "gguf"):
+            with self.subTest(module=module):
+                self.assertNotIn(repr(module), client_hidden)
+        sherpa_collection = source.split("if INCLUDE_SERVER:\n    require_importable('sherpa-onnx'", 1)
+        self.assertEqual(len(sherpa_collection), 2)
+        client_analysis = source.split("a_2 = Analysis(", 1)[1].split("# 客户端也过滤", 1)[0]
+        self.assertIn("binaries=binaries", client_analysis)
+        self.assertIn("*server_only_packages", client_analysis)
+        self.assertIn("for package in server_packages if INCLUDE_SERVER else ():", source)
+        self.assertIn("required_files += ('config_server.py', 'hot-server.txt')", source)
+        self.assertIn("source_root / 'core' / 'server'", source)
+
     def test_windows_build_fails_closed_and_copies_portable_payload(self) -> None:
         source = WINDOWS_BUILD_SPEC.read_text(encoding="utf-8")
 
@@ -442,7 +466,8 @@ class RequirementsTest(unittest.TestCase):
         self.assertIn("sys.maxsize <= 2**32", source)
         self.assertIn("raise RuntimeError(f'Cannot collect HTTP API package {package}')", source)
         self.assertIn("required_folders = ('core', 'LLM', 'assets', 'docs')", source)
-        self.assertIn("mutable_folders = ('models', 'logs')", source)
+        self.assertIn("mutable_folders = ('logs',)", source)
+        self.assertIn("mutable_folders += ('models',)", source)
         self.assertIn("copytree(", source)
         self.assertIn("dirs_exist_ok=True", source)
         self.assertIn("ignore=portable_copy_ignore", source)

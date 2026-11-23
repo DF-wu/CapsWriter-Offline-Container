@@ -239,13 +239,19 @@ support from the dependency-light root job.
 
 [`portability.yml`](../.github/workflows/portability.yml) has two independent
 gates. `core-cli` runs the dependency-light desktop/package/CLI contracts on
-Ubuntu 24.04 and Windows 2022 with Python 3.10 and 3.12. `windows-package` runs
-on Windows 2022 with Python 3.12, installs
-`requirements/windows-build.lock` with hashes and the wheel-only policy (apart
-from the documented `srt` exception), builds both executables, copies the
-distribution outside the checkout, ZIP-round-trips it, rejects reparse points
-and nonempty mutable directories, runs bounded `--artifact-self-check` through
-both extracted EXEs, and uploads the exact tested ZIP. This proves packaging,
+Ubuntu 24.04 and Windows 2022 with Python 3.10 and 3.12. `windows-package` calls
+the reusable [`windows-package.yml`](../.github/workflows/windows-package.yml)
+once per variant (`full`, `client`) on Windows 2022 with Python 3.12. Each call
+installs `requirements/windows-build.lock` with hashes and the wheel-only policy
+(apart from the documented `srt` exception), builds the selected executables,
+copies the distribution outside the checkout, ZIP-round-trips it, rejects
+reparse points and nonempty mutable directories, rejects server paths in the
+client-only package, runs bounded `--artifact-self-check` through every
+extracted EXE plus a `start_client.exe --status` smoke, re-extracts the ZIP over
+an install with a populated `user/` folder and requires it to stay unchanged and
+be applied by the frozen client, and uploads the exact tested ZIP. [`release.yml`](../.github/workflows/release.yml) reruns the same
+packaging from a `fork-v*` tag after its Linux and Windows release gates and
+attaches those ZIPs to a draft release ([release guide](en/releasing.md)). This proves packaging,
 relocation, layout, and importability; it does not start a normal server/client,
 load models, or exercise tray, hooks, audio, FFmpeg, known-audio recognition,
 DirectML, or GPU execution.
@@ -269,7 +275,7 @@ For a release candidate, keep these artifacts or logs:
 | Web Console browser workflow valid | `--web-browser-smoke` gate output |
 | CLI valid | `client/cli/scripts/verify.py` logs from inside the root gate |
 | TUI dependency lock and Textual/Pilot suite valid | isolated four-leg Ubuntu 24.04/Windows 2022 × Python 3.10/3.12 `scripts/verify_tui.py` logs, with zero skips |
-| Portable Windows production package valid | `windows-package` hash-install/build/relocation/reparse inspection and both-EXE self-check logs, uploaded ZIP, and its digest |
+| Portable Windows production packages valid | `windows-package` (full and client) hash-install/build/relocation/reparse inspection, client-only exclusion and per-EXE self-check logs, uploaded ZIPs, and their digests (`SHA256SUMS` on the draft release) |
 | Docker asset integrity and fallback contract valid | Docker helper tests for schema-2 model/runtime manifests, same-size corruption rejection, bounded backend probes, and mandatory CPU rebootstrap/second probe |
 | Real HTTP server reachable and ready | `--http-base-url --http-require-ready` gate output or `check_http_api.py` output |
 | Model-backed STT sample works | `--http-audio` + `--http-expect` gate output or `check_http_api.py --audio ... --expect ... --timeout ...` |
