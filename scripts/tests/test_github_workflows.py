@@ -221,6 +221,16 @@ class GitHubWorkflowTest(unittest.TestCase):
         self.assertIn('"variant":"', job)
         self.assertIn("Invoke-ArtifactSelfCheck $executable", job)
         self.assertIn("$executables = @('start_server.exe') + $executables", job)
+        # Upgrade-safe user/ settings: never shipped, survive re-extraction,
+        # and are applied by the frozen client.
+        self.assertIn("throw 'Artifact must not contain user/'", job)
+        self.assertIn("-DestinationPath $extractRoot -Force", job)
+        self.assertIn("Compare-Object -ReferenceObject $before -DifferenceObject $after", job)
+        self.assertIn('"user_overrides":\\["ClientConfig.addr"\\]', job)
+        self.assertLess(
+            job.index("Compare-Object -ReferenceObject $before"),
+            job.index("$upgraded = Invoke-Packaged 'start_client.exe' @('--artifact-self-check')"),
+        )
         self.assertIn("Invoke-Packaged 'start_client.exe' @('--status')", job)
         self.assertIn("$status.ExitCode -ne 1", job)
         self.assertIn(

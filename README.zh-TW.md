@@ -108,12 +108,17 @@ Server 提供兩個介面，給不同的 Client 使用：
 CapsWriter-Offline/
 ├─ start_server.exe      ← Server：載入模型、辨識
 ├─ start_client.exe      ← Client：托盤、快捷鍵、錄音、打字
-├─ config_server.py      ← Server 進階設定（模型、連接埠……）
-├─ config_client.py      ← Client 進階設定（快捷鍵、熱詞、LLM……）
-├─ hot.txt / hot-rule.txt / hot-server.txt
-├─ LLM/                  ← LLM 角色
-└─ models/               ← 模型放這裡（ZIP 內是空的）
+├─ config_server.py      ← 隨附的 Server 預設值（模型、連接埠……）
+├─ config_client.py      ← 隨附的 Client 預設值（快捷鍵、熱詞、LLM……）
+├─ hot.txt / hot-rule.txt / hot-server.txt、LLM/   ← 隨附預設檔
+├─ models/               ← 模型放這裡（ZIP 內是空的）
+└─ user/                 ← **你的**設定、熱詞與 LLM 角色（第一次啟動時建立）
 ```
+
+請改 `user/` 內的檔案，不要改隨附預設檔：ZIP 永遠不含 `user/`（也不含 `models/`），
+設定已放在 `user/` 後，後續升級可原地解壓覆蓋。首次從沒有 `user/` 的舊版遷移時，
+請把新版解壓到**另一個新資料夾**，再於新資料夾執行
+`start_client.exe --import-config <舊資料夾>`，從保持完整的舊資料夾匯入；匯入前不要覆蓋舊資料夾。詳見[升級不覆寫的設定](docs/zh-TW/user-config.md)。
 
 ### 2. 放入模型與 GGUF runtime
 
@@ -152,7 +157,7 @@ Qwen3-ASR 需要兩個檔案（都有固定 SHA-256）：
 <sub>以上為同一個 Tk 設定視窗在 Linux（Xvfb）上的實際渲染；Windows 上會套用系統原生外觀與字型。</sub>
 
 儲存後重新啟動 Client 即生效。設定存在 `%LOCALAPPDATA%\CapsWriter\client-settings.json`，
-只記錄你改過的欄位，其餘沿用 `config_client.py`。詳見[日常設定指南](docs/settings.md)。
+只記錄你改過的欄位，其餘沿用 `user/config_client.py`，再來是 `config_client.py`。詳見[日常設定指南](docs/settings.md)。
 
 ### 4. 開始說話
 

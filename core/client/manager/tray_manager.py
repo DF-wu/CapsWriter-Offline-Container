@@ -202,8 +202,9 @@ class TrayManager:
     def _add_hotword(self):
         """用系统默认方式打开热词文件回调"""
         
-        target = os.path.abspath('hot.txt')
         try:
+            from user_config import writable_data_file
+            target = str(writable_data_file('hot.txt'))
             _open_with_default_app(target)
         except Exception as e:
             logger.warning(f"无法打开热词文件: {e}")

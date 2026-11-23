@@ -7,7 +7,8 @@
     - **Server**: 主进程处理 WebSocket，**独立子进程** (`multiprocessing.Process`) 运行 AI 模型，确保推理（CPU密集）不阻塞网络心跳。
     - **Client**: 轻量启动，负责全局快捷键监听、录音采集、UI 展示。
 - **源代码开放**: 入口 [`start_server.py`](start_server.py) / [`start_client.py`](start_client.py) 为冻结入口；核心源码在 [`core/`](core/) 目录，发行版保留为源码供用户修改。
-- **配置化**: [`config_client.py`](config_client.py) / [`config_server.py`](config_server.py) 及 `hot*.txt`、[`LLM/*.py`](LLM/) 位于根目录。
+- **配置化**: [`config_client.py`](config_client.py) / [`config_server.py`](config_server.py) 及 `hot*.txt`、[`LLM/*.py`](LLM/) 位于根目录，为随附默认值。
+- **升级安全的 `user/`**: [`user_config.py`](user_config.py) 让 `user/config_*.py`（只写改动的类属性，于配置模块末尾套用）、`user/hot*.txt`、`user/LLM/`（同名优先）覆盖默认值；发行包永不含 `user/`，首次启动时建立，`--import-config <旧目录>` 迁移旧版。优先序：默认 < `user/` < Client 日常设置 < Server 环境变量。见 [`docs/zh-TW/user-config.md`](docs/zh-TW/user-config.md)。
 - **版本**: 最新已发布 fork-v2.2.0（2026-11-16，tag 指向 `90f9c66`）；上游仍为 v2.6 / `84912d5`。
 
 ### 单一 Compose 部署

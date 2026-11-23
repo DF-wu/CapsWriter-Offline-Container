@@ -247,8 +247,9 @@ installs `requirements/windows-build.lock` with hashes and the wheel-only policy
 copies the distribution outside the checkout, ZIP-round-trips it, rejects
 reparse points and nonempty mutable directories, rejects server paths in the
 client-only package, runs bounded `--artifact-self-check` through every
-extracted EXE plus a `start_client.exe --status` smoke, and uploads the exact
-tested ZIP. [`release.yml`](../.github/workflows/release.yml) reruns the same
+extracted EXE plus a `start_client.exe --status` smoke, re-extracts the ZIP over
+an install with a populated `user/` folder and requires it to stay unchanged and
+be applied by the frozen client, and uploads the exact tested ZIP. [`release.yml`](../.github/workflows/release.yml) reruns the same
 packaging from a `fork-v*` tag after its Linux and Windows release gates and
 attaches those ZIPs to a draft release ([release guide](en/releasing.md)). This proves packaging,
 relocation, layout, and importability; it does not start a normal server/client,

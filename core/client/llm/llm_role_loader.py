@@ -55,9 +55,9 @@ class RoleLoader:
         self.roles_registry.clear()
         errors = []
 
-        for file_path in sorted(self.llm_dir.glob('*.py')):
-            if file_path.name == '__init__.py':
-                continue
+        # Fork：同时载入 user/LLM/ 与 LLM/，同名文件以 user/LLM/ 为准
+        from user_config import role_files
+        for file_path in role_files():
 
             try:
                 module_name = f"LLM.{file_path.stem}"

@@ -62,9 +62,12 @@ class HotwordManager:
             threshold: 纠错阈值
             similar_threshold: 相似度阈值
         """
+        # Fork：优先使用升级时不会被覆写的 user/ 内热词文件
+        from user_config import data_file
+        self._use_user_files = not hotword_files
         self.files = hotword_files or {
-            'hot': Path('hot.txt'),
-            'rule': Path('hot-rule.txt'),
+            'hot': data_file('hot.txt'),
+            'rule': data_file('hot-rule.txt'),
         }
 
         self.threshold = threshold
@@ -106,6 +109,9 @@ class HotwordManager:
 
     def _read_file(self, key: str) -> str:
         """读取文件的统一辅助函数"""
+        if self._use_user_files:
+            from user_config import data_file
+            self.files[key] = data_file({"hot": "hot.txt", "rule": "hot-rule.txt"}[key])
         path = self.files.get(key)
         if not path: return ""
         try:
@@ -153,9 +159,22 @@ class HotwordManager:
         
         # 监视每一个文件所在的目录 (去重后监听)
         watched_dirs = {p.parent.absolute() for p in self.files.values()}
+        if self._use_user_files:
+            from user_config import program_root
+            watched_dirs.add(program_root())
         for d in watched_dirs:
             self._observer.schedule(handler, path=str(d), recursive=False)
             
+        if self._use_user_files:
+            from user_config import user_dir
+            directory = user_dir()
+            try:
+                directory.mkdir(parents=True, exist_ok=True)
+                if directory.absolute() not in watched_dirs:
+                    self._observer.schedule(handler, path=str(directory), recursive=False)
+            except OSError as error:
+                logger.warning(f"Cannot watch user hotwords in {directory}: {error}")
+
         self._observer.start()
         self._is_watcher_started = True
         logger.debug(f"已启动热词文件监视: {watched_dirs}")
@@ -179,7 +198,8 @@ class _HotwordFileHandler(FileSystemEventHandler):
     def __init__(self, manager: HotwordManager):
         super().__init__()
         self.manager = manager
-        self._last_event = None
+        self._pending_events = {}
+        self._worker_running = False
         self._timer = None
         self._lock = threading.Lock()
 
@@ -194,12 +214,32 @@ class _HotwordFileHandler(FileSystemEventHandler):
             m.files['rule'].name: m._load_rule,
         }
 
-    def on_modified(self, event):
+    def on_created(self, event):
+        self.on_modified(event)
+
+    def on_deleted(self, event):
+        if self.manager._use_user_files:
+            self.on_modified(event)
+
+    def on_moved(self, event):
+        if self.manager._use_user_files:
+            self.on_modified(event)
+        self.on_modified(event, path=event.dest_path)
+
+    def on_modified(self, event, *, path=None):
         """文件修改时触发"""
         if event.is_directory: return
         
-        event_path = Path(event.src_path)
+        event_path = Path(path or event.src_path)
         filename = event_path.name
+        if self.manager._use_user_files:
+            from user_config import program_root, user_dir
+            if event_path.absolute() not in {
+                directory / name
+                for directory in (program_root(), user_dir())
+                for name in ('hot.txt', 'hot-rule.txt')
+            }:
+                return
         
         # 检查是否是我们关心的文件
         if filename not in self._file_mapping:
@@ -209,8 +249,9 @@ class _HotwordFileHandler(FileSystemEventHandler):
         current_time = time.time()
 
         with self._lock:
-            self._last_event = (filename, current_time)
-            if self._timer is None or not self._timer.is_alive():
+            self._pending_events[filename] = current_time
+            if not self._worker_running:
+                self._worker_running = True
                 self._timer = threading.Thread(target=self._debounced_worker, daemon=True)
                 self._timer.start()
 
@@ -220,25 +261,27 @@ class _HotwordFileHandler(FileSystemEventHandler):
             time.sleep(self._debounce_delay)
 
             with self._lock:
-                if self._last_event is None:
-                    break
+                if not self._pending_events:
+                    self._worker_running = False
+                    return
 
-                filename, event_time = self._last_event
-                if time.time() - event_time < self._debounce_delay:
+                if time.time() - max(self._pending_events.values()) < self._debounce_delay:
                     continue
 
-                self._last_event = None
+                filenames = tuple(self._pending_events)
+                self._pending_events.clear()
 
-            # 执行加载
-            handler = self._file_mapping.get(filename)
-            if handler:
-                try:
-                    handler()
-                    logger.info(f"热词文件已自动重新加载: {filename}")
-                except Exception as e:
-                    console.print(f'热词自动更新失败：{e}', style='bright_red')
-                    logger.error(f"更新热词失败: {e}", exc_info=True)
-            break
-
-
-
+            # Reload the whole batch; events arriving during callbacks stay pending.
+            for filename in filenames:
+                handler = self._file_mapping.get(filename)
+                if handler:
+                    try:
+                        handler()
+                        logger.info(f"热词文件已自动重新加载: {filename}")
+                    except Exception as e:
+                        console.print(f'热词自动更新失败：{e}', style='bright_red')
+                        logger.error(f"更新热词失败: {e}", exc_info=True)
+            with self._lock:
+                if not self._pending_events:
+                    self._worker_running = False
+                    return

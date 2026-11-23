@@ -131,3 +131,8 @@ r"""
   {'key': 'x2', 'type': 'mouse', 'suppress': True, 'hold_mode': True, 'enabled': True}, 
 """
 
+
+
+# Fork：套用升级时不会被覆写的 user/config_client.py（见 docs/zh-TW/user-config.md）
+from user_config import apply_overlay as _apply_user_overlay
+_apply_user_overlay(globals(), 'config_client.py')

@@ -16,6 +16,7 @@ from tkinter import messagebox, ttk
 from .autostart import Autostart, UNSUPPORTED
 from .devices import device_label, input_device_choices
 from .shortcut_capture import ShortcutCapture
+from user_config import applied_overrides, user_dir
 from .settings import (
     SettingsError, effective_settings, load_overrides, probe_connection,
     save_overrides, settings_path, update_overrides, validate,
@@ -338,9 +339,9 @@ class SettingsWindow:
         self.autostart_var.trace_add("write", self.mark_autostart_dirty)
         folders = ttk.Frame(page)
         folders.grid(row=3, column=0, columnspan=2, sticky="w")
-        for column, (label, path) in enumerate((("開啟日誌資料夾", log_directory()), ("開啟設定資料夾", self.path.parent), ("開啟程式資料夾", program_directory()))):
+        for column, (label, path) in enumerate((("開啟日誌資料夾", log_directory()), ("開啟設定資料夾", self.path.parent), ("開啟 user 資料夾", user_dir()), ("開啟程式資料夾", program_directory()))):
             ttk.Button(folders, text=label, command=lambda path=path: self.open_folder(path)).grid(row=0, column=column, sticky="w", padx=(0, 8))
-        ttk.Label(page, text="排查問題請先看日誌資料夾的 client_latest.log；進階參數位於程式資料夾的 config_client.py。", wraplength=650).grid(row=4, column=0, columnspan=2, sticky="w", pady=(8, 0))
+        ttk.Label(page, text="排查問題請先看日誌資料夾的 client_latest.log；進階參數、熱詞與 LLM 角色請改 user 資料夾內的檔案，升級時不會被覆寫。", wraplength=650).grid(row=4, column=0, columnspan=2, sticky="w", pady=(8, 0))
 
     def mark_autostart_dirty(self, *_args):
         self.autostart_dirty = True
@@ -369,7 +370,7 @@ class SettingsWindow:
 
     def sources_page(self):
         page = self.pages["設定來源"]
-        ttk.Label(page, text=f"日常設定：{self.path}\n進階設定：config_client.py\n此表為已儲存、下次啟動將採用的值；不代表其他執行中的 Client 已套用。", wraplength=650).pack(anchor="w", pady=(0, 12))
+        ttk.Label(page, text=f"日常設定：{self.path}\n進階設定：{user_dir() / 'config_client.py'}（覆寫程式資料夾的 config_client.py）\n此表為已儲存、下次啟動將採用的值；不代表其他執行中的 Client 已套用。", wraplength=650).pack(anchor="w", pady=(0, 12))
         self.sources = ttk.Treeview(page, columns=("key", "value", "source"), show="headings", height=15)
         for key, title, width in (("key", "設定", 160), ("value", "下次啟動值", 310), ("source", "來源", 130)):
             self.sources.heading(key, text=title)
@@ -379,8 +380,12 @@ class SettingsWindow:
 
     def render_sources(self):
         self.sources.delete(*self.sources.get_children())
+        user_keys = {name.split(".", 1)[1] for name in applied_overrides("config_client.py")
+                     if name.startswith("ClientConfig.")}
         for key, value in effective_settings(self.config, self.overrides).items():
-            self.sources.insert("", "end", values=(key, json.dumps(value, ensure_ascii=False), "日常設定" if key in self.overrides else "config_client.py"))
+            source = "日常設定" if key in self.overrides else (
+                "user/config_client.py" if key in user_keys else "config_client.py")
+            self.sources.insert("", "end", values=(key, json.dumps(value, ensure_ascii=False), source))
 
     def collect(self):
         values = {}
